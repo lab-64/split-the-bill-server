@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"log"
 	"os"
+	"split-the-bill-server/server"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func SetLogFile(path string) {
@@ -17,9 +19,8 @@ func SetLogFile(path string) {
 func main() {
 	app := fiber.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
+	// Set up routes
+	server.SetupRoutes(app)
 
 	err := app.Listen(":3000")
 	if err != nil {
