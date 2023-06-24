@@ -2,27 +2,28 @@ package main
 
 import (
 	"log"
-	"os"
-	"split-the-bill-server/server"
+
+	"split-the-bill-server/database"
+
+	"split-the-bill-server/router"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func SetLogFile(path string) {
-	logFile, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-	}
-	log.SetOutput(logFile)
-}
-
 func main() {
+
+	// connect database
+	database.Connect()
+	// configure webserver
 	app := fiber.New()
+	router.SetupRoutes(app)
 
-	// Set up routes
-	server.SetupRoutes(app)
+	// handle unavailable route
+	app.Use(func(c *fiber.Ctx) error {
+		return c.SendStatus(404) // => 404 "Not Found"
+	})
 
-	err := app.Listen(":3000")
+	err := app.Listen(":8080")
 	if err != nil {
 		log.Fatal(err)
 	}
