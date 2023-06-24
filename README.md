@@ -10,7 +10,7 @@ docker-compose up -d
 
 The postgresql database and the webserver will be started.
 
-The webserver is accessable under: http:localhost:8080
+The webserver is accessable under: http://localhost:8080/
 
 # End Application
 
