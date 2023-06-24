@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http/httptest"
-	"split-the-bill-server/server"
+	"split-the-bill-server/router"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,7 +17,7 @@ import (
 func TestLandingPage(t *testing.T) {
 	// Test Server Configuration
 	app := fiber.New()
-	server.SetupRoutes(app)
+	router.SetupRoutes(app)
 
 	// Create a new http get request on landingpage
 	req := httptest.NewRequest("GET", "/", nil)
