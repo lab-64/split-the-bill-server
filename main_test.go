@@ -1,8 +1,10 @@
-package main
+package main_test
 
 import (
 	"net/http/httptest"
+	"split-the-bill-server/handler"
 	"split-the-bill-server/router"
+	"split-the-bill-server/storage/ephemeral"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,7 +19,9 @@ import (
 func TestLandingPage(t *testing.T) {
 	// Test Server Configuration
 	app := fiber.New()
-	router.SetupRoutes(app)
+	storage := ephemeral.NewEphemeral()
+	h := handler.NewHandler(storage)
+	router.SetupRoutes(app, h)
 
 	// Create a new http get request on landingpage
 	req := httptest.NewRequest("GET", "/", nil)
