@@ -11,7 +11,7 @@ import (
 // Parameters:
 //
 //	app: The fiber server to be configured
-func SetupRoutes(app *fiber.App) {
+func SetupRoutes(app *fiber.App, h handler.Handler) {
 
 	// Define landing page
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -24,9 +24,9 @@ func SetupRoutes(app *fiber.App) {
 	// user routes
 	userRoute := api.Group("/user")
 	// routes
-	userRoute.Get("/", handler.GetAllUsers)
-	userRoute.Get("/:id", handler.GetSingleUser)
-	userRoute.Post("/", handler.CreateUser)
-	userRoute.Put("/:id", handler.UpdateUser)
-	userRoute.Delete("/:id", handler.DeleteUserByID)
+	//userRoute.Get("/", handler.GetAllUsers)
+	//userRoute.Get("/:id", handler.GetSingleUser)
+	userRoute.Get("/:username", h.CreateUser)
+	//userRoute.Put("/:id", handler.UpdateUser)
+	//userRoute.Delete("/:id", handler.DeleteUserByID)
 }

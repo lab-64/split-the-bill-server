@@ -2,26 +2,26 @@ package database
 
 import (
 	"fmt"
-	"log"
-	"os"
-	"split-the-bill-server/config"
-	"split-the-bill-server/model"
-	"strconv"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"log"
+	"split-the-bill-server/config"
+	"split-the-bill-server/types"
+	"strconv"
 )
 
-// Database instance
 type Database struct {
-	Db *gorm.DB
+	db *gorm.DB
 }
 
-var DB Database
+func NewDatabase() (*Database, error) {
+	d := Database{}
+	err := d.Connect()
+	return &d, err
+}
 
-// Connect Database
-func Connect() {
+func (d Database) Connect() error {
 
 	// convert port string to int
 	p := config.Config("DB_PORT")
@@ -36,17 +36,35 @@ func Connect() {
 	// check for connection failures
 	if err != nil {
 		log.Fatal("Failed to connect to database. \n", err)
-		os.Exit(2)
 	}
 	// successful connected
 	log.Println("Connected")
 	db.Logger = logger.Default.LogMode(logger.Info)
 	log.Println("running migrations")
-	db.AutoMigrate(&model.User{})
-
-	// set database
-	DB = Database{
-		Db: db,
+	err = db.AutoMigrate(&User{})
+	if err != nil {
+		return err
 	}
+	// set database
+	d.db = db
+	return nil
+}
 
+func (d Database) AddUser(user types.User) error {
+	item := MakeUser(user)
+	err := d.db.Create(&item).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d Database) DeleteUser(user types.User) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d Database) GetAllUsers() ([]types.User, error) {
+	//TODO implement me
+	panic("implement me")
 }

@@ -1,24 +1,32 @@
 package handler
 
 import (
-	"split-the-bill-server/database"
-	"split-the-bill-server/model"
+	"log"
+	"split-the-bill-server/storage"
+	"split-the-bill-server/types"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
-// Create a user
-func CreateUser(c *fiber.Ctx) error {
-	db := database.DB.Db
-	user := new(model.User)
+type Handler struct {
+	storage storage.UserStorage
+}
+
+func NewHandler(storage storage.UserStorage) Handler {
+	return Handler{storage: storage}
+}
+
+// CreateUser a user.
+func (h Handler) CreateUser(c *fiber.Ctx) error {
+	log.Println("CreateUser")
 	// Store the body in the user and return error if encountered
-	err := c.BodyParser(user)
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
+	name := c.Params("username")
+	if name == "" {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Username is required", "data": nil})
 	}
-	// create user
-	err = db.Create(&user).Error
+	user := types.NewUser(name)
+	// Add user to storage.
+	err := h.storage.AddUser(user)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not create user", "data": err})
 	}
@@ -26,10 +34,11 @@ func CreateUser(c *fiber.Ctx) error {
 	return c.Status(201).JSON(fiber.Map{"status": "success", "message": "User has created", "data": user})
 }
 
+/*
 // Get All Users from db
 func GetAllUsers(c *fiber.Ctx) error {
 	db := database.DB.Db
-	var users []model.User
+	var users []database2.User
 	// find all users in the database
 	db.Find(&users)
 	// If no user found, return an error
@@ -39,13 +48,14 @@ func GetAllUsers(c *fiber.Ctx) error {
 	// return users
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Users Found", "data": users})
 }
-
+*/
+/*
 // GetSingleUser from db
 func GetSingleUser(c *fiber.Ctx) error {
 	db := database.DB.Db
 	// get id params
 	id := c.Params("id")
-	var user model.User
+	var user database2.User
 	// find single user in the database by id
 	db.Find(&user, "id = ?", id)
 	if user.ID == uuid.Nil {
@@ -60,7 +70,7 @@ func UpdateUser(c *fiber.Ctx) error {
 		Username string `json:"username"`
 	}
 	db := database.DB.Db
-	var user model.User
+	var user database2.User
 	// get id params
 	id := c.Params("id")
 	// find single user in the database by id
@@ -83,7 +93,7 @@ func UpdateUser(c *fiber.Ctx) error {
 // delete user in db by ID
 func DeleteUserByID(c *fiber.Ctx) error {
 	db := database.DB.Db
-	var user model.User
+	var user database2.User
 	// get id params
 	id := c.Params("id")
 	// find single user in the database by id
@@ -97,3 +107,4 @@ func DeleteUserByID(c *fiber.Ctx) error {
 	}
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User deleted"})
 }
+*/
