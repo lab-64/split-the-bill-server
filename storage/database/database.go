@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
-	"split-the-bill-server/config"
+	"os"
 	"split-the-bill-server/types"
 	"strconv"
 )
@@ -24,11 +24,11 @@ func NewDatabase() (*Database, error) {
 func (d Database) Connect() error {
 
 	// convert port string to int
-	p := config.Config("DB_PORT")
+	p := os.Getenv("DB_PORT")
 	port, err := strconv.ParseUint(p, 10, 32)
 
 	// insert postgresql configuration
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", config.Config("DB_HOST"), config.Config("DB_USER"), config.Config("DB_PASSWORD"), config.Config("DB_NAME"), port)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), port)
 	// connect to database
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),

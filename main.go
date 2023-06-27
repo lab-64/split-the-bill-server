@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"split-the-bill-server/config"
 	"split-the-bill-server/handler"
 	"split-the-bill-server/router"
 	"split-the-bill-server/storage/database"
@@ -10,7 +11,10 @@ import (
 )
 
 func main() {
-
+	err := config.LoadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 	// configure webserver
 	app := fiber.New()
 	/*storage := ephemeral.NewEphemeral()
