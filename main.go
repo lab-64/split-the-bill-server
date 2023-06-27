@@ -1,13 +1,12 @@
 package main
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"log"
 	"split-the-bill-server/config"
 	"split-the-bill-server/handler"
 	"split-the-bill-server/router"
 	"split-the-bill-server/storage/database"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
@@ -17,9 +16,8 @@ func main() {
 	}
 	// configure webserver
 	app := fiber.New()
-	/*storage := ephemeral.NewEphemeral()
-	err := storage.Connect()
-	*/
+	//storage := ephemeral.NewEphemeral()
+	//err = storage.Connect()
 
 	storage, err := database.NewDatabase()
 	if err != nil {
