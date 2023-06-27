@@ -21,7 +21,7 @@ func NewDatabase() (*Database, error) {
 	return &d, err
 }
 
-func (d Database) Connect() error {
+func (d *Database) Connect() error {
 
 	// convert port string to int
 	p := os.Getenv("DB_PORT")
@@ -50,7 +50,7 @@ func (d Database) Connect() error {
 	return nil
 }
 
-func (d Database) AddUser(user types.User) error {
+func (d *Database) AddUser(user types.User) error {
 	item := MakeUser(user)
 	err := d.db.Create(&item).Error
 	if err != nil {
@@ -59,12 +59,12 @@ func (d Database) AddUser(user types.User) error {
 	return nil
 }
 
-func (d Database) DeleteUser(user types.User) error {
+func (d *Database) DeleteUser(user types.User) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (d Database) GetAllUsers() ([]types.User, error) {
+func (d *Database) GetAllUsers() ([]types.User, error) {
 	var users []User
 	// find all users in the database
 	tx := d.db.Find(&users)
