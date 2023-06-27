@@ -18,22 +18,22 @@ func NewHandler(storage storage.UserStorage) Handler {
 	return Handler{storage: storage}
 }
 
-// CreateUser a user.
+// CreateUser parses a types.User from the request body and adds it to the storage.
 func (h Handler) CreateUser(c *fiber.Ctx) error {
 	log.Println("CreateUser")
 	// Store the body in the user and return error if encountered
-	name := c.Params("username")
-	if name == "" {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Username is required", "data": nil})
+	var user types.User
+	if err := c.BodyParser(&user); err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse user: %v", err), "data": err})
 	}
-	user := types.NewUser(name)
+	user.ID = uuid.New()
 	// Add user to storage.
 	err := h.storage.AddUser(user)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not create user", "data": err})
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create user: %v", err), "data": err})
 	}
 	// Return the created user
-	return c.Status(201).JSON(fiber.Map{"status": "success", "message": "User has created", "data": user})
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User has been created", "data": user})
 }
 
 func (h Handler) GetAllUsers(c *fiber.Ctx) error {
