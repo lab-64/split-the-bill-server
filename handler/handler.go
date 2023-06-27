@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+	"github.com/google/uuid"
 	"log"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/types"
@@ -34,21 +36,14 @@ func (h Handler) CreateUser(c *fiber.Ctx) error {
 	return c.Status(201).JSON(fiber.Map{"status": "success", "message": "User has created", "data": user})
 }
 
-/*
-// Get All Users from db
-func GetAllUsers(c *fiber.Ctx) error {
-	db := database.DB.Db
-	var users []database2.User
-	// find all users in the database
-	db.Find(&users)
-	// If no user found, return an error
-	if len(users) == 0 {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Users not found", "data": nil})
+func (h Handler) GetAllUsers(c *fiber.Ctx) error {
+	users, err := h.storage.GetAllUsers()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not get users: %v", err), "data": err})
 	}
-	// return users
-	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Users Found", "data": users})
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "users Found", "data": users})
 }
-*/
+
 /*
 // GetSingleUser from db
 func GetSingleUser(c *fiber.Ctx) error {

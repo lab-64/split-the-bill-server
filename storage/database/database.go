@@ -65,6 +65,13 @@ func (d Database) DeleteUser(user types.User) error {
 }
 
 func (d Database) GetAllUsers() ([]types.User, error) {
-	//TODO implement me
-	panic("implement me")
+	var users []User
+	// find all users in the database
+	tx := d.db.Find(&users)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	// return users
+	return ToUserSlice(users), nil
 }

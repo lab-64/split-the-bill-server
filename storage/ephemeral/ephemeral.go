@@ -30,6 +30,11 @@ func (e Ephemeral) DeleteUser(user types.User) error {
 }
 
 func (e Ephemeral) GetAllUsers() ([]types.User, error) {
-	//TODO implement me
-	panic("implement me")
+	users := make([]types.User, len(e.userStorage))
+	i := 0
+	for _, user := range e.userStorage {
+		users[i] = user
+		i++
+	}
+	return users, nil
 }

@@ -27,5 +27,17 @@ func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 func MakeUser(user types.User) User {
-	return User{}
+	return User{ID: user.ID, Username: user.Username}
+}
+
+func (user *User) ToUser() types.User {
+	return types.User{ID: user.ID, Username: user.Username}
+}
+
+func ToUserSlice(users []User) []types.User {
+	s := make([]types.User, len(users))
+	for i, user := range users {
+		s[i] = user.ToUser()
+	}
+	return s
 }
