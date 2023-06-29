@@ -10,6 +10,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// TODO: Sanitize output / errors
+// TODO: Add handler tests
+
 type Handler struct {
 	storage storage.UserStorage
 }
@@ -44,62 +47,47 @@ func (h Handler) GetAllUsers(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "users Found", "data": users})
 }
 
-/*
-// GetSingleUser from db
-func GetSingleUser(c *fiber.Ctx) error {
-	db := database.DB.Db
-	// get id params
+// GetUserByID from db
+func (h Handler) GetUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
-	var user database2.User
-	// find single user in the database by id
-	db.Find(&user, "id = ?", id)
-	if user.ID == uuid.Nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "User not found", "data": nil})
+	if id == "" {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Parameter id is required", "data": nil})
 	}
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User Found", "data": user})
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Unable to parse uuid: %s, error: %v", id, err), "data": err})
+	}
+	user, err := h.storage.GetUserByID(uid)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("User not found: %v", err), "data": err})
+	}
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User found", "data": user})
 }
 
-// update a user in db
-func UpdateUser(c *fiber.Ctx) error {
-	type updateUser struct {
-		Username string `json:"username"`
-	}
-	db := database.DB.Db
-	var user database2.User
-	// get id params
+func (h Handler) DeleteUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
-	// find single user in the database by id
-	db.Find(&user, "id = ?", id)
-	if user.ID == uuid.Nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "User not found", "data": nil})
+	if id == "" {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "parameter id is required", "data": nil})
 	}
-	var updateUserData updateUser
-	err := c.BodyParser(&updateUserData)
+	uid, err := uuid.Parse(id)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Unable to parse uuid: %s, error: %v", id, err), "data": err})
 	}
-	user.Username = updateUserData.Username
-	// Save the Changes
-	db.Save(&user)
-	// Return the updated user
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "users Found", "data": user})
-}
-
-// delete user in db by ID
-func DeleteUserByID(c *fiber.Ctx) error {
-	db := database.DB.Db
-	var user database2.User
-	// get id params
-	id := c.Params("id")
-	// find single user in the database by id
-	db.Find(&user, "id = ?", id)
-	if user.ID == uuid.Nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "User not found", "data": nil})
-	}
-	err := db.Delete(&user, "id = ?", id).Error
+	err = h.storage.DeleteUser(uid)
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Failed to delete user", "data": nil})
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Unable to delete user: %v", err), "data": err})
 	}
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User deleted"})
 }
-*/
+
+func (h Handler) GetUserByUsername(c *fiber.Ctx) error {
+	username := c.Params("username")
+	if username == "" {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Parameter username is required", "data": nil})
+	}
+	user, err := h.storage.GetUserByUsername(username)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("User not found: %v", err), "data": err})
+	}
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User found", "data": user})
+}
