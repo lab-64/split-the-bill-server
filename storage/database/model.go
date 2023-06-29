@@ -4,13 +4,20 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"split-the-bill-server/types"
+	"time"
 )
+
+type Base struct {
+	ID        uuid.UUID `gorm:"type:uuid;primary_key;"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
 
 // User struct
 type User struct {
-	gorm.Model
-	ID       uuid.UUID `gorm:"type:uuid;"`
-	Username string    `json:"username"`
+	Base
+	Username string `json:"username"`
 }
 
 // Users struct
@@ -25,7 +32,7 @@ func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 func MakeUser(user types.User) User {
-	return User{ID: user.ID, Username: user.Username}
+	return User{Base: Base{ID: user.ID}, Username: user.Username}
 }
 
 func (user *User) ToUser() types.User {

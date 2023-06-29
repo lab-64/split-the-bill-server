@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -52,21 +53,29 @@ func (d *Database) Connect() error {
 
 func (d *Database) AddUser(user types.User) error {
 	item := MakeUser(user)
-	err := d.db.Create(&item).Error
-	if err != nil {
-		return err
+	// FIXME: This is a little bit of TOCTOU:
+	// If a user with the same username is created after the check, we DO NOT RETURN AN ERROR.
+	// We also do not overwrite the existing user.
+	// Checking, if the username already exists is still better, as we will receive an error at least in most cased,
+	// where there are no unlikely race condition.
+	// This could be fixed, if there was some way to check, whether FirstOrCreate actually created a new user or not.
+	_, err := d.GetUserByUsername(user.Username) // check if user already exists
+	if err == nil {
+		return fmt.Errorf("user with username %s already exists", user.Username)
 	}
-	return nil
+	res := d.db.Where(User{Username: user.Username}).FirstOrCreate(&item) // write new user if not exists
+	return res.Error
 }
 
-func (d *Database) DeleteUser(user types.User) error {
-	//TODO implement me
-	panic("implement me")
+func (d *Database) DeleteUser(id uuid.UUID) error {
+	tx := d.db.Delete(&User{}, "id = ?", id)
+	return tx.Error
 }
 
 func (d *Database) GetAllUsers() ([]types.User, error) {
 	var users []User
 	// find all users in the database
+	// TODO: GetAllUsers should not return an error, if no users are found
 	tx := d.db.Find(&users)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -74,4 +83,23 @@ func (d *Database) GetAllUsers() ([]types.User, error) {
 
 	// return users
 	return ToUserSlice(users), nil
+}
+
+func (d *Database) GetUserByID(uuid uuid.UUID) (types.User, error) {
+	var user User
+	tx := d.db.Find(&user, "id = ?", uuid)
+	if tx.Error != nil {
+		return types.User{}, tx.Error
+	}
+	return user.ToUser(), nil
+}
+
+func (d *Database) GetUserByUsername(username string) (types.User, error) {
+	var user User
+	// TODO: Verify that this is in fact not injectable
+	tx := d.db.Take(&user, "username = ?", username)
+	if tx.Error != nil {
+		return types.User{}, tx.Error
+	}
+	return user.ToUser(), nil
 }
