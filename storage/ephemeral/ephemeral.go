@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"log"
+	"split-the-bill-server/storage"
 	"split-the-bill-server/types"
 	"sync"
 )
@@ -17,6 +18,7 @@ type Ephemeral struct {
 func NewEphemeral() *Ephemeral {
 	return &Ephemeral{
 		userStorage: make(map[uuid.UUID]types.User),
+		nameIndex:   make(map[string]uuid.UUID),
 	}
 }
 
@@ -28,12 +30,11 @@ func (e *Ephemeral) AddUser(user types.User) error {
 	e.lock.Lock()
 	defer e.lock.Unlock()
 	if _, ok := e.nameIndex[user.Username]; ok {
-		return fmt.Errorf("user with username %s already exists", user.Username)
+		return storage.UserAlreadyExistsError
 	}
 	_, ok := e.userStorage[user.ID]
 	if ok {
-		log.Println(fmt.Sprintf("FATAL error: user with id %v already exists", user.ID))
-		return fmt.Errorf("user with id %v already exists", user.ID)
+		return storage.UserAlreadyExistsError
 	}
 	e.userStorage[user.ID] = user
 
@@ -44,8 +45,12 @@ func (e *Ephemeral) AddUser(user types.User) error {
 func (e *Ephemeral) DeleteUser(id uuid.UUID) error {
 	e.lock.Lock()
 	defer e.lock.Unlock()
+	user, exists := e.userStorage[id]
+	if !exists {
+		return nil
+	}
+	delete(e.nameIndex, user.Username)
 	delete(e.userStorage, id)
-	delete(e.nameIndex, e.userStorage[id].Username)
 	return nil
 }
 
@@ -66,7 +71,7 @@ func (e *Ephemeral) GetUserByID(id uuid.UUID) (types.User, error) {
 	defer e.lock.Unlock()
 	user, ok := e.userStorage[id]
 	if !ok {
-		return user, fmt.Errorf("no user with id %v", id)
+		return user, storage.NoSuchUserError
 	}
 	return user, nil
 }
@@ -76,7 +81,7 @@ func (e *Ephemeral) GetUserByUsername(username string) (types.User, error) {
 	defer e.lock.Unlock()
 	id, ok := e.nameIndex[username]
 	if !ok {
-		return types.User{}, fmt.Errorf("no user with username %s", username)
+		return types.User{}, storage.NoSuchUserError
 	}
 	user, ok := e.userStorage[id]
 	if !ok {
