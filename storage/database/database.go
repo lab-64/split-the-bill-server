@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
@@ -8,6 +9,7 @@ import (
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
+	"split-the-bill-server/storage"
 	"split-the-bill-server/types"
 	"strconv"
 )
@@ -61,7 +63,7 @@ func (d *Database) AddUser(user types.User) error {
 	// This could be fixed, if there was some way to check, whether FirstOrCreate actually created a new user or not.
 	_, err := d.GetUserByUsername(user.Username) // check if user already exists
 	if err == nil {
-		return fmt.Errorf("user with username %s already exists", user.Username)
+		return storage.UserAlreadyExistsError
 	}
 	res := d.db.Where(User{Username: user.Username}).FirstOrCreate(&item) // write new user if not exists
 	return res.Error
@@ -87,9 +89,15 @@ func (d *Database) GetAllUsers() ([]types.User, error) {
 
 func (d *Database) GetUserByID(uuid uuid.UUID) (types.User, error) {
 	var user User
-	tx := d.db.Find(&user, "id = ?", uuid)
+	tx := d.db.Limit(1).Find(&user, "id = ?", uuid)
 	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return types.User{}, storage.NoSuchUserError
+		}
 		return types.User{}, tx.Error
+	}
+	if tx.RowsAffected == 0 {
+		return types.User{}, storage.NoSuchUserError
 	}
 	return user.ToUser(), nil
 }
@@ -99,7 +107,13 @@ func (d *Database) GetUserByUsername(username string) (types.User, error) {
 	// TODO: Verify that this is in fact not injectable
 	tx := d.db.Take(&user, "username = ?", username)
 	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return types.User{}, storage.NoSuchUserError
+		}
 		return types.User{}, tx.Error
+	}
+	if tx.RowsAffected == 0 {
+		return types.User{}, storage.NoSuchUserError
 	}
 	return user.ToUser(), nil
 }
