@@ -13,3 +13,7 @@ func NewUser(username string) User {
 		Username: username,
 	}
 }
+
+func (u User) Equals(other User) bool {
+	return u.ID == other.ID && u.Username == other.Username
+}
