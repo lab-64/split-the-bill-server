@@ -2,10 +2,11 @@ package handler
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"log"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/types"
+
+	"github.com/google/uuid"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -23,7 +24,7 @@ func NewHandler(storage storage.UserStorage) Handler {
 
 // CreateUser parses a types.User from the request body and adds it to the storage.
 func (h Handler) CreateUser(c *fiber.Ctx) error {
-	log.Println("CreateUser")
+	log.Printf("CreateUser")
 	// Store the body in the user and return error if encountered
 	var user types.User
 	if err := c.BodyParser(&user); err != nil {
