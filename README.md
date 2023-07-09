@@ -2,10 +2,11 @@
 
 [![Go Webserver Testing](https://github.com/lab-64/split-the-bill-server/actions/workflows/go.yml/badge.svg)](https://github.com/lab-64/split-the-bill-server/actions/workflows/go.yml)
 
+---
 # Start Application
 
 ```shell
-docker-compose up -d
+docker-compose up -d --build
 ```
 
 The postgresql database and the webserver will be started.
