@@ -1,0 +1,28 @@
+version: '3.1'
+
+volumes:
+  postgres-data:
+
+services:
+  db:
+    container_name: split-the-bill-postgres-db
+    image: postgres:15
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - ${DB_PORT}:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      
+  server:
+    container_name: split-the-bill-server
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
