@@ -6,11 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// SetupRoutes creates webserver routes
-//
-// Parameters:
-//
-//	app: The fiber server to be configured
+// SetupRoutes creates webserver routes and connect them to the related handlers.
 func SetupRoutes(app *fiber.App, h handler.Handler) {
 
 	// Define landing page
