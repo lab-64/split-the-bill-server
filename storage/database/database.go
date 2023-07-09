@@ -29,6 +29,9 @@ func (d *Database) Connect() error {
 	// convert port string to int
 	p := os.Getenv("DB_PORT")
 	port, err := strconv.ParseUint(p, 10, 32)
+	if err != nil {
+		log.Fatal("Failed to parse port. \n", err)
+	}
 
 	// insert postgresql configuration
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), port)
@@ -41,9 +44,9 @@ func (d *Database) Connect() error {
 		log.Fatal("Failed to connect to database. \n", err)
 	}
 	// successful connected
-	log.Println("Connected")
+	log.Printf("Connected")
 	db.Logger = logger.Default.LogMode(logger.Info)
-	log.Println("running migrations")
+	log.Printf("running migrations")
 	err = db.AutoMigrate(&User{})
 	if err != nil {
 		return err

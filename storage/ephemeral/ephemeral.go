@@ -85,7 +85,7 @@ func (e *Ephemeral) GetUserByUsername(username string) (types.User, error) {
 	}
 	user, ok := e.userStorage[id]
 	if !ok {
-		log.Println(fmt.Sprintf("FATAL error: user storage inconsistent: username '%s' points to non-existent user", username))
+		log.Printf(fmt.Sprintf("FATAL error: user storage inconsistent: username '%s' points to non-existent user", username))
 		return user, fmt.Errorf("user storage inconsistent: username '%s' points to non-existent user", username)
 	}
 	return user, nil
