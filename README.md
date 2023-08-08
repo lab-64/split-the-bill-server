@@ -18,3 +18,9 @@ The webserver is accessable under: http://localhost:8080/
 ```shell
 docker-compose down
 ```
+
+# Reset Postgres Database
+
+```shell
+docker-compose down --volumes
+```
