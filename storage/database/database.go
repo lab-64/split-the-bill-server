@@ -69,7 +69,7 @@ func (d *Database) AddUser(user types.User) error {
 }
 
 func (d *Database) DeleteUser(id uuid.UUID) error {
-	tx := d.db.Delete(&User{}, "id = ?", id)
+	tx := d.db.Unscoped().Delete(&User{}, "id = ?", id)
 	return tx.Error
 }
 
