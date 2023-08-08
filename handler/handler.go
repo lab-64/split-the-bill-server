@@ -2,11 +2,14 @@ package handler
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"log"
+	"os"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/types"
 
+	"github.com/google/uuid"
+
+	"github.com/caitlinelfring/nist-password-validator/password"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -19,6 +22,47 @@ type Handler struct {
 
 func NewHandler(storage storage.UserStorage) Handler {
 	return Handler{storage: storage}
+}
+
+// RegisterUser parses a types.User from the request body, compares and validates both passwords and adds a new user to the storage.
+func (h Handler) RegisterUser(c *fiber.Ctx) error {
+	var user types.User
+	if err := c.BodyParser(&user); err != nil {
+		return err
+	}
+
+	// Compare Passwords
+	if user.Password != user.ConfirmationPassword {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Bad Password: Password did not match"})
+	}
+	// Setup Password Validation
+	var PasswordValidator = password.NewValidator(false, 8, 64)
+	// Load common password list
+	var commonPasswords, err = os.Open("common-password-list.txt")
+	if err != nil {
+		log.Printf("Error while opening file: '%v'", err)
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Server Error: Please try again later"})
+	}
+	// Validate Passwords
+	PasswordValidator.AddCommonPasswords(commonPasswords)
+	err = PasswordValidator.ValidatePassword(user.Password)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Bad Password: %v", err)})
+	}
+
+	// Add ID
+	user.ID = uuid.New()
+
+	// Add user to storage
+	err = h.storage.AddUser(user)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create user: %v", err)})
+	}
+
+	// TODO: Create Authentication Cookie
+
+	// TODO: Add cookie to return
+	return c.Status(200).JSON(fiber.Map{"status": "ok", "message": "User successfully created", "data": user.Email})
 }
 
 // CreateUser parses a types.User from the request body and adds it to the storage.

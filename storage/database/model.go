@@ -1,10 +1,12 @@
 package database
 
 import (
-	"github.com/google/uuid"
-	"gorm.io/gorm"
 	"split-the-bill-server/types"
 	"time"
+
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type Base struct {
@@ -17,7 +19,8 @@ type Base struct {
 // User struct
 type User struct {
 	Base
-	Username string `json:"username"`
+	Email    string `gorm:"unique;not_null"`
+	Password []byte `gorm:"not_null"`
 }
 
 // Users struct
@@ -31,12 +34,16 @@ func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 	return
 }
 
+// Create a database user. Password gets hashed.
 func MakeUser(user types.User) User {
-	return User{Base: Base{ID: user.ID}, Username: user.Username}
+
+	// Hash Password
+	password, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
+	return User{Base: Base{ID: user.ID}, Email: user.Email, Password: password}
 }
 
 func (user *User) ToUser() types.User {
-	return types.User{ID: user.ID, Username: user.Username}
+	return types.User{ID: user.ID, Email: user.Email, Password: string(user.Password), ConfirmationPassword: string(user.Password)}
 }
 
 func ToUserSlice(users []User) []types.User {

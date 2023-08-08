@@ -64,11 +64,7 @@ func (d *Database) AddUser(user types.User) error {
 	// Checking, if the username already exists is still better, as we will receive an error at least in most cased,
 	// where there are no unlikely race condition.
 	// This could be fixed, if there was some way to check, whether FirstOrCreate actually created a new user or not.
-	_, err := d.GetUserByUsername(user.Username) // check if user already exists
-	if err == nil {
-		return storage.UserAlreadyExistsError
-	}
-	res := d.db.Where(User{Username: user.Username}).FirstOrCreate(&item) // write new user if not exists
+	res := d.db.Where(User{Email: user.Email}).FirstOrCreate(&item) // tries to create new user
 	return res.Error
 }
 
