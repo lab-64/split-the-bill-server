@@ -28,6 +28,13 @@ type Users struct {
 	Users []User `json:"users"`
 }
 
+// Authentication Cookie struct
+type AuthCookie struct {
+	Base
+	UserId    uuid.UUID `gorm:"type:uuid;column:user_foreign_key;not null;"`
+	ExpiredAt time.Time
+}
+
 func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 	// UUID version 4
 	user.ID = uuid.New()
@@ -57,4 +64,27 @@ func ToUserSlice(users []User) []types.User {
 		s[i] = user.ToUser()
 	}
 	return s
+}
+
+// ToCookie converts a model.AuthCookie object to a types.AuthCookie object.
+func (authCookie *AuthCookie) ToCookie() types.AuthCookie {
+	return types.AuthCookie{ID: authCookie.ID, UserID: authCookie.UserId, ExpiredAt: authCookie.ExpiredAt}
+}
+
+// MakeAuthCookie creates an authentication cookie.
+func MakeAuthCookie(userId uuid.UUID) AuthCookie {
+	// Cookie available 14 Days
+	var expirationTime = time.Now().Add(336 * time.Hour)
+	return AuthCookie{Base: Base{ID: uuid.New()}, UserId: userId, ExpiredAt: expirationTime}
+}
+
+// RenewAuthCookie renews the time in which the cookie is available to the standard 14 days.
+func RenewAuthCookie(cookie AuthCookie) AuthCookie {
+	cookie.ExpiredAt = time.Now().Add(366 * time.Hour)
+	return cookie
+}
+
+// IsExpired checks if the Aauthentication cookie is expired.
+func (cookie AuthCookie) IsExpired() bool {
+	return cookie.ExpiredAt.Before(time.Now())
 }

@@ -47,7 +47,7 @@ func (d *Database) Connect() error {
 	log.Printf("Connected")
 	db.Logger = logger.Default.LogMode(logger.Info)
 	log.Printf("running migrations")
-	err = db.AutoMigrate(&User{})
+	err = db.AutoMigrate(&User{}, &AuthCookie{})
 	if err != nil {
 		return err
 	}
