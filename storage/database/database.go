@@ -121,3 +121,36 @@ func (d *Database) GetUserByUsername(username string) (types.User, error) {
 	}
 	return user.ToUser(), nil
 }
+
+func (d *Database) CreateAuthCookie(userId uuid.UUID) (types.AuthCookie, error) {
+	var cookie = MakeAuthCookie(userId)
+	// tries to create a new AuthCookie
+	res := d.db.Where(AuthCookie{Base: Base{ID: cookie.ID}}).FirstOrCreate(&cookie)
+	return cookie.ToCookie(), res.Error
+}
+
+func (d *Database) GetUserFromAuthCookie(cookieId uuid.UUID) (types.User, error) {
+	// search cookie
+	var cookie AuthCookie
+	dbRes := d.db.Limit(1).First(&cookie, AuthCookie{Base: Base{ID: cookieId}})
+	if dbRes.Error != nil {
+		return types.User{}, dbRes.Error
+	}
+	// search user from cookie
+	var user User
+	dbRes = d.db.Limit(1).First(&user, User{Base: Base{ID: cookie.UserId}})
+	if dbRes.Error != nil {
+		return types.User{}, dbRes.Error
+	}
+
+	return user.ToUser(), nil
+}
+
+func (d *Database) GetCookieFromUser(userId uuid.UUID) (types.AuthCookie, error) {
+	var cookie AuthCookie
+	res := d.db.Limit(1).First(&cookie, AuthCookie{UserId: userId})
+	if res.Error != nil {
+		return types.AuthCookie{}, res.Error
+	}
+	return cookie.ToCookie(), nil
+}

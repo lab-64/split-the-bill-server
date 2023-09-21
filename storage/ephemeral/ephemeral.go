@@ -92,3 +92,19 @@ func (e *Ephemeral) GetUserByUsername(username string) (types.User, error) {
 	}
 	return user, nil
 }
+
+func (e *Ephemeral) CreateAuthCookie(userId uuid.UUID) (types.AuthCookie, error) {
+	return types.AuthCookie{}, nil
+}
+
+func (e *Ephemeral) LoginUser(types.AuthenticateCredentials) (types.AuthCookie, error) {
+	return types.AuthCookie{}, nil
+}
+
+func (e *Ephemeral) GetCookieFromUser(userId uuid.UUID) (types.AuthCookie, error) {
+	return types.AuthCookie{}, nil
+}
+
+func (*Ephemeral) GetUserFromAuthCookie(cookieId uuid.UUID) (types.User, error) {
+	return types.User{}, nil
+}

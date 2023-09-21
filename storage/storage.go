@@ -32,6 +32,12 @@ type UserStorage interface {
 
 type CookieStorage interface {
 	Storage
+	// CreateAuthCookie creates an authentication cookie for the given user ID.
+	CreateAuthCookie(userId uuid.UUID) (types.AuthCookie, error)
+	// Get user from authentication cookie
+	GetUserFromAuthCookie(cookieId uuid.UUID) (types.User, error)
+	// GetCookieFromUser return a valid (non-expired) cookie from the given user if such an cookie exists. Otherwise it return an error.
+	GetCookieFromUser(userId uuid.UUID) (types.AuthCookie, error)
 }
 
 type AuthenticatedUserStorage interface {
