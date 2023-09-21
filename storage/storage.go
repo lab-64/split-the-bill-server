@@ -30,5 +30,14 @@ type UserStorage interface {
 	GetUserByUsername(username string) (types.User, error)
 }
 
+type CookieStorage interface {
+	Storage
+}
+
+type AuthenticatedUserStorage interface {
+	UserStorage
+	CookieStorage
+}
+
 var UserAlreadyExistsError = errors.New("user already exists")
 var NoSuchUserError = errors.New("no such user")
