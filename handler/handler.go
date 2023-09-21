@@ -78,8 +78,24 @@ func (h Handler) RegisterUser(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "ok", "message": "User successfully created", "user": storedUser.Email})
 }
 
-	// TODO: Add cookie to return
-	return c.Status(200).JSON(fiber.Map{"status": "ok", "message": "User successfully created", "data": user.Email})
+// Login uses the given login credentials for login and returns an authentication token for the user.
+func (h Handler) Login(c *fiber.Ctx) error {
+	var userCredentials types.AuthenticateCredentials
+	if err := c.BodyParser(&userCredentials); err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse user: %v", err), "data": err})
+	}
+	// Checks if all input fields are filled out
+	err := userCredentials.ValidateInputs()
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Inputs invalid: %v", err)})
+	}
+	// Log-in user, get authentication cookie
+	cookieId, err := h.storage.LoginUser(userCredentials)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not log in: %v", err)})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"status": "ok", "cookieAuth": cookieId})
 }
 
 // CreateUser parses a types.User from the request body and adds it to the storage.

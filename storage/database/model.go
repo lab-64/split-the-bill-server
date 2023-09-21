@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"split-the-bill-server/types"
 	"time"
 
@@ -52,6 +53,13 @@ func MakeUser(user types.User) (User, error) {
 	return User{Base: Base{ID: user.ID}, Email: user.Email, Password: password}, err
 }
 
+// Compare passwords, returns nil on success, or an error on failure
+func ComparePasswords(user User, password string) error {
+	res := bcrypt.CompareHashAndPassword(user.Password, []byte(password))
+	if res == nil {
+		return nil
+	}
+	return errors.New("Wrong password!")
 }
 
 func (user *User) ToUser() types.User {

@@ -71,6 +71,31 @@ func (d *Database) AddUser(user types.User) (types.User, error) {
 	return item.ToUser(), res.Error
 }
 
+func (d *Database) LoginUser(userCredentials types.AuthenticateCredentials) (types.AuthCookie, error) {
+	// check if user exist with given credentials
+	var user User
+	// get user
+	res := d.db.Limit(1).First(&user, User{Email: userCredentials.Email})
+	if res.Error != nil {
+		return types.AuthCookie{}, res.Error
+	}
+	// compare passwords
+	err := ComparePasswords(user, userCredentials.Password)
+	if err != nil {
+		return types.AuthCookie{}, err
+	}
+	// check if cookie already exists
+	cookie, err := d.GetCookieFromUser(user.ID)
+	if err != nil {
+		// no cookie -> create cookie
+		cookie, err = d.CreateAuthCookie(user.ID)
+		if err != nil {
+			// TODO: Change error msg
+			return types.AuthCookie{}, err
+		}
+	}
+
+	return cookie, nil
 }
 
 func (d *Database) DeleteUser(id uuid.UUID) error {
