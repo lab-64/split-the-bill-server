@@ -56,8 +56,11 @@ func (d *Database) Connect() error {
 	return nil
 }
 
-func (d *Database) AddUser(user types.User) error {
-	item := MakeUser(user)
+func (d *Database) AddUser(user types.User) (types.User, error) {
+	item, err := MakeUser(user)
+	if err != nil {
+		return types.User{}, err
+	}
 	// FIXME: This is a little bit of TOCTOU:
 	// If a user with the same username is created after the check, we DO NOT RETURN AN ERROR.
 	// We also do not overwrite the existing user.
@@ -65,7 +68,9 @@ func (d *Database) AddUser(user types.User) error {
 	// where there are no unlikely race condition.
 	// This could be fixed, if there was some way to check, whether FirstOrCreate actually created a new user or not.
 	res := d.db.Where(User{Email: user.Email}).FirstOrCreate(&item) // tries to create new user
-	return res.Error
+	return item.ToUser(), res.Error
+}
+
 }
 
 func (d *Database) DeleteUser(id uuid.UUID) error {

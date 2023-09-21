@@ -1,17 +1,18 @@
 package test
 
 import (
-	"github.com/stretchr/testify/require"
 	"math/rand"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/types"
 	"split-the-bill-server/types/test"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func addUsers(uut storage.UserStorage, users []types.User, t *testing.T, finished chan<- struct{}) {
 	for _, user := range users {
-		err := uut.AddUser(user)
+		_, err := uut.AddUser(user)
 		require.NoError(t, err)
 	}
 	close(finished)
@@ -88,12 +89,12 @@ func UserStorageEdgeCaseTest(uut storage.UserStorage, t *testing.T) {
 	users := test.GenerateUsersWithUsernames([]string{"a", "a"})
 	err = uut.DeleteUser(users[0].ID)
 	require.NoError(t, err)
-	err = uut.AddUser(users[0])
+	_, err = uut.AddUser(users[0])
 	require.NoError(t, err)
 	res, err := uut.GetUserByUsername("a")
 	require.NoError(t, err)
 	require.True(t, users[0].Equals(res))
-	err = uut.AddUser(users[1])
+	_, err = uut.AddUser(users[1])
 	require.ErrorIs(t, err, storage.UserAlreadyExistsError)
 	err = uut.DeleteUser(users[1].ID)
 	require.NoError(t, err)

@@ -19,7 +19,7 @@ type UserStorage interface {
 	Storage
 	// AddUser adds the given user to the storage. If a user with the same ID or username already exists, a
 	// UserAlreadyExistsError is returned.
-	AddUser(types.User) error
+	AddUser(types.User) (types.User, error)
 	// DeleteUser deletes the user with the given ID from the storage, if it exists.
 	DeleteUser(id uuid.UUID) error
 	// GetAllUsers returns all users in the storage.

@@ -17,18 +17,37 @@ import (
 // TODO: Add handler tests
 
 type Handler struct {
-	storage storage.UserStorage
+	storage storage.AuthenticatedUserStorage
 }
 
-func NewHandler(storage storage.UserStorage) Handler {
+func NewHandler(storage storage.AuthenticatedUserStorage) Handler {
 	return Handler{storage: storage}
+}
+
+// TODO: delete
+// tests if we can get the user from the cookie
+func (h Handler) TestCookie(c *fiber.Ctx) error {
+	cookieID := c.Params("cookie")
+
+	cookieUID, err := uuid.Parse(cookieID)
+	// check if given UUID has the right form
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse UUID: %v", err)})
+	}
+	log.Println(cookieID)
+	var user types.User
+	user, err = h.storage.GetUserFromAuthCookie(cookieUID)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "This cookie does not belong to an user!"})
+	}
+	return c.Status(200).JSON(fiber.Map{"status": "ok", "user": user})
 }
 
 // RegisterUser parses a types.User from the request body, compares and validates both passwords and adds a new user to the storage.
 func (h Handler) RegisterUser(c *fiber.Ctx) error {
 	var user types.User
 	if err := c.BodyParser(&user); err != nil {
-		return err
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse user: %v", err), "data": err})
 	}
 
 	// Compare Passwords
@@ -50,16 +69,14 @@ func (h Handler) RegisterUser(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Bad Password: %v", err)})
 	}
 
-	// Add ID
-	user.ID = uuid.New()
-
 	// Add user to storage
-	err = h.storage.AddUser(user)
+	storedUser, err := h.storage.AddUser(user)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create user: %v", err)})
 	}
 
-	// TODO: Create Authentication Cookie
+	return c.Status(200).JSON(fiber.Map{"status": "ok", "message": "User successfully created", "user": storedUser.Email})
+}
 
 	// TODO: Add cookie to return
 	return c.Status(200).JSON(fiber.Map{"status": "ok", "message": "User successfully created", "data": user.Email})
@@ -75,7 +92,7 @@ func (h Handler) CreateUser(c *fiber.Ctx) error {
 	}
 	user.ID = uuid.New()
 	// Add user to storage.
-	err := h.storage.AddUser(user)
+	_, err := h.storage.AddUser(user)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create user: %v", err), "data": err})
 	}

@@ -26,20 +26,22 @@ func (e *Ephemeral) Connect() error {
 	return nil
 }
 
-func (e *Ephemeral) AddUser(user types.User) error {
+func (e *Ephemeral) AddUser(user types.User) (types.User, error) {
 	e.lock.Lock()
 	defer e.lock.Unlock()
 	if _, ok := e.nameIndex[user.Username]; ok {
-		return storage.UserAlreadyExistsError
+		return types.User{}, storage.UserAlreadyExistsError
 	}
 	_, ok := e.userStorage[user.ID]
 	if ok {
-		return storage.UserAlreadyExistsError
+		return types.User{}, storage.UserAlreadyExistsError
 	}
+	// TODO: Test correct usage
+	user.ID = uuid.New()
 	e.userStorage[user.ID] = user
 
 	e.nameIndex[user.Username] = user.ID
-	return nil
+	return user, nil
 }
 
 func (e *Ephemeral) DeleteUser(id uuid.UUID) error {

@@ -35,11 +35,16 @@ func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 // Create a database user. Password gets hashed.
-func MakeUser(user types.User) User {
+func MakeUser(user types.User) (User, error) {
 
 	// Hash Password
-	password, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
-	return User{Base: Base{ID: user.ID}, Email: user.Email, Password: password}
+	password, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
+	if err != nil {
+		return User{}, err
+	}
+	return User{Base: Base{ID: user.ID}, Email: user.Email, Password: password}, err
+}
+
 }
 
 func (user *User) ToUser() types.User {
