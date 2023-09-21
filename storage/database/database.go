@@ -3,15 +3,16 @@ package database
 import (
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"log"
 	"os"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/types"
 	"strconv"
+
+	"github.com/google/uuid"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Database struct {

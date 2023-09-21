@@ -2,8 +2,9 @@ package storage
 
 import (
 	"errors"
-	"github.com/google/uuid"
 	"split-the-bill-server/types"
+
+	"github.com/google/uuid"
 )
 
 // TODO: Add generic storage tests

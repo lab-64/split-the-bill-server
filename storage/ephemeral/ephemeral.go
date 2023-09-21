@@ -2,11 +2,12 @@ package ephemeral
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"log"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/types"
 	"sync"
+
+	"github.com/google/uuid"
 )
 
 type Ephemeral struct {
