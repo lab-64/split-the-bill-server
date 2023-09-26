@@ -6,16 +6,16 @@
 # Endpoints
 
 Register User <br />
--> [$URL/api/register](http://localhost:8080/api/user/register) <br />
+-> [$URL/api/user/register](http://localhost:8080/api/user/register) <br />
 Body: { <br />
-    "email": "", <br />
+&nbsp;&nbsp;&nbsp; "email": "", <br />
     "password": "", <br />
     "confirmationPassword": "" <br />
 } <br />
-Response: {
-    "message": "",
-    "status": "error/ok",
-    "user": "user email addr",
+Response: { <br />
+    "message": "", <br />
+    "status": "error/ok", <br />
+    "user": "user email addr", <br />
 }
 
 ---
