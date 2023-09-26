@@ -5,7 +5,7 @@
 ---
 # Endpoints
 
-Register User <br />
+**Register User** <br />
 -> [$URL/api/user/register](http://localhost:8080/api/user/register) <br />
 Body: { <br />
 &nbsp;&nbsp;&nbsp; "email": "", <br />
