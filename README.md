@@ -9,13 +9,13 @@ Register User <br />
 -> [$URL/api/user/register](http://localhost:8080/api/user/register) <br />
 Body: { <br />
 &nbsp;&nbsp;&nbsp; "email": "", <br />
-    "password": "", <br />
-    "confirmationPassword": "" <br />
+&nbsp;&nbsp;&nbsp; "password": "", <br />
+&nbsp;&nbsp;&nbsp; "confirmationPassword": "" <br />
 } <br />
 Response: { <br />
-    "message": "", <br />
-    "status": "error/ok", <br />
-    "user": "user email addr", <br />
+&nbsp;&nbsp;&nbsp; "message": "", <br />
+&nbsp;&nbsp;&nbsp; "status": "error/ok", <br />
+&nbsp;&nbsp;&nbsp; "user": "user email addr", <br />
 }
 
 ---
