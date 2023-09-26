@@ -6,7 +6,7 @@
 # Endpoints
 
 **Register User** <br />
--> [$URL/api/user/register](http://localhost:8080/api/user/register) <br />
+-> POST [$URL/api/user/register](http://localhost:8080/api/user/register) <br />
 Body: { <br />
 &nbsp;&nbsp;&nbsp; "email": "", <br />
 &nbsp;&nbsp;&nbsp; "password": "", <br />
