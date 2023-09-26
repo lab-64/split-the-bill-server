@@ -18,6 +18,22 @@ Response: { <br />
 &nbsp;&nbsp;&nbsp; "user": "user email addr", <br />
 }
 
+
+**Login User** <br />
+-> POST [$URL/api/user/login](http://localhost:8080/api/user/login) <br />
+Body: { <br />
+&nbsp;&nbsp;&nbsp; "email": "", <br />
+&nbsp;&nbsp;&nbsp; "password": "", <br />
+} <br />
+Response: { <br />
+&nbsp;&nbsp;&nbsp; "cookieAuth": {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "id": "",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "username": "",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "expirationTime": "",
+&nbsp;&nbsp;&nbsp; }, <br />
+&nbsp;&nbsp;&nbsp; "status": "error/ok", <br />
+}
+
 ---
 # Start Application
 
