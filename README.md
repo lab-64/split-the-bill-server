@@ -3,6 +3,22 @@
 [![Go Webserver Testing](https://github.com/lab-64/split-the-bill-server/actions/workflows/go.yml/badge.svg)](https://github.com/lab-64/split-the-bill-server/actions/workflows/go.yml)
 
 ---
+# Endpoints
+
+Register User <br />
+-> [$URL/api/register](http://localhost:8080/api/user/register) <br />
+Body: { <br />
+    "email": "", <br />
+    "password": "", <br />
+    "confirmationPassword": "" <br />
+} <br />
+Response: {
+    "message": "",
+    "status": "error/ok",
+    "user": "user email addr",
+}
+
+---
 # Start Application
 
 ```shell
