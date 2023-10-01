@@ -3,6 +3,29 @@
 [![Go Webserver Testing](https://github.com/lab-64/split-the-bill-server/actions/workflows/go.yml/badge.svg)](https://github.com/lab-64/split-the-bill-server/actions/workflows/go.yml)
 
 ---
+# Start Application
+
+```shell
+docker-compose up -d --build
+```
+
+The postgresql database and the webserver will be started.
+
+The webserver is accessable under: http://localhost:8080/
+
+# End Application
+
+```shell
+docker-compose down
+```
+
+# Reset Postgres Database
+
+```shell
+docker-compose down --volumes
+```
+
+---
 # Endpoints
 
 **Register User** <br />
@@ -33,26 +56,3 @@ Response: { <br />
 &nbsp;&nbsp;&nbsp; }, <br />
 &nbsp;&nbsp;&nbsp; "status": "error/ok", <br />
 }
-
----
-# Start Application
-
-```shell
-docker-compose up -d --build
-```
-
-The postgresql database and the webserver will be started.
-
-The webserver is accessable under: http://localhost:8080/
-
-# End Application
-
-```shell
-docker-compose down
-```
-
-# Reset Postgres Database
-
-```shell
-docker-compose down --volumes
-```
