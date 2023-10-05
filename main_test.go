@@ -1,7 +1,9 @@
 package main_test
 
 import (
+	"github.com/stretchr/testify/require"
 	"net/http/httptest"
+	"split-the-bill-server/authentication"
 	"split-the-bill-server/handler"
 	"split-the-bill-server/router"
 	"split-the-bill-server/storage/ephemeral"
@@ -20,7 +22,9 @@ func TestLandingPage(t *testing.T) {
 	// Test Server Configuration
 	app := fiber.New()
 	storage := ephemeral.NewEphemeral()
-	h := handler.NewHandler(storage)
+	v, err := authentication.NewPasswordValidator()
+	require.NoError(t, err)
+	h := handler.NewHandler(storage, storage, v)
 	router.SetupRoutes(app, h)
 
 	// Create a new http get request on landingpage

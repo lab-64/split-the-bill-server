@@ -28,6 +28,8 @@ func SetupRoutes(app *fiber.App, h handler.Handler) {
 	userRoute.Get("/:id", h.GetUserByID)
 	userRoute.Post("/", h.CreateUser)
 	userRoute.Get("/:username", h.GetUserByUsername)
+	userRoute.Post("/register", h.RegisterUser)
+	userRoute.Post("/login", h.Login)
 	//userRoute.Put("/:id", handler.UpdateUser)
 	userRoute.Delete("/:id", h.DeleteUserByID)
 }

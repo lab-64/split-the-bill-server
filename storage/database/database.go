@@ -18,6 +18,26 @@ type Database struct {
 	db *gorm.DB
 }
 
+func (d *Database) AddAuthenticationCookie(cookie types.AuthenticationCookie) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d *Database) GetCookiesForUser(userID uuid.UUID) []types.AuthenticationCookie {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d *Database) RegisterUser(user types.User, passwordHash []byte) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d *Database) GetCredentials(id uuid.UUID) ([]byte, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func NewDatabase() (*Database, error) {
 	d := Database{}
 	err := d.Connect()
