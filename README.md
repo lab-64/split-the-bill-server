@@ -6,7 +6,7 @@
 # Start Application
 
 ```shell
-docker-compose up -d
+docker-compose up -d --build
 ```
 
 The postgresql database and the webserver will be started.
