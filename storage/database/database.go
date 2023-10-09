@@ -18,26 +18,6 @@ type Database struct {
 	db *gorm.DB
 }
 
-func (d *Database) AddAuthenticationCookie(cookie types.AuthenticationCookie) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (d *Database) GetCookiesForUser(userID uuid.UUID) []types.AuthenticationCookie {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (d *Database) RegisterUser(user types.User, passwordHash []byte) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (d *Database) GetCredentials(id uuid.UUID) ([]byte, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func NewDatabase() (*Database, error) {
 	d := Database{}
 	err := d.Connect()
@@ -64,7 +44,8 @@ func (d *Database) Connect() error {
 	log.Println("Connected")
 	db.Logger = logger.Default.LogMode(logger.Info)
 	log.Println("running migrations")
-	err = db.AutoMigrate(&User{})
+	// migrate models to database
+	err = db.AutoMigrate(&User{}, &AuthCookie{}, &Credentials{})
 	if err != nil {
 		return err
 	}
@@ -136,4 +117,57 @@ func (d *Database) GetUserByUsername(username string) (types.User, error) {
 		return types.User{}, storage.NoSuchUserError
 	}
 	return user.ToUser(), nil
+}
+
+func (d *Database) AddAuthenticationCookie(cookie types.AuthenticationCookie) {
+	authCookie := MakeAuthCooke(cookie)
+	// store cookie
+	d.db.Where(AuthCookie{UserID: authCookie.UserID}).Create(&authCookie)
+}
+
+func (d *Database) GetCookiesForUser(userID uuid.UUID) []types.AuthenticationCookie {
+	var cookies []AuthCookie
+	// get all cookies for given user
+	res := d.db.Where(AuthCookie{UserID: userID}).Find(&cookies)
+	if res.Error != nil {
+		return nil
+	}
+	return cookiesToAuthCookies(cookies)
+}
+
+// CookiesToAuthCookies converts a slice of AuthCookie to a slice of types.AuthenticationCookie
+func cookiesToAuthCookies(cookies []AuthCookie) []types.AuthenticationCookie {
+	s := make([]types.AuthenticationCookie, len(cookies))
+	for i, cookie := range cookies {
+		s[i] = cookie.ToAuthCookie()
+	}
+	return s
+}
+
+func (d *Database) RegisterUser(user types.User, passwordHash []byte) error {
+	item := MakeUser(user)
+	// store user
+	res := d.db.Where(User{Username: item.Username}).FirstOrCreate(&item)
+	log.Println(res)
+	if res.Error != nil {
+		return storage.UserAlreadyExistsError
+	}
+	// TODO: handle error case, user should not be created, if credentials cannot be stored
+	// store credentials
+	res = d.db.Where(Credentials{UserID: item.ID}).FirstOrCreate(&Credentials{UserID: item.ID, Hash: passwordHash})
+	if res.Error != nil {
+		// TODO: create suitable error msg
+		return res.Error
+	}
+	return nil
+}
+
+func (d *Database) GetCredentials(id uuid.UUID) ([]byte, error) {
+	var credentials Credentials
+	// get credentials from given user
+	res := d.db.Limit(1).First(&credentials, Credentials{UserID: id})
+	if res.Error != nil {
+		return nil, storage.NoCredentialsError
+	}
+	return credentials.Hash, nil
 }
