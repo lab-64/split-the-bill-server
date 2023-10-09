@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"errors"
 	"github.com/caitlinelfring/nist-password-validator/password"
 	"golang.org/x/crypto/bcrypt"
 	"os"
@@ -29,5 +30,11 @@ func HashPassword(pwd string) ([]byte, error) {
 
 func ComparePassword(hash []byte, pwd string) error {
 	// Compare password with hash
-	return bcrypt.CompareHashAndPassword(hash, []byte(pwd))
+	res := bcrypt.CompareHashAndPassword(hash, []byte(pwd))
+	if res != nil {
+		return InvalidCredentials
+	}
+	return nil
 }
+
+var InvalidCredentials = errors.New("invalid credentials")
