@@ -47,10 +47,10 @@ func (h Handler) RegisterUser(c *fiber.Ctx) error {
 
 	err = h.userStorage.RegisterUser(user, pHash)
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create rUser: %v", err)})
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create User: %v", err)})
 	}
 
-	return c.Status(200).JSON(fiber.Map{"status": "ok", "message": "User successfully created", "rUser": user.Email})
+	return c.Status(200).JSON(fiber.Map{"status": "ok", "message": "User successfully created", "User": user.Username})
 }
 
 // Login uses the given login credentials for login and returns an authentication token for the user.
