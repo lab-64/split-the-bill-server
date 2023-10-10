@@ -81,7 +81,16 @@ func (h Handler) Login(c *fiber.Ctx) error {
 
 	h.cookieStorage.AddAuthenticationCookie(sc)
 
-	return c.Status(200).JSON(fiber.Map{"status": "ok", "cookieAuth": sc})
+	// Create response cookie
+	// TODO: add Secure flag after development (cookie will only be sent over HTTPS)
+	c.Cookie(&fiber.Cookie{
+		Name:     "session",
+		Value:    sc.Token.String(),
+		Expires:  sc.ValidBefore,
+		HTTPOnly: true,
+		//Secure:   true,
+	})
+	return c.Status(200).JSON(fiber.Map{"status": "ok"})
 }
 
 // CreateUser parses a types.User from the request body and adds it to the userStorage.
