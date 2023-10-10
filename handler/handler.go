@@ -86,7 +86,7 @@ func (h Handler) Login(c *fiber.Ctx) error {
 
 // CreateUser parses a types.User from the request body and adds it to the userStorage.
 func (h Handler) CreateUser(c *fiber.Ctx) error {
-	log.Println("CreateUser")
+	log.Printf("CreateUser")
 	// Store the body in the user and return error if encountered
 	var user types.User
 	if err := c.BodyParser(&user); err != nil {

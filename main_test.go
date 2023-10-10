@@ -13,11 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestLandingPage test the configuration of the default landing page
-//
-// Parameters:
-//
-//	*testing.T: Testing type
+// TestlandingPage tests whether the fiber client starts correctly.
 func TestLandingPage(t *testing.T) {
 	// Test Server Configuration
 	app := fiber.New()
