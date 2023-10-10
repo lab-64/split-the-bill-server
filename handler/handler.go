@@ -41,8 +41,7 @@ func (h Handler) RegisterUser(c *fiber.Ctx) error {
 	user := rUser.ToUser()
 	pHash, err := authentication.HashPassword(rUser.Password)
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create user")})
-
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Could not create user"})
 	}
 
 	err = h.userStorage.RegisterUser(user, pHash)

@@ -17,9 +17,16 @@ func main() {
 	}
 	// configure webserver
 	app := fiber.New()
+
+	// start database
 	storage, err := database.NewDatabase()
-	err = storage.Connect()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// start ephemeral
 	//storage := ephemeral.NewEphemeral()
+	//err = storage.Connect()
+
 	passwordValidator, err := authentication.NewPasswordValidator()
 	if err != nil {
 		log.Fatal(err)
