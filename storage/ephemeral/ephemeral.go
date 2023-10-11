@@ -1,6 +1,7 @@
 package ephemeral
 
 import (
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"log"
@@ -10,15 +11,61 @@ import (
 )
 
 type Ephemeral struct {
-	lock        sync.Mutex
-	userStorage map[uuid.UUID]types.User
-	nameIndex   map[string]uuid.UUID
+	lock            sync.Mutex
+	userStorage     map[uuid.UUID]types.User
+	nameIndex       map[string]uuid.UUID
+	passwordStorage map[uuid.UUID][]byte
+	cookieStorage   map[uuid.UUID][]types.AuthenticationCookie
+}
+
+func (e *Ephemeral) AddAuthenticationCookie(cookie types.AuthenticationCookie) {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	cookies, exists := e.cookieStorage[cookie.UserID]
+	if !exists {
+		cookies = make([]types.AuthenticationCookie, 0)
+	}
+	cookies = append(cookies, cookie)
+	e.cookieStorage[cookie.UserID] = cookies
+}
+
+func (e *Ephemeral) GetCookiesForUser(userID uuid.UUID) []types.AuthenticationCookie {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	return e.cookieStorage[userID]
+}
+
+func (e *Ephemeral) GetCredentials(id uuid.UUID) ([]byte, error) {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	hash, exists := e.passwordStorage[id]
+	if !exists {
+		return nil, storage.NoCredentialsError
+	}
+	return hash, nil
+}
+
+func (e *Ephemeral) RegisterUser(user types.User, hash []byte) error {
+	err := e.AddUser(user)
+	if err != nil {
+		return err
+	}
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	_, exists := e.passwordStorage[user.ID]
+	if exists {
+		return errors.New("fatal: user already has saved password")
+	}
+	e.passwordStorage[user.ID] = hash
+	return nil
 }
 
 func NewEphemeral() *Ephemeral {
 	return &Ephemeral{
-		userStorage: make(map[uuid.UUID]types.User),
-		nameIndex:   make(map[string]uuid.UUID),
+		userStorage:     make(map[uuid.UUID]types.User),
+		nameIndex:       make(map[string]uuid.UUID),
+		passwordStorage: make(map[uuid.UUID][]byte),
+		cookieStorage:   make(map[uuid.UUID][]types.AuthenticationCookie),
 	}
 }
 
@@ -37,7 +84,6 @@ func (e *Ephemeral) AddUser(user types.User) error {
 		return storage.UserAlreadyExistsError
 	}
 	e.userStorage[user.ID] = user
-
 	e.nameIndex[user.Username] = user.ID
 	return nil
 }
@@ -51,6 +97,7 @@ func (e *Ephemeral) DeleteUser(id uuid.UUID) error {
 	}
 	delete(e.nameIndex, user.Username)
 	delete(e.userStorage, id)
+	delete(e.passwordStorage, id)
 	return nil
 }
 

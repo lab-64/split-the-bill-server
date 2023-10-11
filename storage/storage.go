@@ -28,7 +28,20 @@ type UserStorage interface {
 	GetUserByID(id uuid.UUID) (types.User, error)
 	// GetUserByUsername returns the user with the given username, or a NoSuchUserError if no such user exists.
 	GetUserByUsername(username string) (types.User, error)
+	// RegisterUser adds the given user to the storage and saves the password. If a user with the same ID or username
+	// already exists, a UserAlreadyExistsError is returned.
+	RegisterUser(user types.User, passwordHash []byte) error
+	// GetCredentials returns the password hash for the user with the given ID, or a NoCredentialsError, if no
+	// credentials are stored for the user.
+	GetCredentials(id uuid.UUID) ([]byte, error)
+}
+
+type CookieStorage interface {
+	Storage
+	AddAuthenticationCookie(cookie types.AuthenticationCookie)
+	GetCookiesForUser(userID uuid.UUID) []types.AuthenticationCookie
 }
 
 var UserAlreadyExistsError = errors.New("user already exists")
 var NoSuchUserError = errors.New("no such user")
+var NoCredentialsError = errors.New("no credentials for user")
