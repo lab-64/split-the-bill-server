@@ -4,24 +4,48 @@
 
 ---
 # Start Application
+We can start the application with different storage types.
 
+## Ephemeral Storage
+
+Add the following code in the "select storage" section in `main.go`:
+```go
+// Select storage
+storage := ephemeral.NewEphemeral()
+```
+Start the application with:
 ```shell
-docker-compose up -d --build
+make run
 ```
 
-The postgresql database and the webserver will be started.
+## Postgres Database
 
-The webserver is accessable under: http://localhost:8080/
-
-# End Application
-
-```shell
-docker-compose down
+Add the following code in the "select storage" section in `main.go`:
+```go
+// Select storage
+storage, err := database.NewDatabase()
+if err != nil {
+    log.Fatal(err)
+}
 ```
 
-### Delete Postgres DB
+Start the application with:
 ```shell
-docker-compose down -v
+make start-postgres
+```
+End the application with:
+```shell
+make stop-postgres
+```
+Reset the database with:
+```shell
+make reset-db
+```
+---
+# Testing
+
+```shell
+make test
 ```
 
 ---

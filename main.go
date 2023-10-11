@@ -7,7 +7,7 @@ import (
 	"split-the-bill-server/config"
 	"split-the-bill-server/handler"
 	"split-the-bill-server/router"
-	"split-the-bill-server/storage/database"
+	"split-the-bill-server/storage/ephemeral"
 )
 
 func main() {
@@ -18,14 +18,14 @@ func main() {
 	// configure webserver
 	app := fiber.New()
 
-	// start database
-	storage, err := database.NewDatabase()
+	// Select storage
+	// start postgres
+	/*storage, err := database.NewDatabase()
 	if err != nil {
 		log.Fatal(err)
-	}
+	}*/
 	// start ephemeral
-	//storage := ephemeral.NewEphemeral()
-	//err = storage.Connect()
+	storage := ephemeral.NewEphemeral()
 
 	passwordValidator, err := authentication.NewPasswordValidator()
 	if err != nil {
