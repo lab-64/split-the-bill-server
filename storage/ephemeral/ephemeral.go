@@ -137,3 +137,16 @@ func (e *Ephemeral) GetUserByUsername(username string) (types.User, error) {
 	}
 	return user, nil
 }
+
+func (e *Ephemeral) GetCookieFromToken(token uuid.UUID) (types.AuthenticationCookie, error) {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	for _, cookies := range e.cookieStorage {
+		for _, cookie := range cookies {
+			if cookie.Token == token {
+				return cookie, nil
+			}
+		}
+	}
+	return types.AuthenticationCookie{}, storage.NoSuchCookieError
+}

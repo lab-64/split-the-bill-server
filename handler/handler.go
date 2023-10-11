@@ -163,3 +163,36 @@ func (h Handler) GetUserByUsername(c *fiber.Ctx) error {
 	}
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User found", "data": user})
 }
+
+// getAuthenticatedUserFromHeader tries to return the user associated with the given authentication token in the request header.
+// If the token is invalid, an error will be returned.
+// TODO: Generalize error messages
+func (h Handler) getAuthenticatedUserFromHeader(reqHeader map[string]string) (types.User, error) {
+	// get authentication cookie from header
+	token := reqHeader["Cookie"]
+	// check if cookie is present
+	if token == "" {
+		return types.User{}, errors.New("authentication cookie is missing")
+	}
+	// try to parse token
+	tokenUUID, err := uuid.Parse(token)
+	if err != nil {
+		return types.User{}, errors.New("authentication cookie is invalid")
+	}
+	// get auth cookie from storage
+	cookie, err := h.cookieStorage.GetCookieFromToken(tokenUUID)
+	if err != nil {
+		return types.User{}, err
+	}
+	// check if cookie is valid
+	err = authentication.IsSessionCookieValid(cookie)
+	if err != nil {
+		return types.User{}, err
+	}
+	// get user from cookie
+	user, err := h.userStorage.GetUserByID(cookie.UserID)
+	if err != nil {
+		return types.User{}, err
+	}
+	return user, nil
+}

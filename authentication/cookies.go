@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"split-the-bill-server/types"
 	"time"
@@ -16,3 +17,14 @@ func GenerateSessionCookie(userID uuid.UUID) types.AuthenticationCookie {
 		ValidBefore: time.Now().Add(SessionCookieValidityPeriod),
 	}
 }
+
+// IsSessionCookieValid validates the given session cookie by checking if the ValidBefore time is in the future. Returns SessionExpiredError if the cookie is not valid anymore.
+func IsSessionCookieValid(cookie types.AuthenticationCookie) error {
+	if cookie.ValidBefore.After(time.Now()) {
+		return nil
+	} else {
+		return SessionExpiredError
+	}
+}
+
+var SessionExpiredError = errors.New("session expired")

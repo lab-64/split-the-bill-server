@@ -40,8 +40,11 @@ type CookieStorage interface {
 	Storage
 	AddAuthenticationCookie(cookie types.AuthenticationCookie)
 	GetCookiesForUser(userID uuid.UUID) []types.AuthenticationCookie
+	// GetCookieFromToken returns the authentication cookie for the given token, or a NoSuchCookieError if no such
+	GetCookieFromToken(token uuid.UUID) (types.AuthenticationCookie, error)
 }
 
 var UserAlreadyExistsError = errors.New("user already exists")
 var NoSuchUserError = errors.New("no such user")
 var NoCredentialsError = errors.New("no credentials for user")
+var NoSuchCookieError = errors.New("no such cookie")

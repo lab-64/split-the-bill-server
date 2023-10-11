@@ -174,3 +174,8 @@ func (d *Database) GetCredentials(id uuid.UUID) ([]byte, error) {
 	}
 	return credentials.Hash, nil
 }
+
+func (d *Database) GetCookieFromToken(token uuid.UUID) (types.AuthenticationCookie, error) {
+	//TODO implement me
+	panic("implement me")
+}
