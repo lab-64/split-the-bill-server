@@ -44,7 +44,19 @@ type CookieStorage interface {
 	GetCookieFromToken(token uuid.UUID) (types.AuthenticationCookie, error)
 }
 
+type GroupStorage interface {
+	Storage
+	// AddGroup adds the given group to the storage. If a group with the same ID or name already exists, a GroupAlreadyExistsError is returned.
+	AddGroup(group types.Group) error
+	// GetGroupByID returns the group with the given ID, or a NoSuchGroupError if no such group exists.
+	GetGroupByID(id uuid.UUID) (types.Group, error)
+	// AddMemberToGroup adds the given member to the group with the given ID. If the group does not exist, a NoSuchGroupError is returned.
+	AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) error
+}
+
 var UserAlreadyExistsError = errors.New("user already exists")
 var NoSuchUserError = errors.New("no such user")
 var NoCredentialsError = errors.New("no credentials for user")
 var NoSuchCookieError = errors.New("no such cookie")
+var GroupAlreadyExistsError = errors.New("group already exists")
+var NoSuchGroupError = errors.New("no such group")

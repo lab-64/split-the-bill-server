@@ -1,16 +1,16 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"github.com/caitlinelfring/nist-password-validator/password"
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"log"
 	"split-the-bill-server/authentication"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/types"
 	"split-the-bill-server/wire"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 // TODO: Sanitize output / errors
@@ -19,11 +19,12 @@ import (
 type Handler struct {
 	userStorage       storage.UserStorage
 	cookieStorage     storage.CookieStorage
+	groupStorage      storage.GroupStorage
 	PasswordValidator *password.Validator
 }
 
-func NewHandler(userStorage storage.UserStorage, cookieStorage storage.CookieStorage, v *password.Validator) Handler {
-	return Handler{userStorage: userStorage, cookieStorage: cookieStorage, PasswordValidator: v}
+func NewHandler(userStorage storage.UserStorage, cookieStorage storage.CookieStorage, groupStorage storage.GroupStorage, v *password.Validator) Handler {
+	return Handler{userStorage: userStorage, cookieStorage: cookieStorage, groupStorage: groupStorage, PasswordValidator: v}
 }
 
 // RegisterUser parses a types.User from the request body, compares and validates both passwords and adds a new user to the userStorage.
@@ -162,6 +163,57 @@ func (h Handler) GetUserByUsername(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("User not found: %v", err), "data": err})
 	}
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User found", "data": user})
+}
+
+
+// CreateGroup creates a new group, sets the ownerID to the authenticated user and adds it to the groupStorage.
+// Authentication Required
+// TODO: Send invitations to group members
+// TODO: Generalize error messages
+func (h Handler) CreateGroup(c *fiber.Ctx) error {
+	// TODO: authenticate user
+	// parse group from request body
+	var rGroup wire.Group
+	if err := c.BodyParser(&rGroup); err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse group: %v", err), "data": err})
+	}
+	// validate group inputs
+	// TODO: if name is empty, generate default name
+	err := rGroup.ValidateInput()
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Inputs invalid: %v", err)})
+	}
+	// TODO: get user id from authenticated user
+	// TODO: delete, just for testing
+	userID, _ := uuid.Parse("7f1b2ed5-1201-4443-b997-56877fe31991")
+	// create group with the only member being the owner
+	group := rGroup.ToGroup(userID, []uuid.UUID{userID})
+	// TODO: send invitations to group members
+
+	// store group in groupStorage
+	err = h.groupStorage.AddGroup(group)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create group: %v", err), "data": err})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Group created", "data": group})
+}
+
+// TODO: maybe delete, or add authentication and allow only query of own groups
+func (h Handler) GetGroup(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Parameter id is required", "data": nil})
+	}
+	gid, err := uuid.Parse(id)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Unable to parse uuid: %s, error: %v", id, err), "data": err})
+	}
+	group, err := h.groupStorage.GetGroupByID(gid)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Group not found: %v", err), "data": err})
+	}
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Group found", "data": group})
 }
 
 // getAuthenticatedUserFromHeader tries to return the user associated with the given authentication token in the request header.

@@ -16,34 +16,24 @@ type Ephemeral struct {
 	nameIndex       map[string]uuid.UUID
 	passwordStorage map[uuid.UUID][]byte
 	cookieStorage   map[uuid.UUID][]types.AuthenticationCookie
+	groupStorage    map[uuid.UUID]types.Group
 }
 
-func (e *Ephemeral) AddAuthenticationCookie(cookie types.AuthenticationCookie) {
-	e.lock.Lock()
-	defer e.lock.Unlock()
-	cookies, exists := e.cookieStorage[cookie.UserID]
-	if !exists {
-		cookies = make([]types.AuthenticationCookie, 0)
+func NewEphemeral() *Ephemeral {
+	return &Ephemeral{
+		userStorage:     make(map[uuid.UUID]types.User),
+		nameIndex:       make(map[string]uuid.UUID),
+		passwordStorage: make(map[uuid.UUID][]byte),
+		cookieStorage:   make(map[uuid.UUID][]types.AuthenticationCookie),
+		groupStorage:    make(map[uuid.UUID]types.Group),
 	}
-	cookies = append(cookies, cookie)
-	e.cookieStorage[cookie.UserID] = cookies
 }
 
-func (e *Ephemeral) GetCookiesForUser(userID uuid.UUID) []types.AuthenticationCookie {
-	e.lock.Lock()
-	defer e.lock.Unlock()
-	return e.cookieStorage[userID]
+func (e *Ephemeral) Connect() error {
+	return nil
 }
 
-func (e *Ephemeral) GetCredentials(id uuid.UUID) ([]byte, error) {
-	e.lock.Lock()
-	defer e.lock.Unlock()
-	hash, exists := e.passwordStorage[id]
-	if !exists {
-		return nil, storage.NoCredentialsError
-	}
-	return hash, nil
-}
+// User Section
 
 func (e *Ephemeral) RegisterUser(user types.User, hash []byte) error {
 	err := e.AddUser(user)
@@ -57,19 +47,6 @@ func (e *Ephemeral) RegisterUser(user types.User, hash []byte) error {
 		return errors.New("fatal: user already has saved password")
 	}
 	e.passwordStorage[user.ID] = hash
-	return nil
-}
-
-func NewEphemeral() *Ephemeral {
-	return &Ephemeral{
-		userStorage:     make(map[uuid.UUID]types.User),
-		nameIndex:       make(map[string]uuid.UUID),
-		passwordStorage: make(map[uuid.UUID][]byte),
-		cookieStorage:   make(map[uuid.UUID][]types.AuthenticationCookie),
-	}
-}
-
-func (e *Ephemeral) Connect() error {
 	return nil
 }
 
@@ -138,6 +115,35 @@ func (e *Ephemeral) GetUserByUsername(username string) (types.User, error) {
 	return user, nil
 }
 
+func (e *Ephemeral) GetCredentials(id uuid.UUID) ([]byte, error) {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	hash, exists := e.passwordStorage[id]
+	if !exists {
+		return nil, storage.NoCredentialsError
+	}
+	return hash, nil
+}
+
+// Cookie Section
+
+func (e *Ephemeral) AddAuthenticationCookie(cookie types.AuthenticationCookie) {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	cookies, exists := e.cookieStorage[cookie.UserID]
+	if !exists {
+		cookies = make([]types.AuthenticationCookie, 0)
+	}
+	cookies = append(cookies, cookie)
+	e.cookieStorage[cookie.UserID] = cookies
+}
+
+func (e *Ephemeral) GetCookiesForUser(userID uuid.UUID) []types.AuthenticationCookie {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	return e.cookieStorage[userID]
+}
+
 func (e *Ephemeral) GetCookieFromToken(token uuid.UUID) (types.AuthenticationCookie, error) {
 	e.lock.Lock()
 	defer e.lock.Unlock()
@@ -149,4 +155,39 @@ func (e *Ephemeral) GetCookieFromToken(token uuid.UUID) (types.AuthenticationCoo
 		}
 	}
 	return types.AuthenticationCookie{}, storage.NoSuchCookieError
+}
+
+// Group Section
+
+func (e *Ephemeral) AddGroup(group types.Group) error {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	_, exists := e.groupStorage[group.ID]
+	if exists {
+		return storage.GroupAlreadyExistsError
+	}
+	e.groupStorage[group.ID] = group
+	return nil
+}
+
+func (e *Ephemeral) GetGroupByID(id uuid.UUID) (types.Group, error) {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	group, exists := e.groupStorage[id]
+	if !exists {
+		return group, storage.NoSuchGroupError
+	}
+	return group, nil
+}
+
+func (e *Ephemeral) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) error {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	group, exists := e.groupStorage[groupID]
+	if !exists {
+		return storage.NoSuchGroupError
+	}
+	group.Members = append(group.Members, memberID)
+	e.groupStorage[groupID] = group
+	return nil
 }

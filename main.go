@@ -31,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	h := handler.NewHandler(storage, storage, passwordValidator)
+	h := handler.NewHandler(storage, storage, storage, passwordValidator)
 	router.SetupRoutes(app, h)
 
 	// handle unavailable route

@@ -179,3 +179,20 @@ func (d *Database) GetCookieFromToken(token uuid.UUID) (types.AuthenticationCook
 	//TODO implement me
 	panic("implement me")
 }
+
+// Group Section
+
+func (d *Database) AddGroup(group types.Group) error {
+	//TODO: implement me
+	panic("implement me")
+}
+
+func (d *Database) GetGroupByID(id uuid.UUID) (types.Group, error) {
+	//TODO: implement me
+	panic("implement me")
+}
+
+func (d *Database) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) error {
+	// TODO: implement me
+	panic("implement me")
+}
