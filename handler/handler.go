@@ -188,7 +188,15 @@ func (h Handler) CreateGroup(c *fiber.Ctx) error {
 	userID, _ := uuid.Parse("7f1b2ed5-1201-4443-b997-56877fe31991")
 	// create group with the only member being the owner
 	group := rGroup.ToGroup(userID, []uuid.UUID{userID})
-	// TODO: send invitations to group members
+	// Create a group invitation for each invited user
+	for _, member := range rGroup.Invites {
+		groupInvitation := types.CreateGroupInvitation(&group)
+		// store group invitation for user
+		err := h.userStorage.AddGroupInvitationToUser(groupInvitation, member)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create invitation: %v", err), "data": err})
+		}
+	}
 
 	// store group in groupStorage
 	err = h.groupStorage.AddGroup(group)
@@ -197,6 +205,25 @@ func (h Handler) CreateGroup(c *fiber.Ctx) error {
 	}
 
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Group created", "data": group})
+}
+
+func (h Handler) HandleInvitation(c *fiber.Ctx) error {
+	// get authenticated user
+	user, err := h.getAuthenticatedUserFromHeader(c.GetReqHeaders())
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Authentication declined: %v", err)})
+	}
+	// parse invitation reply
+	var rInvitation wire.InvitationReply
+	if err := c.BodyParser(&rInvitation); err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse invitation: %v", err), "data": err})
+	}
+	// handle invitation
+	err = h.userStorage.HandleInvitation(rInvitation.Type, user.ID, rInvitation.ID, rInvitation.Accept)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not handle invitation: %v", err), "data": err})
+	}
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Invitation handled"})
 }
 
 // TODO: maybe delete, or add authentication and allow only query of own groups

@@ -28,6 +28,7 @@ func SetupRoutes(app *fiber.App, h handler.Handler) {
 	userRoute.Post("/login", h.Login)
 	//userRoute.Put("/:id", handler.UpdateUser)
 	userRoute.Delete("/:id", h.DeleteUserByID)
+	userRoute.Post("/invitations", h.HandleInvitation)
 
 	// group routes
 	groupRoute := api.Group("/group")

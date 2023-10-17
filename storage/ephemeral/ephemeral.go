@@ -125,6 +125,74 @@ func (e *Ephemeral) GetCredentials(id uuid.UUID) ([]byte, error) {
 	return hash, nil
 }
 
+func (e *Ephemeral) AddGroupInvitationToUser(invitation types.GroupInvitation, userId uuid.UUID) error {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	user, exists := e.userStorage[userId]
+	if !exists {
+		return storage.NoSuchUserError
+	}
+	// update invitation list
+	invitations := append(user.PendingGroupInvitations, invitation)
+	user.PendingGroupInvitations = invitations
+	e.userStorage[userId] = user
+	return nil
+}
+
+func (e *Ephemeral) HandleInvitation(invitationType string, userID uuid.UUID, invitationID uuid.UUID, accept bool) error {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	// get user
+	user, exists := e.userStorage[userID]
+	if !exists {
+		return storage.NoSuchUserError
+	}
+	// handle group invitation reply
+	if invitationType == "group" {
+		return e.handleGroupInvitation(user, invitationID, accept)
+	}
+	// TODO: handle further invitation replies
+	return storage.InvitationNotFoundError
+}
+
+// handleGroupInvitation handles the reply to a group invitation. If the invitation gets accepted, the user gets added to the group and the invitations gets deleted.
+// If the invitation gets declined, the invitation gets deleted.
+func (e *Ephemeral) handleGroupInvitation(user types.User, invitationID uuid.UUID, accept bool) error {
+	// if invitation gets accepted, add user to group
+	for _, invitation := range user.PendingGroupInvitations {
+		if invitation.ID == invitationID {
+			if accept {
+				// get group
+				group, exists := e.groupStorage[invitation.For.ID]
+				if !exists {
+					return storage.NoSuchGroupError
+				}
+				// insert user into group members
+				group.Members = append(group.Members, user.ID)
+				e.groupStorage[group.ID] = group
+				// add group pointer to user struct
+				groupList := append(*user.Groups, group)
+				user.Groups = &groupList
+			}
+			// remove invitation
+			user.PendingGroupInvitations = removeInvitation(user.PendingGroupInvitations, invitationID)
+			e.userStorage[user.ID] = user
+			return nil
+		}
+	}
+	return nil
+}
+
+// removeInvitation removes the invitation with the given ID from the given invitation list.
+func removeInvitation(invitations []types.GroupInvitation, id uuid.UUID) []types.GroupInvitation {
+	for i, invitation := range invitations {
+		if invitation.ID == id {
+			return append(invitations[:i], invitations[i+1:]...)
+		}
+	}
+	return invitations
+}
+
 // Cookie Section
 
 func (e *Ephemeral) AddAuthenticationCookie(cookie types.AuthenticationCookie) {

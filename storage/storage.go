@@ -34,6 +34,12 @@ type UserStorage interface {
 	// GetCredentials returns the password hash for the user with the given ID, or a NoCredentialsError, if no
 	// credentials are stored for the user.
 	GetCredentials(id uuid.UUID) ([]byte, error)
+	// AddGroupInvitationToUser adds the given group invitation to the pending group invitations from user. If the user does not exist, a NoSuchUserError is returned.
+	AddGroupInvitationToUser(invitation types.GroupInvitation, user uuid.UUID) error
+	// HandleInvitation handles the given invitation for the given user. Invitations can be accepted or declined. If the user does not exist, a NoSuchUserError is returned.
+	// If the invitation does not exist, a InvitationNotFoundError is returned.
+	// TODO: rethink invitation type, maybe delete and only look for UUID in all invitations, or split into different handlers.
+	HandleInvitation(invitationType string, userID uuid.UUID, invitationID uuid.UUID, accept bool) error
 }
 
 type CookieStorage interface {
@@ -54,6 +60,7 @@ type GroupStorage interface {
 	AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) error
 }
 
+var InvitationNotFoundError = errors.New("invitation not found")
 var UserAlreadyExistsError = errors.New("user already exists")
 var NoSuchUserError = errors.New("no such user")
 var NoCredentialsError = errors.New("no credentials for user")
