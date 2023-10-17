@@ -165,10 +165,43 @@ func (h Handler) GetUserByUsername(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User found", "data": user})
 }
 
+// CreateBill creates a new bill and adds it to the billStorage.
+// Authentication Required
+func (h Handler) CreateBill(c *fiber.Ctx) error {
+	// authenticate user
+	/*user, err := h.getAuthenticatedUserFromHeader(c.GetReqHeaders())
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Authentication declined: %v", err)})
+	}
+	log.Println(user)
+	*/
+	// TODO: start desired procedure
+	// create nested bill struct
+	var items []wire.Item
+	rBill := wire.Bill{
+		Items: &items,
+	}
+	// parse bill from request body
+	err := c.BodyParser(&rBill)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse bill: %v", err), "data": err})
+	}
+	// create types.bill
+	bill, err := rBill.ToBill()
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create bill: %v", err), "data": err})
+	}
+	log.Println(bill)
+	for _, item := range *bill.Items {
+		log.Println(item)
+	}
+	// TODO: store bill in billStorage
+
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Bill created"})
+}
 
 // CreateGroup creates a new group, sets the ownerID to the authenticated user and adds it to the groupStorage.
 // Authentication Required
-// TODO: Send invitations to group members
 // TODO: Generalize error messages
 func (h Handler) CreateGroup(c *fiber.Ctx) error {
 	// TODO: authenticate user
