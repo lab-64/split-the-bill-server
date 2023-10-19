@@ -20,11 +20,12 @@ type Handler struct {
 	userStorage       storage.UserStorage
 	cookieStorage     storage.CookieStorage
 	groupStorage      storage.GroupStorage
+	billStorage       storage.BillStorage
 	PasswordValidator *password.Validator
 }
 
-func NewHandler(userStorage storage.UserStorage, cookieStorage storage.CookieStorage, groupStorage storage.GroupStorage, v *password.Validator) Handler {
-	return Handler{userStorage: userStorage, cookieStorage: cookieStorage, groupStorage: groupStorage, PasswordValidator: v}
+func NewHandler(userStorage storage.UserStorage, cookieStorage storage.CookieStorage, groupStorage storage.GroupStorage, billStorage storage.BillStorage, v *password.Validator) Handler {
+	return Handler{userStorage: userStorage, cookieStorage: cookieStorage, groupStorage: groupStorage, billStorage: billStorage, PasswordValidator: v}
 }
 
 // RegisterUser parses a types.User from the request body, compares and validates both passwords and adds a new user to the userStorage.
@@ -167,15 +168,16 @@ func (h Handler) GetUserByUsername(c *fiber.Ctx) error {
 
 // CreateBill creates a new bill and adds it to the billStorage.
 // Authentication Required
+// TODO: How to handle bills without a group? Maybe add a default group which features only the owner? => how to mark such a group?
 func (h Handler) CreateBill(c *fiber.Ctx) error {
-	// authenticate user
+	// TODO: authenticate user
 	/*user, err := h.getAuthenticatedUserFromHeader(c.GetReqHeaders())
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Authentication declined: %v", err)})
 	}
-	log.Println(user)
 	*/
-	// TODO: start desired procedure
+	// TODO: delete if authentication is used
+	userID := uuid.MustParse("7f1b2ed5-1201-4443-b997-56877fe31991")
 	// create nested bill struct
 	var items []wire.Item
 	rBill := wire.Bill{
@@ -186,18 +188,53 @@ func (h Handler) CreateBill(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse bill: %v", err), "data": err})
 	}
+	// TODO: delete
+	// get group from groupStorage
+	/*group, err := h.groupStorage.GetGroupByID(rBill.Group)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not get group: %v", err), "data": err})
+	}
+	*/
+
 	// create types.bill
-	bill, err := rBill.ToBill()
+	bill, err := rBill.ToBill(userID)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create bill: %v", err), "data": err})
 	}
-	log.Println(bill)
-	for _, item := range *bill.Items {
-		log.Println(item)
+	// validate groupID
+	_, err = h.groupStorage.GetGroupByID(rBill.Group)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Group not found: %v", err), "data": err})
 	}
-	// TODO: store bill in billStorage
+	// Inputs valid:
+	// store bill in billStorage
+	err = h.billStorage.AddBill(bill)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create bill: %v", err), "data": err})
+	}
+	// add bill to group
+	err = h.groupStorage.AddBillToGroup(&bill, rBill.Group)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not add bill to group: %v", err), "data": err})
+	}
 
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Bill created"})
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Bill created", "data": bill})
+}
+
+func (h Handler) GetBillByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Parameter id is required", "data": nil})
+	}
+	bid, err := uuid.Parse(id)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Unable to parse uuid: %s, error: %v", id, err), "data": err})
+	}
+	bill, err := h.billStorage.GetBillByID(bid)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Bill not found: %v", err), "data": err})
+	}
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Bill found", "data": bill})
 }
 
 // CreateGroup creates a new group, sets the ownerID to the authenticated user and adds it to the groupStorage.
@@ -240,6 +277,7 @@ func (h Handler) CreateGroup(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Group created", "data": group})
 }
 
+// TODO: Check if id belongs to pending invitation
 func (h Handler) HandleInvitation(c *fiber.Ctx) error {
 	// get authenticated user
 	user, err := h.getAuthenticatedUserFromHeader(c.GetReqHeaders())

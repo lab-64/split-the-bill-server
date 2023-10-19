@@ -20,7 +20,7 @@ func TestLandingPage(t *testing.T) {
 	storage := ephemeral.NewEphemeral()
 	v, err := authentication.NewPasswordValidator()
 	require.NoError(t, err)
-	h := handler.NewHandler(storage, storage, storage, v)
+	h := handler.NewHandler(storage, storage, storage, storage, v)
 	router.SetupRoutes(app, h)
 
 	// Create a new http get request on landingpage

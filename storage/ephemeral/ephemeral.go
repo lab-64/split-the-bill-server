@@ -10,6 +10,7 @@ import (
 	"sync"
 )
 
+// TODO: Can change types to pointer of types -> updating types will be displayed in all related structs but it will still not update changes in PendingGroupInvitations
 type Ephemeral struct {
 	lock            sync.Mutex
 	userStorage     map[uuid.UUID]types.User
@@ -17,6 +18,7 @@ type Ephemeral struct {
 	passwordStorage map[uuid.UUID][]byte
 	cookieStorage   map[uuid.UUID][]types.AuthenticationCookie
 	groupStorage    map[uuid.UUID]types.Group
+	billStorage     map[uuid.UUID]types.Bill
 }
 
 func NewEphemeral() *Ephemeral {
@@ -26,6 +28,7 @@ func NewEphemeral() *Ephemeral {
 		passwordStorage: make(map[uuid.UUID][]byte),
 		cookieStorage:   make(map[uuid.UUID][]types.AuthenticationCookie),
 		groupStorage:    make(map[uuid.UUID]types.Group),
+		billStorage:     make(map[uuid.UUID]types.Bill),
 	}
 }
 
@@ -258,4 +261,42 @@ func (e *Ephemeral) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) erro
 	group.Members = append(group.Members, memberID)
 	e.groupStorage[groupID] = group
 	return nil
+}
+
+// TODO: FIX: if group is changed, users pointer to group does not include the changes (see issue)
+func (e *Ephemeral) AddBillToGroup(bill *types.Bill, groupID uuid.UUID) error {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	group, exists := e.groupStorage[groupID]
+	if !exists {
+		return storage.NoSuchGroupError
+	}
+
+	// change group
+	group.Bills = append(group.Bills, bill)
+	e.groupStorage[group.ID] = group
+	return nil
+}
+
+// Bill Section
+
+func (e *Ephemeral) AddBill(bill types.Bill) error {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	_, exists := e.billStorage[bill.ID]
+	if exists {
+		return storage.BillAlreadyExistsError
+	}
+	e.billStorage[bill.ID] = bill
+	return nil
+}
+
+func (e *Ephemeral) GetBillByID(id uuid.UUID) (types.Bill, error) {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+	bill, exists := e.billStorage[id]
+	if !exists {
+		return bill, storage.NoSuchBillError
+	}
+	return bill, nil
 }
