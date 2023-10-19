@@ -171,8 +171,8 @@ func (e *Ephemeral) handleGroupInvitation(user types.User, invitationID uuid.UUI
 				group.Members = append(group.Members, user.ID)
 				e.groupStorage[group.ID] = group
 				// add group pointer to user struct
-				groupList := append(*user.Groups, group)
-				user.Groups = &groupList
+				groupList := append(user.Groups, &group)
+				user.Groups = groupList
 			}
 			// remove invitation
 			user.PendingGroupInvitations = removeInvitation(user.PendingGroupInvitations, invitationID)
