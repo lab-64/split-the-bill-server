@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"split-the-bill-server/dto"
+	"split-the-bill-server/http"
 	"split-the-bill-server/service"
 )
 
@@ -54,37 +55,39 @@ func (h UserHandler) Route(api fiber.Router) {
 func (h UserHandler) GetAll(c *fiber.Ctx) error {
 	users, err := h.IUserService.GetAll()
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not get users: %v", err), "data": err})
+		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUsersNotFound, err))
 	}
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "users Found", "data": users})
+	return http.Success(c, fiber.StatusOK, SuccessMsgUsersFound, users)
 }
 
 func (h UserHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Parameter id is required", "data": nil})
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Unable to parse uuid: %s, error: %v", id, err), "data": err})
+		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
 	user, err := h.IUserService.GetByID(uid)
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("User not found: %v", err), "data": err})
+		return http.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
 	}
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User found", "data": user})
+
+	return http.Success(c, fiber.StatusOK, SuccessMsgUserFound, user)
 }
 
 func (h UserHandler) GetByUsername(c *fiber.Ctx) error {
 	username := c.Params("username")
 	if username == "" {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Parameter username is required", "data": nil})
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "username"))
 	}
 	user, err := h.IUserService.GetByUsername(username)
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("User not found: %v", err), "data": err})
+		return http.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
 	}
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User found", "data": user})
+
+	return http.Success(c, fiber.StatusOK, SuccessMsgUserFound, user)
 }
 
 // Create parses a types.User from the request body and adds it to the userStorage.
@@ -92,32 +95,32 @@ func (h UserHandler) Create(c *fiber.Ctx) error {
 	// Store the body in the request and return error if encountered
 	var request dto.UserCreateDTO
 	if err := c.BodyParser(&request); err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse request: %v", err), "data": err})
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
 	request.ID = uuid.New()
 	// Add request to userStorage.
 	user, err := h.IUserService.Create(request)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create request: %v", err), "data": err})
+		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserCreate, err))
 	}
 	// Return the created request
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User has been created", "data": user})
+	return http.Success(c, fiber.StatusOK, SuccessMsgUserCreate, user)
 }
 
 func (h UserHandler) Delete(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "parameter id is required", "data": nil})
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Unable to parse uuid: %s, error: %v", id, err), "data": err})
+		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
 	err = h.IUserService.Delete(uid)
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Unable to delete user: %v", err), "data": err})
+		return http.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserDelete, err))
 	}
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User deleted"})
+	return http.Success(c, fiber.StatusOK, SuccessMsgUserDelete, nil)
 }
 
 // TODO: Check if id belongs to pending invitation
@@ -125,60 +128,61 @@ func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
 	// get authenticated user
 	userID, err := h.getAuthenticatedUserFromHeader(c.GetReqHeaders())
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Authentication declined: %v", err)})
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgAuthentication, err))
 	}
 	// parse invitation reply
 	var request dto.InvitationReplyDTO
 	if err := c.BodyParser(&request); err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse invitation: %v", err), "data": err})
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
 	}
 
 	// handle invitation
 	err = h.IUserService.HandleInvitation(request, userID, request.ID)
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not handle invitation: %v", err), "data": err})
+		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
 	}
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Invitation handled"})
+
+	return http.Success(c, fiber.StatusOK, SuccessMsgInvitationHandle, nil)
 }
 
 // Register parses a types.User from the request body, compares and validates both passwords and adds a new user to the userStorage.
 func (h UserHandler) Register(c *fiber.Ctx) error {
 	var request dto.UserCreateDTO
 	if err := c.BodyParser(&request); err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse request: %v", err), "data": err})
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
 
 	err := h.PasswordValidator.ValidatePassword(request.Password)
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Bad Password: %v", err)})
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBadPassword, err))
 	}
 
 	user, err := h.IUserService.Register(request)
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create User: %v", err)})
+		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserParse, err))
 	}
 
-	return c.Status(200).JSON(fiber.Map{"status": "ok", "message": "User successfully created", "User": user.Username})
+	return http.Success(c, fiber.StatusOK, SuccessMsgUserCreate, user.Username)
 }
 
 // Login uses the given login credentials for login and returns an authentication token for the user.
 func (h UserHandler) Login(c *fiber.Ctx) error {
 	var userCredentials dto.CredentialsDTO
 	if err := c.BodyParser(&userCredentials); err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse user: %v", err), "data": err})
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserCredentialsParse, err))
 	}
 	// Checks if all input fields are filled out
 	err := userCredentials.ValidateInputs()
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Inputs invalid: %v", err)})
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
 	}
 
 	err = h.IUserService.Login(c, userCredentials)
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not log in: %v", err)})
+		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserLogin, err))
 	}
 
-	return c.Status(200).JSON(fiber.Map{"status": "ok"})
+	return http.Success(c, fiber.StatusOK, "", nil)
 }
 
 // GetAuthenticatedUserFromHeader tries to return the user id associated with the given authentication token in the request header.
