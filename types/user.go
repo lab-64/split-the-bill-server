@@ -6,11 +6,11 @@ import (
 
 // TODO: Change PendingGroupInvitations to a pointer
 type User struct {
-	ID                      uuid.UUID         `json:"id,omitempty"`
-	Username                string            `json:"username"`
-	Email                   string            `json:"email"`
-	PendingGroupInvitations []GroupInvitation `json:"pending-group-invitations"`
-	Groups                  []*Group          `json:"groups"`
+	ID                      uuid.UUID          `json:"id,omitempty"`
+	Username                string             `json:"username"`
+	Email                   string             `json:"email"`
+	PendingGroupInvitations []*GroupInvitation `json:"pending-group-invitations"`
+	Groups                  []*Group           `json:"groups"`
 }
 
 func NewUser(username string) User {
@@ -25,7 +25,7 @@ func CreateUser(username string, email string) User {
 		ID:                      uuid.New(),
 		Username:                username,
 		Email:                   email,
-		PendingGroupInvitations: make([]GroupInvitation, 0),
+		PendingGroupInvitations: make([]*GroupInvitation, 0),
 		Groups:                  make([]*Group, 0),
 	}
 }
