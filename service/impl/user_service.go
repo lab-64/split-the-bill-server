@@ -20,9 +20,7 @@ func NewUserService(userStorage *storage.IUserStorage, cookieStorage *storage.IC
 	return &UserService{IUserStorage: *userStorage, ICookieStorage: *cookieStorage}
 }
 
-func (u *UserService) Create(userDTO dto.UserCreateDTO) (dto.UserDTO, error) {
-	userDTO.ID = uuid.New()
-
+func (u *UserService) Create(userDTO dto.UserInputDTO) (dto.UserOutputDTO, error) {
 	user := userDTO.ToUser()
 
 	err := u.IUserStorage.Create(user)
@@ -37,11 +35,11 @@ func (u *UserService) Delete(id uuid.UUID) error {
 	return err
 }
 
-func (u *UserService) GetAll() ([]dto.UserDTO, error) {
+func (u *UserService) GetAll() ([]dto.UserOutputDTO, error) {
 	users, err := u.IUserStorage.GetAll()
 	common.LogError(err)
 
-	usersDTO := make([]dto.UserDTO, len(users))
+	usersDTO := make([]dto.UserOutputDTO, len(users))
 
 	for i, user := range users {
 		usersDTO[i] = dto.ToUserDTO(&user)
@@ -50,21 +48,21 @@ func (u *UserService) GetAll() ([]dto.UserDTO, error) {
 	return usersDTO, err
 }
 
-func (u *UserService) GetByID(id uuid.UUID) (dto.UserDTO, error) {
+func (u *UserService) GetByID(id uuid.UUID) (dto.UserOutputDTO, error) {
 	user, err := u.IUserStorage.GetByID(id)
 	common.LogError(err)
 
 	return dto.ToUserDTO(&user), err
 }
 
-func (u *UserService) GetByUsername(username string) (dto.UserDTO, error) {
+func (u *UserService) GetByUsername(username string) (dto.UserOutputDTO, error) {
 	user, err := u.IUserStorage.GetByUsername(username)
 	common.LogError(err)
 
 	return dto.ToUserDTO(&user), err
 }
 
-func (u *UserService) Register(userDTO dto.UserCreateDTO) (dto.UserDTO, error) {
+func (u *UserService) Register(userDTO dto.UserInputDTO) (dto.UserOutputDTO, error) {
 	user := userDTO.ToUser()
 	passwordHash, err := authentication.HashPassword(userDTO.Password)
 	common.LogError(err)
@@ -75,7 +73,7 @@ func (u *UserService) Register(userDTO dto.UserCreateDTO) (dto.UserDTO, error) {
 	return dto.ToUserDTO(&user), err
 }
 
-func (u *UserService) Login(c *fiber.Ctx, credentials dto.CredentialsDTO) error {
+func (u *UserService) Login(credentials dto.CredentialsInputDTO) (fiber.Cookie, error) {
 	// Log-in user, get authentication cookie
 	user, err := u.IUserStorage.GetByUsername(credentials.Username)
 	common.LogError(err)
@@ -94,18 +92,18 @@ func (u *UserService) Login(c *fiber.Ctx, credentials dto.CredentialsDTO) error 
 
 	// Create response cookie
 	// TODO: add Secure flag after development (cookie will only be sent over HTTPS)
-	c.Cookie(&fiber.Cookie{
+	cookie := fiber.Cookie{
 		Name:     "session",
 		Value:    sc.Token.String(),
 		Expires:  sc.ValidBefore,
 		HTTPOnly: true,
 		//Secure:   true,
-	})
+	}
 
-	return err
+	return cookie, err
 }
 
-func (u *UserService) HandleInvitation(invitation dto.InvitationReplyDTO, userID uuid.UUID, invitationID uuid.UUID) error {
+func (u *UserService) HandleInvitation(invitation dto.InvitationInputDTO, userID uuid.UUID, invitationID uuid.UUID) error {
 	err := u.IUserStorage.HandleInvitation(invitation.Type, userID, invitationID, invitation.Accept)
 	common.LogError(err)
 	return err

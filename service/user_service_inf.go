@@ -7,21 +7,21 @@ import (
 )
 
 type IUserService interface {
-	Create(user dto.UserCreateDTO) (dto.UserDTO, error)
+	Create(user dto.UserInputDTO) (dto.UserOutputDTO, error)
 
 	Delete(id uuid.UUID) error
 
-	GetAll() ([]dto.UserDTO, error)
+	GetAll() ([]dto.UserOutputDTO, error)
 
-	GetByID(id uuid.UUID) (dto.UserDTO, error)
+	GetByID(id uuid.UUID) (dto.UserOutputDTO, error)
 
-	GetByUsername(username string) (dto.UserDTO, error)
+	GetByUsername(username string) (dto.UserOutputDTO, error)
 
-	Login(c *fiber.Ctx, credentials dto.CredentialsDTO) error
+	Login(credentials dto.CredentialsInputDTO) (fiber.Cookie, error)
 
-	Register(user dto.UserCreateDTO) (dto.UserDTO, error)
+	Register(user dto.UserInputDTO) (dto.UserOutputDTO, error)
 
-	HandleInvitation(invitation dto.InvitationReplyDTO, userID uuid.UUID, invitationID uuid.UUID) error
+	HandleInvitation(invitation dto.InvitationInputDTO, userID uuid.UUID, invitationID uuid.UUID) error
 
 	GetAuthenticatedUserID(tokenUUID uuid.UUID) (uuid.UUID, error)
 }

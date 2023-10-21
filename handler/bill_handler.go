@@ -17,13 +17,6 @@ func NewBillHandler(billService *service.IBillService, groupService *service.IGr
 	return &BillHandler{IBillService: *billService, IGroupService: *groupService}
 }
 
-func (h BillHandler) Route(api fiber.Router) {
-	bill := api.Group("/bill")
-
-	bill.Get("/:id", h.GetByID)
-	bill.Post("/create", h.Create)
-}
-
 func (h BillHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -35,9 +28,9 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 	}
 	bill, err := h.IBillService.GetByID(bid)
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("BillDTO not found: %v", err), "data": err})
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("BillOutputDTO not found: %v", err), "data": err})
 	}
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "BillDTO found", "data": bill})
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "BillOutputDTO found", "data": bill})
 }
 
 // Create creates a new bill.
@@ -53,7 +46,7 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 
 	// create nested bill struct
 	var items []dto.ItemDTO
-	request := dto.BillCreateDTO{
+	request := dto.BillInputDTO{
 		Items: items,
 	}
 
@@ -75,5 +68,5 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not create bill: %v", err), "data": err})
 	}
 
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "BillDTO created", "data": bill})
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "BillOutputDTO created", "data": bill})
 }

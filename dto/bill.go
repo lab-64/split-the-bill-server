@@ -12,14 +12,13 @@ type ItemDTO struct {
 	Contributors []uuid.UUID `json:"contributors"`
 }
 
-type BillDTO struct {
+type BillOutputDTO struct {
 	Name  string    `json:"name"`
 	Date  time.Time `json:"date"`
 	Items []ItemDTO `json:"items"`
-	Group uuid.UUID `json:"group"`
 }
 
-type BillCreateDTO struct {
+type BillInputDTO struct {
 	Name  string    `json:"name"`
 	Date  time.Time `json:"date"`
 	Items []ItemDTO `json:"items"`
@@ -31,8 +30,8 @@ func (i ItemDTO) ToItem() (types.Item, error) {
 	return types.CreateItem(i.Name, i.Price, i.Contributors), nil
 }
 
-// ToBill converts a BillCreateDTO to a types.Bill. Returns an error if the conversion fails.
-func (b BillCreateDTO) ToBill(owner uuid.UUID) (types.Bill, error) {
+// ToBill converts a BillInputDTO to a types.Bill. Returns an error if the conversion fails.
+func (b BillInputDTO) ToBill(owner uuid.UUID) (types.Bill, error) {
 	// convert each item
 	var items []types.Item
 	for _, item := range b.Items {
@@ -45,18 +44,17 @@ func (b BillCreateDTO) ToBill(owner uuid.UUID) (types.Bill, error) {
 	return types.CreateBill(owner, b.Name, b.Date, items), nil
 }
 
-func ToBillDTO(bill *types.Bill) BillDTO {
+func ToBillDTO(bill *types.Bill) BillOutputDTO {
 	itemsDTO := make([]ItemDTO, len(bill.Items))
 
 	for i, item := range bill.Items {
 		itemsDTO[i] = ToItemDTO(&item)
 	}
 
-	return BillDTO{
+	return BillOutputDTO{
 		Name:  bill.Name,
 		Date:  bill.Date,
 		Items: itemsDTO,
-		Group: uuid.New(), //TODO: how do i get the group???
 	}
 }
 

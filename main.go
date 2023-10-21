@@ -7,6 +7,7 @@ import (
 	"split-the-bill-server/authentication"
 	"split-the-bill-server/config"
 	"split-the-bill-server/handler"
+	"split-the-bill-server/router"
 	"split-the-bill-server/service/impl"
 	"split-the-bill-server/storage/ephemeral"
 )
@@ -55,10 +56,7 @@ func main() {
 	billHandler := handler.NewBillHandler(&billService, &groupService)
 
 	//routing
-	api := app.Group("/api")
-	userHandler.Route(api)
-	groupHandler.Route(api)
-	billHandler.Route(api)
+	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler)
 
 	app.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",

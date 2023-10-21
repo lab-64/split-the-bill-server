@@ -17,14 +17,6 @@ func NewGroupHandler(UserService *service.IUserService, GroupService *service.IG
 	return &GroupHandler{IUserService: *UserService, IGroupService: *GroupService}
 }
 
-func (h GroupHandler) Route(api fiber.Router) {
-
-	group := api.Group("/group")
-
-	group.Get("/:id", h.Get)
-	group.Post("/create", h.Create)
-}
-
 // Create creates a new group, sets the ownerID to the authenticated user and adds it to the groupStorage.
 // Authentication Required
 // TODO: Generalize error messages
@@ -32,7 +24,7 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 
 	// TODO: authenticate user
 	// parse group from request body
-	var request dto.GroupCreateDTO
+	var request dto.GroupInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse group: %v", err), "data": err})
 	}
@@ -67,7 +59,7 @@ func (h GroupHandler) Get(c *fiber.Ctx) error {
 	group, err := h.IGroupService.GetByID(gid)
 
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("GroupCreateDTO not found: %v", err), "data": err})
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("GroupInputDTO not found: %v", err), "data": err})
 	}
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "GroupCreateDTO found", "data": group})
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "GroupInputDTO found", "data": group})
 }

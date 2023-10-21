@@ -20,37 +20,6 @@ func NewUserHandler(userService *service.IUserService, cookieService *service.IC
 	return &UserHandler{IUserService: *userService, ICookieService: *cookieService, PasswordValidator: v}
 }
 
-func (h UserHandler) Route(api fiber.Router) {
-	user := api.Group("/user")
-
-	// Get all Users
-	user.Get("/", h.GetAll)
-
-	// Get User by ID
-	user.Get("/:id", h.GetByID)
-
-	// Get User by Username
-	user.Get("/:username", h.GetByUsername)
-
-	// Create User
-	user.Post("/", h.Create)
-
-	// Register User
-	user.Post("/register", h.Register)
-
-	// Login User
-	user.Post("/login", h.Login)
-
-	// Update User
-	//user.Put("/:id", h.UpdateUser)
-
-	// Delete User by ID
-	user.Delete("/:id", h.Delete)
-
-	// Handle invitation //TODO: this endpoint might be too complex and not intuitive, maybe split it up
-	user.Post("/invitations", h.HandleInvitation)
-}
-
 func (h UserHandler) GetAll(c *fiber.Ctx) error {
 	users, err := h.IUserService.GetAll()
 	if err != nil {
@@ -90,7 +59,7 @@ func (h UserHandler) GetByUsername(c *fiber.Ctx) error {
 // Create parses a types.User from the request body and adds it to the userStorage.
 func (h UserHandler) Create(c *fiber.Ctx) error {
 	// Store the body in the request and return error if encountered
-	var request dto.UserCreateDTO
+	var request dto.UserInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse request: %v", err), "data": err})
 	}
@@ -128,7 +97,7 @@ func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Authentication declined: %v", err)})
 	}
 	// parse invitation reply
-	var request dto.InvitationReplyDTO
+	var request dto.InvitationInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse invitation: %v", err), "data": err})
 	}
@@ -143,7 +112,7 @@ func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
 
 // Register parses a types.User from the request body, compares and validates both passwords and adds a new user to the userStorage.
 func (h UserHandler) Register(c *fiber.Ctx) error {
-	var request dto.UserCreateDTO
+	var request dto.UserInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse request: %v", err), "data": err})
 	}
@@ -163,7 +132,7 @@ func (h UserHandler) Register(c *fiber.Ctx) error {
 
 // Login uses the given login credentials for login and returns an authentication token for the user.
 func (h UserHandler) Login(c *fiber.Ctx) error {
-	var userCredentials dto.CredentialsDTO
+	var userCredentials dto.CredentialsInputDTO
 	if err := c.BodyParser(&userCredentials); err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not parse user: %v", err), "data": err})
 	}
@@ -173,10 +142,13 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Inputs invalid: %v", err)})
 	}
 
-	err = h.IUserService.Login(c, userCredentials)
+	cookie, err := h.IUserService.Login(userCredentials)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Could not log in: %v", err)})
 	}
+
+	// Set cookie
+	c.Cookie(&cookie)
 
 	return c.Status(200).JSON(fiber.Map{"status": "ok"})
 }

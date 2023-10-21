@@ -6,38 +6,38 @@ import (
 	"split-the-bill-server/types"
 )
 
-type GroupCreateDTO struct {
+type GroupInputDTO struct {
 	Name    string      `json:"name"`
 	Invites []uuid.UUID `json:"invites"`
 }
 
-type GroupDTO struct {
-	Owner   uuid.UUID   `json:"owner"`
-	ID      uuid.UUID   `json:"id"`
-	Name    string      `json:"name"`
-	Members []uuid.UUID `json:"members"`
-	Bills   []BillDTO   `json:"bills"`
+type GroupOutputDTO struct {
+	Owner   uuid.UUID       `json:"owner"`
+	ID      uuid.UUID       `json:"id"`
+	Name    string          `json:"name"`
+	Members []uuid.UUID     `json:"members"`
+	Bills   []BillOutputDTO `json:"bills"`
 }
 
-func (g GroupCreateDTO) ToGroup(owner uuid.UUID, members []uuid.UUID) types.Group {
+func (g GroupInputDTO) ToGroup(owner uuid.UUID, members []uuid.UUID) types.Group {
 	return types.CreateGroup(owner, g.Name, members)
 }
 
-func (g GroupCreateDTO) ValidateInput() error {
+func (g GroupInputDTO) ValidateInput() error {
 	if g.Name == "" {
 		return errors.New("name is required")
 	}
 	return nil
 }
 
-func ToGroupDTO(g *types.Group) GroupDTO {
-	billsDTO := make([]BillDTO, len(g.Bills))
+func ToGroupDTO(g *types.Group) GroupOutputDTO {
+	billsDTO := make([]BillOutputDTO, len(g.Bills))
 
 	for i, bill := range g.Bills {
 		billsDTO[i] = ToBillDTO(bill)
 	}
 
-	return GroupDTO{
+	return GroupOutputDTO{
 		Owner:   g.Owner,
 		ID:      g.ID,
 		Name:    g.Name,

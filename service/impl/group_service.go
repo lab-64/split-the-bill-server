@@ -18,7 +18,7 @@ func NewGroupService(groupStorage *storage.IGroupStorage, userStorage *storage.I
 	return &GroupService{IGroupStorage: *groupStorage, IUserStorage: *userStorage}
 }
 
-func (g *GroupService) Create(groupDTO dto.GroupCreateDTO) (dto.GroupDTO, error) {
+func (g *GroupService) Create(groupDTO dto.GroupInputDTO) (dto.GroupOutputDTO, error) {
 
 	// TODO: get user id from authenticated user
 	// TODO: delete, just for testing
@@ -41,7 +41,7 @@ func (g *GroupService) Create(groupDTO dto.GroupCreateDTO) (dto.GroupDTO, error)
 	return dto.ToGroupDTO(&group), err
 }
 
-func (g *GroupService) GetByID(id uuid.UUID) (dto.GroupDTO, error) {
+func (g *GroupService) GetByID(id uuid.UUID) (dto.GroupOutputDTO, error) {
 	group, err := g.IGroupStorage.GetGroupByID(id)
 	common.LogError(err)
 
