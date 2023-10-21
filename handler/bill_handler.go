@@ -18,13 +18,6 @@ func NewBillHandler(billService *service.IBillService, groupService *service.IGr
 	return &BillHandler{IBillService: *billService, IGroupService: *groupService}
 }
 
-func (h BillHandler) Route(api fiber.Router) {
-	bill := api.Group("/bill")
-
-	bill.Get("/:id", h.GetByID)
-	bill.Post("/create", h.Create)
-}
-
 func (h BillHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -55,7 +48,7 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 
 	// create nested bill struct
 	var items []dto.ItemDTO
-	request := dto.BillCreateDTO{
+	request := dto.BillInputDTO{
 		Items: items,
 	}
 

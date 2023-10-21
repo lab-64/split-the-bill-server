@@ -17,7 +17,7 @@ func NewBillService(billStorage *storage.IBillStorage, groupStorage *storage.IGr
 	return &BillService{IBillStorage: *billStorage, IGroupStorage: *groupStorage}
 }
 
-func (b *BillService) Create(billDTO dto.BillCreateDTO) (dto.BillDTO, error) {
+func (b *BillService) Create(billDTO dto.BillInputDTO) (dto.BillOutputDTO, error) {
 
 	// TODO: delete if authentication is used
 	userID := uuid.MustParse("7f1b2ed5-1201-4443-b997-56877fe31991")
@@ -37,7 +37,7 @@ func (b *BillService) Create(billDTO dto.BillCreateDTO) (dto.BillDTO, error) {
 	return dto.ToBillDTO(&bill), err
 }
 
-func (b *BillService) GetByID(id uuid.UUID) (dto.BillDTO, error) {
+func (b *BillService) GetByID(id uuid.UUID) (dto.BillOutputDTO, error) {
 	bill, err := b.IBillStorage.GetByID(id)
 	common.LogError(err)
 

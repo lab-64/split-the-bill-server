@@ -18,21 +18,13 @@ func NewGroupHandler(UserService *service.IUserService, GroupService *service.IG
 	return &GroupHandler{IUserService: *UserService, IGroupService: *GroupService}
 }
 
-func (h GroupHandler) Route(api fiber.Router) {
-
-	group := api.Group("/group")
-
-	group.Get("/:id", h.Get)
-	group.Post("/create", h.Create)
-}
-
 // Create creates a new group, sets the ownerID to the authenticated user and adds it to the groupStorage.
 // Authentication Required
 func (h GroupHandler) Create(c *fiber.Ctx) error {
 
 	// TODO: authenticate user
 	// parse group from request body
-	var request dto.GroupCreateDTO
+	var request dto.GroupInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupParse, err))
 	}

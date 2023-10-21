@@ -6,7 +6,7 @@ import (
 )
 
 type IBillService interface {
-	Create(bill dto.BillCreateDTO) (dto.BillDTO, error)
+	Create(bill dto.BillInputDTO) (dto.BillOutputDTO, error)
 
-	GetByID(id uuid.UUID) (dto.BillDTO, error)
+	GetByID(id uuid.UUID) (dto.BillOutputDTO, error)
 }

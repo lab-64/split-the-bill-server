@@ -5,27 +5,27 @@ import (
 	"split-the-bill-server/types"
 )
 
-type UserCreateDTO struct {
+type UserInputDTO struct {
 	ID       uuid.UUID `json:"id"`
 	Username string    `json:"username"`
 	Email    string    `json:"email"`
 	Password string    `json:"password"`
 }
 
-type UserDTO struct {
-	ID          uuid.UUID   `json:"id"`
-	Username    string      `json:"username"`
-	Email       string      `json:"email"`
-	Groups      []GroupDTO  `json:"groups"`
-	Invitations []uuid.UUID `json:"invitations"`
+type UserOutputDTO struct {
+	ID          uuid.UUID        `json:"id"`
+	Username    string           `json:"username"`
+	Email       string           `json:"email"`
+	Groups      []GroupOutputDTO `json:"groups"`
+	Invitations []uuid.UUID      `json:"invitations"`
 }
 
-func (r UserCreateDTO) ToUser() types.User {
+func (r UserInputDTO) ToUser() types.User {
 	return types.CreateUser(r.Username, r.Email)
 }
 
-func ToUserDTO(u *types.User) UserDTO {
-	groupsDTO := make([]GroupDTO, len(u.Groups))
+func ToUserDTO(u *types.User) UserOutputDTO {
+	groupsDTO := make([]GroupOutputDTO, len(u.Groups))
 
 	for i, group := range u.Groups {
 		groupsDTO[i] = ToGroupDTO(group)
@@ -37,7 +37,7 @@ func ToUserDTO(u *types.User) UserDTO {
 		invitations[i] = inv.ID
 	}
 
-	return UserDTO{
+	return UserOutputDTO{
 		ID:          u.ID,
 		Username:    u.Username,
 		Email:       u.Email,

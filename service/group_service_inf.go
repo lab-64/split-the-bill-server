@@ -6,7 +6,7 @@ import (
 )
 
 type IGroupService interface {
-	Create(groupDTO dto.GroupCreateDTO) (dto.GroupDTO, error)
+	Create(groupDTO dto.GroupInputDTO) (dto.GroupOutputDTO, error)
 
-	GetByID(id uuid.UUID) (dto.GroupDTO, error)
+	GetByID(id uuid.UUID) (dto.GroupOutputDTO, error)
 }
