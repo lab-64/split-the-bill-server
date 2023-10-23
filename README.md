@@ -3,8 +3,19 @@
 [![Go Webserver Testing](https://github.com/lab-64/split-the-bill-server/actions/workflows/go.yml/badge.svg)](https://github.com/lab-64/split-the-bill-server/actions/workflows/go.yml)
 
 ---
+# Developer Get Started
+**1. Install Go**
+- follow the instructions: https://go.dev/doc/install
+
+**2. Clone the repository**
+
+**3. Install Reflex package (needed for Hot Reload)**
+- open the terminal
+- run `go install github.com/cespare/reflex@latest`  
+
+---
+
 # Start Application
-We can start the application with different storage types.
 
 ## Ephemeral Storage
 
@@ -15,7 +26,7 @@ storage := ephemeral.NewEphemeral()
 ```
 Start the application with:
 ```shell
-make run
+make watch
 ```
 
 ## Postgres Database
