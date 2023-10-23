@@ -5,10 +5,13 @@ run:
 build:
 	@go build
 
+watch:
+	@reflex -s -r '\.go$$' make run
+
 clean:
 	@rm split-the-bill-server
 
-test:
+test-all:
 	@go test ./...
 
 start-postgres:
