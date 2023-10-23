@@ -8,6 +8,11 @@ import (
 // SetupRoutes creates webserver routes and connect them to the related handlers.
 func SetupRoutes(app *fiber.App, u handler.UserHandler, g handler.GroupHandler, b handler.BillHandler) {
 
+	// Define landing page
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, World!")
+	})
+
 	// grouping
 	api := app.Group("/api")
 

@@ -4,8 +4,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"math/rand"
 	"split-the-bill-server/storage"
-	types2 "split-the-bill-server/test/types_test"
 	"split-the-bill-server/types"
+	types_test "split-the-bill-server/types/test"
 	"testing"
 )
 
@@ -44,7 +44,7 @@ func deleteUsersAndAssert(uut storage.IUserStorage, users []types.User, t *testi
 func UserStorageTest(e storage.Connection, uut storage.IUserStorage, t *testing.T) {
 	const amount = 10000
 	const concurrency = 10
-	users := types2.GenerateDifferentUsers(amount)
+	users := types_test.GenerateDifferentUsers(amount)
 	err := e.Connect()
 	require.NoError(t, err)
 	allUsers, err := uut.GetAll()
@@ -85,7 +85,7 @@ func UserStorageTest(e storage.Connection, uut storage.IUserStorage, t *testing.
 func UserStorageEdgeCaseTest(e storage.Connection, uut storage.IUserStorage, t *testing.T) {
 	err := e.Connect()
 	require.NoError(t, err)
-	users := types2.GenerateUsersWithUsernames([]string{"a", "a"})
+	users := types_test.GenerateUsersWithUsernames([]string{"a", "a"})
 	err = uut.Delete(users[0].ID)
 	require.NoError(t, err)
 	err = uut.Create(users[0])
