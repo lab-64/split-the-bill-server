@@ -45,7 +45,7 @@ make reset-db
 # Testing
 
 ```shell
-make test
+make test-all
 ```
 
 ---

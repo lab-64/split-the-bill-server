@@ -8,7 +8,7 @@ build:
 clean:
 	@rm split-the-bill-server
 
-test:
+test-all:
 	@go test ./...
 
 start-postgres:
