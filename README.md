@@ -13,6 +13,8 @@
 - open the terminal
 - run `go install github.com/cespare/reflex@latest`  
 
+---
+
 # Start Application
 
 ## Ephemeral Storage
