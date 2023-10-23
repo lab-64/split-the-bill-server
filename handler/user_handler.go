@@ -157,9 +157,10 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 // GetAuthenticatedUserFromHeader tries to return the user id associated with the given authentication token in the request header.
 // If the token is invalid, an error will be returned.
 // TODO: Generalize error messages
-func (h UserHandler) getAuthenticatedUserFromHeader(reqHeader map[string]string) (uuid.UUID, error) {
+func (h UserHandler) getAuthenticatedUserFromHeader(reqHeader map[string][]string) (uuid.UUID, error) {
 	// get authentication cookie from header
-	token := reqHeader["Cookie"]
+	print(reqHeader)
+	token := reqHeader["Cookie"][0]
 	// check if cookie is present
 	if token == "" {
 		return uuid.Nil, errors.New("authentication cookie is missing")
