@@ -4,7 +4,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// TODO: Change PendingGroupInvitations to a pointer
 type User struct {
 	ID                      uuid.UUID          `json:"id,omitempty"`
 	Username                string             `json:"username"`
