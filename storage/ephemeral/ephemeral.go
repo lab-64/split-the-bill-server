@@ -13,8 +13,8 @@ type Ephemeral struct {
 	nameIndex map[string]uuid.UUID
 	passwords map[uuid.UUID][]byte
 	cookies   map[uuid.UUID][]types.AuthenticationCookie
-	groups    map[uuid.UUID]types.Group
-	bills     map[uuid.UUID]types.Bill
+	groups    map[uuid.UUID]*types.Group
+	bills     map[uuid.UUID]*types.Bill
 }
 
 func NewEphemeral() (*Ephemeral, error) {
@@ -23,8 +23,8 @@ func NewEphemeral() (*Ephemeral, error) {
 		nameIndex: make(map[string]uuid.UUID),
 		passwords: make(map[uuid.UUID][]byte),
 		cookies:   make(map[uuid.UUID][]types.AuthenticationCookie),
-		groups:    make(map[uuid.UUID]types.Group),
-		bills:     make(map[uuid.UUID]types.Bill),
+		groups:    make(map[uuid.UUID]*types.Group),
+		bills:     make(map[uuid.UUID]*types.Bill),
 	}, nil
 }
 

@@ -21,7 +21,7 @@ func (g *GroupStorage) AddGroup(group types.Group) error {
 	if exists {
 		return storage.GroupAlreadyExistsError
 	}
-	g.e.groups[group.ID] = group
+	g.e.groups[group.ID] = &group
 	return nil
 }
 
@@ -30,9 +30,9 @@ func (g *GroupStorage) GetGroupByID(id uuid.UUID) (types.Group, error) {
 	defer g.e.lock.Unlock()
 	group, exists := g.e.groups[id]
 	if !exists {
-		return group, storage.NoSuchGroupError
+		return *group, storage.NoSuchGroupError
 	}
-	return group, nil
+	return *group, nil
 }
 
 func (g *GroupStorage) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) error {

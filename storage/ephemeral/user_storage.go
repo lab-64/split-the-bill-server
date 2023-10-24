@@ -153,7 +153,7 @@ func (u *UserStorage) handleGroupInvitation(user types.User, invitationID uuid.U
 				group.Members = append(group.Members, user.ID)
 				u.e.groups[group.ID] = group
 				// add group pointer to user struct
-				groupList := append(user.Groups, &group)
+				groupList := append(user.Groups, group)
 				user.Groups = groupList
 			}
 			// remove invitation

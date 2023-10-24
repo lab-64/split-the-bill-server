@@ -21,7 +21,7 @@ func (b BillStorage) Create(bill types.Bill) error {
 	if exists {
 		return storage.BillAlreadyExistsError
 	}
-	b.e.bills[bill.ID] = bill
+	b.e.bills[bill.ID] = &bill
 	return nil
 }
 
@@ -30,7 +30,7 @@ func (b BillStorage) GetByID(id uuid.UUID) (types.Bill, error) {
 	defer b.e.lock.Unlock()
 	bill, exists := b.e.bills[id]
 	if !exists {
-		return bill, storage.NoSuchBillError
+		return *bill, storage.NoSuchBillError
 	}
-	return bill, nil
+	return *bill, nil
 }
