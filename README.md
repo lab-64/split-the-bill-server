@@ -9,9 +9,12 @@
 
 **2. Clone the repository**
 
-**3. Install Reflex package (needed for Hot Reload)**
-- open the terminal
-- run `go install github.com/cespare/reflex@latest`  
+**3. Install [Reflex](https://github.com/cespare/reflex) package (needed for Hot Reload)**
+- run `go install github.com/cespare/reflex@latest` in the terminal 
+
+**4. Install [swag](https://github.com/swaggo/swag) package (needed for fiber-swagger)**
+- run `go install github.com/swaggo/swag/cmd/swag@latest`
+
 
 ---
 
@@ -60,32 +63,8 @@ make test-all
 ```
 
 ---
-# Endpoints
 
-**Register User** <br />
--> POST [$URL/api/user/register](http://localhost:8080/api/user/register) <br />
-Body: { <br />
-&nbsp;&nbsp;&nbsp; "username": "", <br />
-&nbsp;&nbsp;&nbsp; "password": "", <br />
-} <br />
-Response: { <br />
-&nbsp;&nbsp;&nbsp; "message": "", <br />
-&nbsp;&nbsp;&nbsp; "status": "error/ok", <br />
-&nbsp;&nbsp;&nbsp; "User": "username", <br />
-}
+# URLs
 
+- Swagger API: http://localhost:8080/swagger/ 
 
-**Login User** <br />
--> POST [$URL/api/user/login](http://localhost:8080/api/user/login) <br />
-Body: { <br />
-&nbsp;&nbsp;&nbsp; "username": "", <br />
-&nbsp;&nbsp;&nbsp; "password": "", <br />
-} <br />
-Response: { <br />
-&nbsp;&nbsp;&nbsp; "cookieAuth": { <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "UserID": "", <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Token": "", <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "ValidBefore": "", <br />
-&nbsp;&nbsp;&nbsp; }, <br />
-&nbsp;&nbsp;&nbsp; "status": "error/ok", <br />
-} <br />
