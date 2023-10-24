@@ -6,6 +6,7 @@ import (
 	"split-the-bill-server/authentication"
 	"split-the-bill-server/handler"
 	"split-the-bill-server/router"
+	"split-the-bill-server/service/impl"
 	"split-the-bill-server/storage/ephemeral"
 	"testing"
 
@@ -17,11 +18,29 @@ import (
 func TestLandingPage(t *testing.T) {
 	// Test Server Configuration
 	app := fiber.New()
-	storage := ephemeral.NewEphemeral()
+	e, err := ephemeral.NewEphemeral()
 	v, err := authentication.NewPasswordValidator()
 	require.NoError(t, err)
-	h := handler.NewHandler(storage, storage, storage, storage, v)
-	router.SetupRoutes(app, h)
+
+	//storages
+	userStorage := ephemeral.NewUserStorage(e)
+	groupStorage := ephemeral.NewGroupStorage(e)
+	cookieStorage := ephemeral.NewCookieStorage(e)
+	billStorage := ephemeral.NewBillStorage(e)
+
+	//services
+	userService := impl.NewUserService(&userStorage, &cookieStorage)
+	groupService := impl.NewGroupService(&groupStorage, &userStorage)
+	cookieService := impl.NewCookieService(&cookieStorage)
+	billService := impl.NewBillService(&billStorage, &groupStorage)
+
+	//handlers
+	userHandler := handler.NewUserHandler(&userService, &cookieService, v)
+	groupHandler := handler.NewGroupHandler(&userService, &groupService)
+	billHandler := handler.NewBillHandler(&billService, &groupService)
+
+	//routing
+	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler)
 
 	// Create a new http get request on landingpage
 	req := httptest.NewRequest("GET", "/", nil)

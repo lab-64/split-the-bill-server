@@ -1,13 +1,12 @@
 package router
 
 import (
-	"split-the-bill-server/handler"
-
 	"github.com/gofiber/fiber/v2"
+	"split-the-bill-server/handler"
 )
 
 // SetupRoutes creates webserver routes and connect them to the related handlers.
-func SetupRoutes(app *fiber.App, h handler.Handler) {
+func SetupRoutes(app *fiber.App, u handler.UserHandler, g handler.GroupHandler, b handler.BillHandler) {
 
 	// Define landing page
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -19,26 +18,27 @@ func SetupRoutes(app *fiber.App, h handler.Handler) {
 
 	// user routes
 	userRoute := api.Group("/user")
+
 	// routes
-	userRoute.Get("/", h.GetAllUsers)
-	userRoute.Get("/:id", h.GetUserByID)
-	userRoute.Post("/", h.CreateUser)
-	userRoute.Get("/:username", h.GetUserByUsername)
-	userRoute.Post("/register", h.RegisterUser)
-	userRoute.Post("/login", h.Login)
-	//userRoute.Put("/:id", handler.UpdateUser)
-	userRoute.Delete("/:id", h.DeleteUserByID)
-	userRoute.Post("/invitations", h.HandleInvitation)
+	userRoute.Get("/", u.GetAll)
+	userRoute.Get("/:id", u.GetByID)
+	userRoute.Post("/", u.Create)
+	userRoute.Get("/:username", u.GetByUsername)
+	userRoute.Post("/register", u.Register)
+	userRoute.Post("/login", u.Login)
+	//userRoute.Put("/:id", u.UpdateUser)
+	userRoute.Delete("/:id", u.Delete)
+	userRoute.Post("/invitations", u.HandleInvitation)
 
 	// bill routes
 	billRoute := api.Group("/bill")
 	// routes
-	billRoute.Post("/create", h.CreateBill)
-	billRoute.Get("/:id", h.GetBillByID)
+	billRoute.Post("/create", b.Create)
+	billRoute.Get("/:id", b.GetByID)
 
 	// group routes
 	groupRoute := api.Group("/group")
 	// routes
-	groupRoute.Post("/create", h.CreateGroup)
-	groupRoute.Get("/:id", h.GetGroup)
+	groupRoute.Post("/create", g.Create)
+	groupRoute.Get("/:id", g.Get)
 }

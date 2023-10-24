@@ -5,49 +5,49 @@ import (
 	"math/rand"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/types"
-	"split-the-bill-server/types/test"
+	types_test "split-the-bill-server/types/test"
 	"testing"
 )
 
-func addUsers(uut storage.UserStorage, users []types.User, t *testing.T, finished chan<- struct{}) {
+func addUsers(uut storage.IUserStorage, users []types.User, t *testing.T, finished chan<- struct{}) {
 	for _, user := range users {
-		err := uut.AddUser(user)
+		err := uut.Create(user)
 		require.NoError(t, err)
 	}
 	close(finished)
 }
 
-func getUsers(uut storage.UserStorage, users []types.User, t *testing.T, finished chan<- struct{}) {
+func getUsers(uut storage.IUserStorage, users []types.User, t *testing.T, finished chan<- struct{}) {
 	for _, user := range users {
-		res, err := uut.GetUserByID(user.ID)
+		res, err := uut.GetByID(user.ID)
 		require.NoError(t, err)
 		require.True(t, user.Equals(res))
-		res2, err := uut.GetUserByUsername(user.Username)
+		res2, err := uut.GetByUsername(user.Username)
 		require.NoError(t, err)
 		require.True(t, user.Equals(res2))
 	}
 	close(finished)
 }
 
-func deleteUsersAndAssert(uut storage.UserStorage, users []types.User, t *testing.T, finished chan<- struct{}) {
+func deleteUsersAndAssert(uut storage.IUserStorage, users []types.User, t *testing.T, finished chan<- struct{}) {
 	for _, user := range users {
-		err := uut.DeleteUser(user.ID)
+		err := uut.Delete(user.ID)
 		require.NoError(t, err)
-		_, err = uut.GetUserByID(user.ID)
+		_, err = uut.GetByID(user.ID)
 		require.ErrorIs(t, err, storage.NoSuchUserError)
-		_, err = uut.GetUserByUsername(user.Username)
+		_, err = uut.GetByUsername(user.Username)
 		require.ErrorIs(t, err, storage.NoSuchUserError)
 	}
 	close(finished)
 }
 
-func UserStorageTest(uut storage.UserStorage, t *testing.T) {
+func UserStorageTest(e storage.Connection, uut storage.IUserStorage, t *testing.T) {
 	const amount = 10000
 	const concurrency = 10
-	users := test.GenerateDifferentUsers(amount)
-	err := uut.Connect()
+	users := types_test.GenerateDifferentUsers(amount)
+	err := e.Connect()
 	require.NoError(t, err)
-	allUsers, err := uut.GetAllUsers()
+	allUsers, err := uut.GetAll()
 	require.NoError(t, err)
 	require.Equal(t, 0, len(allUsers))
 	finished := make([]chan struct{}, concurrency)
@@ -58,7 +58,7 @@ func UserStorageTest(uut storage.UserStorage, t *testing.T) {
 	for i := 0; i < concurrency; i++ {
 		<-finished[i]
 	}
-	allUsers, err = uut.GetAllUsers()
+	allUsers, err = uut.GetAll()
 	require.NoError(t, err)
 	require.Equal(t, amount, len(allUsers))
 	rand.Shuffle(len(users), func(i, j int) { users[i], users[j] = users[j], users[i] })
@@ -77,27 +77,27 @@ func UserStorageTest(uut storage.UserStorage, t *testing.T) {
 	for i := 0; i < concurrency; i++ {
 		<-finished[i]
 	}
-	allUsers, err = uut.GetAllUsers()
+	allUsers, err = uut.GetAll()
 	require.NoError(t, err)
 	require.Equal(t, 0, len(allUsers))
 }
 
-func UserStorageEdgeCaseTest(uut storage.UserStorage, t *testing.T) {
-	err := uut.Connect()
+func UserStorageEdgeCaseTest(e storage.Connection, uut storage.IUserStorage, t *testing.T) {
+	err := e.Connect()
 	require.NoError(t, err)
-	users := test.GenerateUsersWithUsernames([]string{"a", "a"})
-	err = uut.DeleteUser(users[0].ID)
+	users := types_test.GenerateUsersWithUsernames([]string{"a", "a"})
+	err = uut.Delete(users[0].ID)
 	require.NoError(t, err)
-	err = uut.AddUser(users[0])
+	err = uut.Create(users[0])
 	require.NoError(t, err)
-	res, err := uut.GetUserByUsername("a")
+	res, err := uut.GetByUsername("a")
 	require.NoError(t, err)
 	require.True(t, users[0].Equals(res))
-	err = uut.AddUser(users[1])
+	err = uut.Create(users[1])
 	require.ErrorIs(t, err, storage.UserAlreadyExistsError)
-	err = uut.DeleteUser(users[1].ID)
+	err = uut.Delete(users[1].ID)
 	require.NoError(t, err)
-	res, err = uut.GetUserByUsername("a")
+	res, err = uut.GetByUsername("a")
 	require.NoError(t, err)
 	require.True(t, users[0].Equals(res))
 }

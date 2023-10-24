@@ -1,8 +1,6 @@
-package test
+package types_test
 
-import (
-	"split-the-bill-server/types"
-)
+import "split-the-bill-server/types"
 
 var chars = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
