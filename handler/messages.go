@@ -38,6 +38,7 @@ const (
 	ErrMsgBadPassword          = "Bad Password: %v"
 
 	// User - SUCCESS
+	SuccessMsgUserLogin        = "User logged in"
 	SuccessMsgUserFound        = "User found"
 	SuccessMsgUsersFound       = "Users found"
 	SuccessMsgUserCreate       = "User created"

@@ -151,7 +151,7 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserLogin, err))
 	}
 	c.Cookie(&cookie)
-	return http.Success(c, fiber.StatusOK, "", nil)
+	return http.Success(c, fiber.StatusOK, SuccessMsgUserLogin, nil)
 }
 
 // GetAuthenticatedUserFromHeader tries to return the user id associated with the given authentication token in the request header.
