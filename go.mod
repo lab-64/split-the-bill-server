@@ -2,8 +2,6 @@ module split-the-bill-server
 
 go 1.21
 
-toolchain go1.21.1
-
 require (
 	github.com/caitlinelfring/nist-password-validator v0.0.0-20190321104149-45ab5d3140de
 	github.com/gofiber/fiber/v2 v2.50.0
