@@ -30,7 +30,7 @@ func main() {
 	}*/
 
 	// start ephemeral
-	e, err := ephemeral.NewEphemeral()
+	e, _ := ephemeral.NewEphemeral()
 
 	//storages
 	userStorage := ephemeral.NewUserStorage(e)

@@ -19,6 +19,7 @@ func TestLandingPage(t *testing.T) {
 	// Test Server Configuration
 	app := fiber.New()
 	e, err := ephemeral.NewEphemeral()
+	require.NoError(t, err)
 	v, err := authentication.NewPasswordValidator()
 	require.NoError(t, err)
 
