@@ -18,8 +18,15 @@ func NewGroupHandler(UserService *service.IUserService, GroupService *service.IG
 	return &GroupHandler{IUserService: *UserService, IGroupService: *GroupService}
 }
 
-// Create creates a new group, sets the ownerID to the authenticated user and adds it to the groupStorage.
-// Authentication Required
+// Create 		func create a new group & set the ownerID to the authenticated user
+//
+//	@Summary	Create Group
+//	@Tags		Group
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.GroupInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.GroupOutputDTO}
+//	@Router		/api/group [post]
 func (h GroupHandler) Create(c *fiber.Ctx) error {
 
 	// TODO: authenticate user
@@ -45,6 +52,16 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgGroupCreate, group)
 }
 
+// Get 			func get group
+//
+//	@Summary	Get Group
+//	@Tags		Group
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"Group Id"
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.GroupOutputDTO}
+//	@Router		/api/group/{id} [get]
+//
 // TODO: maybe delete, or add authentication and allow only query of own groups
 func (h GroupHandler) Get(c *fiber.Ctx) error {
 	id := c.Params("id")

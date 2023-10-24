@@ -8,6 +8,7 @@ import (
 )
 
 const SessionCookieValidityPeriod = time.Hour * 24 * 7
+const SessionCookieName = "session_cookie"
 
 func GenerateSessionCookie(userID uuid.UUID) types.AuthenticationCookie {
 	// TODO: Safely generate a session cookie.
