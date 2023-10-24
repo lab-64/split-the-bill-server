@@ -10,7 +10,7 @@ type Bill struct {
 	OwnerID uuid.UUID
 	Name    string
 	Date    time.Time
-	Items   []Item
+	Items   []*Item
 }
 
 type Item struct {
@@ -29,7 +29,7 @@ func CreateItem(name string, price float64, contributors []uuid.UUID) Item {
 	}
 }
 
-func CreateBill(ownerID uuid.UUID, name string, date time.Time, items []Item) Bill {
+func CreateBill(ownerID uuid.UUID, name string, date time.Time, items []*Item) Bill {
 	return Bill{
 		ID:      uuid.New(),
 		OwnerID: ownerID,
