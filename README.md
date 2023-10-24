@@ -3,25 +3,60 @@
 [![Go Webserver Testing](https://github.com/lab-64/split-the-bill-server/actions/workflows/go.yml/badge.svg)](https://github.com/lab-64/split-the-bill-server/actions/workflows/go.yml)
 
 ---
+# Developer Get Started
+**1. Install Go**
+- follow the instructions: https://go.dev/doc/install
+
+**2. Clone the repository**
+
+**3. Install Reflex package (needed for Hot Reload)**
+- open the terminal
+- run `go install github.com/cespare/reflex@latest`  
+
+---
+
 # Start Application
 
+## Ephemeral Storage
+
+Add the following code in the "select storage" section in `main.go`:
+```go
+// Select storage
+storage := ephemeral.NewEphemeral()
+```
+Start the application with:
 ```shell
-docker-compose up -d --build
+make watch
 ```
 
-The postgresql database and the webserver will be started.
+## Postgres Database
 
-The webserver is accessable under: http://localhost:8080/
-
-# End Application
-
-```shell
-docker-compose down
+Add the following code in the "select storage" section in `main.go`:
+```go
+// Select storage
+storage, err := database.NewDatabase()
+if err != nil {
+    log.Fatal(err)
+}
 ```
 
-### Delete Postgres DB
+Start the application with:
 ```shell
-docker-compose down -v
+make start-postgres
+```
+End the application with:
+```shell
+make stop-postgres
+```
+Reset the database with:
+```shell
+make reset-db
+```
+---
+# Testing
+
+```shell
+make test-all
 ```
 
 ---
