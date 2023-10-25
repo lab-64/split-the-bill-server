@@ -2,16 +2,23 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/swagger"
 	"log"
 	"split-the-bill-server/authentication"
 	"split-the-bill-server/config"
+	_ "split-the-bill-server/docs"
 	"split-the-bill-server/handler"
 	"split-the-bill-server/router"
 	"split-the-bill-server/service/impl"
 	"split-the-bill-server/storage/ephemeral"
 )
 
+// @title		Split The Bill API
+// @version	1.0
+// @host		localhost:8080
+// @BasePath	/
 func main() {
 
 	err := config.LoadConfig()
@@ -61,6 +68,12 @@ func main() {
 	app.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
+
+	// setup swagger
+	app.Get("/swagger/*", swagger.HandlerDefault) // default
+
+	// setup CORS
+	app.Use(cors.New())
 
 	// handle unavailable route
 	app.Use(func(c *fiber.Ctx) error {
