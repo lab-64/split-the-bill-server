@@ -62,12 +62,11 @@ func main() {
 	groupHandler := handler.NewGroupHandler(&userService, &groupService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
 
+	// setup logger
+	app.Use(logger.New())
+
 	//routing
 	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler)
-
-	app.Use(logger.New(logger.Config{
-		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
-	}))
 
 	// setup swagger
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
