@@ -1,8 +1,6 @@
 package entity
 
 import (
-	"github.com/google/uuid"
-	"gorm.io/gorm"
 	"split-the-bill-server/types"
 )
 
@@ -11,12 +9,6 @@ type User struct {
 	Base
 	Username string   `gorm:"unique;not null"`
 	Groups   []*Group `gorm:"many2many:group_members;"`
-}
-
-func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
-	// UUID version 4
-	user.ID = uuid.New()
-	return
 }
 
 func MakeUser(user types.User) User {
