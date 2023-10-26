@@ -6,12 +6,15 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
 	"log"
+	"os"
 	"split-the-bill-server/authentication"
 	"split-the-bill-server/config"
 	_ "split-the-bill-server/docs"
 	"split-the-bill-server/handler"
 	"split-the-bill-server/router"
 	"split-the-bill-server/service/impl"
+	"split-the-bill-server/storage"
+	"split-the-bill-server/storage/database"
 	"split-the-bill-server/storage/ephemeral"
 )
 
@@ -29,34 +32,21 @@ func main() {
 	// configure webserver
 	app := fiber.New()
 
-	// Select storage
-	// start postgres
-	/*storage, err := database.NewDatabase()
-	if err != nil {
-		log.Fatal(err)
-	}*/
+	// setup storage
+	userStorage, groupStorage, cookieStorage, billStorage := setupStorage()
 
-	// start ephemeral
-	e, _ := ephemeral.NewEphemeral()
-
-	//storages
-	userStorage := ephemeral.NewUserStorage(e)
-	groupStorage := ephemeral.NewGroupStorage(e)
-	cookieStorage := ephemeral.NewCookieStorage(e)
-	billStorage := ephemeral.NewBillStorage(e)
-
-	//services
+	// services
 	userService := impl.NewUserService(&userStorage, &cookieStorage)
 	groupService := impl.NewGroupService(&groupStorage, &userStorage)
 	billService := impl.NewBillService(&billStorage, &groupStorage)
 
-	//password validator
+	// password validator
 	passwordValidator, err := authentication.NewPasswordValidator()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	//handlers
+	// handlers
 	userHandler := handler.NewUserHandler(&userService, passwordValidator)
 	groupHandler := handler.NewGroupHandler(&userService, &groupService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
@@ -64,7 +54,7 @@ func main() {
 	// setup logger
 	app.Use(logger.New())
 
-	//routing
+	// routing
 	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler)
 
 	// setup swagger
@@ -81,5 +71,29 @@ func main() {
 	err = app.Listen(":8080")
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+// setupStorage initializes and configures the storage components based on the STORAGE_TYPE environment variable.
+func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICookieStorage, storage.IBillStorage) {
+
+	storageType := os.Getenv("STORAGE_TYPE")
+
+	switch storageType {
+	case "postgres":
+		db, err := database.NewDatabase()
+		if err != nil {
+			log.Fatal(err)
+		}
+		return database.NewUserStorage(db), database.NewGroupStorage(db), database.NewCookieStorage(db), database.NewBillStorage(db)
+	case "ephemeral":
+		db, err := ephemeral.NewEphemeral()
+		if err != nil {
+			log.Fatal(err)
+		}
+		return ephemeral.NewUserStorage(db), ephemeral.NewGroupStorage(db), ephemeral.NewCookieStorage(db), ephemeral.NewBillStorage(db)
+	default:
+		log.Fatalf("Unsupported storage type: %s", storageType)
+		return nil, nil, nil, nil
 	}
 }
