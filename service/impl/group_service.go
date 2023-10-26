@@ -32,7 +32,7 @@ func (g *GroupService) Create(groupDTO dto.GroupInputDTO) (dto.GroupOutputDTO, e
 
 	// Create a group invitation for each invited user
 	for _, member := range groupDTO.Invites {
-		groupInvitation := types.CreateGroupInvitation(&group)
+		groupInvitation := types.CreateGroupInvitation(group)
 		// store group invitation for user
 		err = g.IUserStorage.AddGroupInvitationToUser(groupInvitation, member)
 		common.LogError(err)

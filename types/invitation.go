@@ -8,10 +8,10 @@ import (
 type GroupInvitation struct {
 	ID   uuid.UUID
 	Date time.Time
-	For  *Group
+	For  Group
 }
 
-func CreateGroupInvitation(group *Group) GroupInvitation {
+func CreateGroupInvitation(group Group) GroupInvitation {
 	return GroupInvitation{
 		ID:   uuid.New(),
 		Date: time.Now(),
