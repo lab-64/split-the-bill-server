@@ -48,7 +48,6 @@ func main() {
 	//services
 	userService := impl.NewUserService(&userStorage, &cookieStorage)
 	groupService := impl.NewGroupService(&groupStorage, &userStorage)
-	cookieService := impl.NewCookieService(&cookieStorage)
 	billService := impl.NewBillService(&billStorage, &groupStorage)
 
 	//password validator
@@ -58,7 +57,7 @@ func main() {
 	}
 
 	//handlers
-	userHandler := handler.NewUserHandler(&userService, &cookieService, passwordValidator)
+	userHandler := handler.NewUserHandler(&userService, passwordValidator)
 	groupHandler := handler.NewGroupHandler(&userService, &groupService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
 
