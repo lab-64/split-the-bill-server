@@ -19,7 +19,7 @@ test-all:
 	@go test ./...
 
 start-postgres:
-	@docker compose up
+	@docker compose up --no-attach pgadmin
 
 stop-postgres:
 	@docker compose down

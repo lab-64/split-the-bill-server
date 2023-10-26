@@ -47,9 +47,24 @@ make reset-db
 make test-all
 ```
 
+# pgAdmin
+
+**1. Open http://localhost:5050**
+
+**2. Click "Add New Server"**
+
+**3. Set some "Name" in the "General" tab**
+
+**4. Go to "Connection" tab and set:**
+- Host name/address: `split-the-bill-postgres-db`
+- Password: `postgres123`
+
+**5. Check "Save password" and save the connection**
+
 ---
 
 # URLs
 
 - Swagger API: http://localhost:8080/swagger/ 
+- pgAdmin: http://localhost:5050
 
