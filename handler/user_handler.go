@@ -6,6 +6,7 @@ import (
 	"github.com/caitlinelfring/nist-password-validator/password"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"split-the-bill-server/authentication"
 	"split-the-bill-server/dto"
 	"split-the-bill-server/http"
 	"split-the-bill-server/service"
@@ -13,14 +14,21 @@ import (
 
 type UserHandler struct {
 	service.IUserService
-	service.ICookieService
 	PasswordValidator *password.Validator
 }
 
-func NewUserHandler(userService *service.IUserService, cookieService *service.ICookieService, v *password.Validator) *UserHandler {
-	return &UserHandler{IUserService: *userService, ICookieService: *cookieService, PasswordValidator: v}
+func NewUserHandler(userService *service.IUserService, v *password.Validator) *UserHandler {
+	return &UserHandler{IUserService: *userService, PasswordValidator: v}
 }
 
+// GetAll 		func get all users
+//
+//	@Summary	Get all Users
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=[]dto.UserOutputDTO}
+//	@Router		/api/user [get]
 func (h UserHandler) GetAll(c *fiber.Ctx) error {
 	users, err := h.IUserService.GetAll()
 	if err != nil {
@@ -29,6 +37,15 @@ func (h UserHandler) GetAll(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgUsersFound, users)
 }
 
+// GetByID 		func get user by id
+//
+//	@Summary	Get User by ID
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"User Id"
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.UserOutputDTO}
+//	@Router		/api/user/{id} [get]
 func (h UserHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -46,6 +63,15 @@ func (h UserHandler) GetByID(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgUserFound, user)
 }
 
+// GetByUsername 	func get user by username
+//
+//	@Summary	Get User by username
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"User Username"
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.UserOutputDTO}
+//	@Router		/api/user/{username} [get]
 func (h UserHandler) GetByUsername(c *fiber.Ctx) error {
 	username := c.Params("username")
 	if username == "" {
@@ -59,7 +85,15 @@ func (h UserHandler) GetByUsername(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgUserFound, user)
 }
 
-// Create parses a types.User from the request body and adds it to the userStorage.
+// Create 		func create user
+//
+//	@Summary	Create User
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.UserInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserOutputDTO}
+//	@Router		/api/user [post]
 func (h UserHandler) Create(c *fiber.Ctx) error {
 	// Store the body in the request and return error if encountered
 	var request dto.UserInputDTO
@@ -76,6 +110,15 @@ func (h UserHandler) Create(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgUserCreate, user)
 }
 
+// Delete 		func delete user
+//
+//	@Summary	Delete User
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"User Username"
+//	@Success	200	{object}	dto.GeneralResponseDTO
+//	@Router		/api/user/{id} [delete]
 func (h UserHandler) Delete(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -92,12 +135,22 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgUserDelete, nil)
 }
 
+// HandleInvitation 	func handle pending invitation
+//
+//	@Summary	Handle pending invitation
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.InvitationInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Router		/api/user/invitations [post]
+//
 // TODO: Check if id belongs to pending invitation
 func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
 	// get authenticated user
-	userID, err := h.getAuthenticatedUserFromHeader(c.GetReqHeaders())
+	userID, err := h.getAuthenticatedUserFromCookie(c)
 	if err != nil {
-		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgAuthentication, err))
+		return http.Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
 	}
 	// parse invitation reply
 	var request dto.InvitationInputDTO
@@ -114,7 +167,15 @@ func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgInvitationHandle, nil)
 }
 
-// Register parses a types.User from the request body, compares and validates both passwords and adds a new user to the userStorage.
+// Register 	func parses a dto.UserInputDTO from the request body, compares and validates both passwords and adds a new user to the userStorage
+//
+//	@Summary	Register User
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.UserInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Router		/api/user/register [post]
 func (h UserHandler) Register(c *fiber.Ctx) error {
 	var request dto.UserInputDTO
 	if err := c.BodyParser(&request); err != nil {
@@ -134,6 +195,16 @@ func (h UserHandler) Register(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgUserCreate, user.Username)
 }
 
+// Login 		func login user
+//
+//	@Summary	Login User
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.CredentialsInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Router		/api/user/login [post]
+//
 // Login uses the given login credentials for login and returns an authentication token for the user.
 func (h UserHandler) Login(c *fiber.Ctx) error {
 	var userCredentials dto.CredentialsInputDTO
@@ -154,19 +225,20 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgUserLogin, nil)
 }
 
-// GetAuthenticatedUserFromHeader tries to return the user id associated with the given authentication token in the request header.
+// getAuthenticatedUserFromCookie tries to return the user id associated with the given authentication token in Cookie "session_cookie".
 // If the token is invalid, an error will be returned.
-// TODO: Generalize error messages
-func (h UserHandler) getAuthenticatedUserFromHeader(reqHeader map[string][]string) (uuid.UUID, error) {
-	// get authentication cookie from header
-	print(reqHeader)
-	token := reqHeader["Cookie"][0]
-	// check if cookie is present
-	if token == "" {
+// TODO: Generalize error messages & use a middleware instead
+func (h UserHandler) getAuthenticatedUserFromCookie(c *fiber.Ctx) (uuid.UUID, error) {
+	// get session cookie
+	cookie := c.Cookies(authentication.SessionCookieName)
+
+	// check is cookie is present
+	if cookie == "" {
 		return uuid.Nil, errors.New("authentication cookie is missing")
 	}
-	// try to parse token
-	tokenUUID, err := uuid.Parse(token)
+
+	// try to parse cookie
+	tokenUUID, err := uuid.Parse(cookie)
 	if err != nil {
 		return uuid.Nil, errors.New("authentication cookie is invalid")
 	}
@@ -175,5 +247,5 @@ func (h UserHandler) getAuthenticatedUserFromHeader(reqHeader map[string][]strin
 	if err != nil {
 		return uuid.Nil, err
 	}
-	return userID, nil
+	return userID, err
 }

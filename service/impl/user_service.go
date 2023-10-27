@@ -93,7 +93,7 @@ func (u *UserService) Login(credentials dto.CredentialsInputDTO) (fiber.Cookie, 
 	// Create response cookie
 	// TODO: add Secure flag after development (cookie will only be sent over HTTPS)
 	cookie := fiber.Cookie{
-		Name:     "session",
+		Name:     authentication.SessionCookieName,
 		Value:    sc.Token.String(),
 		Expires:  sc.ValidBefore,
 		HTTPOnly: true,
@@ -122,5 +122,5 @@ func (u *UserService) GetAuthenticatedUserID(tokenID uuid.UUID) (uuid.UUID, erro
 	user, err := u.IUserStorage.GetByID(cookie.UserID)
 	common.LogError(err)
 
-	return user.ID, nil
+	return user.ID, err
 }

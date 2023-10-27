@@ -18,6 +18,15 @@ func NewBillHandler(billService *service.IBillService, groupService *service.IGr
 	return &BillHandler{IBillService: *billService, IGroupService: *groupService}
 }
 
+// GetByID 		func get bill by id
+//
+//	@Summary	Get Bill by ID
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"Bill Id"
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.BillOutputDTO}
+//	@Router		/api/bill/{id} [get]
 func (h BillHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -35,8 +44,16 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgBillFound, bill)
 }
 
-// Create creates a new bill.
-// Authentication Required
+// Create 		func create bill
+//
+//	@Summary	Create Bill
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.BillInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.BillOutputDTO}
+//	@Router		/api/bill [post]
+//
 // TODO: How to handle bills without a group? Maybe add a default group which features only the owner? => how to mark such a group?
 func (h BillHandler) Create(c *fiber.Ctx) error {
 	// TODO: authenticate user
