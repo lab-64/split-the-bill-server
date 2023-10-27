@@ -14,12 +14,11 @@ import (
 
 type UserHandler struct {
 	service.IUserService
-	service.ICookieService
 	PasswordValidator *password.Validator
 }
 
-func NewUserHandler(userService *service.IUserService, cookieService *service.ICookieService, v *password.Validator) *UserHandler {
-	return &UserHandler{IUserService: *userService, ICookieService: *cookieService, PasswordValidator: v}
+func NewUserHandler(userService *service.IUserService, v *password.Validator) *UserHandler {
+	return &UserHandler{IUserService: *userService, PasswordValidator: v}
 }
 
 // GetAll 		func get all users
