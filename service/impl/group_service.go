@@ -22,11 +22,13 @@ func (g *GroupService) Create(groupDTO dto.GroupInputDTO) (dto.GroupOutputDTO, e
 
 	// TODO: get user id from authenticated user
 	// TODO: delete, just for testing
-	userID, _ := uuid.Parse("7f1b2ed5-1201-4443-b997-56877fe31991")
+	user, err := g.IUserStorage.GetByUsername("felix")
+	if err != nil {
+		return dto.GroupOutputDTO{}, err
+	}
 
 	// create group with the only member being the owner
-	group := groupDTO.ToGroup(userID, []uuid.UUID{userID})
-	var err error
+	group := groupDTO.ToGroup(user, []types.User{user})
 
 	// Create a group invitation for each invited user
 	for _, member := range groupDTO.Invites {
