@@ -20,13 +20,12 @@ func NewGroupStorage(DB *Database) storage.IGroupStorage {
 func (g *GroupStorage) AddGroup(group types.Group) error {
 	groupItem := MakeGroup(group)
 
-	// check if group already exists
-	_, err := g.GetGroupByID(groupItem.ID)
-	if err == nil {
+	// try to store new group in storage
+	res := g.DB.Where(Group{Base: Base{ID: groupItem.ID}}).FirstOrCreate(&groupItem)
+	// RowsAffected == 0 -> group already exists
+	if res.RowsAffected == 0 {
 		return storage.GroupAlreadyExistsError
 	}
-	// write new group in storage
-	res := g.DB.Where(Group{Base: Base{ID: groupItem.ID}}).FirstOrCreate(&groupItem)
 	return res.Error
 }
 

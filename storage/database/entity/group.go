@@ -2,7 +2,6 @@ package entity
 
 import (
 	"github.com/google/uuid"
-	"log"
 	"split-the-bill-server/types"
 )
 
@@ -16,18 +15,20 @@ type Group struct {
 
 // MakeGroup creates a database Group entity from a types.Group
 func MakeGroup(group types.Group) Group {
-	owner := MakeUser(group.Owner)
 	var members []*User
 	for i := range group.Members {
 		user := MakeUser(group.Members[i])
 		members = append(members, &user)
 	}
-	return Group{Base: Base{ID: group.ID}, Owner: group.Owner.ID, User: owner, Name: group.Name, Members: members}
+	return Group{Base: Base{ID: group.ID}, Owner: group.Owner.ID, Name: group.Name, Members: members}
 }
 
 // ToGroup creates a types.Group from a database Group entity
 func (group *Group) ToGroup() types.Group {
+<<<<<<< HEAD
 	log.Println("user id ", group.User.ID)
+=======
+>>>>>>> dev
 	var members []types.User
 	for i := range group.Members {
 		members = append(members, group.Members[i].ToUser())
