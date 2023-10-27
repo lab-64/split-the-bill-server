@@ -22,4 +22,4 @@ RUN go install github.com/githubnemo/CompileDaemon
 EXPOSE 8080
 
 # Command to run the Go application
-ENTRYPOINT CompileDaemon -build="go build -o /build/app" -command="/build/app" -color="true"
+ENTRYPOINT CompileDaemon -build="go build -o /build/app" -command="/build/app" -log-prefix="false" -color="true"
