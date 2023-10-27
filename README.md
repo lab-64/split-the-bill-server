@@ -63,6 +63,23 @@ make test-all
 
 ---
 
+# Deyploment
+TODO's before we deploy:
+
+**Change variables in ```.env```**:
+```
+DB_USER
+DB_PASSWORD
+PGADMIN_EMAIL
+PGADMIN_PASSWORD
+```
+
+**Remove development flags from ```docker-compose.yml```**:
+```
+PGADMIN_CONFIG_SERVER_MODE
+PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED
+```
+
 # URLs
 
 - Swagger API: http://localhost:8080/swagger/ 
