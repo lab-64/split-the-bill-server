@@ -9,49 +9,37 @@
 
 **2. Clone the repository**
 
-**3. Install Reflex package (needed for Hot Reload)**
-- open the terminal
-- run `go install github.com/cespare/reflex@latest`  
+**3. Install [Reflex](https://github.com/cespare/reflex) package (needed for Hot Reload)**
+- run `go install github.com/cespare/reflex@latest` 
 
+**4. Install [swag](https://github.com/swaggo/swag) package (needed for fiber-swagger)**
+- run `go install github.com/swaggo/swag/cmd/swag@latest`
 ---
 
 # Start Application
+**1. Set storage type in `.env`:**
+- `STORAGE_TYPE=ephemeral` for Ephemeral
+- `STORAGE_TYPE=postgres` for Postgres
 
-## Ephemeral Storage
-
-Add the following code in the "select storage" section in `main.go`:
-```go
-// Select storage
-storage := ephemeral.NewEphemeral()
-```
-Start the application with:
-```shell
-make watch
-```
-
-## Postgres Database
-
-Add the following code in the "select storage" section in `main.go`:
-```go
-// Select storage
-storage, err := database.NewDatabase()
-if err != nil {
-    log.Fatal(err)
-}
-```
-
-Start the application with:
+**2a. Start the application (docker, ephemeral & postgres) with:**
 ```shell
 make start-postgres
 ```
-End the application with:
+
+**2b. (OR) Start the application (no docker, ephemeral only) with:**
+```shell
+make watch
+```
+**3. Stop the application with:**
 ```shell
 make stop-postgres
 ```
-Reset the database with:
+
+**4. Reset the database with:**
 ```shell
 make reset-db
 ```
+
 ---
 # Testing
 
@@ -60,32 +48,8 @@ make test-all
 ```
 
 ---
-# Endpoints
 
-**Register User** <br />
--> POST [$URL/api/user/register](http://localhost:8080/api/user/register) <br />
-Body: { <br />
-&nbsp;&nbsp;&nbsp; "username": "", <br />
-&nbsp;&nbsp;&nbsp; "password": "", <br />
-} <br />
-Response: { <br />
-&nbsp;&nbsp;&nbsp; "message": "", <br />
-&nbsp;&nbsp;&nbsp; "status": "error/ok", <br />
-&nbsp;&nbsp;&nbsp; "User": "username", <br />
-}
+# URLs
 
+- Swagger API: http://localhost:8080/swagger/ 
 
-**Login User** <br />
--> POST [$URL/api/user/login](http://localhost:8080/api/user/login) <br />
-Body: { <br />
-&nbsp;&nbsp;&nbsp; "username": "", <br />
-&nbsp;&nbsp;&nbsp; "password": "", <br />
-} <br />
-Response: { <br />
-&nbsp;&nbsp;&nbsp; "cookieAuth": { <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "UserID": "", <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Token": "", <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "ValidBefore": "", <br />
-&nbsp;&nbsp;&nbsp; }, <br />
-&nbsp;&nbsp;&nbsp; "status": "error/ok", <br />
-} <br />

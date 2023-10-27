@@ -32,11 +32,10 @@ func TestLandingPage(t *testing.T) {
 	//services
 	userService := impl.NewUserService(&userStorage, &cookieStorage)
 	groupService := impl.NewGroupService(&groupStorage, &userStorage)
-	cookieService := impl.NewCookieService(&cookieStorage)
 	billService := impl.NewBillService(&billStorage, &groupStorage)
 
 	//handlers
-	userHandler := handler.NewUserHandler(&userService, &cookieService, v)
+	userHandler := handler.NewUserHandler(&userService, v)
 	groupHandler := handler.NewGroupHandler(&userService, &groupService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
 
