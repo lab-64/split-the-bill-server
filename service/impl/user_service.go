@@ -103,24 +103,8 @@ func (u *UserService) Login(credentials dto.CredentialsInputDTO) (fiber.Cookie, 
 	return cookie, err
 }
 
-func (u *UserService) HandleInvitation(invitation dto.InvitationInputDTO, userID uuid.UUID, invitationID uuid.UUID) error {
-	err := u.IUserStorage.HandleInvitation(invitation.Type, userID, invitationID, invitation.Accept)
+func (u *UserService) HandleInvitation(invitation dto.InvitationInputDTO) error {
+	err := u.IUserStorage.HandleInvitation(invitation.Type, invitation.User, invitation.ID, invitation.Accept)
 	common.LogError(err)
 	return err
-}
-
-func (u *UserService) GetAuthenticatedUserID(tokenID uuid.UUID) (uuid.UUID, error) {
-	// get auth cookie from storage
-	cookie, err := u.ICookieStorage.GetCookieFromToken(tokenID)
-	common.LogError(err)
-
-	// check if cookie is valid
-	err = authentication.IsSessionCookieValid(cookie)
-	common.LogError(err)
-
-	// get user from cookie
-	user, err := u.IUserStorage.GetByID(cookie.UserID)
-	common.LogError(err)
-
-	return user.ID, err
 }

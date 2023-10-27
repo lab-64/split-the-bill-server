@@ -1,12 +1,10 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"github.com/caitlinelfring/nist-password-validator/password"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"split-the-bill-server/authentication"
 	"split-the-bill-server/dto"
 	"split-the-bill-server/http"
 	"split-the-bill-server/service"
@@ -147,11 +145,6 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 //
 // TODO: Check if id belongs to pending invitation
 func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
-	// get authenticated user
-	userID, err := h.getAuthenticatedUserFromCookie(c)
-	if err != nil {
-		return http.Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
-	}
 	// parse invitation reply
 	var request dto.InvitationInputDTO
 	if err := c.BodyParser(&request); err != nil {
@@ -159,7 +152,7 @@ func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
 	}
 
 	// handle invitation
-	err = h.IUserService.HandleInvitation(request, userID, request.ID)
+	err := h.IUserService.HandleInvitation(request)
 	if err != nil {
 		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
 	}
@@ -223,29 +216,4 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 	}
 	c.Cookie(&cookie)
 	return http.Success(c, fiber.StatusOK, SuccessMsgUserLogin, nil)
-}
-
-// getAuthenticatedUserFromCookie tries to return the user id associated with the given authentication token in Cookie "session_cookie".
-// If the token is invalid, an error will be returned.
-// TODO: Generalize error messages & use a middleware instead
-func (h UserHandler) getAuthenticatedUserFromCookie(c *fiber.Ctx) (uuid.UUID, error) {
-	// get session cookie
-	cookie := c.Cookies(authentication.SessionCookieName)
-
-	// check is cookie is present
-	if cookie == "" {
-		return uuid.Nil, errors.New("authentication cookie is missing")
-	}
-
-	// try to parse cookie
-	tokenUUID, err := uuid.Parse(cookie)
-	if err != nil {
-		return uuid.Nil, errors.New("authentication cookie is invalid")
-	}
-
-	userID, err := h.IUserService.GetAuthenticatedUserID(tokenUUID)
-	if err != nil {
-		return uuid.Nil, err
-	}
-	return userID, err
 }
