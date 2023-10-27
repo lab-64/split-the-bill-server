@@ -83,31 +83,6 @@ func (h UserHandler) GetByUsername(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgUserFound, user)
 }
 
-// Create 		func create user
-//
-//	@Summary	Create User
-//	@Tags		User
-//	@Accept		json
-//	@Produce	json
-//	@Param		request	body		dto.UserInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserOutputDTO}
-//	@Router		/api/user [post]
-func (h UserHandler) Create(c *fiber.Ctx) error {
-	// Store the body in the request and return error if encountered
-	var request dto.UserInputDTO
-	if err := c.BodyParser(&request); err != nil {
-		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
-	}
-	request.ID = uuid.New()
-	// Add request to userStorage.
-	user, err := h.IUserService.Create(request)
-	if err != nil {
-		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserCreate, err))
-	}
-	// Return the created request
-	return http.Success(c, fiber.StatusOK, SuccessMsgUserCreate, user)
-}
-
 // Delete 		func delete user
 //
 //	@Summary	Delete User
@@ -160,7 +135,7 @@ func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgInvitationHandle, nil)
 }
 
-// Register 	func parses a dto.UserInputDTO from the request body, compares and validates both passwords and adds a new user to the userStorage
+// Register 	parses a dto.UserInputDTO from the request body, compares and validates both passwords and adds a new user to the userStorage.
 //
 //	@Summary	Register User
 //	@Tags		User

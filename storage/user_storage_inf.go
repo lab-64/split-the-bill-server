@@ -9,10 +9,6 @@ import (
 // same ID or username.
 
 type IUserStorage interface {
-	// Create adds the given user to the storage. If a user with the same ID or username already exists, a
-	// UserAlreadyExistsError is returned.
-	Create(types.User) error
-
 	// Delete deletes the user with the given ID from the storage, if it exists.
 	Delete(id uuid.UUID) error
 
@@ -25,9 +21,9 @@ type IUserStorage interface {
 	// GetByUsername returns the user with the given username, or a NoSuchUserError if no such user exists.
 	GetByUsername(username string) (types.User, error)
 
-	// Register adds the given user to the storage and saves the password. If a user with the same ID or username
+	// Create adds the given user to the storage and saves the password. If a user with the same ID or username
 	// already exists, a UserAlreadyExistsError is returned.
-	Register(user types.User, passwordHash []byte) error
+	Create(user types.User, passwordHash []byte) error
 
 	// GetCredentials returns the password hash for the user with the given ID, or a NoCredentialsError, if no
 	// credentials are stored for the user.

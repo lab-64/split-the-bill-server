@@ -7,8 +7,6 @@ import (
 )
 
 type IUserService interface {
-	Create(user dto.UserInputDTO) (dto.UserOutputDTO, error)
-
 	Delete(id uuid.UUID) error
 
 	GetAll() ([]dto.UserOutputDTO, error)

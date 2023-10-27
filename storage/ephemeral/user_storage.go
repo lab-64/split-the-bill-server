@@ -17,21 +17,6 @@ func NewUserStorage(ephemeral *Ephemeral) storage.IUserStorage {
 	return &UserStorage{e: ephemeral}
 }
 
-func (u *UserStorage) Create(user types.User) error {
-	u.e.lock.Lock()
-	defer u.e.lock.Unlock()
-	if _, ok := u.e.nameIndex[user.Username]; ok {
-		return storage.UserAlreadyExistsError
-	}
-	_, ok := u.e.users[user.ID]
-	if ok {
-		return storage.UserAlreadyExistsError
-	}
-	u.e.users[user.ID] = user
-	u.e.nameIndex[user.Username] = user.ID
-	return nil
-}
-
 func (u *UserStorage) Delete(id uuid.UUID) error {
 	u.e.lock.Lock()
 	defer u.e.lock.Unlock()
@@ -82,13 +67,22 @@ func (u *UserStorage) GetByUsername(username string) (types.User, error) {
 	return user, nil
 }
 
-func (u *UserStorage) Register(user types.User, hash []byte) error {
-	err := u.Create(user)
-	if err != nil {
-		return err
-	}
+func (u *UserStorage) Create(user types.User, hash []byte) error {
 	u.e.lock.Lock()
 	defer u.e.lock.Unlock()
+
+	if _, ok := u.e.nameIndex[user.Username]; ok {
+		return storage.UserAlreadyExistsError
+	}
+
+	_, ok := u.e.users[user.ID]
+	if ok {
+		return storage.UserAlreadyExistsError
+	}
+
+	u.e.users[user.ID] = user
+	u.e.nameIndex[user.Username] = user.ID
+
 	_, exists := u.e.passwords[user.ID]
 	if exists {
 		return errors.New("fatal: user already has saved password")
