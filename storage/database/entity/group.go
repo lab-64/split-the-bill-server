@@ -25,10 +25,6 @@ func MakeGroup(group types.Group) Group {
 
 // ToGroup creates a types.Group from a database Group entity
 func (group *Group) ToGroup() types.Group {
-<<<<<<< HEAD
-	log.Println("user id ", group.User.ID)
-=======
->>>>>>> dev
 	var members []types.User
 	for i := range group.Members {
 		members = append(members, group.Members[i].ToUser())
