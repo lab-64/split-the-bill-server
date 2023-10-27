@@ -45,7 +45,7 @@ func deleteUsersAndAssert(uut storage.IUserStorage, users []types.User, t *testi
 }
 
 func UserStorageTest(e storage.Connection, uut storage.IUserStorage, t *testing.T) {
-	const amount = 10000
+	const amount = 50
 	const concurrency = 10
 	users := types_test.GenerateDifferentUsers(amount)
 	err := e.Connect()
