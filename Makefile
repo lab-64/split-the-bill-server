@@ -19,10 +19,10 @@ test-all:
 	@go test ./...
 
 start-postgres:
-	@docker-compose up --build
+	@docker compose up
 
 stop-postgres:
-	@docker-compose down
+	@docker compose down
 
 reset-db:
-	@docker-compose down -v
+	@docker compose down -v
