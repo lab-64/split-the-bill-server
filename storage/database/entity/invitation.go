@@ -13,14 +13,13 @@ type GroupInvitation struct {
 	For     Group     `gorm:"foreignKey:GroupID"`
 }
 
-// MakeGroupInvitation creates a database GroupInvitation entity from a types.GroupInvitation
+// MakeGroupInvitation creates a database GroupInvitation entity from a types.GroupInvitation.
 func MakeGroupInvitation(groupInvitation types.GroupInvitation) GroupInvitation {
-	group := MakeGroup(groupInvitation.For)
-	return GroupInvitation{Base: Base{ID: groupInvitation.ID}, Date: groupInvitation.Date, GroupID: groupInvitation.For.ID, For: group}
+	return GroupInvitation{Base: Base{ID: groupInvitation.ID}, Date: groupInvitation.Date, GroupID: groupInvitation.GroupID}
 }
 
-// ToGroupInvitation creates a types.GroupInvitation from a database GroupInvitation entity
+// ToGroupInvitation creates a types.GroupInvitation from a database GroupInvitation entity.
 func (groupInvitation *GroupInvitation) ToGroupInvitation() types.GroupInvitation {
 	group := groupInvitation.For.ToGroup()
-	return types.GroupInvitation{ID: groupInvitation.ID, Date: groupInvitation.Date, For: group}
+	return types.GroupInvitation{ID: groupInvitation.ID, Date: groupInvitation.Date, GroupID: group.ID, Group: group}
 }

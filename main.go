@@ -33,12 +33,13 @@ func main() {
 	app := fiber.New()
 
 	// setup storage
-	userStorage, groupStorage, cookieStorage, billStorage := setupStorage()
+	userStorage, groupStorage, cookieStorage, billStorage, invitationStorage := setupStorage()
 
 	// services
 	userService := impl.NewUserService(&userStorage, &cookieStorage)
 	groupService := impl.NewGroupService(&groupStorage, &userStorage)
 	billService := impl.NewBillService(&billStorage, &groupStorage)
+	invitationService := impl.NewInvitationService(&invitationStorage, &userStorage)
 
 	// password validator
 	passwordValidator, err := authentication.NewPasswordValidator()
@@ -48,7 +49,7 @@ func main() {
 
 	// handlers
 	userHandler := handler.NewUserHandler(&userService, passwordValidator)
-	groupHandler := handler.NewGroupHandler(&userService, &groupService)
+	groupHandler := handler.NewGroupHandler(&groupService, &invitationService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
 
 	// setup logger
@@ -75,7 +76,7 @@ func main() {
 }
 
 // setupStorage initializes and configures the storage components based on the STORAGE_TYPE environment variable.
-func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICookieStorage, storage.IBillStorage) {
+func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICookieStorage, storage.IBillStorage, storage.IInvitationStorage) {
 
 	storageType := os.Getenv("STORAGE_TYPE")
 
@@ -85,15 +86,16 @@ func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICooki
 		if err != nil {
 			log.Fatal(err)
 		}
-		return database.NewUserStorage(db), database.NewGroupStorage(db), database.NewCookieStorage(db), database.NewBillStorage(db)
+		return database.NewUserStorage(db), database.NewGroupStorage(db), database.NewCookieStorage(db), database.NewBillStorage(db), database.NewInvitationStorage(db)
 	case "ephemeral":
 		db, err := ephemeral.NewEphemeral()
 		if err != nil {
 			log.Fatal(err)
 		}
-		return ephemeral.NewUserStorage(db), ephemeral.NewGroupStorage(db), ephemeral.NewCookieStorage(db), ephemeral.NewBillStorage(db)
+		// TODO: add invitation storage in ephemeral
+		return ephemeral.NewUserStorage(db), ephemeral.NewGroupStorage(db), ephemeral.NewCookieStorage(db), ephemeral.NewBillStorage(db), nil
 	default:
 		log.Fatalf("Unsupported storage type: %s", storageType)
-		return nil, nil, nil, nil
+		return nil, nil, nil, nil, nil
 	}
 }

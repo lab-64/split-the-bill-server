@@ -9,6 +9,7 @@ import (
 	"split-the-bill-server/dto"
 	"split-the-bill-server/service"
 	"split-the-bill-server/storage"
+	"split-the-bill-server/types"
 )
 
 type UserService struct {
@@ -101,6 +102,11 @@ func (u *UserService) Login(credentials dto.CredentialsInputDTO) (fiber.Cookie, 
 	}
 
 	return cookie, err
+}
+
+func (u *UserService) AddGroupInvitation(invitation types.GroupInvitation, userID uuid.UUID) error {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (u *UserService) HandleInvitation(invitation dto.InvitationInputDTO, userID uuid.UUID, invitationID uuid.UUID) error {

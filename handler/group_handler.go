@@ -11,11 +11,11 @@ import (
 
 type GroupHandler struct {
 	service.IGroupService
-	service.IUserService
+	service.IInvitationService
 }
 
-func NewGroupHandler(UserService *service.IUserService, GroupService *service.IGroupService) *GroupHandler {
-	return &GroupHandler{IUserService: *UserService, IGroupService: *GroupService}
+func NewGroupHandler(GroupService *service.IGroupService, InvitationService *service.IInvitationService) *GroupHandler {
+	return &GroupHandler{IGroupService: *GroupService, IInvitationService: *InvitationService}
 }
 
 // Create 		func create a new group & set the ownerID to the authenticated user
@@ -43,8 +43,14 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
 	}
 
+	// create group
 	group, err := h.IGroupService.Create(request)
+	if err != nil {
+		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupCreate, err))
+	}
 
+	// handle group invitations
+	err = h.IInvitationService.CreateGroupInvitation(request, group.ID)
 	if err != nil {
 		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupCreate, err))
 	}

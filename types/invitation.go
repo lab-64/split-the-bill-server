@@ -5,16 +5,22 @@ import (
 	"time"
 )
 
+// TODO: maybe add UserID to GroupInvitation as a foreignkey
+// GroupInvitation represents an invitation to a group used to generalize between the user inputs and the database.
+// During Create (From User Input to Database) the GroupID is used to specify the group. Group is ignored.
+// During Read (From Database to User Output) Group is used to specify the group.
 type GroupInvitation struct {
-	ID   uuid.UUID
-	Date time.Time
-	For  Group
+	ID      uuid.UUID
+	Date    time.Time
+	GroupID uuid.UUID
+	Group   Group
 }
 
-func CreateGroupInvitation(group Group) GroupInvitation {
+// TODO: check usages, function has changed
+func CreateGroupInvitation(groupID uuid.UUID) GroupInvitation {
 	return GroupInvitation{
-		ID:   uuid.New(),
-		Date: time.Now(),
-		For:  group,
+		ID:      uuid.New(),
+		Date:    time.Now(),
+		GroupID: groupID,
 	}
 }

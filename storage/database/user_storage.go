@@ -52,6 +52,7 @@ func (u *UserStorage) GetAll() ([]types.User, error) {
 	return ToUserSlice(users), nil
 }
 
+// TODO: include pending invitations & groups in query
 func (u *UserStorage) GetByID(id uuid.UUID) (types.User, error) {
 	var user User
 	tx := u.DB.Limit(1).Find(&user, "id = ?", id)
@@ -111,9 +112,13 @@ func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
 	return credentials.Hash, nil
 }
 
-func (u *UserStorage) AddGroupInvitationToUser(invitation types.GroupInvitation, userID uuid.UUID) error {
-	//TODO implement me
-	panic("implement me")
+func (u *UserStorage) AddGroupInvitation(invitation types.GroupInvitation, userID uuid.UUID) error {
+	// make group invitation entity
+	groupInvitationItem := MakeGroupInvitation(invitation)
+	// TODO: update user, maybe it gets updated automatically
+	res := u.DB.Model(&User{Base: Base{ID: userID}}).Association("PendingGroupInvitation").Append(&groupInvitationItem)
+	log.Println("AddGroupInvitation: ", res)
+	return res
 }
 
 func (u *UserStorage) HandleInvitation(invitationType string, userID uuid.UUID, invitationID uuid.UUID, accept bool) error {

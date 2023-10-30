@@ -30,15 +30,11 @@ func (g *GroupService) Create(groupDTO dto.GroupInputDTO) (dto.GroupOutputDTO, e
 	// create group with the only member being the owner
 	group := groupDTO.ToGroup(user, []types.User{user})
 
-	// Create a group invitation for each invited user
-	for _, member := range groupDTO.Invites {
-		groupInvitation := types.CreateGroupInvitation(group)
-		// store group invitation for user
-		err = g.IUserStorage.AddGroupInvitationToUser(groupInvitation, member)
-		common.LogError(err)
-	}
-
+	// store group in db
 	err = g.IGroupStorage.AddGroup(group)
+	if err != nil {
+		return dto.GroupOutputDTO{}, err
+	}
 
 	return dto.ToGroupDTO(&group), err
 }
