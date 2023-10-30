@@ -12,15 +12,16 @@ import (
 type GroupInvitation struct {
 	ID      uuid.UUID
 	Date    time.Time
-	GroupID uuid.UUID
 	Group   Group
+	Invitee User
 }
 
 // TODO: check usages, function has changed
-func CreateGroupInvitation(groupID uuid.UUID) GroupInvitation {
+func CreateGroupInvitation(groupID uuid.UUID, inviteeID uuid.UUID) GroupInvitation {
 	return GroupInvitation{
 		ID:      uuid.New(),
 		Date:    time.Now(),
-		GroupID: groupID,
+		Group:   Group{ID: groupID},
+		Invitee: User{ID: inviteeID},
 	}
 }

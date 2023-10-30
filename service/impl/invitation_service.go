@@ -2,7 +2,6 @@ package impl
 
 import (
 	"github.com/google/uuid"
-	"split-the-bill-server/common"
 	"split-the-bill-server/dto"
 	"split-the-bill-server/service"
 	"split-the-bill-server/storage"
@@ -22,22 +21,28 @@ func (i InvitationService) CreateGroupInvitation(request dto.GroupInputDTO, grou
 	// get invites from request
 	invites := request.Invites
 	// TODO: change, wrong implementation, look up how to store association in gorm
-	// create group invitation
-	groupInvitation := types.CreateGroupInvitation(groupID)
-	// store group invitation
-	err := i.IInvitationStorage.AddGroupInvitation(groupInvitation)
-	if err != nil {
-		return err
+
+	// handle group invitations
+	for _, invitee := range invites {
+		groupInvitation := types.CreateGroupInvitation(groupID, invitee)
+		err := i.IInvitationStorage.AddGroupInvitation(groupInvitation)
+		if err != nil {
+			return err
+		}
+
 	}
 
-	// add group invitation to all users
-	for _, userID := range invites {
-		err = i.IUserStorage.AddGroupInvitation(groupInvitation, userID)
-		// TODO: error handling, should return to which users the invitation could not be added
-		common.LogError(err)
-	}
+	/*
+		// add group invitation to all users
+		for _, userID := range invites {
+			err = i.IUserStorage.AddGroupInvitation(groupInvitation, userID)
+			// TODO: error handling, should return to which users the invitation could not be added
+			common.LogError(err)
+		}
 
-	return err
+	*/
+
+	return nil
 }
 
 func (i InvitationService) AcceptGroupInvitation(invitation uuid.UUID, userID uuid.UUID) error {
