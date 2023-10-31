@@ -1,8 +1,7 @@
 package entity
 
 import (
-	"log"
-	"split-the-bill-server/domain/model"
+	. "split-the-bill-server/domain/model"
 )
 
 // User struct
@@ -13,27 +12,24 @@ type User struct {
 	GroupInvitations []GroupInvitation `gorm:"foreignKey:InviteeID"`
 }
 
-func MakeUser(user model.User) User {
+func ToUserEntity(user UserModel) User {
 	return User{Base: Base{ID: user.ID}, Username: user.Username}
 }
 
-// TODO convert groups
-func (user *User) ToUser() model.User {
-	var groupInvitations []model.GroupInvitation
+// ToUserModel TODO convert groups
+func ToUserModel(user User) UserModel {
+	var groupInvitations []GroupInvitationModel
 	for _, groupInv := range user.GroupInvitations {
-		j := groupInv.ToGroupInvitation()
-		log.Println("Groups")
-		log.Println(j.Group)
-		groupInvitations = append(groupInvitations, groupInv.ToGroupInvitation())
+		groupInvitations = append(groupInvitations, ToGroupInvitationModel(groupInv))
 	}
 
-	return model.User{ID: user.ID, Username: user.Username, Groups: nil, PendingGroupInvitations: groupInvitations}
+	return UserModel{ID: user.ID, Username: user.Username, Groups: nil, PendingGroupInvitations: groupInvitations}
 }
 
-func ToUserSlice(users []User) []model.User {
-	s := make([]model.User, len(users))
+func ToUserModelSlice(users []User) []UserModel {
+	s := make([]UserModel, len(users))
 	for i, user := range users {
-		s[i] = user.ToUser()
+		s[i] = ToUserModel(user)
 	}
 	return s
 }

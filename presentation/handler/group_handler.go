@@ -5,16 +5,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"split-the-bill-server/core"
-	"split-the-bill-server/domain/service/service_inf"
-	"split-the-bill-server/presentation/dto"
+	. "split-the-bill-server/domain/service/service_inf"
+	. "split-the-bill-server/presentation/dto"
 )
 
 type GroupHandler struct {
-	groupService      service_inf.IGroupService
-	invitationService service_inf.IInvitationService
+	groupService      IGroupService
+	invitationService IInvitationService
 }
 
-func NewGroupHandler(GroupService *service_inf.IGroupService, InvitationService *service_inf.IInvitationService) *GroupHandler {
+func NewGroupHandler(GroupService *IGroupService, InvitationService *IInvitationService) *GroupHandler {
 	return &GroupHandler{groupService: *GroupService, invitationService: *InvitationService}
 }
 
@@ -31,7 +31,7 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 
 	// TODO: authenticate user
 	// parse group from request body
-	var request dto.GroupInputDTO
+	var request GroupInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupParse, err))
 	}

@@ -16,24 +16,24 @@ func NewCookieStorage(ephemeral *ephemeral.Ephemeral) storage_inf.ICookieStorage
 	return &CookieStorage{e: ephemeral}
 }
 
-func (c *CookieStorage) AddAuthenticationCookie(cookie model.AuthenticationCookie) {
+func (c *CookieStorage) AddAuthenticationCookie(cookie model.AuthCookieModel) {
 	c.e.Lock.Lock()
 	defer c.e.Lock.Unlock()
 	cookies, exists := c.e.Cookies[cookie.UserID]
 	if !exists {
-		cookies = make([]model.AuthenticationCookie, 0)
+		cookies = make([]model.AuthCookieModel, 0)
 	}
 	cookies = append(cookies, cookie)
 	c.e.Cookies[cookie.UserID] = cookies
 }
 
-func (c *CookieStorage) GetCookiesForUser(userID uuid.UUID) []model.AuthenticationCookie {
+func (c *CookieStorage) GetCookiesForUser(userID uuid.UUID) []model.AuthCookieModel {
 	c.e.Lock.Lock()
 	defer c.e.Lock.Unlock()
 	return c.e.Cookies[userID]
 }
 
-func (c *CookieStorage) GetCookieFromToken(token uuid.UUID) (model.AuthenticationCookie, error) {
+func (c *CookieStorage) GetCookieFromToken(token uuid.UUID) (model.AuthCookieModel, error) {
 	c.e.Lock.Lock()
 	defer c.e.Lock.Unlock()
 	for _, cookies := range c.e.Cookies {
@@ -43,5 +43,5 @@ func (c *CookieStorage) GetCookieFromToken(token uuid.UUID) (model.Authenticatio
 			}
 		}
 	}
-	return model.AuthenticationCookie{}, storage.NoSuchCookieError
+	return model.AuthCookieModel{}, storage.NoSuchCookieError
 }

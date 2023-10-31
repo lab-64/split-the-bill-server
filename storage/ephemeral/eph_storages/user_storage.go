@@ -19,7 +19,7 @@ func NewUserStorage(ephemeral *ephemeral.Ephemeral) storage_inf.IUserStorage {
 	return &UserStorage{e: ephemeral}
 }
 
-func (u *UserStorage) Create(user model.User) error {
+func (u *UserStorage) Create(user model.UserModel) error {
 	u.e.Lock.Lock()
 	defer u.e.Lock.Unlock()
 	if _, ok := u.e.NameIndex[user.Username]; ok {
@@ -47,10 +47,10 @@ func (u *UserStorage) Delete(id uuid.UUID) error {
 	return nil
 }
 
-func (u *UserStorage) GetAll() ([]model.User, error) {
+func (u *UserStorage) GetAll() ([]model.UserModel, error) {
 	u.e.Lock.Lock()
 	defer u.e.Lock.Unlock()
-	users := make([]model.User, len(u.e.Users))
+	users := make([]model.UserModel, len(u.e.Users))
 	i := 0
 	for _, user := range u.e.Users {
 		users[i] = user
@@ -59,7 +59,7 @@ func (u *UserStorage) GetAll() ([]model.User, error) {
 	return users, nil
 }
 
-func (u *UserStorage) GetByID(id uuid.UUID) (model.User, error) {
+func (u *UserStorage) GetByID(id uuid.UUID) (model.UserModel, error) {
 	u.e.Lock.Lock()
 	defer u.e.Lock.Unlock()
 	user, ok := u.e.Users[id]
@@ -69,12 +69,12 @@ func (u *UserStorage) GetByID(id uuid.UUID) (model.User, error) {
 	return user, nil
 }
 
-func (u *UserStorage) GetByUsername(username string) (model.User, error) {
+func (u *UserStorage) GetByUsername(username string) (model.UserModel, error) {
 	u.e.Lock.Lock()
 	defer u.e.Lock.Unlock()
 	id, ok := u.e.NameIndex[username]
 	if !ok {
-		return model.User{}, storage.NoSuchUserError
+		return model.UserModel{}, storage.NoSuchUserError
 	}
 	user, ok := u.e.Users[id]
 	if !ok {
@@ -84,7 +84,7 @@ func (u *UserStorage) GetByUsername(username string) (model.User, error) {
 	return user, nil
 }
 
-func (u *UserStorage) Register(user model.User, hash []byte) error {
+func (u *UserStorage) Register(user model.UserModel, hash []byte) error {
 	err := u.Create(user)
 	if err != nil {
 		return err
@@ -110,7 +110,7 @@ func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
 }
 
 // TODO: maybe change, group struct will not be safed in group invitation. If function should return the same values (group) as the postgres function, we need to add the group.
-func (u *UserStorage) AddGroupInvitation(invitation model.GroupInvitation, userID uuid.UUID) error {
+func (u *UserStorage) AddGroupInvitation(invitation model.GroupInvitationModel, userID uuid.UUID) error {
 	/*
 		u.e.Lock.Lock()
 		defer u.e.Lock.Unlock()
@@ -145,7 +145,7 @@ func (u *UserStorage) HandleInvitation(invitationType string, userID uuid.UUID, 
 
 // handleGroupInvitation handles the reply to a group invitation. If the invitation gets accepted, the user gets added to the group and the invitations gets deleted.
 // If the invitation gets declined, the invitation gets deleted.
-func (u *UserStorage) handleGroupInvitation(user model.User, invitationID uuid.UUID, accept bool) error {
+func (u *UserStorage) handleGroupInvitation(user model.UserModel, invitationID uuid.UUID, accept bool) error {
 	// if invitation gets accepted, add user to group
 	for _, invitation := range user.PendingGroupInvitations {
 		if invitation.ID == invitationID {
@@ -174,7 +174,7 @@ func (u *UserStorage) handleGroupInvitation(user model.User, invitationID uuid.U
 }
 
 // removeInvitation removes the invitation with the given ID from the given invitation list.
-func removeInvitation(invitations []*model.GroupInvitation, id uuid.UUID) []*model.GroupInvitation {
+func removeInvitation(invitations []*model.GroupInvitationModel, id uuid.UUID) []*model.GroupInvitationModel {
 	for i, invitation := range invitations {
 		if invitation.ID == id {
 			return append(invitations[:i], invitations[i+1:]...)

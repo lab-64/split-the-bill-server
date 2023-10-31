@@ -16,7 +16,7 @@ func NewBillStorage(ephemeral *ephemeral.Ephemeral) storage_inf.IBillStorage {
 	return &BillStorage{e: ephemeral}
 }
 
-func (b BillStorage) Create(bill model.Bill) error {
+func (b BillStorage) Create(bill model.BillModel) error {
 	b.e.Lock.Lock()
 	defer b.e.Lock.Unlock()
 	_, exists := b.e.Bills[bill.ID]
@@ -27,7 +27,7 @@ func (b BillStorage) Create(bill model.Bill) error {
 	return nil
 }
 
-func (b BillStorage) GetByID(id uuid.UUID) (model.Bill, error) {
+func (b BillStorage) GetByID(id uuid.UUID) (model.BillModel, error) {
 	b.e.Lock.Lock()
 	defer b.e.Lock.Unlock()
 	bill, exists := b.e.Bills[id]

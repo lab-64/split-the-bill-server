@@ -1,23 +1,23 @@
 package impl
 
 import (
-	"github.com/google/uuid"
+	. "github.com/google/uuid"
 	"split-the-bill-server/domain/model"
-	"split-the-bill-server/domain/service/service_inf"
-	"split-the-bill-server/presentation/dto"
-	"split-the-bill-server/storage/storage_inf"
+	. "split-the-bill-server/domain/service/service_inf"
+	. "split-the-bill-server/presentation/dto"
+	. "split-the-bill-server/storage/storage_inf"
 )
 
 type InvitationService struct {
-	invitationStorage storage_inf.IInvitationStorage
-	userStorage       storage_inf.IUserStorage
+	invitationStorage IInvitationStorage
+	userStorage       IUserStorage
 }
 
-func NewInvitationService(invitationStorage *storage_inf.IInvitationStorage, userStorage *storage_inf.IUserStorage) service_inf.IInvitationService {
+func NewInvitationService(invitationStorage *IInvitationStorage, userStorage *IUserStorage) IInvitationService {
 	return &InvitationService{invitationStorage: *invitationStorage, userStorage: *userStorage}
 }
 
-func (i InvitationService) CreateGroupInvitation(request dto.GroupInputDTO, groupID uuid.UUID) error {
+func (i InvitationService) CreateGroupInvitation(request GroupInputDTO, groupID UUID) error {
 	// get invites from request
 	invites := request.Invites
 	// TODO: change, wrong implementation, look up how to store association in gorm
@@ -45,12 +45,12 @@ func (i InvitationService) CreateGroupInvitation(request dto.GroupInputDTO, grou
 	return nil
 }
 
-func (i InvitationService) AcceptGroupInvitation(invitation uuid.UUID, userID uuid.UUID) error {
+func (i InvitationService) AcceptGroupInvitation(invitation UUID, userID UUID) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (i InvitationService) DeclineGroupInvitation(invitation uuid.UUID, userID uuid.UUID) error {
+func (i InvitationService) DeclineGroupInvitation(invitation UUID, userID UUID) error {
 	//TODO implement me
 	panic("implement me")
 }

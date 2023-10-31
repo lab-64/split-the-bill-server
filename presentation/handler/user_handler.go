@@ -8,16 +8,16 @@ import (
 	"github.com/google/uuid"
 	"split-the-bill-server/authentication"
 	"split-the-bill-server/core"
-	"split-the-bill-server/domain/service/service_inf"
-	"split-the-bill-server/presentation/dto"
+	. "split-the-bill-server/domain/service/service_inf"
+	. "split-the-bill-server/presentation/dto"
 )
 
 type UserHandler struct {
-	userService       service_inf.IUserService
+	userService       IUserService
 	passwordValidator *password.Validator
 }
 
-func NewUserHandler(userService *service_inf.IUserService, v *password.Validator) *UserHandler {
+func NewUserHandler(userService *IUserService, v *password.Validator) *UserHandler {
 	return &UserHandler{userService: *userService, passwordValidator: v}
 }
 
@@ -96,7 +96,7 @@ func (h UserHandler) GetByUsername(c *fiber.Ctx) error {
 //	@Router		/api/user [post]
 func (h UserHandler) Create(c *fiber.Ctx) error {
 	// Store the body in the request and return error if encountered
-	var request dto.UserInputDTO
+	var request UserInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
@@ -153,7 +153,7 @@ func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
 		return core.Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
 	}
 	// parse invitation reply
-	var request dto.InvitationInputDTO
+	var request InvitationInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
 	}
@@ -177,7 +177,7 @@ func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
 //	@Success	200		{object}	dto.GeneralResponseDTO
 //	@Router		/api/user/register [post]
 func (h UserHandler) Register(c *fiber.Ctx) error {
-	var request dto.UserInputDTO
+	var request UserInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
@@ -207,7 +207,7 @@ func (h UserHandler) Register(c *fiber.Ctx) error {
 //
 // Login uses the given login credentials for login and returns an authentication token for the user.
 func (h UserHandler) Login(c *fiber.Ctx) error {
-	var userCredentials dto.CredentialsInputDTO
+	var userCredentials CredentialsInputDTO
 	if err := c.BodyParser(&userCredentials); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserCredentialsParse, err))
 	}

@@ -10,9 +10,9 @@ import (
 const SessionCookieValidityPeriod = time.Hour * 24 * 7
 const SessionCookieName = "session_cookie"
 
-func GenerateSessionCookie(userID uuid.UUID) model.AuthenticationCookie {
+func GenerateSessionCookie(userID uuid.UUID) model.AuthCookieModel {
 	// TODO: Safely generate a session cookie.
-	return model.AuthenticationCookie{
+	return model.AuthCookieModel{
 		UserID:      userID,
 		Token:       uuid.New(),
 		ValidBefore: time.Now().Add(SessionCookieValidityPeriod),
@@ -20,7 +20,7 @@ func GenerateSessionCookie(userID uuid.UUID) model.AuthenticationCookie {
 }
 
 // IsSessionCookieValid validates the given session cookie by checking if the ValidBefore time is in the future. Returns SessionExpiredError if the cookie is not valid anymore.
-func IsSessionCookieValid(cookie model.AuthenticationCookie) error {
+func IsSessionCookieValid(cookie model.AuthCookieModel) error {
 	if cookie.ValidBefore.After(time.Now()) {
 		return nil
 	} else {

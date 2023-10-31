@@ -23,7 +23,7 @@ type IUserService interface {
 	Register(user dto.UserInputDTO) (dto.UserOutputDTO, error)
 
 	// AddGroupInvitation adds the given group invitation to user's pending invitations.
-	AddGroupInvitation(invitation model.GroupInvitation, userID uuid.UUID) error
+	AddGroupInvitation(invitation model.GroupInvitationModel, userID uuid.UUID) error
 
 	HandleInvitation(invitation dto.InvitationInputDTO, userID uuid.UUID, invitationID uuid.UUID) error
 

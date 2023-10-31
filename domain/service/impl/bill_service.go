@@ -3,27 +3,26 @@ package impl
 import (
 	"github.com/google/uuid"
 	"split-the-bill-server/core"
-	"split-the-bill-server/domain/service/service_inf"
-	"split-the-bill-server/presentation/dto"
-	"split-the-bill-server/storage/storage_inf"
+	. "split-the-bill-server/domain/service/service_inf"
+	. "split-the-bill-server/presentation/dto"
+	. "split-the-bill-server/storage/storage_inf"
 )
 
 type BillService struct {
-	billStorage  storage_inf.IBillStorage
-	groupStorage storage_inf.IGroupStorage
+	billStorage  IBillStorage
+	groupStorage IGroupStorage
 }
 
-func NewBillService(billStorage *storage_inf.IBillStorage, groupStorage *storage_inf.IGroupStorage) service_inf.IBillService {
+func NewBillService(billStorage *IBillStorage, groupStorage *IGroupStorage) IBillService {
 	return &BillService{billStorage: *billStorage, groupStorage: *groupStorage}
 }
 
-func (b *BillService) Create(billDTO dto.BillInputDTO) (dto.BillOutputDTO, error) {
-
+func (b *BillService) Create(billDTO BillInputDTO) (BillOutputDTO, error) {
 	// TODO: delete if authentication is used
-	userID := uuid.MustParse("7f1b2ed5-1201-4443-b997-56877fe31991")
+	billDTO.Owner = uuid.MustParse("7f1b2ed5-1201-4443-b997-56877fe31991")
 
 	// create types_test.bill
-	bill, err := billDTO.ToBill(userID)
+	bill, err := ToBillModel(billDTO)
 	core.LogError(err)
 
 	// store bill in billStorage
@@ -34,12 +33,12 @@ func (b *BillService) Create(billDTO dto.BillInputDTO) (dto.BillOutputDTO, error
 	err = b.groupStorage.AddBillToGroup(&bill, billDTO.Group)
 	core.LogError(err)
 
-	return dto.ToBillDTO(&bill), err
+	return ToBillDTO(bill), err
 }
 
-func (b *BillService) GetByID(id uuid.UUID) (dto.BillOutputDTO, error) {
+func (b *BillService) GetByID(id uuid.UUID) (BillOutputDTO, error) {
 	bill, err := b.billStorage.GetByID(id)
 	core.LogError(err)
 
-	return dto.ToBillDTO(&bill), err
+	return ToBillDTO(bill), err
 }

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type AuthenticationCookie struct {
+type AuthCookieModel struct {
 	UserID      uuid.UUID
 	Token       uuid.UUID
 	ValidBefore time.Time

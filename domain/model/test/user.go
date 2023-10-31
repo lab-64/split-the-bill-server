@@ -19,13 +19,13 @@ func GenerateUsernames(amount int, chars []rune) []string {
 
 // GenerateDifferentUsers generates a slice of users with different usernames. The IDs are generated randomly, but
 // collisions are highly unlikely.
-func GenerateDifferentUsers(amount int) []model.User {
+func GenerateDifferentUsers(amount int) []model.UserModel {
 	usernames := GenerateUsernames(amount, chars)
 	return GenerateUsersWithUsernames(usernames)
 }
 
-func GenerateUsersWithUsernames(usernames []string) []model.User {
-	users := make([]model.User, len(usernames))
+func GenerateUsersWithUsernames(usernames []string) []model.UserModel {
+	users := make([]model.UserModel, len(usernames))
 	for i := 0; i < len(usernames); i++ {
 		users[i] = model.NewUser(usernames[i])
 	}

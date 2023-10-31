@@ -2,7 +2,7 @@ package dto
 
 import (
 	"github.com/google/uuid"
-	"split-the-bill-server/domain/model"
+	. "split-the-bill-server/domain/model"
 )
 
 type UserInputDTO struct {
@@ -20,11 +20,11 @@ type UserOutputDTO struct {
 	Invitations []uuid.UUID      `json:"invitations"`
 }
 
-func (r UserInputDTO) ToUser() model.User {
-	return model.CreateUser(r.Username, r.Email)
+func ToUserModel(r UserInputDTO) UserModel {
+	return CreateUserModel(r.Username, r.Email)
 }
 
-func ToUserDTO(u *model.User) UserOutputDTO {
+func ToUserDTO(u *UserModel) UserOutputDTO {
 	groupsDTO := make([]GroupOutputDTO, len(u.Groups))
 
 	for i, group := range u.Groups {

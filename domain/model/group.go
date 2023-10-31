@@ -4,20 +4,20 @@ import (
 	"github.com/google/uuid"
 )
 
-type Group struct {
-	Owner   User
+type GroupModel struct {
+	Owner   UserModel
 	ID      uuid.UUID
 	Name    string
-	Members []User
-	Bills   []*Bill
+	Members []UserModel
+	Bills   []BillModel
 }
 
-func CreateGroup(owner User, name string, members []User) Group {
-	return Group{
+func CreateGroupModel(owner UserModel, name string) GroupModel {
+	return GroupModel{
 		Owner:   owner,
 		ID:      uuid.New(),
 		Name:    name,
-		Members: members,
-		Bills:   make([]*Bill, 0),
+		Members: make([]UserModel, 0),
+		Bills:   make([]BillModel, 0),
 	}
 }

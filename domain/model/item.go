@@ -2,15 +2,15 @@ package model
 
 import "github.com/google/uuid"
 
-type Item struct {
+type ItemModel struct {
 	ID           uuid.UUID
 	Name         string
 	Price        float64
 	Contributors []uuid.UUID
 }
 
-func CreateItem(name string, price float64, contributors []uuid.UUID) Item {
-	return Item{
+func CreateItemModel(name string, price float64, contributors []uuid.UUID) ItemModel {
+	return ItemModel{
 		ID:           uuid.New(),
 		Name:         name,
 		Price:        price,

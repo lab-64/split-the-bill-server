@@ -2,7 +2,7 @@ package entity
 
 import (
 	"github.com/google/uuid"
-	"split-the-bill-server/domain/model"
+	. "split-the-bill-server/domain/model"
 	"time"
 )
 
@@ -14,14 +14,19 @@ type GroupInvitation struct {
 	InviteeID uuid.UUID
 }
 
-// MakeGroupInvitation creates a database GroupInvitation entity from a model.GroupInvitation.
-func MakeGroupInvitation(groupInvitation model.GroupInvitation) GroupInvitation {
-	return GroupInvitation{Base: Base{ID: groupInvitation.ID}, Date: groupInvitation.Date, GroupID: groupInvitation.Group.ID, InviteeID: groupInvitation.Invitee.ID}
+func ToGroupInvitationModel(groupInvitation GroupInvitation) GroupInvitationModel {
+	return GroupInvitationModel{
+		ID:    groupInvitation.ID,
+		Date:  groupInvitation.Date,
+		Group: ToGroupModel(&groupInvitation.For),
+	}
 }
 
-// ToGroupInvitation creates a model.GroupInvitation from a database GroupInvitation entity.
-func (groupInvitation *GroupInvitation) ToGroupInvitation() model.GroupInvitation {
-	group := groupInvitation.For.ToGroup()
-
-	return model.GroupInvitation{ID: groupInvitation.ID, Date: groupInvitation.Date, Group: group}
+func ToGroupInvitationEntity(groupInvitation GroupInvitationModel) GroupInvitation {
+	return GroupInvitation{
+		Base:      Base{ID: groupInvitation.ID},
+		Date:      groupInvitation.Date,
+		GroupID:   groupInvitation.Group.ID,
+		InviteeID: groupInvitation.Invitee.ID,
+	}
 }

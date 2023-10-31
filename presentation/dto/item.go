@@ -2,7 +2,7 @@ package dto
 
 import (
 	"github.com/google/uuid"
-	"split-the-bill-server/domain/model"
+	. "split-the-bill-server/domain/model"
 )
 
 type ItemDTO struct {
@@ -11,11 +11,11 @@ type ItemDTO struct {
 	Contributors []uuid.UUID `json:"contributors"`
 }
 
-func (i ItemDTO) ToItem() (model.Item, error) {
-	return model.CreateItem(i.Name, i.Price, i.Contributors), nil
+func ToItemModel(i ItemDTO) ItemModel {
+	return CreateItemModel(i.Name, i.Price, i.Contributors)
 }
 
-func ToItemDTO(item *model.Item) ItemDTO {
+func ToItemDTO(item ItemModel) ItemDTO {
 	return ItemDTO{
 		Name:         item.Name,
 		Price:        item.Price,

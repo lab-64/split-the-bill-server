@@ -5,23 +5,23 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"log"
-	"split-the-bill-server/domain/model"
+	. "split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
-	"split-the-bill-server/storage/database"
+	. "split-the-bill-server/storage/database"
 	. "split-the-bill-server/storage/database/entity"
-	"split-the-bill-server/storage/storage_inf"
+	. "split-the-bill-server/storage/storage_inf"
 )
 
 type UserStorage struct {
 	DB *gorm.DB
 }
 
-func NewUserStorage(DB *database.Database) storage_inf.IUserStorage {
+func NewUserStorage(DB *Database) IUserStorage {
 	return &UserStorage{DB: DB.Context}
 }
 
-func (u *UserStorage) Create(user model.User) error {
-	item := MakeUser(user)
+func (u *UserStorage) Create(user UserModel) error {
+	item := ToUserEntity(user)
 	// FIXME: This is a little bit of TOCTOU:
 	// If a user with the same username is created after the check, we DO NOT RETURN AN ERROR.
 	// We also do not overwrite the existing user.
@@ -41,7 +41,7 @@ func (u *UserStorage) Delete(id uuid.UUID) error {
 	return tx.Error
 }
 
-func (u *UserStorage) GetAll() ([]model.User, error) {
+func (u *UserStorage) GetAll() ([]UserModel, error) {
 	var users []User
 	// find all users in the database
 	// TODO: GetAllUsers should not return an error, if no users are found
@@ -51,43 +51,43 @@ func (u *UserStorage) GetAll() ([]model.User, error) {
 	}
 
 	// return users
-	return ToUserSlice(users), nil
+	return ToUserModelSlice(users), nil
 }
 
 // TODO: include pending invitations & groups in query
-func (u *UserStorage) GetByID(id uuid.UUID) (model.User, error) {
+func (u *UserStorage) GetByID(id uuid.UUID) (UserModel, error) {
 	var user User
 	tx := u.DB.Limit(1).Preload("Groups").Preload("GroupInvitations.For").Find(&user, "id = ?", id) // lade noch alle groups mit FK = user &
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return model.User{}, storage.NoSuchUserError
+			return UserModel{}, storage.NoSuchUserError
 		}
-		return model.User{}, tx.Error
+		return UserModel{}, tx.Error
 	}
 	if tx.RowsAffected == 0 {
-		return model.User{}, storage.NoSuchUserError
+		return UserModel{}, storage.NoSuchUserError
 	}
-	return user.ToUser(), nil
+	return ToUserModel(user), nil
 }
 
-func (u *UserStorage) GetByUsername(username string) (model.User, error) {
+func (u *UserStorage) GetByUsername(username string) (UserModel, error) {
 	var user User
 	// TODO: Verify that this is in fact not injectable
 	tx := u.DB.Take(&user, "username = ?", username)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return model.User{}, storage.NoSuchUserError
+			return UserModel{}, storage.NoSuchUserError
 		}
-		return model.User{}, tx.Error
+		return UserModel{}, tx.Error
 	}
 	if tx.RowsAffected == 0 {
-		return model.User{}, storage.NoSuchUserError
+		return UserModel{}, storage.NoSuchUserError
 	}
-	return user.ToUser(), nil
+	return ToUserModel(user), nil
 }
 
-func (u *UserStorage) Register(user model.User, passwordHash []byte) error {
-	item := MakeUser(user)
+func (u *UserStorage) Register(user UserModel, passwordHash []byte) error {
+	item := ToUserEntity(user)
 	// store user
 	res := u.DB.Where(User{Username: item.Username}).FirstOrCreate(&item)
 	log.Println(res)
@@ -114,9 +114,9 @@ func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
 	return credentials.Hash, nil
 }
 
-func (u *UserStorage) AddGroupInvitation(invitation model.GroupInvitation, userID uuid.UUID) error {
+func (u *UserStorage) AddGroupInvitation(invitation GroupInvitationModel, userID uuid.UUID) error {
 	// make group invitation entity
-	groupInvitationItem := MakeGroupInvitation(invitation)
+	groupInvitationItem := ToGroupInvitationEntity(invitation)
 	// TODO: update user, maybe it gets updated automatically
 	res := u.DB.Model(&User{Base: Base{ID: userID}}).Association("PendingGroupInvitation").Append(&groupInvitationItem)
 	log.Println("AddGroupInvitation: ", res)

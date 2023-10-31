@@ -2,9 +2,17 @@ package dto
 
 import (
 	"github.com/google/uuid"
-	"split-the-bill-server/domain/model"
+	. "split-the-bill-server/domain/model"
 	"time"
 )
+
+type BillInputDTO struct {
+	Owner uuid.UUID `json:"owner"`
+	Name  string    `json:"name"`
+	Date  time.Time `json:"date"`
+	Items []ItemDTO `json:"items"`
+	Group uuid.UUID `json:"group"`
+}
 
 type BillOutputDTO struct {
 	Name  string    `json:"name"`
@@ -12,31 +20,21 @@ type BillOutputDTO struct {
 	Items []ItemDTO `json:"items"`
 }
 
-type BillInputDTO struct {
-	Name  string    `json:"name"`
-	Date  time.Time `json:"date"`
-	Items []ItemDTO `json:"items"`
-	Group uuid.UUID `json:"group"`
-}
-
-func (b BillInputDTO) ToBill(owner uuid.UUID) (model.Bill, error) {
+func ToBillModel(b BillInputDTO) (BillModel, error) {
 	// convert each item
-	var items []*model.Item
+	var items []*ItemModel
 	for _, item := range b.Items {
-		convertedItem, err := item.ToItem()
-		if err != nil {
-			return model.Bill{}, err
-		}
+		convertedItem := ToItemModel(item)
 		items = append(items, &convertedItem)
 	}
-	return model.CreateBill(owner, b.Name, b.Date, items), nil
+	return CreateBill(b.Owner, b.Name, b.Date, items), nil
 }
 
-func ToBillDTO(bill *model.Bill) BillOutputDTO {
+func ToBillDTO(bill BillModel) BillOutputDTO {
 	itemsDTO := make([]ItemDTO, len(bill.Items))
 
 	for i, item := range bill.Items {
-		itemsDTO[i] = ToItemDTO(item)
+		itemsDTO[i] = ToItemDTO(*item)
 	}
 
 	return BillOutputDTO{

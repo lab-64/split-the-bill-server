@@ -5,17 +5,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"split-the-bill-server/core"
-	service "split-the-bill-server/domain/service/service_inf"
-	"split-the-bill-server/presentation/dto"
+	. "split-the-bill-server/domain/service/service_inf"
+	. "split-the-bill-server/presentation/dto"
 )
 
 type BillHandler struct {
-	service.IBillService
-	service.IGroupService
+	billService  IBillService
+	groupService IGroupService
 }
 
-func NewBillHandler(billService *service.IBillService, groupService *service.IGroupService) *BillHandler {
-	return &BillHandler{IBillService: *billService, IGroupService: *groupService}
+func NewBillHandler(billService *IBillService, groupService *IGroupService) *BillHandler {
+	return &BillHandler{billService: *billService, groupService: *groupService}
 }
 
 // GetByID 		func get bill by id
@@ -36,7 +36,7 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 	if err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
-	bill, err := h.IBillService.GetByID(bid)
+	bill, err := h.billService.GetByID(bid)
 	if err != nil {
 		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgBillNotFound, err))
 	}
@@ -64,8 +64,8 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 	*/
 
 	// create nested bill struct
-	var items []dto.ItemDTO
-	request := dto.BillInputDTO{
+	var items []ItemDTO
+	request := BillInputDTO{
 		Items: items,
 	}
 
@@ -76,12 +76,12 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 	}
 
 	// validate groupID
-	_, err = h.IGroupService.GetByID(request.Group)
+	_, err = h.groupService.GetByID(request.Group)
 	if err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupNotFound, err))
 	}
 
-	bill, err := h.IBillService.Create(request)
+	bill, err := h.billService.Create(request)
 
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillCreate, err))

@@ -5,16 +5,16 @@ import (
 	"time"
 )
 
-type Bill struct {
+type BillModel struct {
 	ID      uuid.UUID
 	OwnerID uuid.UUID
 	Name    string
 	Date    time.Time
-	Items   []*Item
+	Items   []*ItemModel
 }
 
-func CreateBill(ownerID uuid.UUID, name string, date time.Time, items []*Item) Bill {
-	return Bill{
+func CreateBill(ownerID uuid.UUID, name string, date time.Time, items []*ItemModel) BillModel {
+	return BillModel{
 		ID:      uuid.New(),
 		OwnerID: ownerID,
 		Name:    name,

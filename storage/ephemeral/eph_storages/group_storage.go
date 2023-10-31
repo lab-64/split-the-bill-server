@@ -16,7 +16,7 @@ func NewGroupStorage(ephemeral *ephemeral.Ephemeral) storage_inf.IGroupStorage {
 	return &GroupStorage{e: ephemeral}
 }
 
-func (g *GroupStorage) AddGroup(group model.Group) error {
+func (g *GroupStorage) AddGroup(group model.GroupModel) error {
 	g.e.Lock.Lock()
 	defer g.e.Lock.Unlock()
 	_, exists := g.e.Groups[group.ID]
@@ -27,7 +27,7 @@ func (g *GroupStorage) AddGroup(group model.Group) error {
 	return nil
 }
 
-func (g *GroupStorage) GetGroupByID(id uuid.UUID) (model.Group, error) {
+func (g *GroupStorage) GetGroupByID(id uuid.UUID) (model.GroupModel, error) {
 	g.e.Lock.Lock()
 	defer g.e.Lock.Unlock()
 	group, exists := g.e.Groups[id]
@@ -53,7 +53,7 @@ func (g *GroupStorage) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) e
 	return nil
 }
 
-func (g *GroupStorage) AddBillToGroup(bill *model.Bill, groupID uuid.UUID) error {
+func (g *GroupStorage) AddBillToGroup(bill *model.BillModel, groupID uuid.UUID) error {
 	g.e.Lock.Lock()
 	defer g.e.Lock.Unlock()
 	group, exists := g.e.Groups[groupID]
@@ -62,7 +62,7 @@ func (g *GroupStorage) AddBillToGroup(bill *model.Bill, groupID uuid.UUID) error
 	}
 
 	// change group
-	group.Bills = append(group.Bills, bill)
+	group.Bills = append(group.Bills, *bill)
 	g.e.Groups[group.ID] = group
 	return nil
 }

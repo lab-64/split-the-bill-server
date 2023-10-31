@@ -3,10 +3,11 @@ package dto
 import (
 	"errors"
 	"github.com/google/uuid"
-	"split-the-bill-server/domain/model"
+	. "split-the-bill-server/domain/model"
 )
 
 type GroupInputDTO struct {
+	Owner   uuid.UUID   `json:"owner"`
 	Name    string      `json:"name"`
 	Invites []uuid.UUID `json:"invites"`
 }
@@ -19,18 +20,11 @@ type GroupOutputDTO struct {
 	Bills   []BillOutputDTO `json:"bills"`
 }
 
-func (g GroupInputDTO) ToGroup(owner model.User, members []model.User) model.Group {
-	return model.CreateGroup(owner, g.Name, members)
+func ToGroupModel(g GroupInputDTO) GroupModel {
+	return CreateGroupModel(UserModel{ID: g.Owner}, g.Name)
 }
 
-func (g GroupInputDTO) ValidateInput() error {
-	if g.Name == "" {
-		return errors.New("name is required")
-	}
-	return nil
-}
-
-func ToGroupDTO(g *model.Group) GroupOutputDTO {
+func ToGroupDTO(g *GroupModel) GroupOutputDTO {
 	billsDTO := make([]BillOutputDTO, len(g.Bills))
 
 	for i, bill := range g.Bills {
@@ -48,4 +42,13 @@ func ToGroupDTO(g *model.Group) GroupOutputDTO {
 		Members: members,
 		Bills:   billsDTO,
 	}
+}
+
+// Validator
+
+func (g GroupInputDTO) ValidateInput() error {
+	if g.Name == "" {
+		return errors.New("name is required")
+	}
+	return nil
 }

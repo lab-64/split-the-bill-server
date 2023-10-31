@@ -9,22 +9,22 @@ import (
 // TODO: Can change types_test to pointer of types_test -> updating types_test will be displayed in all related structs but it will still not update changes in PendingGroupInvitations
 type Ephemeral struct {
 	Lock      sync.Mutex
-	Users     map[uuid.UUID]model.User
+	Users     map[uuid.UUID]model.UserModel
 	NameIndex map[string]uuid.UUID
 	Passwords map[uuid.UUID][]byte
-	Cookies   map[uuid.UUID][]model.AuthenticationCookie
-	Groups    map[uuid.UUID]*model.Group
-	Bills     map[uuid.UUID]*model.Bill
+	Cookies   map[uuid.UUID][]model.AuthCookieModel
+	Groups    map[uuid.UUID]*model.GroupModel
+	Bills     map[uuid.UUID]*model.BillModel
 }
 
 func NewEphemeral() (*Ephemeral, error) {
 	return &Ephemeral{
-		Users:     make(map[uuid.UUID]model.User),
+		Users:     make(map[uuid.UUID]model.UserModel),
 		NameIndex: make(map[string]uuid.UUID),
 		Passwords: make(map[uuid.UUID][]byte),
-		Cookies:   make(map[uuid.UUID][]model.AuthenticationCookie),
-		Groups:    make(map[uuid.UUID]*model.Group),
-		Bills:     make(map[uuid.UUID]*model.Bill),
+		Cookies:   make(map[uuid.UUID][]model.AuthCookieModel),
+		Groups:    make(map[uuid.UUID]*model.GroupModel),
+		Bills:     make(map[uuid.UUID]*model.BillModel),
 	}, nil
 }
 

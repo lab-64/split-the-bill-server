@@ -497,6 +497,9 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "owner": {
+                    "type": "string"
                 }
             }
         },
@@ -550,6 +553,9 @@
                     }
                 },
                 "name": {
+                    "type": "string"
+                },
+                "owner": {
                     "type": "string"
                 }
             }
