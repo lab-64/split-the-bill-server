@@ -8,14 +8,16 @@ import (
 	"log"
 	"os"
 	"split-the-bill-server/authentication"
-	"split-the-bill-server/config"
+	"split-the-bill-server/core"
 	_ "split-the-bill-server/docs"
-	"split-the-bill-server/handler"
+	"split-the-bill-server/domain/service/impl"
+	"split-the-bill-server/presentation/handler"
 	"split-the-bill-server/router"
-	"split-the-bill-server/service/impl"
-	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/database"
+	"split-the-bill-server/storage/database/db_storages"
 	"split-the-bill-server/storage/ephemeral"
+	"split-the-bill-server/storage/ephemeral/eph_storages"
+	"split-the-bill-server/storage/storage_inf"
 )
 
 // @title		Split The Bill API
@@ -24,7 +26,7 @@ import (
 // @BasePath	/
 func main() {
 
-	err := config.LoadConfig()
+	err := core.LoadConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,7 +78,7 @@ func main() {
 }
 
 // setupStorage initializes and configures the storage components based on the STORAGE_TYPE environment variable.
-func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICookieStorage, storage.IBillStorage, storage.IInvitationStorage) {
+func setupStorage() (storage_inf.IUserStorage, storage_inf.IGroupStorage, storage_inf.ICookieStorage, storage_inf.IBillStorage, storage_inf.IInvitationStorage) {
 
 	storageType := os.Getenv("STORAGE_TYPE")
 
@@ -86,14 +88,14 @@ func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICooki
 		if err != nil {
 			log.Fatal(err)
 		}
-		return database.NewUserStorage(db), database.NewGroupStorage(db), database.NewCookieStorage(db), database.NewBillStorage(db), database.NewInvitationStorage(db)
+		return db_storages.NewUserStorage(db), db_storages.NewGroupStorage(db), db_storages.NewCookieStorage(db), db_storages.NewBillStorage(db), db_storages.NewInvitationStorage(db)
 	case "ephemeral":
 		db, err := ephemeral.NewEphemeral()
 		if err != nil {
 			log.Fatal(err)
 		}
 		// TODO: add invitation storage in ephemeral
-		return ephemeral.NewUserStorage(db), ephemeral.NewGroupStorage(db), ephemeral.NewCookieStorage(db), ephemeral.NewBillStorage(db), nil
+		return eph_storages.NewUserStorage(db), eph_storages.NewGroupStorage(db), eph_storages.NewCookieStorage(db), eph_storages.NewBillStorage(db), nil
 	default:
 		log.Fatalf("Unsupported storage type: %s", storageType)
 		return nil, nil, nil, nil, nil

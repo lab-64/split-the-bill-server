@@ -3,16 +3,16 @@ package authentication
 import (
 	"errors"
 	"github.com/google/uuid"
-	"split-the-bill-server/types"
+	"split-the-bill-server/domain/model"
 	"time"
 )
 
 const SessionCookieValidityPeriod = time.Hour * 24 * 7
 const SessionCookieName = "session_cookie"
 
-func GenerateSessionCookie(userID uuid.UUID) types.AuthenticationCookie {
+func GenerateSessionCookie(userID uuid.UUID) model.AuthenticationCookie {
 	// TODO: Safely generate a session cookie.
-	return types.AuthenticationCookie{
+	return model.AuthenticationCookie{
 		UserID:      userID,
 		Token:       uuid.New(),
 		ValidBefore: time.Now().Add(SessionCookieValidityPeriod),
@@ -20,7 +20,7 @@ func GenerateSessionCookie(userID uuid.UUID) types.AuthenticationCookie {
 }
 
 // IsSessionCookieValid validates the given session cookie by checking if the ValidBefore time is in the future. Returns SessionExpiredError if the cookie is not valid anymore.
-func IsSessionCookieValid(cookie types.AuthenticationCookie) error {
+func IsSessionCookieValid(cookie model.AuthenticationCookie) error {
 	if cookie.ValidBefore.After(time.Now()) {
 		return nil
 	} else {

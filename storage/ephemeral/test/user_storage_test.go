@@ -3,13 +3,14 @@ package test
 import (
 	"github.com/stretchr/testify/require"
 	"math/rand"
+	"split-the-bill-server/model"
+	types_test "split-the-bill-server/model/test"
 	"split-the-bill-server/storage"
-	"split-the-bill-server/types"
-	types_test "split-the-bill-server/types/test"
+	"split-the-bill-server/storage/storage_inf"
 	"testing"
 )
 
-func addUsers(uut storage.IUserStorage, users []types.User, t *testing.T, finished chan<- struct{}) {
+func addUsers(uut storage_inf.IUserStorage, users []model.User, t *testing.T, finished chan<- struct{}) {
 	for _, user := range users {
 		err := uut.Create(user)
 		require.NoError(t, err)
@@ -17,7 +18,7 @@ func addUsers(uut storage.IUserStorage, users []types.User, t *testing.T, finish
 	close(finished)
 }
 
-func getUsers(uut storage.IUserStorage, users []types.User, t *testing.T, finished chan<- struct{}) {
+func getUsers(uut storage_inf.IUserStorage, users []model.User, t *testing.T, finished chan<- struct{}) {
 	for _, user := range users {
 		res, err := uut.GetByID(user.ID)
 		require.NoError(t, err)
@@ -29,7 +30,7 @@ func getUsers(uut storage.IUserStorage, users []types.User, t *testing.T, finish
 	close(finished)
 }
 
-func deleteUsersAndAssert(uut storage.IUserStorage, users []types.User, t *testing.T, finished chan<- struct{}) {
+func deleteUsersAndAssert(uut storage_inf.IUserStorage, users []model.User, t *testing.T, finished chan<- struct{}) {
 	for _, user := range users {
 		err := uut.Delete(user.ID)
 		require.NoError(t, err)
@@ -41,7 +42,7 @@ func deleteUsersAndAssert(uut storage.IUserStorage, users []types.User, t *testi
 	close(finished)
 }
 
-func UserStorageTest(e storage.Connection, uut storage.IUserStorage, t *testing.T) {
+func UserStorageTest(e storage.Connection, uut storage_inf.IUserStorage, t *testing.T) {
 	const amount = 10000
 	const concurrency = 10
 	users := types_test.GenerateDifferentUsers(amount)
@@ -82,7 +83,7 @@ func UserStorageTest(e storage.Connection, uut storage.IUserStorage, t *testing.
 	require.Equal(t, 0, len(allUsers))
 }
 
-func UserStorageEdgeCaseTest(e storage.Connection, uut storage.IUserStorage, t *testing.T) {
+func UserStorageEdgeCaseTest(e storage.Connection, uut storage_inf.IUserStorage, t *testing.T) {
 	err := e.Connect()
 	require.NoError(t, err)
 	users := types_test.GenerateUsersWithUsernames([]string{"a", "a"})

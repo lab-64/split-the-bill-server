@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"split-the-bill-server/handler"
+	"split-the-bill-server/presentation/handler"
 )
 
 // SetupRoutes creates webserver routes and connect them to the related handlers.

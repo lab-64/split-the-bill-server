@@ -2,7 +2,7 @@ package entity
 
 import (
 	"github.com/google/uuid"
-	"split-the-bill-server/types"
+	"split-the-bill-server/domain/model"
 	"time"
 )
 
@@ -13,10 +13,10 @@ type AuthCookie struct {
 	ValidBefore time.Time
 }
 
-func MakeAuthCooke(authCookie types.AuthenticationCookie) AuthCookie {
+func MakeAuthCooke(authCookie model.AuthenticationCookie) AuthCookie {
 	return AuthCookie{Base: Base{ID: authCookie.Token}, UserID: authCookie.UserID, ValidBefore: authCookie.ValidBefore}
 }
 
-func (authCookie *AuthCookie) ToAuthCookie() types.AuthenticationCookie {
-	return types.AuthenticationCookie{UserID: authCookie.UserID, Token: authCookie.ID, ValidBefore: authCookie.ValidBefore}
+func (authCookie *AuthCookie) ToAuthCookie() model.AuthenticationCookie {
+	return model.AuthenticationCookie{UserID: authCookie.UserID, Token: authCookie.ID, ValidBefore: authCookie.ValidBefore}
 }

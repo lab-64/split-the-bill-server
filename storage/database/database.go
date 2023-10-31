@@ -12,7 +12,7 @@ import (
 )
 
 type Database struct {
-	context *gorm.DB
+	Context *gorm.DB
 }
 
 func NewDatabase() (*Database, error) {
@@ -49,6 +49,6 @@ func (d *Database) Connect() error {
 		return err
 	}
 	// set database
-	d.context = db
+	d.Context = db
 	return nil
 }

@@ -4,10 +4,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"net/http/httptest"
 	"split-the-bill-server/authentication"
-	"split-the-bill-server/handler"
+	"split-the-bill-server/domain/service/impl"
+	"split-the-bill-server/presentation/handler"
 	"split-the-bill-server/router"
-	"split-the-bill-server/service/impl"
 	"split-the-bill-server/storage/ephemeral"
+	"split-the-bill-server/storage/ephemeral/eph_storages"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -23,11 +24,11 @@ func TestLandingPage(t *testing.T) {
 	v, err := authentication.NewPasswordValidator()
 	require.NoError(t, err)
 
-	//storages
-	userStorage := ephemeral.NewUserStorage(e)
-	groupStorage := ephemeral.NewGroupStorage(e)
-	cookieStorage := ephemeral.NewCookieStorage(e)
-	billStorage := ephemeral.NewBillStorage(e)
+	//eph_storages
+	userStorage := eph_storages.NewUserStorage(e)
+	groupStorage := eph_storages.NewGroupStorage(e)
+	cookieStorage := eph_storages.NewCookieStorage(e)
+	billStorage := eph_storages.NewBillStorage(e)
 
 	//services
 	userService := impl.NewUserService(&userStorage, &cookieStorage)

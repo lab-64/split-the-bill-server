@@ -10,7 +10,7 @@ import (
 func NewPasswordValidator() (*password.Validator, error) {
 	// Setup Password Validation
 	var validator = password.NewValidator(false, 8, 64)
-	// Load common password list
+	// Load core password list
 	var commonPasswords, err = os.Open("common-password-list.txt")
 	if err != nil {
 		return nil, err

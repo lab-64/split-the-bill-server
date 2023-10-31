@@ -2,7 +2,7 @@ package entity
 
 import (
 	"log"
-	"split-the-bill-server/types"
+	"split-the-bill-server/domain/model"
 )
 
 // User struct
@@ -13,13 +13,13 @@ type User struct {
 	GroupInvitations []GroupInvitation `gorm:"foreignKey:InviteeID"`
 }
 
-func MakeUser(user types.User) User {
+func MakeUser(user model.User) User {
 	return User{Base: Base{ID: user.ID}, Username: user.Username}
 }
 
 // TODO convert groups
-func (user *User) ToUser() types.User {
-	var groupInvitations []types.GroupInvitation
+func (user *User) ToUser() model.User {
+	var groupInvitations []model.GroupInvitation
 	for _, groupInv := range user.GroupInvitations {
 		j := groupInv.ToGroupInvitation()
 		log.Println("Groups")
@@ -27,11 +27,11 @@ func (user *User) ToUser() types.User {
 		groupInvitations = append(groupInvitations, groupInv.ToGroupInvitation())
 	}
 
-	return types.User{ID: user.ID, Username: user.Username, Groups: nil, PendingGroupInvitations: groupInvitations}
+	return model.User{ID: user.ID, Username: user.Username, Groups: nil, PendingGroupInvitations: groupInvitations}
 }
 
-func ToUserSlice(users []User) []types.User {
-	s := make([]types.User, len(users))
+func ToUserSlice(users []User) []model.User {
+	s := make([]model.User, len(users))
 	for i, user := range users {
 		s[i] = user.ToUser()
 	}
