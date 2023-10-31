@@ -1,14 +1,14 @@
 package service_inf
 
 import (
-	"github.com/google/uuid"
-	"split-the-bill-server/presentation/dto"
+	. "github.com/google/uuid"
+	. "split-the-bill-server/presentation/dto"
 )
 
 type IInvitationService interface {
-	CreateGroupInvitation(request dto.GroupInputDTO, groupID uuid.UUID) error
+	CreateGroupInvitation(request GroupInputDTO, groupID UUID) error
 
-	AcceptGroupInvitation(invitation uuid.UUID, userID uuid.UUID) error
+	AcceptGroupInvitation(invitation UUID, userID UUID) error
 
-	DeclineGroupInvitation(invitation uuid.UUID, userID uuid.UUID) error
+	DeclineGroupInvitation(invitation UUID, userID UUID) error
 }

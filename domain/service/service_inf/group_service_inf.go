@@ -1,12 +1,12 @@
 package service_inf
 
 import (
-	"github.com/google/uuid"
-	"split-the-bill-server/presentation/dto"
+	. "github.com/google/uuid"
+	. "split-the-bill-server/presentation/dto"
 )
 
 type IGroupService interface {
-	Create(groupDTO dto.GroupInputDTO) (dto.GroupOutputDTO, error)
+	Create(groupDTO GroupInputDTO) (GroupOutputDTO, error)
 
-	GetByID(id uuid.UUID) (dto.GroupOutputDTO, error)
+	GetByID(id UUID) (GroupOutputDTO, error)
 }
