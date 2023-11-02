@@ -55,7 +55,8 @@ func (u *UserStorage) GetAll() ([]types.User, error) {
 // TODO: include groups in query
 func (u *UserStorage) GetByID(id uuid.UUID) (types.User, error) {
 	var user User
-	tx := u.DB.Limit(1).Preload("Groups").Preload("GroupInvitations").Find(&user, "id = ?", id) // lade noch alle groups mit FK = user
+	// load user with given id and all its relations
+	tx := u.DB.Limit(1).Preload("Groups").Preload("GroupInvitations").Find(&user, "id = ?", id)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return types.User{}, storage.NoSuchUserError

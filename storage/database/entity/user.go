@@ -19,15 +19,21 @@ func MakeUser(user types.User) User {
 
 // TODO convert groups
 func (user *User) ToUser() types.User {
+	// convert groups
+	var groups []types.Group
+	for _, group := range user.Groups {
+		log.Println("Group: ", group)
+		// TODO: handle circular dependencies
+		// groups = append(groups, group.ToGroup())
+	}
+
+	// convert group invitations
 	var groupInvitations []types.GroupInvitation
 	for _, groupInv := range user.GroupInvitations {
-		j := groupInv.ToGroupInvitation()
-		log.Println("Groups")
-		log.Println(j.Group)
 		groupInvitations = append(groupInvitations, groupInv.ToGroupInvitation())
 	}
 
-	return types.User{ID: user.ID, Username: user.Username, Groups: nil, PendingGroupInvitations: groupInvitations}
+	return types.User{ID: user.ID, Username: user.Username, Groups: groups, PendingGroupInvitations: groupInvitations}
 }
 
 func ToUserSlice(users []User) []types.User {
