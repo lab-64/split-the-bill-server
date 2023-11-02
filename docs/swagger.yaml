@@ -46,6 +46,18 @@ definitions:
           type: string
         type: array
       name:
+        description: Issuer  uuid.UUID   `json:"issuer"`
+        type: string
+    type: object
+  dto.GroupInvitationDTO:
+    properties:
+      groupID:
+        type: string
+      invitees:
+        items:
+          type: string
+        type: array
+      issuer:
         type: string
     type: object
   dto.GroupOutputDTO:
@@ -221,6 +233,27 @@ paths:
       summary: Get Group
       tags:
       - Group
+  /api/invitation:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GroupInvitationDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponseDTO'
+      summary: Create Group Invitation
+      tags:
+      - Invitation
   /api/user:
     get:
       consumes:

@@ -191,6 +191,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/invitation": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invitation"
+                ],
+                "summary": "Create Group Invitation",
+                "parameters": [
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupInvitationDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                        }
+                    }
+                }
+            }
+        },
         "/api/user": {
             "get": {
                 "consumes": [
@@ -557,6 +590,24 @@ const docTemplate = `{
                     }
                 },
                 "name": {
+                    "description": "Issuer  uuid.UUID   ` + "`" + `json:\"issuer\"` + "`" + `",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GroupInvitationDTO": {
+            "type": "object",
+            "properties": {
+                "groupID": {
+                    "type": "string"
+                },
+                "invitees": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "issuer": {
                     "type": "string"
                 }
             }
