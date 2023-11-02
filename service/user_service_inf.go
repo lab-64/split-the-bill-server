@@ -21,7 +21,5 @@ type IUserService interface {
 
 	Register(user dto.UserInputDTO) (dto.UserOutputDTO, error)
 
-	HandleInvitation(invitation dto.InvitationInputDTO, userID uuid.UUID, invitationID uuid.UUID) error
-
-	GetAuthenticatedUserID(tokenUUID uuid.UUID) (uuid.UUID, error)
+	HandleInvitation(invitation dto.InvitationInputDTO) error
 }

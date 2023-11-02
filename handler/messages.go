@@ -34,7 +34,6 @@ const (
 	ErrMsgUserCredentialsParse = "Could not parse credentials: %v"
 	ErrMsgInvitationParse      = "Could not parse invitation: %v"
 	ErrMsgInvitationHandle     = "Could not handle invitation: %v"
-	ErrMsgAuthentication       = "Authentication declined: %v"
 	ErrMsgBadPassword          = "Bad Password: %v"
 
 	// User - SUCCESS

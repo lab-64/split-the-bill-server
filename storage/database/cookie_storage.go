@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"split-the-bill-server/storage"
@@ -33,8 +34,18 @@ func (c *CookieStorage) GetCookiesForUser(userID uuid.UUID) []types.Authenticati
 }
 
 func (c *CookieStorage) GetCookieFromToken(token uuid.UUID) (types.AuthenticationCookie, error) {
-	//TODO implement me
-	panic("implement me")
+	var cookie AuthCookie
+
+	tx := c.DB.First(&cookie, token)
+
+	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return types.AuthenticationCookie{}, gorm.ErrRecordNotFound
+		}
+		return types.AuthenticationCookie{}, tx.Error
+	}
+
+	return cookie.ToAuthCookie(), nil
 }
 
 // CookiesToAuthCookies converts a slice of AuthCookie to a slice of types.AuthenticationCookie
