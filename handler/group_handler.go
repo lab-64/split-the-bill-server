@@ -18,7 +18,7 @@ func NewGroupHandler(GroupService *service.IGroupService, InvitationService *ser
 	return &GroupHandler{IGroupService: *GroupService, IInvitationService: *InvitationService}
 }
 
-// Create 		func create a new group & set the ownerID to the authenticated user
+// Create creates a new group with the owner being the only member.
 //
 //	@Summary	Create Group
 //	@Tags		Group
@@ -45,12 +45,6 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 
 	// create group
 	group, err := h.IGroupService.Create(request)
-	if err != nil {
-		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupCreate, err))
-	}
-
-	// handle group invitations
-	err = h.IInvitationService.CreateGroupInvitation(request, group.ID)
 	if err != nil {
 		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupCreate, err))
 	}

@@ -17,30 +17,19 @@ func NewInvitationService(invitationStorage *storage.IInvitationStorage, userSto
 	return &InvitationService{IInvitationStorage: *invitationStorage, IUserStorage: *userStorage}
 }
 
-func (i InvitationService) CreateGroupInvitation(request dto.GroupInputDTO, groupID uuid.UUID) error {
+func (i InvitationService) CreateGroupInvitation(request dto.GroupInvitationDTO) error {
 	// get invites from request
-	invites := request.Invites
-	// TODO: change, wrong implementation, look up how to store association in gorm
+	invites := request.Invitees
 
-	// handle group invitations
+	// handle group invitations for all invitees
 	for _, invitee := range invites {
-		groupInvitation := types.CreateGroupInvitation(groupID, invitee)
+		groupInvitation := types.CreateGroupInvitation(request.GroupID, invitee)
 		err := i.IInvitationStorage.AddGroupInvitation(groupInvitation)
 		if err != nil {
 			return err
 		}
 
 	}
-
-	/*
-		// add group invitation to all users
-		for _, userID := range invites {
-			err = i.IUserStorage.AddGroupInvitation(groupInvitation, userID)
-			// TODO: error handling, should return to which users the invitation could not be added
-			common.LogError(err)
-		}
-
-	*/
 
 	return nil
 }

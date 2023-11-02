@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// TODO: maybe add UserID to GroupInvitation as a foreignkey
+// TODO: change commend
 // GroupInvitation represents an invitation to a group used to generalize between the user inputs and the database.
 // During Create (From User Input to Database) the GroupID is used to specify the group. Group is ignored.
 // During Read (From Database to User Output) Group is used to specify the group.

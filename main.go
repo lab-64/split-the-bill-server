@@ -51,12 +51,13 @@ func main() {
 	userHandler := handler.NewUserHandler(&userService, passwordValidator)
 	groupHandler := handler.NewGroupHandler(&groupService, &invitationService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
+	invitationHandler := handler.NewInvitationHandler(&invitationService)
 
 	// setup logger
 	app.Use(logger.New())
 
 	// routing
-	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler)
+	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *invitationHandler)
 
 	// setup swagger
 	app.Get("/swagger/*", swagger.HandlerDefault) // default

@@ -6,7 +6,7 @@ import (
 )
 
 type IInvitationService interface {
-	CreateGroupInvitation(request dto.GroupInputDTO, groupID uuid.UUID) error
+	CreateGroupInvitation(request dto.GroupInvitationDTO) error
 
 	AcceptGroupInvitation(invitation uuid.UUID, userID uuid.UUID) error
 

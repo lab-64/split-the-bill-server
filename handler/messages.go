@@ -32,7 +32,6 @@ const (
 	ErrMsgUsersNotFound        = "Users not found: %v"
 	ErrMsgUserLogin            = "Could not log in: %v"
 	ErrMsgUserCredentialsParse = "Could not parse credentials: %v"
-	ErrMsgInvitationParse      = "Could not parse invitation: %v"
 	ErrMsgInvitationHandle     = "Could not handle invitation: %v"
 	ErrMsgAuthentication       = "Authentication declined: %v"
 	ErrMsgBadPassword          = "Bad Password: %v"
@@ -44,4 +43,11 @@ const (
 	SuccessMsgUserCreate       = "User created"
 	SuccessMsgUserDelete       = "User deleted"
 	SuccessMsgInvitationHandle = "Invitation handled"
+
+	// Invitation - ERROR
+	ErrMsgInvitationParse  = "Could not parse invitation: %v"
+	ErrMsgInvitationCreate = "Could not create invitation: %v"
+
+	// Invitation - SUCCESS
+	SuccessMsgInvitationCreate = "Invitation created"
 )
