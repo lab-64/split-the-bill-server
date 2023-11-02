@@ -20,7 +20,7 @@ func MakeUser(user types.User) User {
 // TODO convert groups
 func (user *User) ToUser() types.User {
 	// convert groups
-	var groups []types.Group
+	var groups []*types.Group
 	for _, group := range user.Groups {
 		log.Println("Group: ", group)
 		// TODO: handle circular dependencies
