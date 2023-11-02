@@ -9,7 +9,8 @@ import (
 // AuthCookie struct
 type AuthCookie struct {
 	Base
-	UserID      uuid.UUID `gorm:"type:uuid; column:user_foreign_key;not null"`
+	User        User
+	UserID      uuid.UUID `gorm:"type:uuid; not null"`
 	ValidBefore time.Time
 }
 

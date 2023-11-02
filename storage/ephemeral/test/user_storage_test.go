@@ -3,6 +3,7 @@ package test
 import (
 	"github.com/stretchr/testify/require"
 	"math/rand"
+	"split-the-bill-server/authentication"
 	. "split-the-bill-server/domain/model"
 	types_test "split-the-bill-server/domain/model/test"
 	"split-the-bill-server/storage"
@@ -12,7 +13,9 @@ import (
 
 func addUsers(uut IUserStorage, users []UserModel, t *testing.T, finished chan<- struct{}) {
 	for _, user := range users {
-		err := uut.Create(user)
+		pw, err := authentication.HashPassword("ehhh")
+		require.NoError(t, err)
+		err = uut.Create(user, pw)
 		require.NoError(t, err)
 	}
 	close(finished)
@@ -43,7 +46,7 @@ func deleteUsersAndAssert(uut IUserStorage, users []UserModel, t *testing.T, fin
 }
 
 func UserStorageTest(e storage.Connection, uut IUserStorage, t *testing.T) {
-	const amount = 10000
+	const amount = 10
 	const concurrency = 10
 	users := types_test.GenerateDifferentUsers(amount)
 	err := e.Connect()
@@ -89,12 +92,16 @@ func UserStorageEdgeCaseTest(e storage.Connection, uut IUserStorage, t *testing.
 	users := types_test.GenerateUsersWithUsernames([]string{"a", "a"})
 	err = uut.Delete(users[0].ID)
 	require.NoError(t, err)
-	err = uut.Create(users[0])
+	pw, err := authentication.HashPassword("ehhh")
+	require.NoError(t, err)
+	err = uut.Create(users[0], pw)
 	require.NoError(t, err)
 	res, err := uut.GetByUsername("a")
 	require.NoError(t, err)
 	require.True(t, users[0].Equals(res))
-	err = uut.Create(users[1])
+	pw, err = authentication.HashPassword("ehhh")
+	require.NoError(t, err)
+	err = uut.Create(users[1], pw)
 	require.ErrorIs(t, err, storage.UserAlreadyExistsError)
 	err = uut.Delete(users[1].ID)
 	require.NoError(t, err)

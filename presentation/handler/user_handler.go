@@ -1,12 +1,10 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"github.com/caitlinelfring/nist-password-validator/password"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"split-the-bill-server/authentication"
 	"split-the-bill-server/core"
 	. "split-the-bill-server/domain/service/service_inf"
 	. "split-the-bill-server/presentation/dto"
@@ -85,31 +83,6 @@ func (h UserHandler) GetByUsername(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgUserFound, user)
 }
 
-// Create 		func create user
-//
-//	@Summary	Create User
-//	@Tags		User
-//	@Accept		json
-//	@Produce	json
-//	@Param		request	body		dto.UserInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserOutputDTO}
-//	@Router		/api/user [post]
-func (h UserHandler) Create(c *fiber.Ctx) error {
-	// Store the body in the request and return error if encountered
-	var request UserInputDTO
-	if err := c.BodyParser(&request); err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
-	}
-	request.ID = uuid.New()
-	// Add request to userStorage.
-	user, err := h.userService.Create(request)
-	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserCreate, err))
-	}
-	// Return the created request
-	return core.Success(c, fiber.StatusOK, SuccessMsgUserCreate, user)
-}
-
 // Delete 		func delete user
 //
 //	@Summary	Delete User
@@ -147,11 +120,6 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 //
 // TODO: Check if id belongs to pending invitation
 func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
-	// get authenticated user
-	userID, err := h.getAuthenticatedUserFromCookie(c)
-	if err != nil {
-		return core.Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
-	}
 	// parse invitation reply
 	var request InvitationInputDTO
 	if err := c.BodyParser(&request); err != nil {
@@ -159,7 +127,7 @@ func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
 	}
 
 	// handle invitation
-	err = h.userService.HandleInvitation(request, userID, request.ID)
+	err := h.userService.HandleInvitation(request)
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
 	}
@@ -167,7 +135,7 @@ func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgInvitationHandle, nil)
 }
 
-// Register 	func parses a dto.UserInputDTO from the request body, compares and validates both passwords and adds a new user to the userStorage
+// Register 	parses a dto.UserInputDTO from the request body, compares and validates both passwords and adds a new user to the userStorage.
 //
 //	@Summary	Register User
 //	@Tags		User
@@ -223,29 +191,4 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 	}
 	c.Cookie(&cookie)
 	return core.Success(c, fiber.StatusOK, SuccessMsgUserLogin, nil)
-}
-
-// getAuthenticatedUserFromCookie tries to return the user id associated with the given authentication token in Cookie "session_cookie".
-// If the token is invalid, an error will be returned.
-// TODO: Generalize error messages & use a middleware instead
-func (h UserHandler) getAuthenticatedUserFromCookie(c *fiber.Ctx) (uuid.UUID, error) {
-	// get session cookie
-	cookie := c.Cookies(authentication.SessionCookieName)
-
-	// check is cookie is present
-	if cookie == "" {
-		return uuid.Nil, errors.New("authentication cookie is missing")
-	}
-
-	// try to parse cookie
-	tokenUUID, err := uuid.Parse(cookie)
-	if err != nil {
-		return uuid.Nil, errors.New("authentication cookie is invalid")
-	}
-
-	userID, err := h.userService.GetAuthenticatedUserID(tokenUUID)
-	if err != nil {
-		return uuid.Nil, err
-	}
-	return userID, err
 }

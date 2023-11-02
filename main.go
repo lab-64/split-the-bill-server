@@ -57,8 +57,11 @@ func main() {
 	// setup logger
 	app.Use(logger.New())
 
+	// authenticator
+	authenticator := authentication.NewAuthenticator(&cookieStorage)
+
 	// routing
-	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler)
+	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *authenticator)
 
 	// setup swagger
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
