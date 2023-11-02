@@ -73,6 +73,8 @@ definitions:
         type: string
       type:
         type: string
+      user:
+        type: string
     type: object
   dto.ItemDTO:
     properties:
@@ -240,31 +242,6 @@ paths:
                   type: array
               type: object
       summary: Get all Users
-      tags:
-      - User
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Request Body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UserInputDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.UserOutputDTO'
-              type: object
-      summary: Create User
       tags:
       - User
   /api/user/{id}:

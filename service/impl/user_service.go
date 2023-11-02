@@ -20,15 +20,6 @@ func NewUserService(userStorage *storage.IUserStorage, cookieStorage *storage.IC
 	return &UserService{IUserStorage: *userStorage, ICookieStorage: *cookieStorage}
 }
 
-func (u *UserService) Create(userDTO dto.UserInputDTO) (dto.UserOutputDTO, error) {
-	user := userDTO.ToUser()
-
-	err := u.IUserStorage.Create(user)
-	common.LogError(err)
-
-	return dto.ToUserDTO(&user), err
-}
-
 func (u *UserService) Delete(id uuid.UUID) error {
 	err := u.IUserStorage.Delete(id)
 	common.LogError(err)
@@ -67,7 +58,7 @@ func (u *UserService) Register(userDTO dto.UserInputDTO) (dto.UserOutputDTO, err
 	passwordHash, err := authentication.HashPassword(userDTO.Password)
 	common.LogError(err)
 
-	err = u.IUserStorage.Register(user, passwordHash)
+	err = u.IUserStorage.Create(user, passwordHash)
 	common.LogError(err)
 
 	return dto.ToUserDTO(&user), err

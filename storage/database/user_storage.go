@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"log"
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database/entity"
 	"split-the-bill-server/types"
@@ -16,22 +15,6 @@ type UserStorage struct {
 
 func NewUserStorage(DB *Database) storage.IUserStorage {
 	return &UserStorage{DB: DB.context}
-}
-
-func (u *UserStorage) Create(user types.User) error {
-	item := MakeUser(user)
-	// FIXME: This is a little bit of TOCTOU:
-	// If a user with the same username is created after the check, we DO NOT RETURN AN ERROR.
-	// We also do not overwrite the existing user.
-	// Checking, if the username already exists is still better, as we will receive an error at least in most cased,
-	// where there are no unlikely race condition.
-	// This could be fixed, if there was some way to check, whether FirstOrCreate actually created a new user or not.
-	_, err := u.GetByUsername(user.Username) // check if user already exists
-	if err == nil {
-		return storage.UserAlreadyExistsError
-	}
-	res := u.DB.Where(User{Username: user.Username}).FirstOrCreate(&item) // write new user if not exists
-	return res.Error
 }
 
 func (u *UserStorage) Delete(id uuid.UUID) error {
@@ -83,22 +66,29 @@ func (u *UserStorage) GetByUsername(username string) (types.User, error) {
 	return user.ToUser(), nil
 }
 
-func (u *UserStorage) Register(user types.User, passwordHash []byte) error {
+func (u *UserStorage) Create(user types.User, passwordHash []byte) error {
 	item := MakeUser(user)
-	// store user
-	res := u.DB.Where(User{Username: item.Username}).FirstOrCreate(&item)
-	log.Println(res)
-	if res.Error != nil {
-		return storage.UserAlreadyExistsError
-	}
-	// TODO: handle error case, user should not be created, if credentials cannot be stored
-	// store credentials
-	res = u.DB.Where(Credentials{UserID: item.ID}).FirstOrCreate(&Credentials{UserID: item.ID, Hash: passwordHash})
-	if res.Error != nil {
-		// TODO: create suitable error msg
-		return res.Error
-	}
-	return nil
+
+	// run as a transaction to ensure consistency. user shouldn't be created if saving credentials failed and vice versa
+	err := u.DB.Transaction(func(tx *gorm.DB) error {
+		// store user
+		res := tx.Create(&item)
+
+		if res.Error != nil {
+			return storage.UserAlreadyExistsError
+		}
+
+		// store credentials
+		res = tx.Create(&Credentials{UserID: item.ID, Hash: passwordHash})
+		if res.Error != nil {
+			// TODO: create suitable error msg
+			return res.Error
+		}
+
+		return nil
+	})
+
+	return err
 }
 
 func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
