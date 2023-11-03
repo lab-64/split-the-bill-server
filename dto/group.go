@@ -19,7 +19,7 @@ type GroupOutputDTO struct {
 	Bills   []BillOutputDTO `json:"bills"`
 }
 
-func (g GroupInputDTO) ToGroup(owner types.User, members []types.User) types.Group {
+func (g GroupInputDTO) ToGroup(owner uuid.UUID, members []uuid.UUID) types.Group {
 	return types.CreateGroup(owner, g.Name, members)
 }
 
@@ -30,22 +30,17 @@ func (g GroupInputDTO) ValidateInput() error {
 	return nil
 }
 
-func ToGroupDTO(g *types.Group) GroupOutputDTO {
+func ToGroupDTO(g types.Group) GroupOutputDTO {
 	billsDTO := make([]BillOutputDTO, len(g.Bills))
 
 	for i, bill := range g.Bills {
 		billsDTO[i] = ToBillDTO(bill)
 	}
-	// get all member ids
-	var members []uuid.UUID
-	for _, member := range g.Members {
-		members = append(members, member.ID)
-	}
 	return GroupOutputDTO{
-		Owner:   g.Owner.ID,
+		Owner:   g.Owner,
 		ID:      g.ID,
 		Name:    g.Name,
-		Members: members,
+		Members: g.Members,
 		Bills:   billsDTO,
 	}
 }

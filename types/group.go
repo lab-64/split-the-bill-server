@@ -5,14 +5,14 @@ import (
 )
 
 type Group struct {
-	Owner   User
+	Owner   uuid.UUID
 	ID      uuid.UUID
 	Name    string
-	Members []User
+	Members []uuid.UUID
 	Bills   []*Bill
 }
 
-func CreateGroup(owner User, name string, members []User) Group {
+func CreateGroup(owner uuid.UUID, name string, members []uuid.UUID) Group {
 	return Group{
 		Owner:   owner,
 		ID:      uuid.New(),

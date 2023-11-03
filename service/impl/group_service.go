@@ -6,7 +6,6 @@ import (
 	"split-the-bill-server/dto"
 	"split-the-bill-server/service"
 	"split-the-bill-server/storage"
-	"split-the-bill-server/types"
 )
 
 type GroupService struct {
@@ -28,7 +27,7 @@ func (g *GroupService) Create(groupDTO dto.GroupInputDTO) (dto.GroupOutputDTO, e
 	}
 
 	// create group with the only member being the owner
-	group := groupDTO.ToGroup(user, []types.User{user})
+	group := groupDTO.ToGroup(user.ID, []uuid.UUID{user.ID})
 
 	// store group in db
 	err = g.IGroupStorage.AddGroup(group)
@@ -36,12 +35,12 @@ func (g *GroupService) Create(groupDTO dto.GroupInputDTO) (dto.GroupOutputDTO, e
 		return dto.GroupOutputDTO{}, err
 	}
 
-	return dto.ToGroupDTO(&group), err
+	return dto.ToGroupDTO(group), err
 }
 
 func (g *GroupService) GetByID(id uuid.UUID) (dto.GroupOutputDTO, error) {
 	group, err := g.IGroupStorage.GetGroupByID(id)
 	common.LogError(err)
 
-	return dto.ToGroupDTO(&group), err
+	return dto.ToGroupDTO(group), err
 }
