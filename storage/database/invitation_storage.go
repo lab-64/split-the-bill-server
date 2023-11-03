@@ -29,6 +29,15 @@ func (i InvitationStorage) AddGroupInvitation(invitation types.GroupInvitation) 
 }
 
 func (i InvitationStorage) DeleteGroupInvitation(id uuid.UUID) error {
-	//TODO implement me
-	panic("implement me")
+	tx := i.DB.Delete(&GroupInvitation{}, id)
+	return tx.Error
+}
+
+func (i InvitationStorage) GetGroupInvitationByID(id uuid.UUID) (types.GroupInvitation, error) {
+	var groupInvitation GroupInvitation
+	tx := i.DB.Preload("For.Members").Limit(1).Find(&groupInvitation, "id = ?", id)
+	if tx.RowsAffected == 0 {
+		return types.GroupInvitation{}, storage.NoSuchGroupInvitationError
+	}
+	return groupInvitation.ToGroupInvitation(), tx.Error
 }

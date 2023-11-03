@@ -10,6 +10,11 @@ type InvitationStorage struct {
 	e *Ephemeral
 }
 
+func (i InvitationStorage) GetGroupInvitationByID(id uuid.UUID) (types.GroupInvitation, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (i InvitationStorage) AddGroupInvitation(invitation types.GroupInvitation) error {
 	//TODO implement me
 	panic("implement me")

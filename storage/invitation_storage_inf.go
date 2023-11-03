@@ -10,4 +10,6 @@ type IInvitationStorage interface {
 	AddGroupInvitation(invitation types.GroupInvitation) error
 	// DeleteGroupInvitation deletes the group invitation with the given ID from the storage, if it exists.
 	DeleteGroupInvitation(id uuid.UUID) error
+	// GetGroupInvitationByID returns the group invitation with the given ID, or a NoSuchGroupInvitationError if no such group invitation exists.
+	GetGroupInvitationByID(id uuid.UUID) (types.GroupInvitation, error)
 }

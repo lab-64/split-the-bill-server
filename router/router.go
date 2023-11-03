@@ -46,4 +46,5 @@ func SetupRoutes(app *fiber.App, u handler.UserHandler, g handler.GroupHandler, 
 	invitationRoute := api.Group("/invitation")
 	// routes
 	invitationRoute.Post("/", i.Create)
+	invitationRoute.Get("/:id", i.GetByID)
 }

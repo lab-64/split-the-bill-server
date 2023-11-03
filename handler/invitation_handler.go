@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"split-the-bill-server/dto"
 	"split-the-bill-server/http"
 	"split-the-bill-server/service"
@@ -16,8 +17,29 @@ func NewInvitationHandler(invitationService *service.IInvitationService) *Invita
 	return &InvitationHandler{IInvitationService: *invitationService}
 }
 
+// GetByID returns the group invitation with the given ID.
+//
+//	@Summary	Get Group Invitation By ID
+//	@Tags		Invitation
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path	string	true	"Invitation ID"
+//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Router		/api/invitation/{id} [get]
 func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
-	return nil
+	id := c.Params("id")
+	if id == "" {
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
+	}
+	invitation, err := h.IInvitationService.GetGroupInvitationByID(uid)
+	if err != nil {
+		return http.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
+	}
+	return http.Success(c, fiber.StatusOK, SuccessMsgInvitationFound, invitation)
 }
 
 func (h InvitationHandler) GetByUserID(c *fiber.Ctx) error {

@@ -34,7 +34,15 @@ func (i InvitationService) CreateGroupInvitation(request dto.GroupInvitationDTO)
 	return nil
 }
 
-func (i InvitationService) AcceptGroupInvitation(invitation uuid.UUID, userID uuid.UUID) error {
+func (i InvitationService) GetGroupInvitationByID(id uuid.UUID) (dto.GroupInvitationOutputDTO, error) {
+	group, err := i.IInvitationStorage.GetGroupInvitationByID(id)
+	if err != nil {
+		return dto.GroupInvitationOutputDTO{}, err
+	}
+	return dto.ToGroupInvitationDTO(group), nil
+}
+
+func (i InvitationService) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
 	//TODO implement me
 	panic("implement me")
 }

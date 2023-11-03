@@ -50,4 +50,5 @@ const (
 
 	// Invitation - SUCCESS
 	SuccessMsgInvitationCreate = "Invitation created"
+	SuccessMsgInvitationFound  = "Invitation found"
 )
