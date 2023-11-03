@@ -70,3 +70,42 @@ func (h InvitationHandler) Create(c *fiber.Ctx) error {
 
 	return http.Success(c, fiber.StatusOK, SuccessMsgInvitationCreate, nil)
 }
+
+// Accept accepts a group invitation.
+//
+//	@Summary	Accept Group Invitation
+//	@Tags		Invitation
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.HandleInvitationInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Router		/api/invitation/accept [post]
+func (h InvitationHandler) Accept(c *fiber.Ctx) error {
+	// parse request
+	var request dto.HandleInvitationInputDTO
+	if err := c.BodyParser(&request); err != nil {
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
+	}
+	// TODO: accept invitation
+	err := h.IInvitationService.AcceptGroupInvitation(request.InvitationID, request.Issuer)
+	return http.Success(c, fiber.StatusOK, SuccessMsgInvitationHandled, err)
+}
+
+// Decline declines a group invitation.
+//
+//	@Summary	Decline Group Invitation
+//	@Tags		Invitation
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.HandleInvitationInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Router		/api/invitation/decline [post]
+func (h InvitationHandler) Decline(c *fiber.Ctx) error {
+	// parse request
+	var request dto.HandleInvitationInputDTO
+	if err := c.BodyParser(&request); err != nil {
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
+	}
+	err := h.IInvitationService.DeclineGroupInvitation(request.InvitationID, request.Issuer)
+	return http.Success(c, fiber.StatusOK, SuccessMsgInvitationHandled, err)
+}

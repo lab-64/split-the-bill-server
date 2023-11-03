@@ -39,7 +39,7 @@ func main() {
 	userService := impl.NewUserService(&userStorage, &cookieStorage)
 	groupService := impl.NewGroupService(&groupStorage, &userStorage)
 	billService := impl.NewBillService(&billStorage, &groupStorage)
-	invitationService := impl.NewInvitationService(&invitationStorage, &userStorage)
+	invitationService := impl.NewInvitationService(&invitationStorage, &groupStorage)
 
 	// password validator
 	passwordValidator, err := authentication.NewPasswordValidator()

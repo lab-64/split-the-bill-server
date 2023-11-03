@@ -49,6 +49,7 @@ const (
 	ErrMsgInvitationCreate = "Could not create invitation: %v"
 
 	// Invitation - SUCCESS
-	SuccessMsgInvitationCreate = "Invitation created"
-	SuccessMsgInvitationFound  = "Invitation found"
+	SuccessMsgInvitationCreate  = "Invitation created"
+	SuccessMsgInvitationFound   = "Invitation found"
+	SuccessMsgInvitationHandled = "Invitation handled"
 )

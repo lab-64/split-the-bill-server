@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"split-the-bill-server/dto"
-	"split-the-bill-server/types"
 )
 
 type IUserService interface {
@@ -21,11 +20,6 @@ type IUserService interface {
 	Login(credentials dto.CredentialsInputDTO) (fiber.Cookie, error)
 
 	Register(user dto.UserInputDTO) (dto.UserOutputDTO, error)
-
-	// AddGroupInvitation adds the given group invitation to user's pending invitations.
-	AddGroupInvitation(invitation types.GroupInvitation, userID uuid.UUID) error
-
-	HandleInvitation(invitation dto.InvitationInputDTO, userID uuid.UUID, invitationID uuid.UUID) error
 
 	GetAuthenticatedUserID(tokenUUID uuid.UUID) (uuid.UUID, error)
 }

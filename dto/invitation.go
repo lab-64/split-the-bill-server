@@ -16,10 +16,9 @@ type GroupInvitationOutputDTO struct {
 	Group        GroupOutputDTO `json:"group"`
 }
 
-type InvitationInputDTO struct {
-	Type   string    `json:"type"`
-	ID     uuid.UUID `json:"id"`
-	Accept bool      `json:"accept"`
+type HandleInvitationInputDTO struct {
+	Issuer       uuid.UUID `json:"issuer"`
+	InvitationID uuid.UUID `json:"invitationID"`
 }
 
 func ToGroupInvitationDTO(invitation types.GroupInvitation) GroupInvitationOutputDTO {

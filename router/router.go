@@ -28,7 +28,6 @@ func SetupRoutes(app *fiber.App, u handler.UserHandler, g handler.GroupHandler, 
 	userRoute.Post("/login", u.Login)
 	//userRoute.Put("/:id", u.UpdateUser)
 	userRoute.Delete("/:id", u.Delete)
-	userRoute.Post("/invitations", u.HandleInvitation)
 
 	// bill routes
 	billRoute := api.Group("/bill")
@@ -47,4 +46,6 @@ func SetupRoutes(app *fiber.App, u handler.UserHandler, g handler.GroupHandler, 
 	// routes
 	invitationRoute.Post("/", i.Create)
 	invitationRoute.Get("/:id", i.GetByID)
+	invitationRoute.Post("/accept", i.Accept)
+	invitationRoute.Post("/decline", i.Decline)
 }

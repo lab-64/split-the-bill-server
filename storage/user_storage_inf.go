@@ -32,12 +32,4 @@ type IUserStorage interface {
 	// GetCredentials returns the password hash for the user with the given ID, or a NoCredentialsError, if no
 	// credentials are stored for the user.
 	GetCredentials(id uuid.UUID) ([]byte, error)
-
-	// AddGroupInvitation adds the given group invitation to the pending group invitations from user. If the user does not exist, a NoSuchUserError is returned.
-	AddGroupInvitation(invitation types.GroupInvitation, userID uuid.UUID) error
-
-	// HandleInvitation handles the given invitation for the given user. Invitations can be accepted or declined. If the user does not exist, a NoSuchUserError is returned.
-	// If the invitation does not exist, a InvitationNotFoundError is returned.
-	// TODO: rethink invitation type, maybe delete and only look for UUID in all invitations, or split into different handlers.
-	HandleInvitation(invitationType string, userID uuid.UUID, invitationID uuid.UUID, accept bool) error
 }

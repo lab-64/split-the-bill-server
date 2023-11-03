@@ -135,38 +135,6 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgUserDelete, nil)
 }
 
-// HandleInvitation 	func handle pending invitation
-//
-//	@Summary	Handle pending invitation
-//	@Tags		User
-//	@Accept		json
-//	@Produce	json
-//	@Param		request	body		dto.InvitationInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO
-//	@Router		/api/user/invitations [post]
-//
-// TODO: Check if id belongs to pending invitation
-func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
-	// get authenticated user
-	userID, err := h.getAuthenticatedUserFromCookie(c)
-	if err != nil {
-		return http.Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
-	}
-	// parse invitation reply
-	var request dto.InvitationInputDTO
-	if err := c.BodyParser(&request); err != nil {
-		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
-	}
-
-	// handle invitation
-	err = h.IUserService.HandleInvitation(request, userID, request.ID)
-	if err != nil {
-		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
-	}
-
-	return http.Success(c, fiber.StatusOK, SuccessMsgInvitationHandle, nil)
-}
-
 // Register 	func parses a dto.UserInputDTO from the request body, compares and validates both passwords and adds a new user to the userStorage
 //
 //	@Summary	Register User

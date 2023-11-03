@@ -107,24 +107,7 @@ func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
 	return hash, nil
 }
 
-// TODO: maybe change, group struct will not be safed in group invitation. If function should return the same values (group) as the postgres function, we need to add the group.
-func (u *UserStorage) AddGroupInvitation(invitation types.GroupInvitation, userID uuid.UUID) error {
-	/*
-		u.e.lock.Lock()
-		defer u.e.lock.Unlock()
-		user, exists := u.e.users[userID]
-		if !exists {
-			return storage.NoSuchUserError
-		}
-		// update invitation list
-		invitations := append(user.PendingGroupInvitations, &invitation)
-		user.PendingGroupInvitations = invitations
-		u.e.users[userID] = user
-
-	*/
-	return nil
-}
-
+// TODO: move to invitation storage
 func (u *UserStorage) HandleInvitation(invitationType string, userID uuid.UUID, invitationID uuid.UUID, accept bool) error {
 	u.e.lock.Lock()
 	defer u.e.lock.Unlock()
