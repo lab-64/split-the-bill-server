@@ -42,8 +42,29 @@ func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
 	return http.Success(c, fiber.StatusOK, SuccessMsgInvitationFound, invitation)
 }
 
-func (h InvitationHandler) GetByUserID(c *fiber.Ctx) error {
-	return nil
+// GetAllFromUser returns all group invitations for the given user.
+//
+//	@Summary	Get All Group Invitations From User
+//	@Tags		Invitation
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path	string	true	"User ID"
+//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Router		/api/invitation/user/{id} [get]
+func (h InvitationHandler) GetAllFromUser(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return http.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
+	}
+	invitations, err := h.IInvitationService.GetGroupInvitationsFromUser(uid)
+	if err != nil {
+		return http.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserNotFound, err))
+	}
+	return http.Success(c, fiber.StatusOK, SuccessMsgInvitationFound, invitations)
 }
 
 // Create creates a new group invitation.

@@ -46,6 +46,7 @@ func SetupRoutes(app *fiber.App, u handler.UserHandler, g handler.GroupHandler, 
 	// routes
 	invitationRoute.Post("/", i.Create)
 	invitationRoute.Get("/:id", i.GetByID)
+	invitationRoute.Get("/user/:id", i.GetAllFromUser)
 	invitationRoute.Post("/accept", i.Accept)
 	invitationRoute.Post("/decline", i.Decline)
 }

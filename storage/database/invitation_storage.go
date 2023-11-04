@@ -3,6 +3,7 @@ package database
 import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"log"
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database/entity"
 	"split-the-bill-server/types"
@@ -40,4 +41,18 @@ func (i InvitationStorage) GetGroupInvitationByID(id uuid.UUID) (types.GroupInvi
 		return types.GroupInvitation{}, storage.NoSuchGroupInvitationError
 	}
 	return groupInvitation.ToGroupInvitation(), tx.Error
+}
+
+func (i InvitationStorage) GetGroupInvitationsByUserID(userID uuid.UUID) ([]types.GroupInvitation, error) {
+	var groupInvitations []GroupInvitation
+	tx := i.DB.Preload("For.Members").Find(&groupInvitations, "Invitee_id = ?", userID)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	log.Println("Storage: GetGroupInvitationsByUserID: ", groupInvitations)
+	var result []types.GroupInvitation
+	for _, groupInvitation := range groupInvitations {
+		result = append(result, groupInvitation.ToGroupInvitation())
+	}
+	return result, nil
 }

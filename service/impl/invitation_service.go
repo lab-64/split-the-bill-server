@@ -42,6 +42,19 @@ func (i InvitationService) GetGroupInvitationByID(id uuid.UUID) (dto.GroupInvita
 	return dto.ToGroupInvitationDTO(group), nil
 }
 
+func (i InvitationService) GetGroupInvitationsFromUser(id uuid.UUID) ([]dto.GroupInvitationOutputDTO, error) {
+	groupInvitations, err := i.IInvitationStorage.GetGroupInvitationsByUserID(id)
+	if err != nil {
+		return nil, err
+	}
+	// convert group invitations to data transfer objects
+	var result []dto.GroupInvitationOutputDTO
+	for _, groupInvitation := range groupInvitations {
+		result = append(result, dto.ToGroupInvitationDTO(groupInvitation))
+	}
+	return result, nil
+}
+
 // TODO: Handle consistency. AddMemberToGroup and DeleteGroupInvitation should be performed both or none.
 func (i InvitationService) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
 	// TODO: is this really necessary?

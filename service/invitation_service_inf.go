@@ -10,6 +10,8 @@ type IInvitationService interface {
 
 	GetGroupInvitationByID(id uuid.UUID) (dto.GroupInvitationOutputDTO, error)
 
+	GetGroupInvitationsFromUser(id uuid.UUID) ([]dto.GroupInvitationOutputDTO, error)
+
 	AcceptGroupInvitation(invitation uuid.UUID, userID uuid.UUID) error
 
 	DeclineGroupInvitation(invitation uuid.UUID, userID uuid.UUID) error
