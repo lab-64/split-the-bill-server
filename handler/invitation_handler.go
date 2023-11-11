@@ -23,8 +23,8 @@ func NewInvitationHandler(invitationService *service.IInvitationService) *Invita
 //	@Tags		Invitation
 //	@Accept		json
 //	@Produce	json
-//	@Param		id		path	string	true	"Invitation ID"
-//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Param		id	path		string	true	"Invitation ID"
+//	@Success	200	{object}	dto.GeneralResponseDTO
 //	@Router		/api/invitation/{id} [get]
 func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -48,8 +48,8 @@ func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
 //	@Tags		Invitation
 //	@Accept		json
 //	@Produce	json
-//	@Param		id		path	string	true	"User ID"
-//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Param		id	path		string	true	"User ID"
+//	@Success	200	{object}	dto.GeneralResponseDTO
 //	@Router		/api/invitation/user/{id} [get]
 func (h InvitationHandler) GetAllFromUser(c *fiber.Ctx) error {
 	id := c.Params("id")

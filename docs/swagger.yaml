@@ -46,7 +46,6 @@ definitions:
           type: string
         type: array
       name:
-        description: Issuer  uuid.UUID   `json:"issuer"`
         type: string
     type: object
   dto.GroupInvitationDTO:
@@ -77,13 +76,11 @@ definitions:
       owner:
         type: string
     type: object
-  dto.InvitationInputDTO:
+  dto.HandleInvitationInputDTO:
     properties:
-      accept:
-        type: boolean
-      id:
+      invitationID:
         type: string
-      type:
+      issuer:
         type: string
     type: object
   dto.ItemDTO:
@@ -254,6 +251,88 @@ paths:
       summary: Create Group Invitation
       tags:
       - Invitation
+  /api/invitation/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Invitation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponseDTO'
+      summary: Get Group Invitation By ID
+      tags:
+      - Invitation
+  /api/invitation/accept:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.HandleInvitationInputDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponseDTO'
+      summary: Accept Group Invitation
+      tags:
+      - Invitation
+  /api/invitation/decline:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.HandleInvitationInputDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponseDTO'
+      summary: Decline Group Invitation
+      tags:
+      - Invitation
+  /api/invitation/user/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponseDTO'
+      summary: Get All Group Invitations From User
+      tags:
+      - Invitation
   /api/user:
     get:
       consumes:
@@ -367,27 +446,6 @@ paths:
                   $ref: '#/definitions/dto.UserOutputDTO'
               type: object
       summary: Get User by username
-      tags:
-      - User
-  /api/user/invitations:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Request Body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.InvitationInputDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.GeneralResponseDTO'
-      summary: Handle pending invitation
       tags:
       - User
   /api/user/login:
