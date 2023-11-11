@@ -2,7 +2,7 @@ package entity
 
 import (
 	"github.com/google/uuid"
-	"split-the-bill-server/types"
+	. "split-the-bill-server/domain/model"
 )
 
 type Group struct {
@@ -13,8 +13,7 @@ type Group struct {
 	Members  []*User   `gorm:"many2many:group_members"`
 }
 
-// MakeGroup creates a database Group entity from a types.Group
-func MakeGroup(group types.Group) Group {
+func ToGroupEntity(group GroupModel) Group {
 	// convert uuids to users
 	var members []*User
 	for _, member := range group.Members {
@@ -23,12 +22,11 @@ func MakeGroup(group types.Group) Group {
 	return Group{Base: Base{ID: group.ID}, OwnerUID: group.Owner, Name: group.Name, Members: members}
 }
 
-// ToGroup creates a types.Group from a database Group entity
-func (group *Group) ToGroup() types.Group {
+func ToGroupModel(group *Group) GroupModel {
 	// convert users to uuids
 	var members []uuid.UUID
 	for _, member := range group.Members {
 		members = append(members, member.ID)
 	}
-	return types.Group{ID: group.ID, Owner: group.OwnerUID, Name: group.Name, Members: members}
+	return GroupModel{ID: group.ID, Owner: group.OwnerUID, Name: group.Name, Members: members}
 }
