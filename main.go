@@ -12,7 +12,7 @@ import (
 	_ "split-the-bill-server/docs"
 	"split-the-bill-server/domain/service/impl"
 	"split-the-bill-server/presentation/handler"
-	"split-the-bill-server/router"
+	"split-the-bill-server/presentation/router"
 	"split-the-bill-server/storage/database"
 	"split-the-bill-server/storage/database/db_storages"
 	"split-the-bill-server/storage/ephemeral"
