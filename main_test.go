@@ -29,12 +29,13 @@ func TestLandingPage(t *testing.T) {
 	groupStorage := eph_storages.NewGroupStorage(e)
 	cookieStorage := eph_storages.NewCookieStorage(e)
 	billStorage := eph_storages.NewBillStorage(e)
+	invitationStorage := eph_storages.NewInvitationStorage(e)
 
 	//services
 	userService := impl.NewUserService(&userStorage, &cookieStorage)
 	groupService := impl.NewGroupService(&groupStorage, &userStorage)
 	billService := impl.NewBillService(&billStorage, &groupStorage)
-	invitationService := impl.NewInvitationService(nil, &userStorage)
+	invitationService := impl.NewInvitationService(&invitationStorage, &userStorage)
 
 	//handlers
 	userHandler := handler.NewUserHandler(&userService, v)

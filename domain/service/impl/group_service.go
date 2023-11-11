@@ -22,6 +22,9 @@ func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupOutputDTO, error) {
 	// TODO: get user id from authenticated user
 	// TODO: delete, just for testing
 	user, err := g.userStorage.GetByUsername("felix")
+	if err != nil {
+		return GroupOutputDTO{}, err
+	}
 	groupDTO.Owner = user.ID
 
 	// create group with the only member being the owner

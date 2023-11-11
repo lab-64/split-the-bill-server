@@ -166,13 +166,3 @@ func (u *UserStorage) handleGroupInvitation(user model.UserModel, invitationID u
 	}
 	return nil
 }
-
-// removeInvitation removes the invitation with the given ID from the given invitation list.
-func removeInvitation(invitations []*model.GroupInvitationModel, id uuid.UUID) []*model.GroupInvitationModel {
-	for i, invitation := range invitations {
-		if invitation.ID == id {
-			return append(invitations[:i], invitations[i+1:]...)
-		}
-	}
-	return invitations
-}
