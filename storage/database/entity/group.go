@@ -2,7 +2,7 @@ package entity
 
 import (
 	"github.com/google/uuid"
-	"split-the-bill-server/types"
+	. "split-the-bill-server/domain/model"
 )
 
 type Group struct {
@@ -13,22 +13,32 @@ type Group struct {
 	Members []*User `gorm:"many2many:group_members;"`
 }
 
-// MakeGroup creates a database Group entity from a types.Group
-func MakeGroup(group types.Group) Group {
+func ToGroupEntity(group GroupModel) Group {
 	var members []*User
-	for i := range group.Members {
-		user := MakeUser(group.Members[i])
+	for _, member := range group.Members {
+		user := ToUserEntity(member)
 		members = append(members, &user)
 	}
-	return Group{Base: Base{ID: group.ID}, Owner: group.Owner.ID, Name: group.Name, Members: members}
+
+	return Group{
+		Base:    Base{ID: group.ID},
+		Owner:   group.Owner.ID,
+		Name:    group.Name,
+		Members: members,
+	}
 }
 
-// ToGroup creates a types.Group from a database Group entity
-func (group *Group) ToGroup() types.Group {
-	var members []types.User
-	for i := range group.Members {
-		members = append(members, group.Members[i].ToUser())
+func ToGroupModel(group *Group) GroupModel {
+
+	var members []UserModel
+	for _, member := range group.Members {
+		members = append(members, ToUserModel(*member))
 	}
 
-	return types.Group{ID: group.ID, Owner: group.User.ToUser(), Name: group.Name, Members: members}
+	return GroupModel{
+		ID:      group.ID,
+		Owner:   ToUserModel(group.User),
+		Name:    group.Name,
+		Members: members,
+	}
 }

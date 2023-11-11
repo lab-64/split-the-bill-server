@@ -12,7 +12,7 @@ import (
 )
 
 type Database struct {
-	context *gorm.DB
+	Context *gorm.DB
 }
 
 func NewDatabase() (*Database, error) {
@@ -44,11 +44,11 @@ func (d *Database) Connect() error {
 	db.Logger = logger.Default.LogMode(logger.Info)
 	log.Println("running migrations")
 	// migrate models to database
-	err = db.AutoMigrate(&User{}, &AuthCookie{}, &Credentials{}, &Group{})
+	err = db.AutoMigrate(&User{}, &AuthCookie{}, &Credentials{}, &Group{}, &GroupInvitation{})
 	if err != nil {
 		return err
 	}
 	// set database
-	d.context = db
+	d.Context = db
 	return nil
 }
