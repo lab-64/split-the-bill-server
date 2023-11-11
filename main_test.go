@@ -6,7 +6,7 @@ import (
 	"split-the-bill-server/authentication"
 	"split-the-bill-server/domain/service/impl"
 	"split-the-bill-server/presentation/handler"
-	"split-the-bill-server/router"
+	"split-the-bill-server/presentation/router"
 	"split-the-bill-server/storage/ephemeral"
 	"split-the-bill-server/storage/ephemeral/eph_storages"
 	"testing"
