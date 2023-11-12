@@ -90,7 +90,7 @@ func (h InvitationHandler) Create(c *fiber.Ctx) error {
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationCreate, err))
 	}
-
+	// TODO: return some data?
 	return core.Success(c, fiber.StatusOK, SuccessMsgInvitationCreate, nil)
 }
 
