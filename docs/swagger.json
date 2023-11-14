@@ -632,6 +632,7 @@
             "type": "object",
             "properties": {
                 "invites": {
+                    "description": "TODO: delete if we are using an own request for creating invitations",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -651,7 +652,7 @@
                 "groupID": {
                     "type": "string"
                 },
-                "invitees": {
+                "invites": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -695,9 +696,6 @@
                     "type": "string"
                 },
                 "issuer": {
-                    "type": "string"
-                },
-                "user": {
                     "type": "string"
                 }
             }

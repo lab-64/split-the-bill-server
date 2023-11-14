@@ -639,6 +639,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "invites": {
+                    "description": "TODO: delete if we are using an own request for creating invitations",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -658,7 +659,7 @@ const docTemplate = `{
                 "groupID": {
                     "type": "string"
                 },
-                "invitees": {
+                "invites": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -702,9 +703,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "issuer": {
-                    "type": "string"
-                },
-                "user": {
                     "type": "string"
                 }
             }

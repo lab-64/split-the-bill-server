@@ -44,6 +44,7 @@ definitions:
   dto.GroupInputDTO:
     properties:
       invites:
+        description: 'TODO: delete if we are using an own request for creating invitations'
         items:
           type: string
         type: array
@@ -56,7 +57,7 @@ definitions:
     properties:
       groupID:
         type: string
-      invitees:
+      invites:
         items:
           type: string
         type: array
@@ -85,8 +86,6 @@ definitions:
       invitationID:
         type: string
       issuer:
-        type: string
-      user:
         type: string
     type: object
   dto.ItemDTO:
