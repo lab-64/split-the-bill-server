@@ -21,6 +21,10 @@ type HandleInvitationInputDTO struct {
 	InvitationID UUID `json:"invitationID"`
 }
 
+func ToGroupInvitationModel(groupID UUID, userID UUID) model.GroupInvitationModel {
+	return model.CreateGroupInvitation(groupID, userID)
+}
+
 func ToGroupInvitationDTO(invitation model.GroupInvitationModel) GroupInvitationOutputDTO {
 	group := ToGroupDTO(invitation.Group)
 	return GroupInvitationOutputDTO{InvitationID: invitation.ID, Group: group}

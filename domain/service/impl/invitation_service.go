@@ -2,7 +2,6 @@ package impl
 
 import (
 	. "github.com/google/uuid"
-	"split-the-bill-server/domain/model"
 	. "split-the-bill-server/domain/service/service_inf"
 	. "split-the-bill-server/presentation/dto"
 	. "split-the-bill-server/storage/storage_inf"
@@ -23,7 +22,7 @@ func (i InvitationService) CreateGroupInvitation(request GroupInvitationInputDTO
 
 	// handle group invitations for all invitees
 	for _, invitee := range invites {
-		groupInvitation := model.CreateGroupInvitation(request.GroupID, invitee)
+		groupInvitation := ToGroupInvitationModel(request.GroupID, invitee)
 		err := i.invitationStorage.AddGroupInvitation(groupInvitation)
 		if err != nil {
 			return err
