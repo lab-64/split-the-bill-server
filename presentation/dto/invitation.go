@@ -6,9 +6,9 @@ import (
 )
 
 type GroupInvitationInputDTO struct {
-	Issuer  UUID   `json:"issuer"`
-	GroupID UUID   `json:"groupID"`
-	Invites []UUID `json:"invites"`
+	Issuer   UUID   `json:"issuer"`
+	GroupID  UUID   `json:"groupID"`
+	Invitees []UUID `json:"invitees"`
 }
 
 type GroupInvitationOutputDTO struct {
