@@ -9,8 +9,6 @@ import (
 	"split-the-bill-server/presentation/dto"
 )
 
-// TODO: maybe delete invitationService if only one service is used.
-// In our handler function we could call methods from the service directly via h.MethodName.
 type InvitationHandler struct {
 	invitationService IInvitationService
 }
@@ -35,7 +33,7 @@ func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
 	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
 	invitation, err := h.invitationService.GetGroupInvitationByID(uid)
 	if err != nil {
@@ -60,11 +58,11 @@ func (h InvitationHandler) GetAllFromUser(c *fiber.Ctx) error {
 	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
 	invitations, err := h.invitationService.GetGroupInvitationsFromUser(uid)
 	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserNotFound, err))
+		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
 	}
 	return core.Success(c, fiber.StatusOK, SuccessMsgInvitationFound, invitations)
 }
