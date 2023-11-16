@@ -43,21 +43,16 @@ definitions:
     type: object
   dto.GroupInputDTO:
     properties:
-      invites:
-        description: 'TODO: delete if we are using an own request for creating invitations'
-        items:
-          type: string
-        type: array
       name:
         type: string
       owner:
         type: string
     type: object
-  dto.GroupInvitationDTO:
+  dto.GroupInvitationInputDTO:
     properties:
       groupID:
         type: string
-      invites:
+      invitees:
         items:
           type: string
         type: array
@@ -245,7 +240,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.GroupInvitationDTO'
+          $ref: '#/definitions/dto.GroupInvitationInputDTO'
       produces:
       - application/json
       responses:

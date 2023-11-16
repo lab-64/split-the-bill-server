@@ -210,7 +210,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.GroupInvitationDTO"
+                            "$ref": "#/definitions/dto.GroupInvitationInputDTO"
                         }
                     }
                 ],
@@ -638,13 +638,6 @@ const docTemplate = `{
         "dto.GroupInputDTO": {
             "type": "object",
             "properties": {
-                "invites": {
-                    "description": "TODO: delete if we are using an own request for creating invitations",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "name": {
                     "type": "string"
                 },
@@ -653,13 +646,13 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.GroupInvitationDTO": {
+        "dto.GroupInvitationInputDTO": {
             "type": "object",
             "properties": {
                 "groupID": {
                     "type": "string"
                 },
-                "invites": {
+                "invitees": {
                     "type": "array",
                     "items": {
                         "type": "string"
