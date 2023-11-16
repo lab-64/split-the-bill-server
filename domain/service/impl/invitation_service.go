@@ -34,16 +34,16 @@ func (i InvitationService) CreateGroupInvitation(request GroupInvitationInputDTO
 	return nil
 }
 
-func (i InvitationService) GetGroupInvitationByID(id UUID) (GroupInvitationOutputDTO, error) {
-	group, err := i.invitationStorage.GetGroupInvitationByID(id)
+func (i InvitationService) GetGroupInvitationByID(invitationID UUID) (GroupInvitationOutputDTO, error) {
+	group, err := i.invitationStorage.GetGroupInvitationByID(invitationID)
 	if err != nil {
 		return GroupInvitationOutputDTO{}, err
 	}
 	return ToGroupInvitationDTO(group), nil
 }
 
-func (i InvitationService) GetGroupInvitationsFromUser(id UUID) ([]GroupInvitationOutputDTO, error) {
-	groupInvitations, err := i.invitationStorage.GetGroupInvitationsByUserID(id)
+func (i InvitationService) GetGroupInvitationsByUser(userID UUID) ([]GroupInvitationOutputDTO, error) {
+	groupInvitations, err := i.invitationStorage.GetGroupInvitationsByUserID(userID)
 	if err != nil {
 		return nil, err
 	}

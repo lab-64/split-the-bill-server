@@ -12,7 +12,7 @@ type IInvitationService interface {
 
 	DeclineGroupInvitation(invitation UUID, userID UUID) error
 
-	GetGroupInvitationByID(id UUID) (GroupInvitationOutputDTO, error)
+	GetGroupInvitationByID(invitationID UUID) (GroupInvitationOutputDTO, error)
 
-	GetGroupInvitationsFromUser(id UUID) ([]GroupInvitationOutputDTO, error)
+	GetGroupInvitationsByUser(userID UUID) ([]GroupInvitationOutputDTO, error)
 }

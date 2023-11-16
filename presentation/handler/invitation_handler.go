@@ -60,7 +60,7 @@ func (h InvitationHandler) GetAllFromUser(c *fiber.Ctx) error {
 	if err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
-	invitations, err := h.invitationService.GetGroupInvitationsFromUser(uid)
+	invitations, err := h.invitationService.GetGroupInvitationsByUser(uid)
 	if err != nil {
 		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
 	}
