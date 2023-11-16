@@ -109,6 +109,9 @@ func (h InvitationHandler) Accept(c *fiber.Ctx) error {
 	}
 	// accept invitation
 	err := h.invitationService.AcceptGroupInvitation(request.InvitationID, request.Issuer)
+	if err != nil {
+		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
+	}
 	return core.Success(c, fiber.StatusOK, SuccessMsgInvitationHandled, err)
 }
 
@@ -128,5 +131,8 @@ func (h InvitationHandler) Decline(c *fiber.Ctx) error {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
 	}
 	err := h.invitationService.DeclineGroupInvitation(request.InvitationID, request.Issuer)
+	if err != nil {
+		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
+	}
 	return core.Success(c, fiber.StatusOK, SuccessMsgInvitationHandled, err)
 }
