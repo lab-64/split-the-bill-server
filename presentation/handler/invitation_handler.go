@@ -75,13 +75,13 @@ func (h InvitationHandler) GetAllFromUser(c *fiber.Ctx) error {
 //	@Tags		Invitation
 //	@Accept		json
 //	@Produce	json
-//	@Param		request	body		dto.GroupInvitationDTO	true	"Request Body"
+//	@Param		request	body		dto.GroupInvitationInputDTO	true	"Request Body"
 //	@Success	200		{object}	dto.GeneralResponseDTO
 //	@Router		/api/invitation [post]
 func (h InvitationHandler) Create(c *fiber.Ctx) error {
 	// TODO: validate inputs
 	// parse request
-	var request dto.GroupInvitationDTO
+	var request dto.GroupInvitationInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
 	}

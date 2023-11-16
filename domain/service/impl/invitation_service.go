@@ -17,7 +17,7 @@ func NewInvitationService(invitationStorage *IInvitationStorage, groupStorage *I
 	return &InvitationService{invitationStorage: *invitationStorage, groupStorage: *groupStorage}
 }
 
-func (i InvitationService) CreateGroupInvitation(request GroupInvitationDTO) error {
+func (i InvitationService) CreateGroupInvitation(request GroupInvitationInputDTO) error {
 	// get invites from request
 	invites := request.Invites
 

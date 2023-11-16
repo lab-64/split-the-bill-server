@@ -5,7 +5,7 @@ import (
 	"split-the-bill-server/domain/model"
 )
 
-type GroupInvitationDTO struct {
+type GroupInvitationInputDTO struct {
 	Issuer  UUID   `json:"issuer"`
 	GroupID UUID   `json:"groupID"`
 	Invites []UUID `json:"invites"`
