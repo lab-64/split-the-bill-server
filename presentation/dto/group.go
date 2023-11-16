@@ -9,8 +9,6 @@ import (
 type GroupInputDTO struct {
 	Owner UUID   `json:"owner"`
 	Name  string `json:"name"`
-	// TODO: delete if we are using an own request for creating invitations
-	Invites []UUID `json:"invites"`
 }
 
 type GroupOutputDTO struct {
