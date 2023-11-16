@@ -93,9 +93,3 @@ func (u *UserService) Login(credentials CredentialsInputDTO) (fiber.Cookie, erro
 
 	return cookie, err
 }
-
-func (u *UserService) HandleInvitation(invitation InvitationInputDTO) error {
-	err := u.userStorage.HandleInvitation(invitation.Type, invitation.User, invitation.ID, invitation.Accept)
-	core.LogError(err)
-	return err
-}

@@ -2,50 +2,45 @@ package dto
 
 import (
 	"errors"
-	"github.com/google/uuid"
+	. "github.com/google/uuid"
 	. "split-the-bill-server/domain/model"
 )
 
 type GroupInputDTO struct {
-	Owner   uuid.UUID   `json:"owner"`
-	Name    string      `json:"name"`
-	Invites []uuid.UUID `json:"invites"`
+	Owner UUID   `json:"owner"`
+	Name  string `json:"name"`
 }
 
 type GroupOutputDTO struct {
-	Owner   uuid.UUID       `json:"owner"`
-	ID      uuid.UUID       `json:"id"`
+	Owner   UUID            `json:"owner"`
+	ID      UUID            `json:"id"`
 	Name    string          `json:"name"`
-	Members []uuid.UUID     `json:"members"`
+	Members []UUID          `json:"members"`
 	Bills   []BillOutputDTO `json:"bills"`
 }
 
-func ToGroupModel(g GroupInputDTO) GroupModel {
-	return CreateGroupModel(UserModel{ID: g.Owner}, g.Name)
+func ToGroupModel(g GroupInputDTO, members []UUID) GroupModel {
+	return CreateGroupModel(g.Owner, g.Name, members)
 }
 
-func ToGroupDTO(g *GroupModel) GroupOutputDTO {
-	billsDTO := make([]BillOutputDTO, len(g.Bills))
+func ToGroupDTO(g GroupModel) GroupOutputDTO {
 
+	// convert bills
+	billsDTO := make([]BillOutputDTO, len(g.Bills))
 	for i, bill := range g.Bills {
 		billsDTO[i] = ToBillDTO(bill)
 	}
-	// get all member ids
-	var members []uuid.UUID
-	for _, member := range g.Members {
-		members = append(members, member.ID)
-	}
+
 	return GroupOutputDTO{
-		Owner:   g.Owner.ID,
+		Owner:   g.Owner,
 		ID:      g.ID,
 		Name:    g.Name,
-		Members: members,
+		Members: g.Members,
 		Bills:   billsDTO,
 	}
 }
 
-// Validator
-
+// ValidateInput validates the inputs of the group creation request
 func (g GroupInputDTO) ValidateInput() error {
 	if g.Name == "" {
 		return errors.New("name is required")

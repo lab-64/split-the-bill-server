@@ -7,7 +7,7 @@ import (
 )
 
 // SetupRoutes creates webserver routes and connect them to the related handlers.
-func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a authentication.Authenticator) {
+func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, i InvitationHandler, a authentication.Authenticator) {
 
 	// Define landing page
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -28,7 +28,6 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 	userRoute.Post("/login", u.Login)
 	//userRoute.Put("/:id", u.UpdateUser)
 	userRoute.Delete("/:id", a.Authenticate, u.Delete)
-	userRoute.Post("/invitations", a.Authenticate, u.HandleInvitation)
 
 	// bill routes
 	billRoute := api.Group("/bill")
@@ -41,4 +40,13 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 	// routes
 	groupRoute.Post("/", a.Authenticate, g.Create)
 	groupRoute.Get("/:id", a.Authenticate, g.Get)
+
+	// invitation routes
+	invitationRoute := api.Group("/invitation")
+	// routes
+	invitationRoute.Post("/", i.Create)
+	invitationRoute.Get("/:id", i.GetByID)
+	invitationRoute.Get("/user/:id", i.GetAllFromUser)
+	invitationRoute.Post("/accept", i.Accept)
+	invitationRoute.Post("/decline", i.Decline)
 }

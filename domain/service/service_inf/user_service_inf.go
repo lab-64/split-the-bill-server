@@ -18,6 +18,4 @@ type IUserService interface {
 	Login(credentials CredentialsInputDTO) (fiber.Cookie, error)
 
 	Register(user UserInputDTO) (UserOutputDTO, error)
-
-	HandleInvitation(invitation InvitationInputDTO) error
 }

@@ -9,7 +9,7 @@ type UserModel struct {
 	Username                string
 	Email                   string
 	PendingGroupInvitations []GroupInvitationModel
-	Groups                  []*GroupModel
+	Groups                  []GroupModel
 }
 
 func NewUser(username string) UserModel {
@@ -25,7 +25,7 @@ func CreateUserModel(username string, email string) UserModel {
 		Username:                username,
 		Email:                   email,
 		PendingGroupInvitations: make([]GroupInvitationModel, 0),
-		Groups:                  make([]*GroupModel, 0),
+		Groups:                  make([]GroupModel, 0),
 	}
 }
 

@@ -2,7 +2,6 @@ package impl
 
 import (
 	. "github.com/google/uuid"
-	"split-the-bill-server/domain/model"
 	. "split-the-bill-server/domain/service/service_inf"
 	. "split-the-bill-server/presentation/dto"
 	. "split-the-bill-server/storage/storage_inf"
@@ -10,21 +9,20 @@ import (
 
 type InvitationService struct {
 	invitationStorage IInvitationStorage
-	userStorage       IUserStorage
+	groupStorage      IGroupStorage
 }
 
-func NewInvitationService(invitationStorage *IInvitationStorage, userStorage *IUserStorage) IInvitationService {
-	return &InvitationService{invitationStorage: *invitationStorage, userStorage: *userStorage}
+func NewInvitationService(invitationStorage *IInvitationStorage, groupStorage *IGroupStorage) IInvitationService {
+	return &InvitationService{invitationStorage: *invitationStorage, groupStorage: *groupStorage}
 }
 
-func (i InvitationService) CreateGroupInvitation(request GroupInputDTO, groupID UUID) error {
+func (i InvitationService) CreateGroupInvitation(request GroupInvitationInputDTO) error {
 	// get invites from request
-	invites := request.Invites
-	// TODO: change, wrong implementation, look up how to store association in gorm
+	invites := request.Invitees
 
-	// handle group invitations
+	// handle group invitations for all invitees
 	for _, invitee := range invites {
-		groupInvitation := model.CreateGroupInvitation(groupID, invitee)
+		groupInvitation := ToGroupInvitationModel(request.GroupID, invitee)
 		err := i.invitationStorage.AddGroupInvitation(groupInvitation)
 		if err != nil {
 			return err
@@ -32,25 +30,50 @@ func (i InvitationService) CreateGroupInvitation(request GroupInputDTO, groupID 
 
 	}
 
-	/*
-		// add group invitation to all users
-		for _, userID := range invites {
-			err = i.IUserStorage.AddGroupInvitation(groupInvitation, userID)
-			// TODO: error handling, should return to which users the invitation could not be added
-			core.LogError(err)
-		}
-
-	*/
-
 	return nil
 }
 
-func (i InvitationService) AcceptGroupInvitation(invitation UUID, userID UUID) error {
-	//TODO implement me
-	panic("implement me")
+func (i InvitationService) GetGroupInvitationByID(invitationID UUID) (GroupInvitationOutputDTO, error) {
+	group, err := i.invitationStorage.GetGroupInvitationByID(invitationID)
+	if err != nil {
+		return GroupInvitationOutputDTO{}, err
+	}
+	return ToGroupInvitationDTO(group), nil
 }
 
-func (i InvitationService) DeclineGroupInvitation(invitation UUID, userID UUID) error {
-	//TODO implement me
-	panic("implement me")
+func (i InvitationService) GetGroupInvitationsByUser(userID UUID) ([]GroupInvitationOutputDTO, error) {
+	groupInvitations, err := i.invitationStorage.GetGroupInvitationsByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+	// convert group invitations to data transfer objects
+	var result []GroupInvitationOutputDTO
+	for _, groupInvitation := range groupInvitations {
+		result = append(result, ToGroupInvitationDTO(groupInvitation))
+	}
+	return result, nil
+}
+
+// TODO: Handle consistency. AddMemberToGroup and DeleteGroupInvitation should be performed both or none.
+func (i InvitationService) AcceptGroupInvitation(invitationID UUID, userID UUID) error {
+	// TODO: is this really necessary?
+	// get group from invitation
+	invitation, err := i.invitationStorage.GetGroupInvitationByID(invitationID)
+	if err != nil {
+		return err
+	}
+	groupID := invitation.Group.ID
+	// add user to group
+	err = i.groupStorage.AddMemberToGroup(userID, groupID)
+	if err != nil {
+		return err
+	}
+	// delete invitation
+	err = i.invitationStorage.DeleteGroupInvitation(invitationID)
+	return err
+}
+
+func (i InvitationService) DeclineGroupInvitation(invitationID UUID) error {
+	err := i.invitationStorage.DeleteGroupInvitation(invitationID)
+	return err
 }

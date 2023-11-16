@@ -1,7 +1,7 @@
 package impl
 
 import (
-	"github.com/google/uuid"
+	. "github.com/google/uuid"
 	"split-the-bill-server/core"
 	. "split-the-bill-server/domain/service/service_inf"
 	. "split-the-bill-server/presentation/dto"
@@ -28,7 +28,7 @@ func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupOutputDTO, error) {
 	groupDTO.Owner = user.ID
 
 	// create group with the only member being the owner
-	group := ToGroupModel(groupDTO)
+	group := ToGroupModel(groupDTO, []UUID{user.ID})
 
 	// store group in db
 	err = g.groupStorage.AddGroup(group)
@@ -36,12 +36,12 @@ func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupOutputDTO, error) {
 		return GroupOutputDTO{}, err
 	}
 
-	return ToGroupDTO(&group), err
+	return ToGroupDTO(group), err
 }
 
-func (g *GroupService) GetByID(id uuid.UUID) (GroupOutputDTO, error) {
+func (g *GroupService) GetByID(id UUID) (GroupOutputDTO, error) {
 	group, err := g.groupStorage.GetGroupByID(id)
 	core.LogError(err)
 
-	return ToGroupDTO(&group), err
+	return ToGroupDTO(group), err
 }

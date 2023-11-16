@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"log"
 	. "split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database"
@@ -41,7 +40,7 @@ func (u *UserStorage) GetAll() ([]UserModel, error) {
 // TODO: include pending invitations & groups in query
 func (u *UserStorage) GetByID(id uuid.UUID) (UserModel, error) {
 	var user User
-	tx := u.DB.Limit(1).Preload("Groups").Preload("GroupInvitations.For").Find(&user, "id = ?", id) // lade noch alle groups mit FK = user &
+	tx := u.DB.Limit(1).Preload("Groups.Members").Preload("GroupInvitations").Find(&user, "id = ?", id)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return UserModel{}, storage.NoSuchUserError
@@ -103,18 +102,4 @@ func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
 		return nil, storage.NoCredentialsError
 	}
 	return credentials.Hash, nil
-}
-
-func (u *UserStorage) AddGroupInvitation(invitation GroupInvitationModel, userID uuid.UUID) error {
-	// make group invitation entity
-	groupInvitationItem := ToGroupInvitationEntity(invitation)
-	// TODO: update user, maybe it gets updated automatically
-	res := u.DB.Model(&User{Base: Base{ID: userID}}).Association("PendingGroupInvitation").Append(&groupInvitationItem)
-	log.Println("AddGroupInvitation: ", res)
-	return res
-}
-
-func (u *UserStorage) HandleInvitation(invitationType string, userID uuid.UUID, invitationID uuid.UUID, accept bool) error {
-	//TODO implement me
-	panic("implement me")
 }

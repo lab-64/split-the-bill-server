@@ -6,9 +6,13 @@ import (
 )
 
 type IInvitationService interface {
-	CreateGroupInvitation(request GroupInputDTO, groupID UUID) error
+	CreateGroupInvitation(request GroupInvitationInputDTO) error
 
-	AcceptGroupInvitation(invitation UUID, userID UUID) error
+	AcceptGroupInvitation(invitationID UUID, userID UUID) error
 
-	DeclineGroupInvitation(invitation UUID, userID UUID) error
+	DeclineGroupInvitation(invitationID UUID) error
+
+	GetGroupInvitationByID(invitationID UUID) (GroupInvitationOutputDTO, error)
+
+	GetGroupInvitationsByUser(userID UUID) ([]GroupInvitationOutputDTO, error)
 }

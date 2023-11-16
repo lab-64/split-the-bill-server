@@ -24,7 +24,7 @@ func TestLandingPage(t *testing.T) {
 	v, err := authentication.NewPasswordValidator()
 	require.NoError(t, err)
 
-	//eph_storages
+	//storages
 	userStorage := eph_storages.NewUserStorage(e)
 	groupStorage := eph_storages.NewGroupStorage(e)
 	cookieStorage := eph_storages.NewCookieStorage(e)
@@ -35,18 +35,19 @@ func TestLandingPage(t *testing.T) {
 	userService := impl.NewUserService(&userStorage, &cookieStorage)
 	groupService := impl.NewGroupService(&groupStorage, &userStorage)
 	billService := impl.NewBillService(&billStorage, &groupStorage)
-	invitationService := impl.NewInvitationService(&invitationStorage, &userStorage)
+	invitationService := impl.NewInvitationService(&invitationStorage, &groupStorage)
 
 	//handlers
 	userHandler := handler.NewUserHandler(&userService, v)
 	groupHandler := handler.NewGroupHandler(&groupService, &invitationService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
+	invitationHandler := handler.NewInvitationHandler(&invitationService)
 
 	// authenticator
 	authenticator := authentication.NewAuthenticator(&cookieStorage)
 
 	//routing
-	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *authenticator)
+	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *invitationHandler, *authenticator)
 
 	// Create a new http get request on landingpage
 	req := httptest.NewRequest("GET", "/", nil)

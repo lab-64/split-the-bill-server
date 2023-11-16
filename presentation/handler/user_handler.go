@@ -108,33 +108,6 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgUserDelete, nil)
 }
 
-// HandleInvitation 	func handle pending invitation
-//
-//	@Summary	Handle pending invitation
-//	@Tags		User
-//	@Accept		json
-//	@Produce	json
-//	@Param		request	body		dto.InvitationInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO
-//	@Router		/api/user/invitations [post]
-//
-// TODO: Check if id belongs to pending invitation
-func (h UserHandler) HandleInvitation(c *fiber.Ctx) error {
-	// parse invitation reply
-	var request InvitationInputDTO
-	if err := c.BodyParser(&request); err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
-	}
-
-	// handle invitation
-	err := h.userService.HandleInvitation(request)
-	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
-	}
-
-	return core.Success(c, fiber.StatusOK, SuccessMsgInvitationHandle, nil)
-}
-
 // Register 	parses a dto.UserInputDTO from the request body, compares and validates both passwords and adds a new user to the userStorage.
 //
 //	@Summary	Register User
@@ -157,7 +130,7 @@ func (h UserHandler) Register(c *fiber.Ctx) error {
 
 	user, err := h.userService.Register(request)
 	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserParse, err))
+		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserCreate, err))
 	}
 
 	return core.Success(c, fiber.StatusOK, SuccessMsgUserCreate, user.Username)

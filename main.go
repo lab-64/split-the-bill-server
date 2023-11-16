@@ -41,7 +41,7 @@ func main() {
 	userService := impl.NewUserService(&userStorage, &cookieStorage)
 	groupService := impl.NewGroupService(&groupStorage, &userStorage)
 	billService := impl.NewBillService(&billStorage, &groupStorage)
-	invitationService := impl.NewInvitationService(&invitationStorage, &userStorage)
+	invitationService := impl.NewInvitationService(&invitationStorage, &groupStorage)
 
 	// password validator
 	passwordValidator, err := authentication.NewPasswordValidator()
@@ -53,6 +53,7 @@ func main() {
 	userHandler := handler.NewUserHandler(&userService, passwordValidator)
 	groupHandler := handler.NewGroupHandler(&groupService, &invitationService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
+	invitationHandler := handler.NewInvitationHandler(&invitationService)
 
 	// setup logger
 	app.Use(logger.New())
@@ -61,7 +62,7 @@ func main() {
 	authenticator := authentication.NewAuthenticator(&cookieStorage)
 
 	// routing
-	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *authenticator)
+	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *invitationHandler, *authenticator)
 
 	// setup swagger
 	app.Get("/swagger/*", swagger.HandlerDefault) // default

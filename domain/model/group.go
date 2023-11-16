@@ -5,19 +5,19 @@ import (
 )
 
 type GroupModel struct {
-	Owner   UserModel
 	ID      uuid.UUID
+	Owner   uuid.UUID
 	Name    string
-	Members []UserModel
+	Members []uuid.UUID
 	Bills   []BillModel
 }
 
-func CreateGroupModel(owner UserModel, name string) GroupModel {
+func CreateGroupModel(owner uuid.UUID, name string, members []uuid.UUID) GroupModel {
 	return GroupModel{
 		Owner:   owner,
 		ID:      uuid.New(),
 		Name:    name,
-		Members: make([]UserModel, 0),
+		Members: members,
 		Bills:   make([]BillModel, 0),
 	}
 }
