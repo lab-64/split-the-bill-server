@@ -130,7 +130,7 @@ func (h InvitationHandler) Decline(c *fiber.Ctx) error {
 	if err := c.BodyParser(&request); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
 	}
-	err := h.invitationService.DeclineGroupInvitation(request.InvitationID, request.Issuer)
+	err := h.invitationService.DeclineGroupInvitation(request.InvitationID)
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
 	}

@@ -74,7 +74,7 @@ func (i InvitationService) AcceptGroupInvitation(invitationID UUID, userID UUID)
 	return err
 }
 
-func (i InvitationService) DeclineGroupInvitation(invitation UUID, userID UUID) error {
-	err := i.invitationStorage.DeleteGroupInvitation(invitation)
+func (i InvitationService) DeclineGroupInvitation(invitationID UUID) error {
+	err := i.invitationStorage.DeleteGroupInvitation(invitationID)
 	return err
 }
