@@ -36,12 +36,11 @@ const (
 	ErrMsgBadPassword          = "Bad Password: %v"
 
 	// User - SUCCESS
-	SuccessMsgUserLogin        = "User logged in"
-	SuccessMsgUserFound        = "User found"
-	SuccessMsgUsersFound       = "Users found"
-	SuccessMsgUserCreate       = "User created"
-	SuccessMsgUserDelete       = "User deleted"
-	SuccessMsgInvitationHandle = "Invitation handled"
+	SuccessMsgUserLogin  = "User logged in"
+	SuccessMsgUserFound  = "User found"
+	SuccessMsgUsersFound = "Users found"
+	SuccessMsgUserCreate = "User created"
+	SuccessMsgUserDelete = "User deleted"
 
 	// Invitation - ERROR
 	ErrMsgInvitationParse  = "Could not parse invitation: %v"

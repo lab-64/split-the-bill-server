@@ -130,7 +130,7 @@ func (h UserHandler) Register(c *fiber.Ctx) error {
 
 	user, err := h.userService.Register(request)
 	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserParse, err))
+		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserCreate, err))
 	}
 
 	return core.Success(c, fiber.StatusOK, SuccessMsgUserCreate, user.Username)
