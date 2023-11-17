@@ -9,7 +9,8 @@ type GroupModel struct {
 	Owner   uuid.UUID
 	Name    string
 	Members []uuid.UUID
-	Bills   []BillModel
+	// TODO: Decide which struct (group or bill) should have a full reference to the other
+	Bills []BillModel
 }
 
 func CreateGroupModel(owner uuid.UUID, name string, members []uuid.UUID) GroupModel {

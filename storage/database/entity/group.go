@@ -11,6 +11,7 @@ type Group struct {
 	OwnerUID uuid.UUID `gorm:"type:uuid"`
 	Owner    User      `gorm:"foreignKey:OwnerUID"`
 	Members  []*User   `gorm:"many2many:group_members"`
+	Bills    []Bill    `gorm:"foreignKey:GroupID"` // has many bills
 }
 
 func ToGroupEntity(group GroupModel) Group {

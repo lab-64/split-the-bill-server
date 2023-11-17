@@ -10,6 +10,7 @@ type User struct {
 	Username         string            `gorm:"unique;not null"`
 	Groups           []*Group          `gorm:"many2many:group_members;"`
 	GroupInvitations []GroupInvitation `gorm:"foreignKey:InviteeID"`
+	Items            []*Item           `gorm:"many2many:item_contributors"` // many to many
 }
 
 func ToUserEntity(user UserModel) User {

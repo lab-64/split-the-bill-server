@@ -22,10 +22,10 @@ type BillOutputDTO struct {
 
 func ToBillModel(b BillInputDTO) (BillModel, error) {
 	// convert each item
-	var items []*ItemModel
+	var items []ItemModel
 	for _, item := range b.Items {
 		convertedItem := ToItemModel(item)
-		items = append(items, &convertedItem)
+		items = append(items, convertedItem)
 	}
 	return CreateBill(b.Owner, b.Name, b.Date, items), nil
 }
@@ -34,7 +34,7 @@ func ToBillDTO(bill BillModel) BillOutputDTO {
 	itemsDTO := make([]ItemDTO, len(bill.Items))
 
 	for i, item := range bill.Items {
-		itemsDTO[i] = ToItemDTO(*item)
+		itemsDTO[i] = ToItemDTO(item)
 	}
 
 	return BillOutputDTO{
