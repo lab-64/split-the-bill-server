@@ -1,62 +1,86 @@
-# Split The Bill
+# Split The Bill - Server
 
+[![Go Webserver Testing](https://github.com/lab-64/split-the-bill-server/actions/workflows/go.yml/badge.svg)](https://github.com/lab-64/split-the-bill-server/actions/workflows/go.yml)
+
+---
 # Developer Get Started
-**1. Install Flutter**
-- follow the instructions: https://docs.flutter.dev/get-started/install
+**1. Install Go**
+- follow the instructions: https://go.dev/doc/install
 
 **2. Clone the repository**
 
-**3. Run `fluter pub get` in the root folder**
+**3. Install [Reflex](https://github.com/cespare/reflex) package (needed for Hot Reload)**
+- run `go install github.com/cespare/reflex@latest`
 
-**4. Run `dart run build_runner watch -d` in the root folder** (needed for code generation, has to always run while development)
+**4. Install [swag](https://github.com/swaggo/swag) package (needed for fiber-swagger)**
+- run `go install github.com/swaggo/swag/cmd/swag@latest`
+---
 
-**5. Hide nested (generated) files:**:
-- click Shift twice
-- type `File nesting` and click Enter
-- add `; .g.dart;` to Child File Suffix for `.dart` File Suffix
+# Start Application
+**1. Set storage type in `.env`:**
+- `STORAGE_TYPE=ephemeral` for Ephemeral
+- `STORAGE_TYPE=postgres` for Postgres
 
-**6. Install plugins (Android Studio):**
-- Dart
-- Dart Data Class
-- Flutter
-- Flutter Riverpod Snippets
+**2a. Start the application (docker, ephemeral & postgres) with:**
+```shell
+make start-postgres
+```
 
-# Used packages
-- **http**: for making HTTP requests
-- **go_router**: declarative routing package
-- **flutter_riverpod**: state management & DI
-- **riverpod_annotation**: annotations for Riverpod code generation
-- **riverpod_generator**: code generation package for Riverpod
-- **riverpod_lint**: linting package providing additional lint rules for Riverpod
-- **build_runner**: build system that automates the code generation
+**2b. (OR) Start the application (no docker, ephemeral only) with:**
+```shell
+make watch
+```
+**3. Stop the application with:**
+```shell
+make stop-postgres
+```
 
-# Architecture
-The architecture leverages Riverpod for a modular approach.
+**4. Reset the database with:**
+```shell
+make reset-db
+```
 
-![](architecture.png)
+---
+# Testing
 
-### Screens & Widgets:
-- Each viewable page has its own folder structured according to app navigation (i. e. `presentation/groups/group_item`)
-- Pages have a `_screen.dart` file and may include widgets
-- Screens may consume UI controllers/providers for side effects or page-specific computations
-- Screens may directly consume from the App State if no side effects are needed (see `BillsScreen`)
+```shell
+make test-all
+```
 
-### UI Controllers/Providers:
-- Realized as Riverpod state notifiers or simple providers
-- Found in the same folder as the screen in a `controllers.dart` file
-- Used by screens for handling side effects or computing page-specific information
+# pgAdmin
 
-### App State:
-- State notifiers representing the overall application state
-- Consume one or more repositories
-- Different states do not communicate with each other, except for AuthState, which can be accessed by other states
+**1. Open http://localhost:5050**
 
-### Repositories:
-- Singletons provided by Riverpod
-- Interact with external APIs or local mobile storage
-- Consumed by one or more app states
+**2. Click "Add New Server"**
 
-### Communication Rules:
-App State & repositories do not communicate with each other.
+**3. Set some "Name" in the "General" tab**
 
-**Exception**: AuthState provides data of the logged user, and other states can access Auth State (but not vice versa).
+**4. Go to "Connection" tab and set:**
+- Host name/address: `split-the-bill-postgres-db`
+- Password: `postgres123`
+
+**5. Check "Save password" and save the connection**
+
+---
+
+# Deyploment
+TODO's before we deploy:
+
+**Change variables in ```.env```**:
+```
+DB_USER
+DB_PASSWORD
+PGADMIN_EMAIL
+PGADMIN_PASSWORD
+```
+
+**Remove development flags from ```docker-compose.yml```**:
+```
+PGADMIN_CONFIG_SERVER_MODE
+PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED
+```
+
+# URLs
+
+- Swagger API: http://localhost:8080/swagger/
+- pgAdmin: http://localhost:5050
