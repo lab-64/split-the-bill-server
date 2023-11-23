@@ -10,7 +10,7 @@
 **2. Clone the repository**
 
 **3. Install [Reflex](https://github.com/cespare/reflex) package (needed for Hot Reload)**
-- run `go install github.com/cespare/reflex@latest` 
+- run `go install github.com/cespare/reflex@latest`
 
 **4. Install [swag](https://github.com/swaggo/swag) package (needed for fiber-swagger)**
 - run `go install github.com/swaggo/swag/cmd/swag@latest`
@@ -82,6 +82,5 @@ PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED
 
 # URLs
 
-- Swagger API: http://localhost:8080/swagger/ 
+- Swagger API: http://localhost:8080/swagger/
 - pgAdmin: http://localhost:5050
-

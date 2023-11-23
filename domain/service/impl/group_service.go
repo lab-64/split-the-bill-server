@@ -2,7 +2,6 @@ package impl
 
 import (
 	. "github.com/google/uuid"
-	"split-the-bill-server/core"
 	. "split-the-bill-server/domain/service/service_inf"
 	. "split-the-bill-server/presentation/dto"
 	. "split-the-bill-server/storage/storage_inf"
@@ -41,7 +40,8 @@ func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupOutputDTO, error) {
 
 func (g *GroupService) GetByID(id UUID) (GroupOutputDTO, error) {
 	group, err := g.groupStorage.GetGroupByID(id)
-	core.LogError(err)
-
+	if err != nil {
+		return GroupOutputDTO{}, err
+	}
 	return ToGroupDTO(group), err
 }

@@ -2,7 +2,6 @@ package impl
 
 import (
 	"github.com/google/uuid"
-	"split-the-bill-server/core"
 	. "split-the-bill-server/domain/service/service_inf"
 	. "split-the-bill-server/presentation/dto"
 	. "split-the-bill-server/storage/storage_inf"
@@ -43,7 +42,9 @@ func (b *BillService) Create(billDTO BillInputDTO) (BillOutputDTO, error) {
 
 func (b *BillService) GetByID(id uuid.UUID) (BillOutputDTO, error) {
 	bill, err := b.billStorage.GetByID(id)
-	core.LogError(err)
+	if err != nil {
+		return BillOutputDTO{}, err
+	}
 
 	return ToBillDTO(bill), err
 }

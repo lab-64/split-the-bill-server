@@ -1,7 +1,6 @@
 package db_storages
 
 import (
-	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	. "split-the-bill-server/domain/model"
@@ -35,11 +34,8 @@ func (g *GroupStorage) GetGroupByID(id uuid.UUID) (GroupModel, error) {
 	var group Group
 
 	// load group with related user and members from db
-	tx := g.DB.Preload("UserModel").Preload("Members").Limit(1).Find(&group, "id = ?", id)
+	tx := g.DB.Preload("Owner").Preload("Members").Limit(1).Find(&group, "id = ?", id)
 	if tx.Error != nil {
-		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return GroupModel{}, storage.NoSuchGroupError
-		}
 		return GroupModel{}, tx.Error
 	}
 	if tx.RowsAffected == 0 {
