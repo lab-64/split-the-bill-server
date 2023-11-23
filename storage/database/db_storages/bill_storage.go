@@ -4,7 +4,9 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	. "split-the-bill-server/domain/model"
+	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/database"
+	. "split-the-bill-server/storage/database/entity"
 	. "split-the-bill-server/storage/storage_inf"
 )
 
@@ -17,8 +19,15 @@ func NewBillStorage(DB *database.Database) IBillStorage {
 }
 
 func (b *BillStorage) Create(bill BillModel) error {
-	//TODO implement me
-	panic("implement me")
+	item := ToBillEntity(bill)
+
+	// store bill
+	err := b.DB.Create(&item)
+	if err != nil {
+		return storage.BillAlreadyExistsError
+	}
+
+	return nil
 }
 
 func (b *BillStorage) GetByID(id uuid.UUID) (BillModel, error) {

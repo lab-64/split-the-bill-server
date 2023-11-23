@@ -10,7 +10,6 @@ type BillInputDTO struct {
 	Owner uuid.UUID `json:"owner"`
 	Name  string    `json:"name"`
 	Date  time.Time `json:"date"`
-	Items []ItemDTO `json:"items"`
 	Group uuid.UUID `json:"group"`
 }
 
@@ -21,13 +20,7 @@ type BillOutputDTO struct {
 }
 
 func ToBillModel(b BillInputDTO) (BillModel, error) {
-	// convert each item
-	var items []ItemModel
-	for _, item := range b.Items {
-		convertedItem := ToItemModel(item)
-		items = append(items, convertedItem)
-	}
-	return CreateBill(b.Owner, b.Name, b.Date, items), nil
+	return CreateBill(b.Owner, b.Name, b.Date), nil
 }
 
 func ToBillDTO(bill BillModel) BillOutputDTO {

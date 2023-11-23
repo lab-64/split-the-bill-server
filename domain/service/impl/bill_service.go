@@ -18,20 +18,25 @@ func NewBillService(billStorage *IBillStorage, groupStorage *IGroupStorage) IBil
 }
 
 func (b *BillService) Create(billDTO BillInputDTO) (BillOutputDTO, error) {
-	// TODO: delete if authentication is used
-	billDTO.Owner = uuid.MustParse("7f1b2ed5-1201-4443-b997-56877fe31991")
 
-	// create types_test.bill
+	// create bill model
 	bill, err := ToBillModel(billDTO)
-	core.LogError(err)
+	if err != nil {
+		return BillOutputDTO{}, err
+	}
 
 	// store bill in billStorage
 	err = b.billStorage.Create(bill)
-	core.LogError(err)
+	if err != nil {
+		return BillOutputDTO{}, err
+	}
 
+	// TODO: delete or move to ephemeral bill storage to the create function
 	// add bill to group
 	err = b.groupStorage.AddBillToGroup(&bill, billDTO.Group)
-	core.LogError(err)
+	if err != nil {
+		return BillOutputDTO{}, err
+	}
 
 	return ToBillDTO(bill), err
 }

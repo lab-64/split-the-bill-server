@@ -13,10 +13,11 @@ type Bill struct {
 }
 
 func ToBillEntity(bill BillModel) Bill {
+	// TODO: do we need to convert items if no items will get passed?
 	// convert items
-	var items []Item
-	for _, item := range bill.Items {
-		items = append(items, ToItemEntity(item))
-	}
-	return Bill{Base: Base{ID: bill.ID}, Name: bill.Name, Items: items, GroupID: bill.Group}
+	/*	var items []Item
+		for _, item := range bill.Items {
+			items = append(items, ToItemEntity(item))
+		}*/
+	return Bill{Base: Base{ID: bill.ID}, Name: bill.Name, GroupID: bill.Group}
 }
