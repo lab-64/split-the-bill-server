@@ -5,7 +5,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	. "github.com/google/uuid"
 	"split-the-bill-server/authentication"
-	"split-the-bill-server/core"
 	. "split-the-bill-server/domain/service/service_inf"
 	. "split-the-bill-server/presentation/dto"
 	. "split-the-bill-server/storage/storage_inf"
@@ -22,13 +21,14 @@ func NewUserService(userStorage *IUserStorage, cookieStorage *ICookieStorage) IU
 
 func (u *UserService) Delete(id UUID) error {
 	err := u.userStorage.Delete(id)
-	core.LogError(err)
 	return err
 }
 
 func (u *UserService) GetAll() ([]UserOutputDTO, error) {
 	users, err := u.userStorage.GetAll()
-	core.LogError(err)
+	if err != nil {
+		return []UserOutputDTO{}, err
+	}
 
 	usersDTO := make([]UserOutputDTO, len(users))
 
@@ -41,14 +41,18 @@ func (u *UserService) GetAll() ([]UserOutputDTO, error) {
 
 func (u *UserService) GetByID(id UUID) (UserOutputDTO, error) {
 	user, err := u.userStorage.GetByID(id)
-	core.LogError(err)
+	if err != nil {
+		return UserOutputDTO{}, err
+	}
 
 	return ToUserDTO(&user), err
 }
 
 func (u *UserService) GetByUsername(username string) (UserOutputDTO, error) {
 	user, err := u.userStorage.GetByUsername(username)
-	core.LogError(err)
+	if err != nil {
+		return UserOutputDTO{}, err
+	}
 
 	return ToUserDTO(&user), err
 }
@@ -56,10 +60,14 @@ func (u *UserService) GetByUsername(username string) (UserOutputDTO, error) {
 func (u *UserService) Register(userDTO UserInputDTO) (UserOutputDTO, error) {
 	user := ToUserModel(userDTO)
 	passwordHash, err := authentication.HashPassword(userDTO.Password)
-	core.LogError(err)
+	if err != nil {
+		return UserOutputDTO{}, err
+	}
 
 	err = u.userStorage.Create(user, passwordHash)
-	core.LogError(err)
+	if err != nil {
+		return UserOutputDTO{}, err
+	}
 
 	return ToUserDTO(&user), err
 }
@@ -67,13 +75,19 @@ func (u *UserService) Register(userDTO UserInputDTO) (UserOutputDTO, error) {
 func (u *UserService) Login(credentials CredentialsInputDTO) (fiber.Cookie, error) {
 	// Log-in user, get authentication cookie
 	user, err := u.userStorage.GetByUsername(credentials.Username)
-	core.LogError(err)
+	if err != nil {
+		return fiber.Cookie{}, err
+	}
 
 	creds, err := u.userStorage.GetCredentials(user.ID)
-	core.LogError(err)
+	if err != nil {
+		return fiber.Cookie{}, err
+	}
 
 	err = authentication.ComparePassword(creds, credentials.Password)
-	core.LogError(err)
+	if err != nil {
+		return fiber.Cookie{}, err
+	}
 
 	sc := authentication.GenerateSessionCookie(user.ID)
 
