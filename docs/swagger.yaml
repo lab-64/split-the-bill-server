@@ -6,10 +6,6 @@ definitions:
         type: string
       group:
         type: string
-      items:
-        items:
-          $ref: '#/definitions/dto.ItemDTO'
-        type: array
       name:
         type: string
       owner:
@@ -21,7 +17,7 @@ definitions:
         type: string
       items:
         items:
-          $ref: '#/definitions/dto.ItemDTO'
+          $ref: '#/definitions/dto.ItemOutputDTO'
         type: array
       name:
         type: string
@@ -63,7 +59,7 @@ definitions:
     properties:
       bills:
         items:
-          $ref: '#/definitions/dto.BillOutputDTO'
+          type: string
         type: array
       id:
         type: string
@@ -83,12 +79,17 @@ definitions:
       issuer:
         type: string
     type: object
-  dto.ItemDTO:
+  dto.ItemInputDTO:
     properties:
-      contributors:
-        items:
-          type: string
-        type: array
+      billId:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  dto.ItemOutputDTO:
+    properties:
       name:
         type: string
       price:
@@ -177,6 +178,27 @@ paths:
                   $ref: '#/definitions/dto.BillOutputDTO'
               type: object
       summary: Get Bill by ID
+      tags:
+      - Bill
+  /api/bill/item:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ItemInputDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponseDTO'
+      summary: Add Item to Bill
       tags:
       - Bill
   /api/group:
