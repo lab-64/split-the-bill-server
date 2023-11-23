@@ -30,13 +30,6 @@ func (b *BillService) Create(billDTO BillInputDTO) (BillOutputDTO, error) {
 		return BillOutputDTO{}, err
 	}
 
-	// TODO: delete or move to ephemeral bill storage to the create function
-	// add bill to group
-	err = b.groupStorage.AddBillToGroup(&bill, billDTO.Group)
-	if err != nil {
-		return BillOutputDTO{}, err
-	}
-
 	return ToBillDTO(bill), err
 }
 
@@ -47,4 +40,15 @@ func (b *BillService) GetByID(id uuid.UUID) (BillOutputDTO, error) {
 	}
 
 	return ToBillDTO(bill), err
+}
+
+func (b *BillService) AddItem(itemDTO ItemInputDTO) (ItemOutputDTO, error) {
+	item := ToItemModel(itemDTO)
+
+	item, err := b.billStorage.CreateItem(item)
+	if err != nil {
+		return ItemOutputDTO{}, err
+	}
+
+	return ToItemDTO(item), err
 }

@@ -14,17 +14,19 @@ type BillInputDTO struct {
 }
 
 type BillOutputDTO struct {
-	Name  string    `json:"name"`
-	Date  time.Time `json:"date"`
-	Items []ItemDTO `json:"items"`
+	Name  string          `json:"name"`
+	Date  time.Time       `json:"date"`
+	Items []ItemOutputDTO `json:"items"`
 }
 
+// ToBillModel converts a BillInputDTO to a BillModel
 func ToBillModel(b BillInputDTO) (BillModel, error) {
-	return CreateBill(b.Owner, b.Name, b.Date), nil
+	return CreateBill(b.Owner, b.Name, b.Date, b.Group), nil
 }
 
+// ToBillDTO converts a BillModel to a BillOutputDTO
 func ToBillDTO(bill BillModel) BillOutputDTO {
-	itemsDTO := make([]ItemDTO, len(bill.Items))
+	itemsDTO := make([]ItemOutputDTO, len(bill.Items))
 
 	for i, item := range bill.Items {
 		itemsDTO[i] = ToItemDTO(item)

@@ -12,12 +12,19 @@ type Bill struct {
 	GroupID uuid.UUID `gorm:"type:uuid"`         // belongs to group
 }
 
+// ToBillEntity converts a BillModel to a Bill
 func ToBillEntity(bill BillModel) Bill {
-	// TODO: do we need to convert items if no items will get passed?
-	// convert items
-	/*	var items []Item
-		for _, item := range bill.Items {
-			items = append(items, ToItemEntity(item))
-		}*/
 	return Bill{Base: Base{ID: bill.ID}, Name: bill.Name, GroupID: bill.Group}
+}
+
+// ToBillModel converts a Bill to a BillModel
+func ToBillModel(bill Bill) BillModel {
+
+	// convert items
+	var items []ItemModel
+	for _, item := range bill.Items {
+		items = append(items, ToItemModel(item))
+	}
+
+	return BillModel{ID: bill.ID, Name: bill.Name, Items: items}
 }

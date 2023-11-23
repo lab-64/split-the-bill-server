@@ -5,18 +5,25 @@ import (
 	. "split-the-bill-server/domain/model"
 )
 
-type ItemDTO struct {
+type ItemInputDTO struct {
 	Name   string    `json:"name"`
 	Price  float64   `json:"price"`
 	BillID uuid.UUID `json:"billId"`
 }
 
-func ToItemModel(i ItemDTO) ItemModel {
-	return CreateItemModel(i.Name, i.Price)
+type ItemOutputDTO struct {
+	Name  string  `json:"name"`
+	Price float64 `json:"price"`
 }
 
-func ToItemDTO(item ItemModel) ItemDTO {
-	return ItemDTO{
+// ToItemModel converts an ItemInputDTO to an ItemModel
+func ToItemModel(i ItemInputDTO) ItemModel {
+	return CreateItemModel(i.Name, i.Price, i.BillID)
+}
+
+// ToItemDTO converts an ItemModel to an ItemOutputDTO
+func ToItemDTO(item ItemModel) ItemOutputDTO {
+	return ItemOutputDTO{
 		Name:  item.Name,
 		Price: item.Price,
 	}

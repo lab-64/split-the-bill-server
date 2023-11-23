@@ -44,36 +44,6 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgBillFound, bill)
 }
 
-// TODO: delete
-/*func (h BillHandler) Create(c *fiber.Ctx) error {
-
-	// create nested bill struct
-	var items []ItemDTO
-	request := BillInputDTO{
-		Items: items,
-	}
-
-	// parse bill from request body
-	err := c.BodyParser(&request)
-	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
-	}
-
-	// validate groupID
-	_, err = h.groupService.GetByID(request.Group)
-	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupNotFound, err))
-	}
-
-	bill, err := h.billService.Create(request)
-
-	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillCreate, err))
-	}
-
-	return core.Success(c, fiber.StatusOK, SuccessMsgBillCreate, bill)
-}*/
-
 // Create 		func create bill
 //
 //	@Summary	Create Bill
@@ -95,6 +65,7 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
 	}
 
+	// TODO: Who is responsible for validating the request? Handler or service?
 	// validate groupID
 	_, err = h.groupService.GetByID(request.Group)
 	if err != nil {
@@ -108,4 +79,38 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 	}
 
 	return core.Success(c, fiber.StatusOK, SuccessMsgBillCreate, bill)
+}
+
+// AddItem 		func add item to bill
+//
+//	@Summary	Add Item to Bill
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.ItemInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Router		/api/bill/item [post]
+func (h BillHandler) AddItem(c *fiber.Ctx) error {
+
+	// parse item from request body
+	var request ItemInputDTO
+	err := c.BodyParser(&request)
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
+	}
+
+	// TODO: Who is responsible for validating the request? Handler or service?
+	// validate billID
+	_, err = h.billService.GetByID(request.BillID)
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillNotFound, err))
+	}
+
+	// create item
+	item, err := h.billService.AddItem(request)
+	if err != nil {
+		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemCreate, err))
+	}
+
+	return core.Success(c, fiber.StatusOK, SuccessMsgItemCreate, item)
 }

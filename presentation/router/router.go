@@ -34,6 +34,10 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, i
 	// routes
 	billRoute.Post("/", a.Authenticate, b.Create)
 	billRoute.Get("/:id", a.Authenticate, b.GetByID)
+	// bill item routes
+	itemRoute := billRoute.Group("/item")
+	// routes
+	itemRoute.Post("/", a.Authenticate, b.AddItem)
 
 	// group routes
 	groupRoute := api.Group("/group")

@@ -12,10 +12,12 @@ type Item struct {
 	BillID uuid.UUID `gorm:"type:uuid"` // belongs to bill
 }
 
+// ToItemEntity converts an ItemModel to an Item
 func ToItemEntity(item ItemModel) Item {
-	return Item{Base: Base{ID: item.ID}, Name: item.Name, Price: item.Price}
+	return Item{Base: Base{ID: item.ID}, Name: item.Name, Price: item.Price, BillID: item.BillID}
 }
 
-func ToItemModel(item *Item) ItemModel {
-	return ItemModel{ID: item.ID, Name: item.Name, Price: item.Price}
+// ToItemModel converts an Item to an ItemModel
+func ToItemModel(item Item) ItemModel {
+	return ItemModel{ID: item.ID, Name: item.Name, Price: item.Price, BillID: item.BillID}
 }
