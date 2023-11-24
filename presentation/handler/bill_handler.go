@@ -114,3 +114,31 @@ func (h BillHandler) AddItem(c *fiber.Ctx) error {
 
 	return core.Success(c, fiber.StatusOK, SuccessMsgItemCreate, item)
 }
+
+// AddItemContributor 		func add contributor to item
+//
+//	@Summary	Add Contributor to Item
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.ItemContributorInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Router		/api/bill/item/contributor [post]
+func (h BillHandler) AddItemContributor(c *fiber.Ctx) error {
+
+	// parse contributor request from request body
+	var request ItemContributorInputDTO
+
+	err := c.BodyParser(&request)
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemContributorParse, err))
+	}
+
+	// add contributors to item
+	item, err := h.billService.AddItemContributor(request)
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgAddContributor, err))
+	}
+
+	return core.Success(c, fiber.StatusOK, SuccessMsgContributorAdd, item)
+}

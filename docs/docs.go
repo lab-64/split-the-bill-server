@@ -60,6 +60,72 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/bill/item": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bill"
+                ],
+                "summary": "Add Item to Bill",
+                "parameters": [
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ItemInputDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/bill/item/contributor": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bill"
+                ],
+                "summary": "Add Contributor to Item",
+                "parameters": [
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ItemContributorInputDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                        }
+                    }
+                }
+            }
+        },
         "/api/bill/{id}": {
             "get": {
                 "consumes": [
@@ -581,12 +647,6 @@ const docTemplate = `{
                 "group": {
                     "type": "string"
                 },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.ItemDTO"
-                    }
-                },
                 "name": {
                     "type": "string"
                 },
@@ -604,7 +664,7 @@ const docTemplate = `{
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.ItemDTO"
+                        "$ref": "#/definitions/dto.ItemOutputDTO"
                     }
                 },
                 "name": {
@@ -669,7 +729,7 @@ const docTemplate = `{
                 "bills": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.BillOutputDTO"
+                        "type": "string"
                     }
                 },
                 "id": {
@@ -700,7 +760,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.ItemDTO": {
+        "dto.ItemContributorInputDTO": {
             "type": "object",
             "properties": {
                 "contributors": {
@@ -708,6 +768,43 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "itemId": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ItemInputDTO": {
+            "type": "object",
+            "properties": {
+                "billId": {
+                    "type": "string"
+                },
+                "contributors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                }
+            }
+        },
+        "dto.ItemOutputDTO": {
+            "type": "object",
+            "properties": {
+                "contributors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"

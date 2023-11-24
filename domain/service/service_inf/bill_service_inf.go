@@ -11,4 +11,6 @@ type IBillService interface {
 	GetByID(id UUID) (BillOutputDTO, error)
 
 	AddItem(item ItemInputDTO) (ItemOutputDTO, error)
+
+	AddItemContributor(itemContributor ItemContributorInputDTO) (ItemOutputDTO, error)
 }

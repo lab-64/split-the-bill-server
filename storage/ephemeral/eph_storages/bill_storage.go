@@ -41,3 +41,13 @@ func (b BillStorage) CreateItem(item model.ItemModel) (model.ItemModel, error) {
 	//TODO implement me
 	panic("implement me")
 }
+
+func (b BillStorage) GetItemByID(id uuid.UUID) (model.ItemModel, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (b BillStorage) UpdateItem(item model.ItemModel) (model.ItemModel, error) {
+	//TODO implement me
+	panic("implement me")
+}

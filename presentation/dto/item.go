@@ -6,25 +6,35 @@ import (
 )
 
 type ItemInputDTO struct {
-	Name   string    `json:"name"`
-	Price  float64   `json:"price"`
-	BillID uuid.UUID `json:"billId"`
+	Name         string      `json:"name"`
+	Price        float64     `json:"price"`
+	BillID       uuid.UUID   `json:"billId"`
+	Contributors []uuid.UUID `json:"contributors"`
+}
+
+type ItemContributorInputDTO struct {
+	ItemID       uuid.UUID   `json:"itemId"`
+	Contributors []uuid.UUID `json:"contributors"`
 }
 
 type ItemOutputDTO struct {
-	Name  string  `json:"name"`
-	Price float64 `json:"price"`
+	ID           uuid.UUID   `json:"id"`
+	Name         string      `json:"name"`
+	Price        float64     `json:"price"`
+	Contributors []uuid.UUID `json:"contributors"`
 }
 
 // ToItemModel converts an ItemInputDTO to an ItemModel
 func ToItemModel(i ItemInputDTO) ItemModel {
-	return CreateItemModel(i.Name, i.Price, i.BillID)
+	return CreateItemModel(i.Name, i.Price, i.BillID, i.Contributors)
 }
 
 // ToItemDTO converts an ItemModel to an ItemOutputDTO
 func ToItemDTO(item ItemModel) ItemOutputDTO {
 	return ItemOutputDTO{
-		Name:  item.Name,
-		Price: item.Price,
+		ID:           item.ID,
+		Name:         item.Name,
+		Price:        item.Price,
+		Contributors: item.Contributors,
 	}
 }
