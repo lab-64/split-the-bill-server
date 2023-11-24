@@ -18,6 +18,9 @@ clean:
 test-all:
 	@go test ./...
 
+seed:
+	@docker exec split-the-bill-server sh -c "go run scripts/seed.go"
+
 start-postgres:
 	@docker compose up --no-attach pgadmin
 

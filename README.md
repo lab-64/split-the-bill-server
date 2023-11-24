@@ -40,6 +40,11 @@ make stop-postgres
 make reset-db
 ```
 
+**5. Run seeds with (docker has to run):**
+```shell
+make seed
+```
+
 ---
 # Testing
 
