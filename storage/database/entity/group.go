@@ -30,3 +30,11 @@ func ToGroupModel(group *Group) GroupModel {
 	}
 	return GroupModel{ID: group.ID, Owner: group.OwnerUID, Name: group.Name, Members: members}
 }
+
+func ToGroupModelSlice(groups []Group) []GroupModel {
+	s := make([]GroupModel, len(groups))
+	for i, group := range groups {
+		s[i] = ToGroupModel(&group)
+	}
+	return s
+}

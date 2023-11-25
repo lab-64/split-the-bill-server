@@ -180,6 +180,30 @@ paths:
       tags:
       - Bill
   /api/group:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: User Id
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupOutputDTO'
+              type: object
+      summary: Get Groups by User
+      tags:
+      - Group
     post:
       consumes:
       - application/json
@@ -227,7 +251,7 @@ paths:
                 data:
                   $ref: '#/definitions/dto.GroupOutputDTO'
               type: object
-      summary: Get Group
+      summary: Get Group by ID
       tags:
       - Group
   /api/invitation:

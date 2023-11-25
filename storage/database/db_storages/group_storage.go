@@ -44,6 +44,17 @@ func (g *GroupStorage) GetGroupByID(id uuid.UUID) (GroupModel, error) {
 	return ToGroupModel(&group), nil
 }
 
+func (g *GroupStorage) GetGroupsByUserID(userID uuid.UUID) ([]GroupModel, error) {
+	var groups []Group
+
+	tx := g.DB.Preload("Members").Where("id IN (SELECT group_id FROM group_members WHERE user_id = ?)", userID).Find(&groups)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return ToGroupModelSlice(groups), nil
+}
+
 func (g *GroupStorage) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) error {
 
 	group := Group{Base: Base{ID: groupID}}

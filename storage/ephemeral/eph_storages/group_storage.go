@@ -66,3 +66,8 @@ func (g *GroupStorage) AddBillToGroup(bill *model.BillModel, groupID uuid.UUID) 
 	g.e.Groups[group.ID] = group
 	return nil
 }
+
+func (g *GroupStorage) GetGroupsByUserID(userID uuid.UUID) ([]model.GroupModel, error) {
+	//TODO implement me
+	panic("implement me")
+}

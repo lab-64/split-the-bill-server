@@ -39,7 +39,8 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, i
 	groupRoute := api.Group("/group")
 	// routes
 	groupRoute.Post("/", a.Authenticate, g.Create)
-	groupRoute.Get("/:id", a.Authenticate, g.Get)
+	groupRoute.Get("/:id", a.Authenticate, g.GetByID)
+	groupRoute.Get("/", a.Authenticate, g.GetAllByUser)
 
 	// invitation routes
 	invitationRoute := api.Group("/invitation")
