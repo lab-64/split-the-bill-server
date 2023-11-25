@@ -629,9 +629,6 @@ const docTemplate = `{
                 "data": {},
                 "message": {
                     "type": "string"
-                },
-                "status": {
-                    "type": "string"
                 }
             }
         },
