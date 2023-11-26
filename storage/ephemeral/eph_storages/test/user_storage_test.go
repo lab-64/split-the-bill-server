@@ -26,7 +26,7 @@ func getUsers(uut IUserStorage, users []UserModel, t *testing.T, finished chan<-
 		res, err := uut.GetByID(user.ID)
 		require.NoError(t, err)
 		require.True(t, user.Equals(res))
-		res2, err := uut.GetByUsername(user.Username)
+		res2, err := uut.GetByEmail(user.Email)
 		require.NoError(t, err)
 		require.True(t, user.Equals(res2))
 	}
@@ -39,7 +39,7 @@ func deleteUsersAndAssert(uut IUserStorage, users []UserModel, t *testing.T, fin
 		require.NoError(t, err)
 		_, err = uut.GetByID(user.ID)
 		require.ErrorIs(t, err, storage.NoSuchUserError)
-		_, err = uut.GetByUsername(user.Username)
+		_, err = uut.GetByEmail(user.Email)
 		require.ErrorIs(t, err, storage.NoSuchUserError)
 	}
 	close(finished)
@@ -89,14 +89,14 @@ func UserStorageTest(e storage.Connection, uut IUserStorage, t *testing.T) {
 func UserStorageEdgeCaseTest(e storage.Connection, uut IUserStorage, t *testing.T) {
 	err := e.Connect()
 	require.NoError(t, err)
-	users := types_test.GenerateUsersWithUsernames([]string{"a", "a"})
+	users := types_test.GenerateUsersWithEmails([]string{"a", "a"})
 	err = uut.Delete(users[0].ID)
 	require.NoError(t, err)
 	pw, err := authentication.HashPassword("ehhh")
 	require.NoError(t, err)
 	err = uut.Create(users[0], pw)
 	require.NoError(t, err)
-	res, err := uut.GetByUsername("a")
+	res, err := uut.GetByEmail("a")
 	require.NoError(t, err)
 	require.True(t, users[0].Equals(res))
 	pw, err = authentication.HashPassword("ehhh")
@@ -105,7 +105,7 @@ func UserStorageEdgeCaseTest(e storage.Connection, uut IUserStorage, t *testing.
 	require.ErrorIs(t, err, storage.UserAlreadyExistsError)
 	err = uut.Delete(users[1].ID)
 	require.NoError(t, err)
-	res, err = uut.GetByUsername("a")
+	res, err = uut.GetByEmail("a")
 	require.NoError(t, err)
 	require.True(t, users[0].Equals(res))
 }

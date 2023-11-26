@@ -61,35 +61,13 @@ func (h UserHandler) GetByID(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgUserFound, user)
 }
 
-// GetByUsername 	func get user by username
-//
-//	@Summary	Get User by username
-//	@Tags		User
-//	@Accept		json
-//	@Produce	json
-//	@Param		id	path		string	true	"User Username"
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.UserOutputDTO}
-//	@Router		/api/user/{username} [get]
-func (h UserHandler) GetByUsername(c *fiber.Ctx) error {
-	username := c.Params("username")
-	if username == "" {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "username"))
-	}
-	user, err := h.userService.GetByUsername(username)
-	if err != nil {
-		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
-	}
-
-	return core.Success(c, fiber.StatusOK, SuccessMsgUserFound, user)
-}
-
 // Delete 		func delete user
 //
 //	@Summary	Delete User
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Param		id	path		string	true	"User Username"
+//	@Param		id	path		string	true	"User Id"
 //	@Success	200	{object}	dto.GeneralResponseDTO
 //	@Router		/api/user/{id} [delete]
 func (h UserHandler) Delete(c *fiber.Ctx) error {
@@ -133,7 +111,7 @@ func (h UserHandler) Register(c *fiber.Ctx) error {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserCreate, err))
 	}
 
-	return core.Success(c, fiber.StatusOK, SuccessMsgUserCreate, user.Username)
+	return core.Success(c, fiber.StatusOK, SuccessMsgUserCreate, user.ID)
 }
 
 // Login 		func login user

@@ -26,7 +26,7 @@ func (u *UserStorage) Delete(id uuid.UUID) error {
 	if !exists {
 		return nil
 	}
-	delete(u.e.NameIndex, user.Username)
+	delete(u.e.NameIndex, user.Email)
 	delete(u.e.Users, id)
 	delete(u.e.Passwords, id)
 	return nil
@@ -54,17 +54,17 @@ func (u *UserStorage) GetByID(id uuid.UUID) (model.UserModel, error) {
 	return user, nil
 }
 
-func (u *UserStorage) GetByUsername(username string) (model.UserModel, error) {
+func (u *UserStorage) GetByEmail(email string) (model.UserModel, error) {
 	u.e.Lock.Lock()
 	defer u.e.Lock.Unlock()
-	id, ok := u.e.NameIndex[username]
+	id, ok := u.e.NameIndex[email]
 	if !ok {
 		return model.UserModel{}, storage.NoSuchUserError
 	}
 	user, ok := u.e.Users[id]
 	if !ok {
-		log.Printf("FATAL error: user storage inconsistent: username '%s' points to non-existent user", username)
-		return user, fmt.Errorf("user storage inconsistent: username '%s' points to non-existent user", username)
+		log.Printf("FATAL error: user storage inconsistent: email '%s' points to non-existent user", email)
+		return user, fmt.Errorf("user storage inconsistent: email '%s' points to non-existent user", email)
 	}
 	return user, nil
 }
@@ -73,7 +73,7 @@ func (u *UserStorage) Create(user model.UserModel, hash []byte) error {
 	u.e.Lock.Lock()
 	defer u.e.Lock.Unlock()
 
-	if _, ok := u.e.NameIndex[user.Username]; ok {
+	if _, ok := u.e.NameIndex[user.Email]; ok {
 		return storage.UserAlreadyExistsError
 	}
 
@@ -83,7 +83,7 @@ func (u *UserStorage) Create(user model.UserModel, hash []byte) error {
 	}
 
 	u.e.Users[user.ID] = user
-	u.e.NameIndex[user.Username] = user.ID
+	u.e.NameIndex[user.Email] = user.ID
 
 	_, exists := u.e.Passwords[user.ID]
 	if exists {

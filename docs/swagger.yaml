@@ -28,9 +28,9 @@ definitions:
     type: object
   dto.CredentialsInputDTO:
     properties:
-      password:
+      email:
         type: string
-      username:
+      password:
         type: string
     type: object
   dto.GeneralResponseDTO:
@@ -98,11 +98,7 @@ definitions:
     properties:
       email:
         type: string
-      id:
-        type: string
       password:
-        type: string
-      username:
         type: string
     type: object
   dto.UserOutputDTO:
@@ -119,8 +115,6 @@ definitions:
         items:
           type: string
         type: array
-      username:
-        type: string
     type: object
 host: localhost:8080
 info:
@@ -359,7 +353,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: User Username
+      - description: User Id
         in: path
         name: id
         required: true
@@ -396,31 +390,6 @@ paths:
                   $ref: '#/definitions/dto.UserOutputDTO'
               type: object
       summary: Get User by ID
-      tags:
-      - User
-  /api/user/{username}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: User Username
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.UserOutputDTO'
-              type: object
-      summary: Get User by username
       tags:
       - User
   /api/user/login:

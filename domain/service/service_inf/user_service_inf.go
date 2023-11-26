@@ -13,8 +13,6 @@ type IUserService interface {
 
 	GetByID(id UUID) (UserOutputDTO, error)
 
-	GetByUsername(username string) (UserOutputDTO, error)
-
 	Login(credentials CredentialsInputDTO) (fiber.Cookie, error)
 
 	Register(user UserInputDTO) (UserOutputDTO, error)
