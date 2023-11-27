@@ -7,16 +7,16 @@ import (
 )
 
 type GroupInputDTO struct {
-	Owner UUID   `json:"owner"`
+	Owner UUID   `json:"ownerID"`
 	Name  string `json:"name"`
 }
 
 type GroupOutputDTO struct {
-	Owner   UUID   `json:"owner"`
+	Owner   UUID   `json:"ownerID"`
 	ID      UUID   `json:"id"`
 	Name    string `json:"name"`
-	Members []UUID `json:"members"`
-	Bills   []UUID `json:"bills"`
+	Members []UUID `json:"memberIDs"`
+	Bills   []UUID `json:"billIDs"`
 }
 
 func ToGroupModel(g GroupInputDTO, members []UUID) GroupModel {

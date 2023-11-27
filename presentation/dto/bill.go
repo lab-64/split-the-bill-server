@@ -7,10 +7,10 @@ import (
 )
 
 type BillInputDTO struct {
-	Owner uuid.UUID `json:"owner"`
+	Owner uuid.UUID `json:"ownerID"`
 	Name  string    `json:"name"`
 	Date  time.Time `json:"date"`
-	Group uuid.UUID `json:"group"`
+	Group uuid.UUID `json:"groupID"`
 }
 
 type BillOutputDTO struct {

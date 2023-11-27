@@ -12,8 +12,9 @@ type ItemInputDTO struct {
 }
 
 type ItemOutputDTO struct {
-	Name  string  `json:"name"`
-	Price float64 `json:"price"`
+	ID    uuid.UUID `json:"id"`
+	Name  string    `json:"name"`
+	Price float64   `json:"price"`
 }
 
 // ToItemModel converts an ItemInputDTO to an ItemModel
