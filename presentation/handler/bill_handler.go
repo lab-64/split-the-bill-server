@@ -137,8 +137,8 @@ func (h BillHandler) AddItemContributor(c *fiber.Ctx) error {
 	// add contributors to item
 	item, err := h.billService.AddItemContributor(request)
 	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgAddContributor, err))
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUpdateContributor, err))
 	}
 
-	return core.Success(c, fiber.StatusOK, SuccessMsgContributorAdd, item)
+	return core.Success(c, fiber.StatusOK, SuccessMsgContributorUpdate, item)
 }

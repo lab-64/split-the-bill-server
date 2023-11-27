@@ -27,12 +27,12 @@ const (
 	// Item - ERROR
 	ErrMsgItemParse            = "Could not parse item: %v"
 	ErrMsgItemCreate           = "Could not create item: %v"
-	ErrMsgAddContributor       = "Could not add contributor: %v"
+	ErrMsgUpdateContributor    = "Could not update contributors: %v"
 	ErrMsgItemContributorParse = "Could not parse contributor request: %v"
 
 	// Item - SUCCESS
-	SuccessMsgItemCreate     = "Item created"
-	SuccessMsgContributorAdd = "Contributor added"
+	SuccessMsgItemCreate        = "Item created"
+	SuccessMsgContributorUpdate = "Contributor updated"
 
 	// User - ERROR
 	ErrMsgUserParse            = "Could not parse user: %v"

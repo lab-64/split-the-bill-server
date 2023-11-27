@@ -73,11 +73,18 @@ func (b *BillStorage) GetItemByID(id uuid.UUID) (ItemModel, error) {
 func (b *BillStorage) UpdateItem(item ItemModel) (ItemModel, error) {
 	itemEntity := ToItemEntity(item)
 
-	// store item
-	res := b.DB.Model(&itemEntity).Updates(&itemEntity)
+	// TODO: check if remove and add works
+	// update contributors associations
+	res := b.DB.Model(&Item{Base: Base{ID: itemEntity.ID}}).Association("Contributors").Replace(itemEntity.Contributors)
+	if res != nil {
+		return ItemModel{}, storage.NoSuchUserError
+	}
+
+	// update base item fields
+	ret := b.DB.Model(&itemEntity).Updates(&itemEntity)
 
 	// TODO: check if other errors can occur
-	if res.Error != nil {
+	if ret.Error != nil {
 		return ItemModel{}, storage.NoSuchUserError
 	}
 
