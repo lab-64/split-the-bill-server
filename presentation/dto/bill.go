@@ -20,8 +20,8 @@ type BillOutputDTO struct {
 }
 
 // ToBillModel converts a BillInputDTO to a BillModel
-func ToBillModel(b BillInputDTO) (BillModel, error) {
-	return CreateBill(b.Owner, b.Name, b.Date, b.Group), nil
+func ToBillModel(b BillInputDTO) BillModel {
+	return CreateBill(b.Owner, b.Name, b.Date, b.Group)
 }
 
 // ToBillDTO converts a BillModel to a BillOutputDTO
