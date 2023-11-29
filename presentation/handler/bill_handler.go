@@ -65,13 +65,6 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
 	}
 
-	// TODO: Who is responsible for validating the request? Handler or service?
-	// validate groupID
-	_, err = h.groupService.GetByID(request.Group)
-	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupNotFound, err))
-	}
-
 	// create bill
 	bill, err := h.billService.Create(request)
 	if err != nil {
@@ -97,13 +90,6 @@ func (h BillHandler) AddItem(c *fiber.Ctx) error {
 	err := c.BodyParser(&request)
 	if err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
-	}
-
-	// TODO: Who is responsible for validating the request? Handler or service?
-	// validate billID
-	_, err = h.billService.GetByID(request.BillID)
-	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillNotFound, err))
 	}
 
 	// create item
