@@ -6,21 +6,18 @@ import (
 )
 
 type ItemInputDTO struct {
+	ID           uuid.UUID   `json:"id"`
 	Name         string      `json:"name"`
 	Price        float64     `json:"price"`
 	BillID       uuid.UUID   `json:"billId"`
 	Contributors []uuid.UUID `json:"contributorIDs"`
 }
 
-type ItemContributorInputDTO struct {
-	ItemID       uuid.UUID   `json:"itemId"`
-	Contributors []uuid.UUID `json:"contributors"`
-}
-
 type ItemOutputDTO struct {
 	ID           uuid.UUID   `json:"id"`
 	Name         string      `json:"name"`
 	Price        float64     `json:"price"`
+	BillID       uuid.UUID   `json:"billId"`
 	Contributors []uuid.UUID `json:"contributorIDs"`
 }
 
@@ -35,6 +32,7 @@ func ToItemDTO(item ItemModel) ItemOutputDTO {
 		ID:           item.ID,
 		Name:         item.Name,
 		Price:        item.Price,
+		BillID:       item.BillID,
 		Contributors: item.Contributors,
 	}
 }

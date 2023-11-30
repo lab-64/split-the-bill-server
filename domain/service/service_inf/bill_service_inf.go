@@ -12,5 +12,5 @@ type IBillService interface {
 
 	AddItem(item ItemInputDTO) (ItemOutputDTO, error)
 
-	AddItemContributor(itemContributor ItemContributorInputDTO) (ItemOutputDTO, error)
+	ChangeItem(item ItemInputDTO) (ItemOutputDTO, error)
 }

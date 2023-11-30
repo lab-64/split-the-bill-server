@@ -49,17 +49,12 @@ func (b *BillService) AddItem(itemDTO ItemInputDTO) (ItemOutputDTO, error) {
 	return ToItemDTO(item), err
 }
 
-func (b *BillService) AddItemContributor(itemContributorDTO ItemContributorInputDTO) (ItemOutputDTO, error) {
-	// get item
-	item, err := b.billStorage.GetItemByID(itemContributorDTO.ItemID)
-	if err != nil {
-		return ItemOutputDTO{}, err
-	}
+func (b *BillService) ChangeItem(itemDTO ItemInputDTO) (ItemOutputDTO, error) {
+	item := ToItemModel(itemDTO)
+	// add id to item
+	item.ID = itemDTO.ID
 
-	// TODO: update item
-	item.Contributors = append(item.Contributors, itemContributorDTO.Contributors...)
-	// store item
-	item, err = b.billStorage.UpdateItem(item)
+	item, err := b.billStorage.UpdateItem(item)
 	if err != nil {
 		return ItemOutputDTO{}, err
 	}

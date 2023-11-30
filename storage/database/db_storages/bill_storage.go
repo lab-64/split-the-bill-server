@@ -84,21 +84,23 @@ func (b *BillStorage) GetItemByID(id uuid.UUID) (ItemModel, error) {
 func (b *BillStorage) UpdateItem(item ItemModel) (ItemModel, error) {
 	itemEntity := ToItemEntity(item)
 
-	// TODO: check if remove and add works
-	// update contributors associations
-	res := b.DB.Model(&Item{Base: Base{ID: itemEntity.ID}}).Association("Contributors").Replace(itemEntity.Contributors)
-	if res != nil {
-		return ItemModel{}, storage.NoSuchUserError
-	}
+	// run as a transaction to ensure consistency. item should be completely updated or not at all
+	err := b.DB.Transaction(func(tx *gorm.DB) error {
+		// update contributors associations
+		res := tx.Model(&Item{Base: Base{ID: itemEntity.ID}}).Association("Contributors").Replace(itemEntity.Contributors)
+		// TODO: add finer error handling
+		if res != nil {
+			return storage.NoSuchUserError
+		}
 
-	// update base item fields
-	ret := b.DB.Model(&itemEntity).Updates(&itemEntity)
+		// update base item fields
+		ret := tx.Model(&itemEntity).Updates(&itemEntity)
+		if ret.Error != nil {
+			return storage.NoSuchItemError
+		}
 
-	// TODO: check if other errors can occur
-	if ret.Error != nil {
-		return ItemModel{}, storage.NoSuchUserError
-	}
+		return nil
+	})
 
-	// TODO: return the stored model instead of the input model
-	return ToItemModel(itemEntity), nil
+	return ToItemModel(itemEntity), err
 }

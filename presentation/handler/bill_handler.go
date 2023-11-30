@@ -106,19 +106,19 @@ func (h BillHandler) AddItem(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgItemCreate, item)
 }
 
-// AddItemContributor 		func add contributor to item
+// ChangeItem 		func change item
 //
-//	@Summary	Add Contributor to Item
+//	@Summary	Change Item
 //	@Tags		Bill
 //	@Accept		json
 //	@Produce	json
-//	@Param		request	body		dto.ItemContributorInputDTO	true	"Request Body"
+//	@Param		request	body		dto.ItemInputDTO	true	"Request Body"
 //	@Success	200		{object}	dto.GeneralResponseDTO
-//	@Router		/api/bill/item/contributor [post]
-func (h BillHandler) AddItemContributor(c *fiber.Ctx) error {
+//	@Router		/api/bill/item [put]
+func (h BillHandler) ChangeItem(c *fiber.Ctx) error {
 
 	// parse contributor request from request body
-	var request ItemContributorInputDTO
+	var request ItemInputDTO
 
 	err := c.BodyParser(&request)
 	if err != nil {
@@ -126,7 +126,7 @@ func (h BillHandler) AddItemContributor(c *fiber.Ctx) error {
 	}
 
 	// add contributors to item
-	item, err := h.billService.AddItemContributor(request)
+	item, err := h.billService.ChangeItem(request)
 	if err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUpdateContributor, err))
 	}
