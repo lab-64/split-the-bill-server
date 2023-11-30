@@ -25,6 +25,7 @@ func ToItemModel(i ItemInputDTO) ItemModel {
 // ToItemDTO converts an ItemModel to an ItemOutputDTO
 func ToItemDTO(item ItemModel) ItemOutputDTO {
 	return ItemOutputDTO{
+		ID:    item.ID,
 		Name:  item.Name,
 		Price: item.Price,
 	}

@@ -58,8 +58,13 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 // TODO: Separate bill and item handler
 func (h BillHandler) Create(c *fiber.Ctx) error {
 
-	// parse bill from request body
-	var request BillInputDTO
+	// create nested bill struct
+	var items []ItemInputDTO
+	request := BillInputDTO{
+		Items: items,
+	}
+
+	// parse nested bill from request body
 	err := c.BodyParser(&request)
 	if err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))

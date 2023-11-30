@@ -18,7 +18,20 @@ type Bill struct {
 
 // ToBillEntity converts a BillModel to a Bill
 func ToBillEntity(bill BillModel) Bill {
-	return Bill{Base: Base{ID: bill.ID}, Name: bill.Name, Date: bill.Date, GroupID: bill.Group, OwnerUID: bill.OwnerID}
+
+	// convert items
+	var items []Item
+	for _, item := range bill.Items {
+		items = append(items, ToItemEntity(item))
+	}
+
+	return Bill{
+		Base:     Base{ID: bill.ID},
+		Name:     bill.Name,
+		Date:     bill.Date,
+		GroupID:  bill.Group,
+		OwnerUID: bill.OwnerID,
+		Items:    items}
 }
 
 // ToBillModel converts a Bill to a BillModel

@@ -17,9 +17,9 @@ func NewBillService(billStorage *IBillStorage, groupStorage *IGroupStorage) IBil
 }
 
 func (b *BillService) Create(billDTO BillInputDTO) (BillOutputDTO, error) {
-	// create bill model
-	bill := ToBillModel(billDTO)
 
+	// create bill model including items
+	bill := ToBillModel(billDTO)
 	// store bill in billStorage
 	err := b.billStorage.Create(bill)
 	if err != nil {
