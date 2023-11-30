@@ -133,3 +133,20 @@ func (h BillHandler) ChangeItem(c *fiber.Ctx) error {
 
 	return core.Success(c, fiber.StatusOK, SuccessMsgContributorUpdate, item)
 }
+
+func (h BillHandler) GetItemByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	iid, err := uuid.Parse(id)
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
+	}
+	item, err := h.billService.GetItemByID(iid)
+	if err != nil {
+		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgItemNotFound, err))
+	}
+
+	return core.Success(c, fiber.StatusOK, SuccesMsgItemFound, item)
+}

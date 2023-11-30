@@ -61,3 +61,12 @@ func (b *BillService) ChangeItem(itemDTO ItemInputDTO) (ItemOutputDTO, error) {
 
 	return ToItemDTO(item), err
 }
+
+func (b *BillService) GetItemByID(id uuid.UUID) (ItemOutputDTO, error) {
+	item, err := b.billStorage.GetItemByID(id)
+	if err != nil {
+		return ItemOutputDTO{}, err
+	}
+
+	return ToItemDTO(item), err
+}
