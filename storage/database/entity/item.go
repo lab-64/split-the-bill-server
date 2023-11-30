@@ -10,15 +10,15 @@ type Item struct {
 	Name         string    `gorm:"not null"`
 	Price        float64   `gorm:"not null"`
 	BillID       uuid.UUID `gorm:"type:uuid"`                    // belongs to bill
-	Contributors []User    `gorm:"many2many:item_contributors;"` // many to many
+	Contributors []*User   `gorm:"many2many:item_contributors;"` // many to many
 }
 
 // ToItemEntity converts an ItemModel to an Item
 func ToItemEntity(item ItemModel) Item {
 	// convert contributor uuids to users
-	var contributors []User
+	var contributors []*User
 	for _, contributor := range item.Contributors {
-		contributors = append(contributors, User{Base: Base{ID: contributor}})
+		contributors = append(contributors, &User{Base: Base{ID: contributor}})
 	}
 	return Item{Base: Base{ID: item.ID}, Name: item.Name, Price: item.Price, BillID: item.BillID, Contributors: contributors}
 }

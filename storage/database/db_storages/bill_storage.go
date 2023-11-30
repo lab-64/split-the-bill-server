@@ -57,6 +57,7 @@ func (b *BillStorage) GetByID(id uuid.UUID) (BillModel, error) {
 func (b *BillStorage) CreateItem(item ItemModel) (ItemModel, error) {
 	itemEntity := ToItemEntity(item)
 
+	// TODO: if userId belongs to deleted user do not create
 	// store item
 	res := b.DB.Create(&itemEntity)
 

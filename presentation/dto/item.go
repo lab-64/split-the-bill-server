@@ -9,7 +9,7 @@ type ItemInputDTO struct {
 	Name         string      `json:"name"`
 	Price        float64     `json:"price"`
 	BillID       uuid.UUID   `json:"billId"`
-	Contributors []uuid.UUID `json:"contributors"`
+	Contributors []uuid.UUID `json:"contributorIDs"`
 }
 
 type ItemContributorInputDTO struct {
@@ -21,7 +21,7 @@ type ItemOutputDTO struct {
 	ID           uuid.UUID   `json:"id"`
 	Name         string      `json:"name"`
 	Price        float64     `json:"price"`
-	Contributors []uuid.UUID `json:"contributors"`
+	Contributors []uuid.UUID `json:"contributorIDs"`
 }
 
 // ToItemModel converts an ItemInputDTO to an ItemModel
