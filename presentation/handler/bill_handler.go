@@ -58,18 +58,16 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 // TODO: Separate bill and item handler
 func (h BillHandler) Create(c *fiber.Ctx) error {
 
-	// parse bill from request body
-	var request BillInputDTO
+	// create nested bill struct
+	var items []ItemInputDTO
+	request := BillInputDTO{
+		Items: items,
+	}
+
+	// parse nested bill from request body
 	err := c.BodyParser(&request)
 	if err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
-	}
-
-	// TODO: Who is responsible for validating the request? Handler or service?
-	// validate groupID
-	_, err = h.groupService.GetByID(request.Group)
-	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupNotFound, err))
 	}
 
 	// create bill
@@ -97,13 +95,6 @@ func (h BillHandler) AddItem(c *fiber.Ctx) error {
 	err := c.BodyParser(&request)
 	if err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
-	}
-
-	// TODO: Who is responsible for validating the request? Handler or service?
-	// validate billID
-	_, err = h.billService.GetByID(request.BillID)
-	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillNotFound, err))
 	}
 
 	// create item
