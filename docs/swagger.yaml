@@ -4,11 +4,15 @@ definitions:
     properties:
       date:
         type: string
-      group:
+      groupID:
         type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.ItemInputDTO'
+        type: array
       name:
         type: string
-      owner:
+      ownerID:
         type: string
     type: object
   dto.BillOutputDTO:
@@ -41,61 +45,54 @@ definitions:
     properties:
       name:
         type: string
-      owner:
+      ownerID:
         type: string
     type: object
   dto.GroupInvitationInputDTO:
     properties:
       groupID:
         type: string
-      invitees:
+      inviteeIDs:
         items:
           type: string
         type: array
-      issuer:
+      issuerID:
         type: string
     type: object
   dto.GroupOutputDTO:
     properties:
-      bills:
+      billIDs:
         items:
           type: string
         type: array
       id:
         type: string
-      members:
+      memberIDs:
         items:
           type: string
         type: array
       name:
         type: string
-      owner:
+      ownerID:
         type: string
     type: object
   dto.HandleInvitationInputDTO:
     properties:
       invitationID:
         type: string
-      issuer:
-        type: string
-    type: object
-  dto.ItemContributorInputDTO:
-    properties:
-      contributors:
-        items:
-          type: string
-        type: array
-      itemId:
+      issuerID:
         type: string
     type: object
   dto.ItemInputDTO:
     properties:
       billId:
         type: string
-      contributors:
+      contributorIDs:
         items:
           type: string
         type: array
+      id:
+        type: string
       name:
         type: string
       price:
@@ -103,7 +100,9 @@ definitions:
     type: object
   dto.ItemOutputDTO:
     properties:
-      contributors:
+      billId:
+        type: string
+      contributorIDs:
         items:
           type: string
         type: array
@@ -135,7 +134,7 @@ definitions:
         type: array
       id:
         type: string
-      invitations:
+      invitationIDs:
         items:
           type: string
         type: array
@@ -220,8 +219,7 @@ paths:
       summary: Add Item to Bill
       tags:
       - Bill
-  /api/bill/item/contributor:
-    post:
+    put:
       consumes:
       - application/json
       parameters:
@@ -230,7 +228,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.ItemContributorInputDTO'
+          $ref: '#/definitions/dto.ItemInputDTO'
       produces:
       - application/json
       responses:
@@ -238,7 +236,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.GeneralResponseDTO'
-      summary: Add Contributor to Item
+      summary: Change Item
       tags:
       - Bill
   /api/group:

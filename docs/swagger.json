@@ -54,7 +54,7 @@
             }
         },
         "/api/bill/item": {
-            "post": {
+            "put": {
                 "consumes": [
                     "application/json"
                 ],
@@ -64,7 +64,7 @@
                 "tags": [
                     "Bill"
                 ],
-                "summary": "Add Item to Bill",
+                "summary": "Change Item",
                 "parameters": [
                     {
                         "description": "Request Body",
@@ -84,9 +84,7 @@
                         }
                     }
                 }
-            }
-        },
-        "/api/bill/item/contributor": {
+            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -97,7 +95,7 @@
                 "tags": [
                     "Bill"
                 ],
-                "summary": "Add Contributor to Item",
+                "summary": "Add Item to Bill",
                 "parameters": [
                     {
                         "description": "Request Body",
@@ -105,7 +103,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ItemContributorInputDTO"
+                            "$ref": "#/definitions/dto.ItemInputDTO"
                         }
                     }
                 ],
@@ -637,13 +635,19 @@
                 "date": {
                     "type": "string"
                 },
-                "group": {
+                "groupID": {
                     "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ItemInputDTO"
+                    }
                 },
                 "name": {
                     "type": "string"
                 },
-                "owner": {
+                "ownerID": {
                     "type": "string"
                 }
             }
@@ -694,7 +698,7 @@
                 "name": {
                     "type": "string"
                 },
-                "owner": {
+                "ownerID": {
                     "type": "string"
                 }
             }
@@ -705,13 +709,13 @@
                 "groupID": {
                     "type": "string"
                 },
-                "invitees": {
+                "inviteeIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "issuer": {
+                "issuerID": {
                     "type": "string"
                 }
             }
@@ -719,7 +723,7 @@
         "dto.GroupOutputDTO": {
             "type": "object",
             "properties": {
-                "bills": {
+                "billIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -728,7 +732,7 @@
                 "id": {
                     "type": "string"
                 },
-                "members": {
+                "memberIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -737,7 +741,7 @@
                 "name": {
                     "type": "string"
                 },
-                "owner": {
+                "ownerID": {
                     "type": "string"
                 }
             }
@@ -748,21 +752,7 @@
                 "invitationID": {
                     "type": "string"
                 },
-                "issuer": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.ItemContributorInputDTO": {
-            "type": "object",
-            "properties": {
-                "contributors": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "itemId": {
+                "issuerID": {
                     "type": "string"
                 }
             }
@@ -773,11 +763,14 @@
                 "billId": {
                     "type": "string"
                 },
-                "contributors": {
+                "contributorIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
+                },
+                "id": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -790,7 +783,10 @@
         "dto.ItemOutputDTO": {
             "type": "object",
             "properties": {
-                "contributors": {
+                "billId": {
+                    "type": "string"
+                },
+                "contributorIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -839,7 +835,7 @@
                 "id": {
                     "type": "string"
                 },
-                "invitations": {
+                "invitationIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"

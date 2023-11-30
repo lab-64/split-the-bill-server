@@ -61,7 +61,7 @@ const docTemplate = `{
             }
         },
         "/api/bill/item": {
-            "post": {
+            "put": {
                 "consumes": [
                     "application/json"
                 ],
@@ -71,7 +71,7 @@ const docTemplate = `{
                 "tags": [
                     "Bill"
                 ],
-                "summary": "Add Item to Bill",
+                "summary": "Change Item",
                 "parameters": [
                     {
                         "description": "Request Body",
@@ -91,9 +91,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/api/bill/item/contributor": {
+            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -104,7 +102,7 @@ const docTemplate = `{
                 "tags": [
                     "Bill"
                 ],
-                "summary": "Add Contributor to Item",
+                "summary": "Add Item to Bill",
                 "parameters": [
                     {
                         "description": "Request Body",
@@ -112,7 +110,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ItemContributorInputDTO"
+                            "$ref": "#/definitions/dto.ItemInputDTO"
                         }
                     }
                 ],
@@ -644,13 +642,19 @@ const docTemplate = `{
                 "date": {
                     "type": "string"
                 },
-                "group": {
+                "groupID": {
                     "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ItemInputDTO"
+                    }
                 },
                 "name": {
                     "type": "string"
                 },
-                "owner": {
+                "ownerID": {
                     "type": "string"
                 }
             }
@@ -701,7 +705,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "owner": {
+                "ownerID": {
                     "type": "string"
                 }
             }
@@ -712,13 +716,13 @@ const docTemplate = `{
                 "groupID": {
                     "type": "string"
                 },
-                "invitees": {
+                "inviteeIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "issuer": {
+                "issuerID": {
                     "type": "string"
                 }
             }
@@ -726,7 +730,7 @@ const docTemplate = `{
         "dto.GroupOutputDTO": {
             "type": "object",
             "properties": {
-                "bills": {
+                "billIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -735,7 +739,7 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "members": {
+                "memberIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -744,7 +748,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "owner": {
+                "ownerID": {
                     "type": "string"
                 }
             }
@@ -755,21 +759,7 @@ const docTemplate = `{
                 "invitationID": {
                     "type": "string"
                 },
-                "issuer": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.ItemContributorInputDTO": {
-            "type": "object",
-            "properties": {
-                "contributors": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "itemId": {
+                "issuerID": {
                     "type": "string"
                 }
             }
@@ -780,11 +770,14 @@ const docTemplate = `{
                 "billId": {
                     "type": "string"
                 },
-                "contributors": {
+                "contributorIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
+                },
+                "id": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -797,7 +790,10 @@ const docTemplate = `{
         "dto.ItemOutputDTO": {
             "type": "object",
             "properties": {
-                "contributors": {
+                "billId": {
+                    "type": "string"
+                },
+                "contributorIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -846,7 +842,7 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "invitations": {
+                "invitationIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
