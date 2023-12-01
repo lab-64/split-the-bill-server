@@ -15,10 +15,11 @@ type BillInputDTO struct {
 }
 
 type BillOutputDTO struct {
-	ID    uuid.UUID       `json:"id"`
-	Name  string          `json:"name"`
-	Date  time.Time       `json:"date"`
-	Items []ItemOutputDTO `json:"items"`
+	ID      uuid.UUID       `json:"id"`
+	Name    string          `json:"name"`
+	Date    time.Time       `json:"date"`
+	Items   []ItemOutputDTO `json:"items"`
+	OwnerID uuid.UUID       `json:"ownerID"`
 }
 
 // ToBillModel converts a BillInputDTO to a BillModel
@@ -40,9 +41,10 @@ func ToBillDTO(bill BillModel) BillOutputDTO {
 	}
 
 	return BillOutputDTO{
-		ID:    bill.ID,
-		Name:  bill.Name,
-		Date:  bill.Date,
-		Items: itemsDTO,
+		ID:      bill.ID,
+		Name:    bill.Name,
+		Date:    bill.Date,
+		Items:   itemsDTO,
+		OwnerID: bill.OwnerID,
 	}
 }

@@ -31,7 +31,8 @@ func ToBillEntity(bill BillModel) Bill {
 		Date:    bill.Date,
 		GroupID: bill.Group,
 		OwnerID: bill.OwnerID,
-		Items:   items}
+		Items:   items,
+	}
 }
 
 // ToBillModel converts a Bill to a BillModel
@@ -43,5 +44,12 @@ func ToBillModel(bill Bill) BillModel {
 		items = append(items, ToItemModel(item))
 	}
 
-	return BillModel{ID: bill.ID, Name: bill.Name, Date: bill.Date, Group: bill.GroupID, Items: items, OwnerID: bill.OwnerID}
+	return BillModel{
+		ID:      bill.ID,
+		Name:    bill.Name,
+		Date:    bill.Date,
+		Group:   bill.GroupID,
+		Items:   items,
+		OwnerID: bill.OwnerID,
+	}
 }

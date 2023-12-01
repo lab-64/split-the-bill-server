@@ -18,25 +18,22 @@ func NewBillHandler(billService *IBillService, groupService *IGroupService) *Bil
 	return &BillHandler{billService: *billService, groupService: *groupService}
 }
 
-// GetByID 		func get bill by id
+// GetByID 		get bill by id
 //
 //	@Summary	Get Bill by ID
 //	@Tags		Bill
 //	@Accept		json
 //	@Produce	json
-//	@Param		id	path		string	true	"Bill Id"
+//	@Param		id	path		string	true	"Bill ID"
 //	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.BillOutputDTO}
 //	@Router		/api/bill/{id} [get]
 func (h BillHandler) GetByID(c *fiber.Ctx) error {
-	id := c.Params("id")
-	if id == "" {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
-	}
-	bid, err := uuid.Parse(id)
+	id, err := uuid.Parse(c.Params("id"))
 	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, c.Params("id"), err))
 	}
-	bill, err := h.billService.GetByID(bid)
+
+	bill, err := h.billService.GetByID(id)
 	if err != nil {
 		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgBillNotFound, err))
 	}
@@ -55,15 +52,16 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 //	@Router		/api/bill [post]
 //
 // TODO: How to handle bills without a group? Maybe add a default group which features only the owner? => how to mark such a group?
-// TODO: Separate bill and item handler
 func (h BillHandler) Create(c *fiber.Ctx) error {
 
 	// create nested bill struct
-	var items []ItemInputDTO
-	request := BillInputDTO{
-		Items: items,
-	}
+	/*	var items []ItemInputDTO
+		request := BillInputDTO{
+			Items: items,
+		}
+	*/
 
+	var request BillInputDTO
 	// parse nested bill from request body
 	err := c.BodyParser(&request)
 	if err != nil {
@@ -76,7 +74,7 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillCreate, err))
 	}
 
-	return core.Success(c, fiber.StatusOK, SuccessMsgBillCreate, bill)
+	return core.Success(c, fiber.StatusCreated, SuccessMsgBillCreate, bill)
 }
 
 // AddItem 		func add item to bill
@@ -85,68 +83,67 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 //	@Tags		Bill
 //	@Accept		json
 //	@Produce	json
+//	@Param		billId	path		string				true	"Bill ID"
 //	@Param		request	body		dto.ItemInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO
-//	@Router		/api/bill/item [post]
+//	@Success	201		{object}	dto.GeneralResponseDTO{data=dto.ItemOutputDTO}
+//	@Router		/api/bill/{billId}/item [post]
 func (h BillHandler) AddItem(c *fiber.Ctx) error {
-
-	// parse item from request body
-	var request ItemInputDTO
-	err := c.BodyParser(&request)
+	// parse parameters
+	billID, err := uuid.Parse(c.Params("billId"))
 	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, c.Params("billId"), err))
+	}
+
+	// parse request
+	var request ItemInputDTO
+	if err := c.BodyParser(&request); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
 	}
 
 	// create item
-	item, err := h.billService.AddItem(request)
+	item, err := h.billService.AddItem(billID, request)
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemCreate, err))
 	}
 
-	return core.Success(c, fiber.StatusOK, SuccessMsgItemCreate, item)
+	return core.Success(c, fiber.StatusCreated, SuccessMsgItemCreate, item)
 }
 
-// ChangeItem 		func change item
+// ChangeItem 	changes item.
 //
 //	@Summary	Change Item
 //	@Tags		Bill
 //	@Accept		json
 //	@Produce	json
+//	@Param		billId	path		string				true	"Bill ID"
+//	@Param		itemId	path		string				true	"Item ID"
 //	@Param		request	body		dto.ItemInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO
-//	@Router		/api/bill/item [put]
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.ItemOutputDTO}
+//
+//	@Router		/api/bill/{billId}/item/{itemId} [put]
 func (h BillHandler) ChangeItem(c *fiber.Ctx) error {
-
-	// parse contributor request from request body
-	var request ItemInputDTO
-
-	err := c.BodyParser(&request)
+	// parse parameters
+	billID, err := uuid.Parse(c.Params("billId"))
 	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, c.Params("billId"), err))
+	}
+
+	itemID, err := uuid.Parse(c.Params("itemId"))
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, c.Params("itemId"), err))
+	}
+
+	// parse request
+	var request ItemInputDTO
+	if err := c.BodyParser(&request); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemContributorParse, err))
 	}
 
-	// add contributors to item
-	item, err := h.billService.ChangeItem(request)
+	// update item
+	item, err := h.billService.ChangeItem(itemID, billID, request)
 	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUpdateContributor, err))
+		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUpdateContributor, err))
 	}
 
 	return core.Success(c, fiber.StatusOK, SuccessMsgContributorUpdate, item)
-}
-
-func (h BillHandler) GetItemByID(c *fiber.Ctx) error {
-	id := c.Params("id")
-	if id == "" {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
-	}
-	iid, err := uuid.Parse(id)
-	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
-	}
-	item, err := h.billService.GetItemByID(iid)
-	if err != nil {
-		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgItemNotFound, err))
-	}
-
-	return core.Success(c, fiber.StatusOK, SuccesMsgItemFound, item)
 }

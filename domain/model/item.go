@@ -10,12 +10,12 @@ type ItemModel struct {
 	Contributors []uuid.UUID
 }
 
-func CreateItemModel(name string, price float64, billID uuid.UUID, contributors []uuid.UUID) ItemModel {
+func CreateItemModel(name string, price float64, contributors []uuid.UUID) ItemModel {
+
 	return ItemModel{
 		ID:           uuid.New(),
 		Name:         name,
 		Price:        price,
-		BillID:       billID,
 		Contributors: contributors,
 	}
 }

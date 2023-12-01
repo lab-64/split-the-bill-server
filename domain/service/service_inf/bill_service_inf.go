@@ -10,9 +10,9 @@ type IBillService interface {
 
 	GetByID(id UUID) (BillOutputDTO, error)
 
-	AddItem(item ItemInputDTO) (ItemOutputDTO, error)
+	AddItem(billID UUID, item ItemInputDTO) (ItemOutputDTO, error)
 
-	ChangeItem(item ItemInputDTO) (ItemOutputDTO, error)
+	ChangeItem(itemID UUID, billID UUID, item ItemInputDTO) (ItemOutputDTO, error)
 
 	GetItemByID(id UUID) (ItemOutputDTO, error)
 }
