@@ -21,7 +21,7 @@ func (b *BillService) Create(billDTO BillInputDTO) (BillOutputDTO, error) {
 	// create bill model including items
 	bill := ToBillModel(billDTO)
 	// store bill in billStorage
-	err := b.billStorage.Create(bill)
+	bill, err := b.billStorage.Create(bill)
 	if err != nil {
 		return BillOutputDTO{}, err
 	}

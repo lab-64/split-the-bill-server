@@ -6,7 +6,7 @@ import (
 )
 
 type IBillStorage interface {
-	Create(bill BillModel) error
+	Create(bill BillModel) (BillModel, error)
 
 	GetByID(id UUID) (BillModel, error)
 
