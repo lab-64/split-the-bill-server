@@ -8,12 +8,12 @@ import (
 
 type Bill struct {
 	Base
-	OwnerUID uuid.UUID `gorm:"type:uuid"`
-	Owner    User      `gorm:"foreignKey:OwnerUID"` // belongs to user
-	Name     string    `gorm:"not null"`
-	Date     time.Time
-	Items    []Item    `gorm:"foreignKey:BillID"` // has many items
-	GroupID  uuid.UUID `gorm:"type:uuid"`         // group has many bills
+	OwnerID uuid.UUID `gorm:"type:uuid"`
+	Owner   User      `gorm:"foreignKey:OwnerID"` // belongs to user
+	Name    string    `gorm:"not null"`
+	Date    time.Time
+	Items   []Item    `gorm:"foreignKey:BillID"` // has many items
+	GroupID uuid.UUID `gorm:"type:uuid"`         // group has many bills
 }
 
 // ToBillEntity converts a BillModel to a Bill
@@ -26,12 +26,12 @@ func ToBillEntity(bill BillModel) Bill {
 	}
 
 	return Bill{
-		Base:     Base{ID: bill.ID},
-		Name:     bill.Name,
-		Date:     bill.Date,
-		GroupID:  bill.Group,
-		OwnerUID: bill.OwnerID,
-		Items:    items}
+		Base:    Base{ID: bill.ID},
+		Name:    bill.Name,
+		Date:    bill.Date,
+		GroupID: bill.Group,
+		OwnerID: bill.OwnerID,
+		Items:   items}
 }
 
 // ToBillModel converts a Bill to a BillModel
@@ -43,5 +43,5 @@ func ToBillModel(bill Bill) BillModel {
 		items = append(items, ToItemModel(item))
 	}
 
-	return BillModel{ID: bill.ID, Name: bill.Name, Date: bill.Date, Group: bill.GroupID, Items: items, OwnerID: bill.OwnerUID}
+	return BillModel{ID: bill.ID, Name: bill.Name, Date: bill.Date, Group: bill.GroupID, Items: items, OwnerID: bill.OwnerID}
 }
