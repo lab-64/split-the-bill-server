@@ -19,6 +19,8 @@ definitions:
     properties:
       date:
         type: string
+      id:
+        type: string
       items:
         items:
           $ref: '#/definitions/dto.ItemOutputDTO'

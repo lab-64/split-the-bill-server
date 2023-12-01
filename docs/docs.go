@@ -665,6 +665,9 @@ const docTemplate = `{
                 "date": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "string"
+                },
                 "items": {
                     "type": "array",
                     "items": {
