@@ -611,13 +611,19 @@ const docTemplate = `{
                 "date": {
                     "type": "string"
                 },
-                "group": {
+                "groupID": {
                     "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ItemInputDTO"
+                    }
                 },
                 "name": {
                     "type": "string"
                 },
-                "owner": {
+                "ownerID": {
                     "type": "string"
                 }
             }
@@ -668,7 +674,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "owner": {
+                "ownerID": {
                     "type": "string"
                 }
             }
@@ -679,13 +685,13 @@ const docTemplate = `{
                 "groupID": {
                     "type": "string"
                 },
-                "invitees": {
+                "inviteeIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "issuer": {
+                "issuerID": {
                     "type": "string"
                 }
             }
@@ -693,7 +699,7 @@ const docTemplate = `{
         "dto.GroupOutputDTO": {
             "type": "object",
             "properties": {
-                "bills": {
+                "billIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -702,7 +708,7 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "members": {
+                "memberIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -711,7 +717,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "owner": {
+                "ownerID": {
                     "type": "string"
                 }
             }
@@ -722,7 +728,7 @@ const docTemplate = `{
                 "invitationID": {
                     "type": "string"
                 },
-                "issuer": {
+                "issuerID": {
                     "type": "string"
                 }
             }
@@ -744,6 +750,9 @@ const docTemplate = `{
         "dto.ItemOutputDTO": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -784,7 +793,7 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "invitations": {
+                "invitationIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"

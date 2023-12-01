@@ -604,13 +604,19 @@
                 "date": {
                     "type": "string"
                 },
-                "group": {
+                "groupID": {
                     "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ItemInputDTO"
+                    }
                 },
                 "name": {
                     "type": "string"
                 },
-                "owner": {
+                "ownerID": {
                     "type": "string"
                 }
             }
@@ -661,7 +667,7 @@
                 "name": {
                     "type": "string"
                 },
-                "owner": {
+                "ownerID": {
                     "type": "string"
                 }
             }
@@ -672,13 +678,13 @@
                 "groupID": {
                     "type": "string"
                 },
-                "invitees": {
+                "inviteeIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "issuer": {
+                "issuerID": {
                     "type": "string"
                 }
             }
@@ -686,7 +692,7 @@
         "dto.GroupOutputDTO": {
             "type": "object",
             "properties": {
-                "bills": {
+                "billIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -695,7 +701,7 @@
                 "id": {
                     "type": "string"
                 },
-                "members": {
+                "memberIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -704,7 +710,7 @@
                 "name": {
                     "type": "string"
                 },
-                "owner": {
+                "ownerID": {
                     "type": "string"
                 }
             }
@@ -715,7 +721,7 @@
                 "invitationID": {
                     "type": "string"
                 },
-                "issuer": {
+                "issuerID": {
                     "type": "string"
                 }
             }
@@ -737,6 +743,9 @@
         "dto.ItemOutputDTO": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -777,7 +786,7 @@
                 "id": {
                     "type": "string"
                 },
-                "invitations": {
+                "invitationIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
