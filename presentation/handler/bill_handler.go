@@ -55,37 +55,53 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 //	@Router		/api/bill [post]
 //
 // TODO: How to handle bills without a group? Maybe add a default group which features only the owner? => how to mark such a group?
+// TODO: Separate bill and item handler
 func (h BillHandler) Create(c *fiber.Ctx) error {
-	// TODO: authenticate user
-	/*user, err := h.getAuthenticatedUserFromHeader(c.GetReqHeaders())
-	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Authentication declined: %v", err)})
-	}
-	*/
 
 	// create nested bill struct
-	var items []ItemDTO
+	var items []ItemInputDTO
 	request := BillInputDTO{
 		Items: items,
 	}
 
-	// parse bill from request body
+	// parse nested bill from request body
 	err := c.BodyParser(&request)
 	if err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
 	}
 
-	// validate groupID
-	_, err = h.groupService.GetByID(request.Group)
-	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupNotFound, err))
-	}
-
+	// create bill
 	bill, err := h.billService.Create(request)
-
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillCreate, err))
 	}
 
 	return core.Success(c, fiber.StatusOK, SuccessMsgBillCreate, bill)
+}
+
+// AddItem 		func add item to bill
+//
+//	@Summary	Add Item to Bill
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.ItemInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Router		/api/bill/item [post]
+func (h BillHandler) AddItem(c *fiber.Ctx) error {
+
+	// parse item from request body
+	var request ItemInputDTO
+	err := c.BodyParser(&request)
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
+	}
+
+	// create item
+	item, err := h.billService.AddItem(request)
+	if err != nil {
+		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemCreate, err))
+	}
+
+	return core.Success(c, fiber.StatusOK, SuccessMsgItemCreate, item)
 }

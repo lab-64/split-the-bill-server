@@ -24,6 +24,13 @@ const (
 	SuccessMsgBillFound  = "Bill found"
 	SuccessMsgBillCreate = "Bill created"
 
+	// Item - ERROR
+	ErrMsgItemParse  = "Could not parse item: %v"
+	ErrMsgItemCreate = "Could not create item: %v"
+
+	// Item - SUCCESS
+	SuccessMsgItemCreate = "Item created"
+
 	// User - ERROR
 	ErrMsgUserParse            = "Could not parse user: %v"
 	ErrMsgUserCreate           = "Could not create user: %v"

@@ -17,23 +17,11 @@ func NewBillService(billStorage *IBillStorage, groupStorage *IGroupStorage) IBil
 }
 
 func (b *BillService) Create(billDTO BillInputDTO) (BillOutputDTO, error) {
-	// TODO: delete if authentication is used
-	billDTO.Owner = uuid.MustParse("7f1b2ed5-1201-4443-b997-56877fe31991")
 
-	// create types_test.bill
-	bill, err := ToBillModel(billDTO)
-	if err != nil {
-		return BillOutputDTO{}, err
-	}
-
+	// create bill model including items
+	bill := ToBillModel(billDTO)
 	// store bill in billStorage
-	err = b.billStorage.Create(bill)
-	if err != nil {
-		return BillOutputDTO{}, err
-	}
-
-	// add bill to group
-	err = b.groupStorage.AddBillToGroup(&bill, billDTO.Group)
+	err := b.billStorage.Create(bill)
 	if err != nil {
 		return BillOutputDTO{}, err
 	}
@@ -48,4 +36,15 @@ func (b *BillService) GetByID(id uuid.UUID) (BillOutputDTO, error) {
 	}
 
 	return ToBillDTO(bill), err
+}
+
+func (b *BillService) AddItem(itemDTO ItemInputDTO) (ItemOutputDTO, error) {
+	item := ToItemModel(itemDTO)
+
+	item, err := b.billStorage.CreateItem(item)
+	if err != nil {
+		return ItemOutputDTO{}, err
+	}
+
+	return ToItemDTO(item), err
 }

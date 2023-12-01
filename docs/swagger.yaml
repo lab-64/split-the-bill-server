@@ -4,15 +4,15 @@ definitions:
     properties:
       date:
         type: string
-      group:
+      groupID:
         type: string
       items:
         items:
-          $ref: '#/definitions/dto.ItemDTO'
+          $ref: '#/definitions/dto.ItemInputDTO'
         type: array
       name:
         type: string
-      owner:
+      ownerID:
         type: string
     type: object
   dto.BillOutputDTO:
@@ -21,7 +21,7 @@ definitions:
         type: string
       items:
         items:
-          $ref: '#/definitions/dto.ItemDTO'
+          $ref: '#/definitions/dto.ItemOutputDTO'
         type: array
       name:
         type: string
@@ -45,50 +45,57 @@ definitions:
     properties:
       name:
         type: string
-      owner:
+      ownerID:
         type: string
     type: object
   dto.GroupInvitationInputDTO:
     properties:
       groupID:
         type: string
-      invitees:
+      inviteeIDs:
         items:
           type: string
         type: array
-      issuer:
+      issuerID:
         type: string
     type: object
   dto.GroupOutputDTO:
     properties:
-      bills:
+      billIDs:
         items:
-          $ref: '#/definitions/dto.BillOutputDTO'
+          type: string
         type: array
       id:
         type: string
-      members:
+      memberIDs:
         items:
           type: string
         type: array
       name:
         type: string
-      owner:
+      ownerID:
         type: string
     type: object
   dto.HandleInvitationInputDTO:
     properties:
       invitationID:
         type: string
-      issuer:
+      issuerID:
         type: string
     type: object
-  dto.ItemDTO:
+  dto.ItemInputDTO:
     properties:
-      contributors:
-        items:
-          type: string
-        type: array
+      billId:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  dto.ItemOutputDTO:
+    properties:
+      id:
+        type: string
       name:
         type: string
       price:
@@ -115,7 +122,7 @@ definitions:
         type: array
       id:
         type: string
-      invitations:
+      invitationIDs:
         items:
           type: string
         type: array
@@ -177,6 +184,27 @@ paths:
                   $ref: '#/definitions/dto.BillOutputDTO'
               type: object
       summary: Get Bill by ID
+      tags:
+      - Bill
+  /api/bill/item:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ItemInputDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponseDTO'
+      summary: Add Item to Bill
       tags:
       - Bill
   /api/group:
