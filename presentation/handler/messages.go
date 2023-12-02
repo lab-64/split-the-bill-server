@@ -2,9 +2,10 @@ package handler
 
 const (
 	// Generic error messages
-	ErrMsgParameterRequired = "Parameter %s is required"
-	ErrMsgParseUUID         = "Could not parse uuid: %s, error: %v"
-	ErrMsgInputsInvalid     = "Inputs invalid: %v"
+	ErrMsgParameterRequired   = "Parameter %s is required"
+	ErrMsgParseUUID           = "Could not parse uuid: %s, error: %v"
+	ErrMsgInputsInvalid       = "Inputs invalid: %v"
+	ErrMsgParamMismatchFormat = "%s in URL does not match with the request body"
 
 	// Group - ERROR
 	ErrMsgGroupParse    = "Could not parse group: %v"

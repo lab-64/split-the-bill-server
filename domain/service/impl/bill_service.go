@@ -38,8 +38,9 @@ func (b *BillService) GetByID(id uuid.UUID) (BillOutputDTO, error) {
 	return ToBillDTO(bill), err
 }
 
-func (b *BillService) AddItem(itemDTO ItemInputDTO) (ItemOutputDTO, error) {
-	item := ToItemModel(itemDTO)
+func (b *BillService) AddItemToBill(billID uuid.UUID, itemDTO ItemCreateDTO) (ItemOutputDTO, error) {
+	item := ToItemModelCreate(itemDTO)
+	item.BillID = billID
 
 	item, err := b.billStorage.CreateItem(item)
 	if err != nil {
@@ -49,10 +50,8 @@ func (b *BillService) AddItem(itemDTO ItemInputDTO) (ItemOutputDTO, error) {
 	return ToItemDTO(item), err
 }
 
-func (b *BillService) ChangeItem(itemDTO ItemInputDTO) (ItemOutputDTO, error) {
-	item := ToItemModel(itemDTO)
-	// add id to item
-	item.ID = itemDTO.ID
+func (b *BillService) ChangeItem(itemDTO ItemEditDTO) (ItemOutputDTO, error) {
+	item := ToItemModelEdit(itemDTO)
 
 	item, err := b.billStorage.UpdateItem(item)
 	if err != nil {

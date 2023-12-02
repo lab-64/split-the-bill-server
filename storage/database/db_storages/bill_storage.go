@@ -26,6 +26,7 @@ func (b *BillStorage) Create(bill BillModel) (BillModel, error) {
 	res := b.DB.Create(&item)
 	if res.Error != nil {
 		// TODO: does not trigger. Find out how to check for different errors
+		// Adding a bill to an existing group but with a non-existing user as owner results in ErrForeignKeyViolated and therefore "NoSuchGroupError" is returned -> but in the fact user is missing
 		if errors.Is(res.Error, gorm.ErrForeignKeyViolated) {
 			return BillModel{}, storage.NoSuchGroupError
 		}
