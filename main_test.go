@@ -41,13 +41,14 @@ func TestLandingPage(t *testing.T) {
 	userHandler := handler.NewUserHandler(&userService, v)
 	groupHandler := handler.NewGroupHandler(&groupService, &invitationService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
+	itemHandler := handler.NewItemHandler(&billService)
 	invitationHandler := handler.NewInvitationHandler(&invitationService)
 
 	// authenticator
 	authenticator := authentication.NewAuthenticator(&cookieStorage)
 
 	//routing
-	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *invitationHandler, *authenticator)
+	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *invitationHandler, *itemHandler, *authenticator)
 
 	// Create a new http get request on landingpage
 	req := httptest.NewRequest("GET", "/", nil)
