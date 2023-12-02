@@ -70,34 +70,83 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusCreated, SuccessMsgBillCreate, bill)
 }
 
-// AddItemToBill 		adds item to a bill.
+// AddItem 		adds item to a bill.
 //
 //	@Summary	Add Item to Bill
 //	@Tags		Bill
 //	@Accept		json
 //	@Produce	json
-//	@Param		billId	path		string				true	"Bill ID"
-//	@Param		request	body		dto.ItemCreateDTO	true	"Request Body"
+//	@Param		request	body		dto.ItemInputDTO	true	"Request Body"
 //	@Success	201		{object}	dto.GeneralResponseDTO{data=dto.ItemOutputDTO}
-//	@Router		/api/bill/{billId}/item [post]
-func (h BillHandler) AddItemToBill(c *fiber.Ctx) error {
-	// parse parameters
-	billID, err := uuid.Parse(c.Params("billId"))
-	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, c.Params("billId"), err))
-	}
-
+//	@Router		/api/bill/item [post]
+func (h BillHandler) AddItem(c *fiber.Ctx) error {
 	// parse request
-	var request ItemCreateDTO
+	var request ItemInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
 	}
 
 	// create item
-	item, err := h.billService.AddItemToBill(billID, request)
+	item, err := h.billService.AddItem(request)
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemCreate, err))
 	}
 
 	return core.Success(c, fiber.StatusCreated, SuccessMsgItemCreate, item)
+}
+
+// GetItemByID 	 gets item by ID.
+//
+//	@Summary	Get Item by ID
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"Item ID"
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.ItemOutputDTO}
+//	@Router		/api/bill/item/{id} [get]
+func (h BillHandler) GetItemByID(c *fiber.Ctx) error {
+	itemID, err := uuid.Parse(c.Params("id"))
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, c.Params("id"), err))
+	}
+
+	item, err := h.billService.GetItemByID(itemID)
+	if err != nil {
+		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgItemNotFound, err))
+	}
+
+	return core.Success(c, fiber.StatusOK, SuccesMsgItemFound, item)
+}
+
+// ChangeItem 	changes item.
+//
+//	@Summary	Change Item
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path		string				true	"Item ID"
+//	@Param		request	body		dto.ItemInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.ItemOutputDTO}
+//
+//	@Router		/api/bill/item/{id} [put]
+func (h BillHandler) ChangeItem(c *fiber.Ctx) error {
+	// parse parameters
+	itemID, err := uuid.Parse(c.Params("id"))
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, c.Params("id"), err))
+	}
+
+	// parse request
+	var request ItemInputDTO
+	if err := c.BodyParser(&request); err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
+	}
+
+	// update item
+	item, err := h.billService.ChangeItem(itemID, request)
+	if err != nil {
+		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemUpdate, err))
+	}
+
+	return core.Success(c, fiber.StatusOK, SuccessMsgItemUpdate, item)
 }

@@ -8,7 +8,7 @@ definitions:
         type: string
       items:
         items:
-          $ref: '#/definitions/dto.ItemCreateDTO'
+          $ref: '#/definitions/dto.ItemInputDTO'
         type: array
       name:
         type: string
@@ -85,18 +85,7 @@ definitions:
       issuerID:
         type: string
     type: object
-  dto.ItemCreateDTO:
-    properties:
-      contributorIDs:
-        items:
-          type: string
-        type: array
-      name:
-        type: string
-      price:
-        type: number
-    type: object
-  dto.ItemEditDTO:
+  dto.ItemInputDTO:
     properties:
       billId:
         type: string
@@ -104,8 +93,6 @@ definitions:
         items:
           type: string
         type: array
-      id:
-        type: string
       name:
         type: string
       price:
@@ -186,37 +173,6 @@ paths:
       summary: Create Bill
       tags:
       - Bill
-  /api/bill/{billId}/item:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Bill ID
-        in: path
-        name: billId
-        required: true
-        type: string
-      - description: Request Body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ItemCreateDTO'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.ItemOutputDTO'
-              type: object
-      summary: Add Item to Bill
-      tags:
-      - Bill
   /api/bill/{id}:
     get:
       consumes:
@@ -240,6 +196,87 @@ paths:
                   $ref: '#/definitions/dto.BillOutputDTO'
               type: object
       summary: Get Bill by ID
+      tags:
+      - Bill
+  /api/bill/item:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ItemInputDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ItemOutputDTO'
+              type: object
+      summary: Add Item to Bill
+      tags:
+      - Bill
+  /api/bill/item/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ItemOutputDTO'
+              type: object
+      summary: Get Item by ID
+      tags:
+      - Bill
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ItemInputDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ItemOutputDTO'
+              type: object
+      summary: Change Item
       tags:
       - Bill
   /api/group:
@@ -396,61 +433,6 @@ paths:
       summary: Get All Group Invitations From User
       tags:
       - Invitation
-  /api/item/{id}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: Item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.ItemOutputDTO'
-              type: object
-      summary: Get Item by ID
-      tags:
-      - Item
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: Item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Request Body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ItemEditDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.ItemOutputDTO'
-              type: object
-      summary: Change Item
-      tags:
-      - Item
   /api/user:
     get:
       consumes:

@@ -53,7 +53,6 @@ func main() {
 	userHandler := handler.NewUserHandler(&userService, passwordValidator)
 	groupHandler := handler.NewGroupHandler(&groupService, &invitationService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
-	itemHandler := handler.NewItemHandler(&billService)
 	invitationHandler := handler.NewInvitationHandler(&invitationService)
 
 	// setup logger
@@ -63,7 +62,7 @@ func main() {
 	authenticator := authentication.NewAuthenticator(&cookieStorage)
 
 	// routing
-	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *invitationHandler, *itemHandler, *authenticator)
+	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *invitationHandler, *authenticator)
 
 	// setup swagger
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
