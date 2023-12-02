@@ -26,16 +26,15 @@ const (
 	SuccessMsgBillCreate = "Bill created"
 
 	// Item - ERROR
-	ErrMsgItemParse            = "Could not parse item: %v"
-	ErrMsgItemCreate           = "Could not create item: %v"
-	ErrMsgUpdateContributor    = "Could not update contributors: %v"
-	ErrMsgItemContributorParse = "Could not parse contributor request: %v"
-	ErrMsgItemNotFound         = "Item not found: %v"
+	ErrMsgItemParse    = "Could not parse item: %v"
+	ErrMsgItemCreate   = "Could not create item: %v"
+	ErrMsgItemUpdate   = "Could not update item: %v"
+	ErrMsgItemNotFound = "Item not found: %v"
 
 	// Item - SUCCESS
-	SuccessMsgItemCreate        = "Item created"
-	SuccessMsgContributorUpdate = "Contributor updated"
-	SuccesMsgItemFound          = "Item found"
+	SuccessMsgItemCreate = "Item created"
+	SuccessMsgItemUpdate = "Item updated"
+	SuccesMsgItemFound   = "Item found"
 
 	// User - ERROR
 	ErrMsgUserParse            = "Could not parse user: %v"

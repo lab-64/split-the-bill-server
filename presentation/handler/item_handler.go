@@ -61,7 +61,7 @@ func (h ItemHandler) ChangeItem(c *fiber.Ctx) error {
 	// parse request
 	var request ItemEditDTO
 	if err := c.BodyParser(&request); err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemContributorParse, err))
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
 	}
 
 	if request.ID != uuid.Nil && itemID != request.ID {
@@ -71,8 +71,8 @@ func (h ItemHandler) ChangeItem(c *fiber.Ctx) error {
 	// update item
 	item, err := h.billService.ChangeItem(request)
 	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUpdateContributor, err))
+		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemUpdate, err))
 	}
 
-	return core.Success(c, fiber.StatusOK, SuccessMsgContributorUpdate, item)
+	return core.Success(c, fiber.StatusOK, SuccessMsgItemUpdate, item)
 }

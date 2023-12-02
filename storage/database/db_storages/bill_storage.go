@@ -88,14 +88,21 @@ func (b *BillStorage) UpdateItem(item ItemModel) (ItemModel, error) {
 	// run as a transaction to ensure consistency. item should be completely updated or not at all
 	err := b.DB.Transaction(func(tx *gorm.DB) error {
 		// update contributors associations
-		res := tx.Model(&Item{Base: Base{ID: itemEntity.ID}}).Association("Contributors").Replace(itemEntity.Contributors)
+		res := tx.
+			Model(&itemEntity).
+			Association("Contributors").
+			Replace(itemEntity.Contributors)
+
 		// TODO: add finer error handling
 		if res != nil {
 			return storage.NoSuchUserError
 		}
 
 		// update base item fields
-		ret := tx.Model(&itemEntity).Updates(&itemEntity)
+		ret := tx.
+			Model(&itemEntity).
+			Updates(&itemEntity)
+
 		if ret.Error != nil {
 			return storage.NoSuchItemError
 		}
