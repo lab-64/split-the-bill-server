@@ -16,21 +16,25 @@ func NewInvitationService(invitationStorage *IInvitationStorage, groupStorage *I
 	return &InvitationService{invitationStorage: *invitationStorage, groupStorage: *groupStorage}
 }
 
-func (i InvitationService) CreateGroupInvitation(request GroupInvitationInputDTO) error {
+func (i InvitationService) CreateGroupInvitations(request GroupInvitationInputDTO) ([]GroupInvitationOutputDTO, error) {
 	// get invites from request
 	invites := request.Invitees
+	var result []GroupInvitationOutputDTO
 
 	// handle group invitations for all invitees
 	for _, invitee := range invites {
 		groupInvitation := ToGroupInvitationModel(request.GroupID, invitee)
-		err := i.invitationStorage.AddGroupInvitation(groupInvitation)
+		groupInvitation, err := i.invitationStorage.AddGroupInvitation(groupInvitation)
+
+		println(groupInvitation.Group.ID.String())
 		if err != nil {
-			return err
+			return nil, err
 		}
 
+		result = append(result, ToGroupInvitationDTO(groupInvitation))
 	}
 
-	return nil
+	return result, nil
 }
 
 func (i InvitationService) GetGroupInvitationByID(invitationID UUID) (GroupInvitationOutputDTO, error) {
@@ -54,26 +58,18 @@ func (i InvitationService) GetGroupInvitationsByUser(userID UUID) ([]GroupInvita
 	return result, nil
 }
 
-// TODO: Handle consistency. AddMemberToGroup and DeleteGroupInvitation should be performed both or none.
-func (i InvitationService) AcceptGroupInvitation(invitationID UUID, userID UUID) error {
-	// TODO: is this really necessary?
-	// get group from invitation
-	invitation, err := i.invitationStorage.GetGroupInvitationByID(invitationID)
-	if err != nil {
-		return err
-	}
-	groupID := invitation.Group.ID
-	// add user to group
-	err = i.groupStorage.AddMemberToGroup(userID, groupID)
-	if err != nil {
-		return err
-	}
-	// delete invitation
-	err = i.invitationStorage.DeleteGroupInvitation(invitationID)
-	return err
-}
+func (i InvitationService) HandleGroupInvitation(invitationID UUID, isAccept bool) error {
+	//TODO: authorization
 
-func (i InvitationService) DeclineGroupInvitation(invitationID UUID) error {
-	err := i.invitationStorage.DeleteGroupInvitation(invitationID)
-	return err
+	if !isAccept {
+		if err := i.invitationStorage.DeleteGroupInvitation(invitationID); err != nil {
+			return err
+		}
+	}
+
+	if err := i.invitationStorage.AcceptGroupInvitation(invitationID); err != nil {
+		return err
+	}
+
+	return nil
 }

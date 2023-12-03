@@ -2,7 +2,7 @@ package dto
 
 import (
 	. "github.com/google/uuid"
-	"split-the-bill-server/domain/model"
+	. "split-the-bill-server/domain/model"
 )
 
 type GroupInvitationInputDTO struct {
@@ -16,16 +16,19 @@ type GroupInvitationOutputDTO struct {
 	Group        GroupOutputDTO `json:"group"`
 }
 
-type HandleInvitationInputDTO struct {
-	Issuer       UUID `json:"issuerID"`
-	InvitationID UUID `json:"invitationID"`
+type InvitationResponseInputDTO struct {
+	IsAccept bool `json:"isAccept"`
 }
 
-func ToGroupInvitationModel(groupID UUID, userID UUID) model.GroupInvitationModel {
-	return model.CreateGroupInvitation(groupID, userID)
+func ToGroupInvitationModel(groupID UUID, userID UUID) GroupInvitationModel {
+	return CreateGroupInvitation(groupID, userID)
 }
 
-func ToGroupInvitationDTO(invitation model.GroupInvitationModel) GroupInvitationOutputDTO {
+func ToGroupInvitationDTO(invitation GroupInvitationModel) GroupInvitationOutputDTO {
 	group := ToGroupDTO(invitation.Group)
-	return GroupInvitationOutputDTO{InvitationID: invitation.ID, Group: group}
+
+	return GroupInvitationOutputDTO{
+		InvitationID: invitation.ID,
+		Group:        group,
+	}
 }
