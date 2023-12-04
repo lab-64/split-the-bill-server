@@ -29,7 +29,6 @@ func (i InvitationStorage) AddGroupInvitation(invitation GroupInvitationModel) (
 		return GroupInvitationModel{}, storage.GroupInvitationAlreadyExistsError
 	}
 
-	println(groupInvitation.For.ID.String())
 	return ToGroupInvitationModel(groupInvitation), res.Error
 }
 

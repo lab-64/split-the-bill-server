@@ -26,7 +26,6 @@ func (i InvitationService) CreateGroupInvitations(request GroupInvitationInputDT
 		groupInvitation := ToGroupInvitationModel(request.GroupID, invitee)
 		groupInvitation, err := i.invitationStorage.AddGroupInvitation(groupInvitation)
 
-		println(groupInvitation.Group.ID.String())
 		if err != nil {
 			return nil, err
 		}
