@@ -71,6 +71,86 @@ func All() []Seed {
 		Members:  []*User{&user2, &user3},
 	}
 
+	// ITEMS
+	item1 := Item{
+		Base:         Base{ID: uuid.New()},
+		Name:         "Bread",
+		Price:        2.5,
+		Contributors: []*User{&user1, &user2},
+	}
+
+	item2 := Item{
+		Base:         Base{ID: uuid.New()},
+		Name:         "Milk",
+		Price:        1.5,
+		Contributors: []*User{&user1},
+	}
+
+	item3 := Item{
+		Base:         Base{ID: uuid.New()},
+		Name:         "Miete",
+		Price:        1050,
+		Contributors: []*User{&user1, &user2, &user3},
+	}
+
+	item4 := Item{
+		Base:         Base{ID: uuid.New()},
+		Name:         "Sunscreen",
+		Price:        10.0,
+		Contributors: []*User{&user1, &user2},
+	}
+
+	item5 := Item{
+		Base:         Base{ID: uuid.New()},
+		Name:         "Beach Towels",
+		Price:        15.0,
+		Contributors: []*User{&user1, &user2},
+	}
+
+	item6 := Item{
+		Base:         Base{ID: uuid.New()},
+		Name:         "Snorkel Gear",
+		Price:        25.0,
+		Contributors: []*User{&user2},
+	}
+
+	// BILLS
+	bill1 := Bill{
+		Base:    Base{ID: uuid.New()},
+		OwnerID: user1.ID,
+		Name:    "Groceries",
+		Date:    time.Now(),
+		Items:   []Item{item1, item2},
+		GroupID: group1.ID,
+	}
+
+	bill2 := Bill{
+		Base:    Base{ID: uuid.New()},
+		OwnerID: user1.ID,
+		Name:    "Miete",
+		Date:    time.Now(),
+		Items:   []Item{item3},
+		GroupID: group1.ID,
+	}
+
+	bill3 := Bill{
+		Base:    Base{ID: uuid.New()},
+		OwnerID: user1.ID,
+		Name:    "Beach Trip Expenses",
+		Date:    time.Now().AddDate(0, 0, 10),
+		Items:   []Item{item4, item5},
+		GroupID: group2.ID,
+	}
+
+	bill4 := Bill{
+		Base:    Base{ID: uuid.New()},
+		OwnerID: user2.ID,
+		Name:    "Water Sports",
+		Date:    time.Now().AddDate(0, 0, 15),
+		Items:   []Item{item6},
+		GroupID: group2.ID,
+	}
+
 	// INVITATIONS
 	invitation1 := GroupInvitation{
 		Base:      Base{ID: uuid.New()},
@@ -118,6 +198,16 @@ func All() []Seed {
 				err := db.Create(&group1).Error
 				err = db.Create(&group2).Error
 				err = db.Create(&group3).Error
+				return err
+			},
+		},
+		{
+			Name: "CreateBills",
+			Run: func(db *DB) error {
+				err := db.Create(&bill1).Error
+				err = db.Create(&bill2).Error
+				err = db.Create(&bill3).Error
+				err = db.Create(&bill4).Error
 				return err
 			},
 		},
