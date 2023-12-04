@@ -52,9 +52,9 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgGroupCreate, group)
 }
 
-// Get 			func get group
+// GetByID returns the group with the given ID.
 //
-//	@Summary	Get Group
+//	@Summary	Get Group by ID
 //	@Tags		Group
 //	@Accept		json
 //	@Produce	json
@@ -63,7 +63,7 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 //	@Router		/api/group/{id} [get]
 //
 // TODO: maybe delete, or add authentication and allow only query of own groups
-func (h GroupHandler) Get(c *fiber.Ctx) error {
+func (h GroupHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
@@ -80,4 +80,35 @@ func (h GroupHandler) Get(c *fiber.Ctx) error {
 	}
 
 	return core.Success(c, fiber.StatusOK, SuccessMsgGroupFound, group)
+}
+
+// GetAllByUser returns all groups filtered by user.
+//
+//	@Summary	Get Groups by User
+//	@Tags		Group
+//	@Accept		json
+//	@Produce	json
+//	@Param		userId	query		string	true	"User Id"
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.GroupOutputDTO}
+//	@Router		/api/group [get]
+func (h GroupHandler) GetAllByUser(c *fiber.Ctx) error {
+	userID := c.Query("userId")
+
+	if userID == "" {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "userId"))
+	}
+
+	uid, err := uuid.Parse(userID)
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, userID, err))
+	}
+
+	groups, err := h.groupService.GetAllByUser(uid)
+
+	if err != nil {
+		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGetUserGroups, err))
+	}
+
+	return core.Success(c, fiber.StatusOK, SuccessMsgGroupsFound, groups)
+
 }

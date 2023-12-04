@@ -14,7 +14,7 @@ type UserOutputDTO struct {
 	ID          uuid.UUID        `json:"id"`
 	Email       string           `json:"email"`
 	Groups      []GroupOutputDTO `json:"groups"`
-	Invitations []uuid.UUID      `json:"invitations"`
+	Invitations []uuid.UUID      `json:"invitationIDs"`
 }
 
 func ToUserModel(r UserInputDTO) UserModel {

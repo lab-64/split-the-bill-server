@@ -117,7 +117,7 @@ func (u *UserStorage) HandleInvitation(invitationType string, userID uuid.UUID, 
 		return u.handleGroupInvitation(user, invitationID, accept)
 	}
 	// TODO: handle further invitation replies
-	return storage.InvitationNotFoundError
+	return storage.NoSuchGroupInvitationError
 }
 
 // handleGroupInvitation handles the reply to a group invitation. If the invitation gets accepted, the user gets added to the group and the invitations gets deleted.
