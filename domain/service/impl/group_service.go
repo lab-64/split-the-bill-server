@@ -46,12 +46,7 @@ func (g *GroupService) GetByID(id UUID) (GroupOutputDTO, error) {
 	return ToGroupDTO(group), nil
 }
 
-func (g *GroupService) GetByUserID(userID UUID) ([]GroupOutputDTO, error) {
-	_, err := g.userStorage.GetByID(userID)
-	if err != nil {
-		return nil, err
-	}
-
+func (g *GroupService) GetAllByUser(userID UUID) ([]GroupOutputDTO, error) {
 	groups, err := g.groupStorage.GetGroupsByUserID(userID)
 	if err != nil {
 		return nil, err

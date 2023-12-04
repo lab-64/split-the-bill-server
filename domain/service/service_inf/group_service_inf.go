@@ -10,5 +10,5 @@ type IGroupService interface {
 
 	GetByID(id UUID) (GroupOutputDTO, error)
 
-	GetByUserID(userID UUID) ([]GroupOutputDTO, error)
+	GetAllByUser(userID UUID) ([]GroupOutputDTO, error)
 }

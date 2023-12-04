@@ -103,7 +103,7 @@ func (h GroupHandler) GetAllByUser(c *fiber.Ctx) error {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, userID, err))
 	}
 
-	groups, err := h.groupService.GetByUserID(uid)
+	groups, err := h.groupService.GetAllByUser(uid)
 
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGetUserGroups, err))
