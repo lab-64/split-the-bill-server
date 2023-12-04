@@ -11,9 +11,11 @@ const (
 	ErrMsgGroupParse    = "Could not parse group: %v"
 	ErrMsgGroupCreate   = "Could not create group: %v"
 	ErrMsgGroupNotFound = "Group not found: %v"
+	ErrMsgGetUserGroups = "Could not load user groups: %v"
 
 	// Group - SUCCESS
 	SuccessMsgGroupFound  = "Group found"
+	SuccessMsgGroupsFound = "Groups found"
 	SuccessMsgGroupCreate = "Group created"
 
 	// Bill - ERROR

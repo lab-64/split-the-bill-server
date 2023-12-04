@@ -35,7 +35,7 @@ func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupOutputDTO, error) {
 		return GroupOutputDTO{}, err
 	}
 
-	return ToGroupDTO(group), err
+	return ToGroupDTO(group), nil
 }
 
 func (g *GroupService) GetByID(id UUID) (GroupOutputDTO, error) {
@@ -43,5 +43,19 @@ func (g *GroupService) GetByID(id UUID) (GroupOutputDTO, error) {
 	if err != nil {
 		return GroupOutputDTO{}, err
 	}
-	return ToGroupDTO(group), err
+	return ToGroupDTO(group), nil
+}
+
+func (g *GroupService) GetAllByUser(userID UUID) ([]GroupOutputDTO, error) {
+	groups, err := g.groupStorage.GetGroupsByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	groupsDTO := make([]GroupOutputDTO, len(groups))
+	for i := range groups {
+		groupsDTO[i] = ToGroupDTO(groups[i])
+	}
+
+	return groupsDTO, nil
 }
