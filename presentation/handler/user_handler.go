@@ -86,32 +86,31 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgUserDelete, nil)
 }
 
-// Register 	parses a dto.UserInputDTO from the request body, compares and validates both passwords and adds a new user to the userStorage.
+// Create 	parses a dto.UserInputDTO from the request body, compares and validates both passwords and creates a new user.
 //
-//	@Summary	Register User
+//	@Summary	Create User
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
 //	@Param		request	body		dto.UserInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO
-//	@Router		/api/user/register [post]
-func (h UserHandler) Register(c *fiber.Ctx) error {
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserOutputDTO}
+//	@Router		/api/user [post]
+func (h UserHandler) Create(c *fiber.Ctx) error {
 	var request UserInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
 
-	err := h.passwordValidator.ValidatePassword(request.Password)
-	if err != nil {
+	if err := h.passwordValidator.ValidatePassword(request.Password); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBadPassword, err))
 	}
 
-	user, err := h.userService.Register(request)
+	user, err := h.userService.Create(request)
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserCreate, err))
 	}
 
-	return core.Success(c, fiber.StatusOK, SuccessMsgUserCreate, user.ID)
+	return core.Success(c, fiber.StatusCreated, SuccessMsgUserCreate, user)
 }
 
 // Login 		func login user

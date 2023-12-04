@@ -48,14 +48,14 @@ func (u *UserService) GetByID(id UUID) (UserOutputDTO, error) {
 	return ToUserDTO(&user), err
 }
 
-func (u *UserService) Register(userDTO UserInputDTO) (UserOutputDTO, error) {
+func (u *UserService) Create(userDTO UserInputDTO) (UserOutputDTO, error) {
 	user := ToUserModel(userDTO)
 	passwordHash, err := authentication.HashPassword(userDTO.Password)
 	if err != nil {
 		return UserOutputDTO{}, err
 	}
 
-	err = u.userStorage.Create(user, passwordHash)
+	user, err = u.userStorage.Create(user, passwordHash)
 	if err != nil {
 		return UserOutputDTO{}, err
 	}
