@@ -3,6 +3,7 @@ package db_storages
 import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	. "split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database"
@@ -42,6 +43,21 @@ func (g *GroupStorage) GetGroupByID(id uuid.UUID) (GroupModel, error) {
 		return GroupModel{}, storage.NoSuchGroupError
 	}
 	return ToGroupModel(&group), nil
+}
+
+func (g *GroupStorage) GetGroupsByUserID(userID uuid.UUID) ([]GroupModel, error) {
+	var groups []Group
+
+	tx := g.DB.
+		Preload(clause.Associations).
+		Where("id IN (SELECT group_id FROM group_members WHERE user_id = ?)", userID).
+		Find(&groups)
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return ToGroupModelSlice(groups), nil
 }
 
 func (g *GroupStorage) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) error {
