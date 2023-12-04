@@ -9,6 +9,7 @@ type UserModel struct {
 	Email                   string
 	PendingGroupInvitations []GroupInvitationModel
 	Groups                  []GroupModel
+	Items                   []ItemModel
 }
 
 func CreateUserModel(email string) UserModel {
