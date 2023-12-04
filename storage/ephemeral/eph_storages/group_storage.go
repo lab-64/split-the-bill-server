@@ -62,7 +62,7 @@ func (g *GroupStorage) AddBillToGroup(bill *model.BillModel, groupID uuid.UUID) 
 	}
 
 	// change group
-	group.Bills = append(group.Bills, *bill)
+	group.Bills = append(group.Bills, bill.ID)
 	g.e.Groups[group.ID] = group
 	return nil
 }
