@@ -39,8 +39,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "allOf": [
                                 {
@@ -84,10 +84,115 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ItemOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/bill/item/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bill"
+                ],
+                "summary": "Get Item by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ItemOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bill"
+                ],
+                "summary": "Change Item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ItemInputDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ItemOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -108,7 +213,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bill Id",
+                        "description": "Bill ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -137,6 +242,47 @@ const docTemplate = `{
             }
         },
         "/api/group": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Group"
+                ],
+                "summary": "Get Groups by User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Id",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GroupOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -192,7 +338,7 @@ const docTemplate = `{
                 "tags": [
                     "Group"
                 ],
-                "summary": "Get Group",
+                "summary": "Get Group by ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -658,6 +804,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "ownerID": {
+                    "type": "string"
                 }
             }
         },
@@ -760,6 +909,12 @@ const docTemplate = `{
                 "billId": {
                     "type": "string"
                 },
+                "contributorIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "name": {
                     "type": "string"
                 },
@@ -771,6 +926,15 @@ const docTemplate = `{
         "dto.ItemOutputDTO": {
             "type": "object",
             "properties": {
+                "billId": {
+                    "type": "string"
+                },
+                "contributorIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "id": {
                     "type": "string"
                 },

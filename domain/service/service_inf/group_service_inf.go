@@ -9,4 +9,6 @@ type IGroupService interface {
 	Create(groupDTO GroupInputDTO) (GroupOutputDTO, error)
 
 	GetByID(id UUID) (GroupOutputDTO, error)
+
+	GetAllByUser(userID UUID) ([]GroupOutputDTO, error)
 }

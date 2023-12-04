@@ -12,6 +12,9 @@ type IGroupStorage interface {
 	// GetGroupByID returns the group with the given ID, or a NoSuchGroupError if no such group exists.
 	GetGroupByID(id UUID) (GroupModel, error)
 
+	// GetGroupsByUserID returns all groups for the user with the given ID.
+	GetGroupsByUserID(userID UUID) ([]GroupModel, error)
+
 	// AddBillToGroup adds the given bill to the group with the given ID. If the group does not exist, a NoSuchGroupError is returned.
 	AddBillToGroup(bill *BillModel, groupID UUID) error
 }

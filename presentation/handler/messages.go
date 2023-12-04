@@ -2,17 +2,20 @@ package handler
 
 const (
 	// Generic error messages
-	ErrMsgParameterRequired = "Parameter %s is required"
-	ErrMsgParseUUID         = "Could not parse uuid: %s, error: %v"
-	ErrMsgInputsInvalid     = "Inputs invalid: %v"
+	ErrMsgParameterRequired   = "Parameter %s is required"
+	ErrMsgParseUUID           = "Could not parse uuid: %s, error: %v"
+	ErrMsgInputsInvalid       = "Inputs invalid: %v"
+	ErrMsgParamMismatchFormat = "%s in URL does not match with the request body"
 
 	// Group - ERROR
 	ErrMsgGroupParse    = "Could not parse group: %v"
 	ErrMsgGroupCreate   = "Could not create group: %v"
 	ErrMsgGroupNotFound = "Group not found: %v"
+	ErrMsgGetUserGroups = "Could not load user groups: %v"
 
 	// Group - SUCCESS
 	SuccessMsgGroupFound  = "Group found"
+	SuccessMsgGroupsFound = "Groups found"
 	SuccessMsgGroupCreate = "Group created"
 
 	// Bill - ERROR
@@ -25,11 +28,15 @@ const (
 	SuccessMsgBillCreate = "Bill created"
 
 	// Item - ERROR
-	ErrMsgItemParse  = "Could not parse item: %v"
-	ErrMsgItemCreate = "Could not create item: %v"
+	ErrMsgItemParse    = "Could not parse item: %v"
+	ErrMsgItemCreate   = "Could not create item: %v"
+	ErrMsgItemUpdate   = "Could not update item: %v"
+	ErrMsgItemNotFound = "Item not found: %v"
 
 	// Item - SUCCESS
 	SuccessMsgItemCreate = "Item created"
+	SuccessMsgItemUpdate = "Item updated"
+	SuccesMsgItemFound   = "Item found"
 
 	// User - ERROR
 	ErrMsgUserParse            = "Could not parse user: %v"
