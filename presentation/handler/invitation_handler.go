@@ -27,12 +27,16 @@ func NewInvitationHandler(invitationService *IInvitationService) *InvitationHand
 //	@Success	200	{object}	dto.GeneralResponseDTO{data=GroupInvitationOutputDTO}
 //	@Router		/api/invitation/{id} [get]
 func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
-	id, err := uuid.Parse(c.Params("id"))
+	id := c.Params("id")
+	if id == "" {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	uid, err := uuid.Parse(id)
 	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, c.Params("id"), err))
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
 
-	invitation, err := h.invitationService.GetGroupInvitationByID(id)
+	invitation, err := h.invitationService.GetGroupInvitationByID(uid)
 	if err != nil {
 		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
 	}
@@ -49,11 +53,16 @@ func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
 //	@Success	200	{object}	dto.GeneralResponseDTO{data=[]GroupInvitationOutputDTO}
 //	@Router		/api/invitation/user/{id} [get]
 func (h InvitationHandler) GetAllByUser(c *fiber.Ctx) error {
-	id, err := uuid.Parse(c.Params("id"))
-	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, c.Params("id"), err))
+	id := c.Params("id")
+	if id == "" {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
-	invitations, err := h.invitationService.GetGroupInvitationsByUser(id)
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
+	}
+
+	invitations, err := h.invitationService.GetGroupInvitationsByUser(uid)
 	println(invitations)
 	if err != nil {
 		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
@@ -97,9 +106,13 @@ func (h InvitationHandler) Create(c *fiber.Ctx) error {
 //	@Success	200		{object}	dto.GeneralResponseDTO
 //	@Router		/api/invitation/{id}/response [post]
 func (h InvitationHandler) HandleInvitation(c *fiber.Ctx) error {
-	id, err := uuid.Parse(c.Params("id"))
+	id := c.Params("id")
+	if id == "" {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	uid, err := uuid.Parse(id)
 	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, c.Params("id"), err))
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
 
 	// parse request
@@ -109,7 +122,7 @@ func (h InvitationHandler) HandleInvitation(c *fiber.Ctx) error {
 	}
 
 	// handle invitation
-	if err := h.invitationService.HandleGroupInvitation(id, request.IsAccept); err != nil {
+	if err := h.invitationService.HandleGroupInvitation(uid, request.IsAccept); err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
 	}
 
