@@ -28,12 +28,17 @@ func NewBillHandler(billService *IBillService, groupService *IGroupService) *Bil
 //	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.BillOutputDTO}
 //	@Router		/api/bill/{id} [get]
 func (h BillHandler) GetByID(c *fiber.Ctx) error {
-	id, err := uuid.Parse(c.Params("id"))
-	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, c.Params("id"), err))
+	id := c.Params("id")
+	if id == "" {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 
-	bill, err := h.billService.GetByID(id)
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+	}
+
+	bill, err := h.billService.GetByID(uid)
 	if err != nil {
 		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgBillNotFound, err))
 	}
@@ -105,12 +110,17 @@ func (h BillHandler) AddItem(c *fiber.Ctx) error {
 //	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.ItemOutputDTO}
 //	@Router		/api/bill/item/{id} [get]
 func (h BillHandler) GetItemByID(c *fiber.Ctx) error {
-	itemID, err := uuid.Parse(c.Params("id"))
-	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, c.Params("id"), err))
+	id := c.Params("id")
+	if id == "" {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 
-	item, err := h.billService.GetItemByID(itemID)
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+	}
+
+	item, err := h.billService.GetItemByID(uid)
 	if err != nil {
 		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgItemNotFound, err))
 	}
@@ -131,9 +141,14 @@ func (h BillHandler) GetItemByID(c *fiber.Ctx) error {
 //	@Router		/api/bill/item/{id} [put]
 func (h BillHandler) ChangeItem(c *fiber.Ctx) error {
 	// parse parameters
-	itemID, err := uuid.Parse(c.Params("id"))
+	id := c.Params("id")
+	if id == "" {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+
+	uid, err := uuid.Parse(id)
 	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, c.Params("id"), err))
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
 
 	// parse request
@@ -143,7 +158,7 @@ func (h BillHandler) ChangeItem(c *fiber.Ctx) error {
 	}
 
 	// update item
-	item, err := h.billService.ChangeItem(itemID, request)
+	item, err := h.billService.ChangeItem(uid, request)
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemUpdate, err))
 	}

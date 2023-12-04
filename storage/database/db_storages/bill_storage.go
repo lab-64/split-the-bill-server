@@ -87,6 +87,20 @@ func (b *BillStorage) UpdateItem(item ItemModel) (ItemModel, error) {
 
 	// run as a transaction to ensure consistency. item should be completely updated or not at all
 	err := b.DB.Transaction(func(tx *gorm.DB) error {
+		// update base item fields
+		ret := tx.
+			Model(&itemEntity).
+			Updates(&itemEntity)
+
+		if ret.RowsAffected == 0 {
+			return storage.NoSuchItemError
+		}
+
+		// TODO: add finer error handling
+		if ret.Error != nil {
+			return ret.Error
+		}
+
 		// update contributors associations
 		res := tx.
 			Model(&itemEntity).
@@ -96,15 +110,6 @@ func (b *BillStorage) UpdateItem(item ItemModel) (ItemModel, error) {
 		// TODO: add finer error handling
 		if res != nil {
 			return storage.NoSuchUserError
-		}
-
-		// update base item fields
-		ret := tx.
-			Model(&itemEntity).
-			Updates(&itemEntity)
-
-		if ret.Error != nil {
-			return storage.NoSuchItemError
 		}
 
 		return nil
