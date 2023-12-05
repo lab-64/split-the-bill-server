@@ -7,7 +7,7 @@ import (
 
 type IGroupStorage interface {
 	// AddGroup adds the given group to the storage. If a group with the same ID or name already exists, a GroupAlreadyExistsError is returned.
-	AddGroup(group GroupModel) error
+	AddGroup(group GroupModel) (GroupModel, error)
 
 	// GetGroupByID returns the group with the given ID, or a NoSuchGroupError if no such group exists.
 	GetGroupByID(id UUID) (GroupModel, error)

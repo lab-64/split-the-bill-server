@@ -523,7 +523,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.InvitationResponseDTO"
+                            "$ref": "#/definitions/dto.InvitationResponseInputDTO"
                         }
                     }
                 ],
@@ -822,10 +822,10 @@
         "dto.GroupOutputDTO": {
             "type": "object",
             "properties": {
-                "billIDs": {
+                "bills": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dto.BillOutputDTO"
                     }
                 },
                 "id": {
@@ -845,7 +845,7 @@
                 }
             }
         },
-        "dto.InvitationResponseDTO": {
+        "dto.InvitationResponseInputDTO": {
             "type": "object",
             "properties": {
                 "isAccept": {
