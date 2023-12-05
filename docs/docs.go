@@ -690,7 +690,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User Username",
+                        "description": "User Id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -701,49 +701,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.GeneralResponseDTO"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/user/{username}": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Get User by username",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User Username",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.UserOutputDTO"
-                                        }
-                                    }
-                                }
-                            ]
                         }
                     }
                 }
@@ -800,10 +757,10 @@ const docTemplate = `{
         "dto.CredentialsInputDTO": {
             "type": "object",
             "properties": {
-                "password": {
+                "email": {
                     "type": "string"
                 },
-                "username": {
+                "password": {
                     "type": "string"
                 }
             }
@@ -931,13 +888,7 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "string"
-                },
                 "password": {
-                    "type": "string"
-                },
-                "username": {
                     "type": "string"
                 }
             }
@@ -962,9 +913,6 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         }

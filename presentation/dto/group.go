@@ -19,8 +19,8 @@ type GroupOutputDTO struct {
 	Bills   []UUID `json:"billIDs"`
 }
 
-func ToGroupModel(g GroupInputDTO, members []UUID) GroupModel {
-	return CreateGroupModel(g.Owner, g.Name, members)
+func ToGroupModel(g GroupInputDTO) GroupModel {
+	return CreateGroupModel(g.Owner, g.Name, []UUID{g.Owner})
 }
 
 func ToGroupDTO(g GroupModel) GroupOutputDTO {

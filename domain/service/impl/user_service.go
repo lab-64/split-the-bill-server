@@ -48,15 +48,6 @@ func (u *UserService) GetByID(id UUID) (UserOutputDTO, error) {
 	return ToUserDTO(&user), err
 }
 
-func (u *UserService) GetByUsername(username string) (UserOutputDTO, error) {
-	user, err := u.userStorage.GetByUsername(username)
-	if err != nil {
-		return UserOutputDTO{}, err
-	}
-
-	return ToUserDTO(&user), err
-}
-
 func (u *UserService) Register(userDTO UserInputDTO) (UserOutputDTO, error) {
 	user := ToUserModel(userDTO)
 	passwordHash, err := authentication.HashPassword(userDTO.Password)
@@ -74,7 +65,7 @@ func (u *UserService) Register(userDTO UserInputDTO) (UserOutputDTO, error) {
 
 func (u *UserService) Login(credentials CredentialsInputDTO) (fiber.Cookie, error) {
 	// Log-in user, get authentication cookie
-	user, err := u.userStorage.GetByUsername(credentials.Username)
+	user, err := u.userStorage.GetByEmail(credentials.Email)
 	if err != nil {
 		return fiber.Cookie{}, err
 	}

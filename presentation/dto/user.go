@@ -6,22 +6,19 @@ import (
 )
 
 type UserInputDTO struct {
-	ID       uuid.UUID `json:"id" `
-	Username string    `json:"username"`
-	Email    string    `json:"email"`
-	Password string    `json:"password"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type UserOutputDTO struct {
 	ID          uuid.UUID        `json:"id"`
-	Username    string           `json:"username"`
 	Email       string           `json:"email"`
 	Groups      []GroupOutputDTO `json:"groups"`
 	Invitations []uuid.UUID      `json:"invitationIDs"`
 }
 
 func ToUserModel(r UserInputDTO) UserModel {
-	return CreateUserModel(r.Username, r.Email)
+	return CreateUserModel(r.Email)
 }
 
 func ToUserDTO(u *UserModel) UserOutputDTO {
@@ -39,7 +36,6 @@ func ToUserDTO(u *UserModel) UserOutputDTO {
 
 	return UserOutputDTO{
 		ID:          u.ID,
-		Username:    u.Username,
 		Email:       u.Email,
 		Groups:      groupsDTO,
 		Invitations: invitations,
