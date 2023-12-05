@@ -32,9 +32,9 @@ definitions:
     type: object
   dto.CredentialsInputDTO:
     properties:
-      password:
+      email:
         type: string
-      username:
+      password:
         type: string
     type: object
   dto.GeneralResponseDTO:
@@ -61,6 +61,13 @@ definitions:
       issuerID:
         type: string
     type: object
+  dto.GroupInvitationOutputDTO:
+    properties:
+      group:
+        $ref: '#/definitions/dto.GroupOutputDTO'
+      invitationID:
+        type: string
+    type: object
   dto.GroupOutputDTO:
     properties:
       billIDs:
@@ -78,12 +85,10 @@ definitions:
       ownerID:
         type: string
     type: object
-  dto.HandleInvitationInputDTO:
+  dto.InvitationResponseDTO:
     properties:
-      invitationID:
-        type: string
-      issuerID:
-        type: string
+      isAccept:
+        type: boolean
     type: object
   dto.ItemInputDTO:
     properties:
@@ -117,11 +122,7 @@ definitions:
     properties:
       email:
         type: string
-      id:
-        type: string
       password:
-        type: string
-      username:
         type: string
     type: object
   dto.UserOutputDTO:
@@ -138,8 +139,6 @@ definitions:
         items:
           type: string
         type: array
-      username:
-        type: string
     type: object
 host: localhost:8080
 info:
@@ -371,7 +370,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GeneralResponseDTO'
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupInvitationOutputDTO'
+              type: object
       summary: Create Group Invitation
       tags:
       - Invitation
@@ -391,21 +395,31 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GeneralResponseDTO'
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupInvitationOutputDTO'
+              type: object
       summary: Get Group Invitation By ID
       tags:
       - Invitation
-  /api/invitation/accept:
+  /api/invitation/{id}/response:
     post:
       consumes:
       - application/json
       parameters:
+      - description: Invitation ID
+        in: path
+        name: id
+        required: true
+        type: string
       - description: Request Body
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.HandleInvitationInputDTO'
+          $ref: '#/definitions/dto.InvitationResponseDTO'
       produces:
       - application/json
       responses:
@@ -413,28 +427,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.GeneralResponseDTO'
-      summary: Accept Group Invitation
-      tags:
-      - Invitation
-  /api/invitation/decline:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Request Body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.HandleInvitationInputDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.GeneralResponseDTO'
-      summary: Decline Group Invitation
+      summary: Accept or decline Group Invitation
       tags:
       - Invitation
   /api/invitation/user/{id}:
@@ -453,7 +446,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GeneralResponseDTO'
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.GroupInvitationOutputDTO'
+                  type: array
+              type: object
       summary: Get All Group Invitations From User
       tags:
       - Invitation
@@ -483,7 +483,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: User Username
+      - description: User Id
         in: path
         name: id
         required: true
@@ -520,31 +520,6 @@ paths:
                   $ref: '#/definitions/dto.UserOutputDTO'
               type: object
       summary: Get User by ID
-      tags:
-      - User
-  /api/user/{username}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: User Username
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.UserOutputDTO'
-              type: object
-      summary: Get User by username
       tags:
       - User
   /api/user/login:

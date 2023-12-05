@@ -6,31 +6,19 @@ import (
 
 type UserModel struct {
 	ID                      uuid.UUID
-	Username                string
 	Email                   string
 	PendingGroupInvitations []GroupInvitationModel
 	Groups                  []GroupModel
 	Items                   []ItemModel
 }
 
-func NewUser(username string) UserModel {
+func CreateUserModel(email string) UserModel {
 	return UserModel{
-		ID:       uuid.New(),
-		Username: username,
-	}
-}
-
-func CreateUserModel(username string, email string) UserModel {
-	return UserModel{
-		ID:                      uuid.New(),
-		Username:                username,
-		Email:                   email,
-		PendingGroupInvitations: make([]GroupInvitationModel, 0),
-		Groups:                  make([]GroupModel, 0),
-		Items:                   make([]ItemModel, 0),
+		ID:    uuid.New(),
+		Email: email,
 	}
 }
 
 func (u UserModel) Equals(other UserModel) bool {
-	return u.ID == other.ID && u.Username == other.Username
+	return u.ID == other.ID && u.Email == other.Email
 }

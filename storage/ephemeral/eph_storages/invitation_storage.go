@@ -11,6 +11,11 @@ type InvitationStorage struct {
 	e *ephemeral.Ephemeral
 }
 
+func (i InvitationStorage) DeleteGroupInvitation(id uuid.UUID) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func NewInvitationStorage(ephemeral *ephemeral.Ephemeral) storage_inf.IInvitationStorage {
 	return &InvitationStorage{e: ephemeral}
 }
@@ -25,12 +30,12 @@ func (i InvitationStorage) GetGroupInvitationsByUserID(userID uuid.UUID) ([]mode
 	panic("implement me")
 }
 
-func (i InvitationStorage) AddGroupInvitation(invitation model.GroupInvitationModel) error {
+func (i InvitationStorage) AcceptGroupInvitation(id uuid.UUID) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (i InvitationStorage) DeleteGroupInvitation(id uuid.UUID) error {
+func (i InvitationStorage) AddGroupInvitation(invitation model.GroupInvitationModel) (model.GroupInvitationModel, error) {
 	//TODO implement me
 	panic("implement me")
 }

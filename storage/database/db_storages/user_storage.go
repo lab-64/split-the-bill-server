@@ -53,10 +53,10 @@ func (u *UserStorage) GetByID(id uuid.UUID) (UserModel, error) {
 	return ToUserModel(user), nil
 }
 
-func (u *UserStorage) GetByUsername(username string) (UserModel, error) {
+func (u *UserStorage) GetByEmail(email string) (UserModel, error) {
 	var user User
 	// TODO: Verify that this is in fact not injectable
-	tx := u.DB.Take(&user, "username = ?", username)
+	tx := u.DB.Take(&user, "email = ?", email)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return UserModel{}, storage.NoSuchUserError

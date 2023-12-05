@@ -18,19 +18,11 @@ func NewGroupService(groupStorage *IGroupStorage, userStorage *IUserStorage) IGr
 
 func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupOutputDTO, error) {
 
-	// TODO: get user id from authenticated user
-	// TODO: delete, just for testing
-	user, err := g.userStorage.GetByUsername("felix")
-	if err != nil {
-		return GroupOutputDTO{}, err
-	}
-	groupDTO.Owner = user.ID
-
 	// create group with the only member being the owner
-	group := ToGroupModel(groupDTO, []UUID{user.ID})
+	group := ToGroupModel(groupDTO)
 
 	// store group in db
-	err = g.groupStorage.AddGroup(group)
+	err := g.groupStorage.AddGroup(group)
 	if err != nil {
 		return GroupOutputDTO{}, err
 	}
