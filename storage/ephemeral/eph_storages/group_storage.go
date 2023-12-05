@@ -53,20 +53,6 @@ func (g *GroupStorage) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) e
 	return nil
 }
 
-func (g *GroupStorage) AddBillToGroup(bill *model.BillModel, groupID uuid.UUID) error {
-	g.e.Lock.Lock()
-	defer g.e.Lock.Unlock()
-	group, exists := g.e.Groups[groupID]
-	if !exists {
-		return storage.NoSuchGroupError
-	}
-
-	// change group
-	group.Bills = append(group.Bills, bill.ID)
-	g.e.Groups[group.ID] = group
-	return nil
-}
-
 func (g *GroupStorage) GetGroupsByUserID(userID uuid.UUID) ([]model.GroupModel, error) {
 	//TODO implement me
 	panic("implement me")

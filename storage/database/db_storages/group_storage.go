@@ -59,20 +59,3 @@ func (g *GroupStorage) GetGroupsByUserID(userID uuid.UUID) ([]GroupModel, error)
 
 	return ToGroupModelSlice(groups), nil
 }
-
-func (g *GroupStorage) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) error {
-
-	group := Group{Base: Base{ID: groupID}}
-	// update group members
-	err := g.DB.Model(&group).Association("Members").Append(&User{Base: Base{ID: memberID}})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (g *GroupStorage) AddBillToGroup(bill *BillModel, groupID uuid.UUID) error {
-	//TODO implement me
-	panic("implement me")
-}
