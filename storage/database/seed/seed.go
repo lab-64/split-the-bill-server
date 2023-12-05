@@ -177,47 +177,79 @@ func All() []Seed {
 		{
 			Name: "CreateUsers",
 			Run: func(db *DB) error {
-				err := db.Create(&user1).Error
-				err = db.Create(&user2).Error
-				err = db.Create(&user3).Error
-				return err
+				if err := db.Create(&user1).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&user2).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&user3).Error; err != nil {
+					return err
+				}
+				return nil
 			},
 		},
 		{
 			Name: "CreateCredentials",
 			Run: func(db *DB) error {
-				err := db.Create(&credentials1).Error
-				err = db.Create(&credentials2).Error
-				err = db.Create(&credentials3).Error
-				return err
+				if err := db.Create(&credentials1).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&credentials2).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&credentials3).Error; err != nil {
+					return err
+				}
+				return nil
 			},
 		},
 		{
 			Name: "CreateGroups",
 			Run: func(db *DB) error {
-				err := db.Create(&group1).Error
-				err = db.Create(&group2).Error
-				err = db.Create(&group3).Error
-				return err
+				if err := db.Create(&group1).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&group2).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&group3).Error; err != nil {
+					return err
+				}
+				return nil
 			},
 		},
 		{
 			Name: "CreateBills",
 			Run: func(db *DB) error {
-				err := db.Create(&bill1).Error
-				err = db.Create(&bill2).Error
-				err = db.Create(&bill3).Error
-				err = db.Create(&bill4).Error
-				return err
+				if err := db.Create(&bill1).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&bill2).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&bill3).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&bill4).Error; err != nil {
+					return err
+				}
+				return nil
 			},
 		},
 		{
 			Name: "CreateGroupInvitations",
 			Run: func(db *DB) error {
-				err := db.Create(&invitation1).Error
-				err = db.Create(&invitation2).Error
-				err = db.Create(&invitation3).Error
-				return err
+				if err := db.Create(&invitation1).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&invitation2).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&invitation3).Error; err != nil {
+					return err
+				}
+				return nil
 			},
 		},
 	}
