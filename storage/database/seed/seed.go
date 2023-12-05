@@ -17,18 +17,18 @@ func All() []Seed {
 
 	// USERS
 	user1 := User{
-		Base:     Base{ID: uuid.New()},
-		Username: "Felix",
+		Base:  Base{ID: uuid.New()},
+		Email: "felix@gmail.com",
 	}
 
 	user2 := User{
-		Base:     Base{ID: uuid.New()},
-		Username: "User2",
+		Base:  Base{ID: uuid.New()},
+		Email: "marivn@gmail.com",
 	}
 
 	user3 := User{
-		Base:     Base{ID: uuid.New()},
-		Username: "User3",
+		Base:  Base{ID: uuid.New()},
+		Email: "jan@gmail.com",
 	}
 
 	// CREDENTIALS
