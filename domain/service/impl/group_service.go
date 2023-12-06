@@ -22,7 +22,7 @@ func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupOutputDTO, error) {
 	group := ToGroupModel(groupDTO)
 
 	// store group in db
-	err := g.groupStorage.AddGroup(group)
+	group, err := g.groupStorage.AddGroup(group)
 	if err != nil {
 		return GroupOutputDTO{}, err
 	}

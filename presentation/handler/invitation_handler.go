@@ -101,7 +101,7 @@ func (h InvitationHandler) Create(c *fiber.Ctx) error {
 //	@Tags		Invitation
 //	@Accept		json
 //	@Produce	json
-//	@Param		id		path		string						true	"Invitation ID"
+//	@Param		id		path		string							true	"Invitation ID"
 //	@Param		request	body		dto.InvitationResponseInputDTO	true	"Request Body"
 //	@Success	200		{object}	dto.GeneralResponseDTO
 //	@Router		/api/invitation/{id}/response [post]

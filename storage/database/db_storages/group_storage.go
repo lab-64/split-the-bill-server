@@ -19,23 +19,27 @@ func NewGroupStorage(DB *Database) IGroupStorage {
 	return &GroupStorage{DB: DB.Context}
 }
 
-func (g *GroupStorage) AddGroup(group GroupModel) error {
+func (g *GroupStorage) AddGroup(group GroupModel) (GroupModel, error) {
 	groupItem := ToGroupEntity(group)
 
 	// try to store new group in storage
 	res := g.DB.Where(Group{Base: Base{ID: groupItem.ID}}).FirstOrCreate(&groupItem)
 	// RowsAffected == 0 -> group already exists
 	if res.RowsAffected == 0 {
-		return storage.GroupAlreadyExistsError
+		return GroupModel{}, storage.GroupAlreadyExistsError
 	}
-	return res.Error
+	return ToGroupModel(&groupItem), res.Error
 }
 
 func (g *GroupStorage) GetGroupByID(id uuid.UUID) (GroupModel, error) {
 	var group Group
 
 	// load group with related user and members from db
-	tx := g.DB.Preload("Owner").Preload("Members").Limit(1).Find(&group, "id = ?", id)
+	tx := g.DB.
+		Preload(clause.Associations).
+		Preload("Bills.Items.Contributors").
+		Limit(1).Find(&group, "id = ?", id)
+
 	if tx.Error != nil {
 		return GroupModel{}, tx.Error
 	}
@@ -50,6 +54,7 @@ func (g *GroupStorage) GetGroupsByUserID(userID uuid.UUID) ([]GroupModel, error)
 
 	tx := g.DB.
 		Preload(clause.Associations).
+		Preload("Bills.Items.Contributors").
 		Where("id IN (SELECT group_id FROM group_members WHERE user_id = ?)", userID).
 		Find(&groups)
 

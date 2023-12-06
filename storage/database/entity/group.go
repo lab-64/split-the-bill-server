@@ -20,12 +20,8 @@ func ToGroupEntity(group GroupModel) Group {
 	for _, member := range group.Members {
 		members = append(members, &User{Base: Base{ID: member}})
 	}
-	// convert uuids to bills
-	var bills []Bill
-	for _, bill := range group.Bills {
-		bills = append(bills, Bill{Base: Base{ID: bill}})
-	}
-	return Group{Base: Base{ID: group.ID}, OwnerUID: group.Owner, Name: group.Name, Members: members, Bills: bills}
+
+	return Group{Base: Base{ID: group.ID}, OwnerUID: group.Owner, Name: group.Name, Members: members}
 }
 
 func ToGroupModel(group *Group) GroupModel {
@@ -34,12 +30,14 @@ func ToGroupModel(group *Group) GroupModel {
 	for _, member := range group.Members {
 		members = append(members, member.ID)
 	}
-	// convert bills to uuids
-	var billIDs []uuid.UUID
+
+	// convert bills
+	var bills []BillModel
 	for _, bill := range group.Bills {
-		billIDs = append(billIDs, bill.ID)
+		bills = append(bills, ToBillModel(bill))
 	}
-	return GroupModel{ID: group.ID, Owner: group.OwnerUID, Name: group.Name, Members: members, Bills: billIDs}
+
+	return GroupModel{ID: group.ID, Owner: group.OwnerUID, Name: group.Name, Members: members, Bills: bills}
 }
 
 func ToGroupModelSlice(groups []Group) []GroupModel {

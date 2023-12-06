@@ -9,7 +9,7 @@ type GroupModel struct {
 	Owner   uuid.UUID
 	Name    string
 	Members []uuid.UUID
-	Bills   []uuid.UUID
+	Bills   []BillModel
 }
 
 func CreateGroupModel(owner uuid.UUID, name string, members []uuid.UUID) GroupModel {
@@ -18,6 +18,5 @@ func CreateGroupModel(owner uuid.UUID, name string, members []uuid.UUID) GroupMo
 		ID:      uuid.New(),
 		Name:    name,
 		Members: members,
-		Bills:   make([]uuid.UUID, 0),
 	}
 }
