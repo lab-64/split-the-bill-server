@@ -70,9 +70,9 @@ definitions:
     type: object
   dto.GroupOutputDTO:
     properties:
-      billIDs:
+      bills:
         items:
-          type: string
+          $ref: '#/definitions/dto.BillOutputDTO'
         type: array
       id:
         type: string
@@ -85,7 +85,7 @@ definitions:
       ownerID:
         type: string
     type: object
-  dto.InvitationResponseDTO:
+  dto.InvitationResponseInputDTO:
     properties:
       isAccept:
         type: boolean
@@ -419,7 +419,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.InvitationResponseDTO'
+          $ref: '#/definitions/dto.InvitationResponseInputDTO'
       produces:
       - application/json
       responses:

@@ -49,7 +49,7 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupCreate, err))
 	}
 
-	return core.Success(c, fiber.StatusOK, SuccessMsgGroupCreate, group)
+	return core.Success(c, fiber.StatusCreated, SuccessMsgGroupCreate, group)
 }
 
 // GetByID returns the group with the given ID.

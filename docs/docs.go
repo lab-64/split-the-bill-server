@@ -530,7 +530,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.InvitationResponseDTO"
+                            "$ref": "#/definitions/dto.InvitationResponseInputDTO"
                         }
                     }
                 ],
@@ -829,10 +829,10 @@ const docTemplate = `{
         "dto.GroupOutputDTO": {
             "type": "object",
             "properties": {
-                "billIDs": {
+                "bills": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dto.BillOutputDTO"
                     }
                 },
                 "id": {
@@ -852,7 +852,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.InvitationResponseDTO": {
+        "dto.InvitationResponseInputDTO": {
             "type": "object",
             "properties": {
                 "isAccept": {
