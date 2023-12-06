@@ -63,21 +63,21 @@ func (u *UserService) Register(userDTO UserInputDTO) (UserOutputDTO, error) {
 	return ToUserDTO(&user), err
 }
 
-func (u *UserService) Login(credentials CredentialsInputDTO) (fiber.Cookie, error) {
+func (u *UserService) Login(credentials CredentialsInputDTO) (UserOutputDTO, fiber.Cookie, error) {
 	// Log-in user, get authentication cookie
 	user, err := u.userStorage.GetByEmail(credentials.Email)
 	if err != nil {
-		return fiber.Cookie{}, err
+		return UserOutputDTO{}, fiber.Cookie{}, err
 	}
 
 	creds, err := u.userStorage.GetCredentials(user.ID)
 	if err != nil {
-		return fiber.Cookie{}, err
+		return UserOutputDTO{}, fiber.Cookie{}, err
 	}
 
 	err = authentication.ComparePassword(creds, credentials.Password)
 	if err != nil {
-		return fiber.Cookie{}, err
+		return UserOutputDTO{}, fiber.Cookie{}, err
 	}
 
 	sc := authentication.GenerateSessionCookie(user.ID)
@@ -96,5 +96,5 @@ func (u *UserService) Login(credentials CredentialsInputDTO) (fiber.Cookie, erro
 		//Secure:   true,
 	}
 
-	return cookie, err
+	return ToUserDTO(&user), cookie, err
 }

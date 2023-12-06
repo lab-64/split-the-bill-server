@@ -136,10 +136,10 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
 	}
 
-	cookie, err := h.userService.Login(userCredentials)
+	user, cookie, err := h.userService.Login(userCredentials)
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserLogin, err))
 	}
 	c.Cookie(&cookie)
-	return core.Success(c, fiber.StatusOK, SuccessMsgUserLogin, nil)
+	return core.Success(c, fiber.StatusOK, SuccessMsgUserLogin, user)
 }
