@@ -21,29 +21,31 @@
 - `STORAGE_TYPE=ephemeral` for Ephemeral
 - `STORAGE_TYPE=postgres` for Postgres
 
-**2a. Start the application (docker, ephemeral & postgres) with:**
-```shell
-make start-postgres
-```
-
-**2b. (OR) Start the application (no docker, ephemeral only) with:**
+**2a. Start the application (no docker, ephemeral only) with:**
 ```shell
 make watch
 ```
-**3. Stop the application with:**
+
+**2b. (OR) Start the application (docker, ephemeral & postgres) with:**
 ```shell
-make stop-postgres
+make start-db
 ```
 
-**4. Reset the database with:**
+**3b. Add database seeding (docker has to run simultaneously in a different terminal):**
+```shell
+make seed-db
+```
+
+**4b. Stop the application with:**
+```shell
+make stop-db
+```
+
+**5b. Reset the database with:**
 ```shell
 make reset-db
 ```
 
-**5. Run seeds with (docker has to run):**
-```shell
-make seed
-```
 
 ---
 # Testing

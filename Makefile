@@ -18,13 +18,13 @@ clean:
 test-all:
 	@go test ./...
 
-seed:
-	@docker exec split-the-bill-server sh -c "go run scripts/seed.go"
-
-start-postgres:
+start-db:
 	@docker compose up --no-attach pgadmin
 
-stop-postgres:
+seed-db:
+	@docker exec split-the-bill-server sh -c "go run scripts/seed.go"
+
+stop-db:
 	@docker compose down
 
 reset-db:
