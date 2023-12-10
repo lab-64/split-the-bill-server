@@ -39,7 +39,7 @@ func (u *UserService) GetAll() ([]UserOutputDTO, error) {
 	return usersDTO, err
 }
 
-func (u *UserService) GetByID(id UUID) (UserOutputDTO, error) {
+func (u *UserService) GetDetailedDataByID(id UUID) (UserOutputDTO, error) {
 	user, err := u.userStorage.GetByID(id)
 	if err != nil {
 		return UserOutputDTO{}, err

@@ -35,16 +35,16 @@ func (h UserHandler) GetAll(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgUsersFound, users)
 }
 
-// GetByID 		func get user by id
+// GetDetailedDataByID 		func get the detailed user data from a user id
 //
-//	@Summary	Get User by ID
+//	@Summary	Get detailed User data by ID
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Param		id	path		string	true	"User Id"
+//	@Param		id	path		string	true	"User ID"
 //	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.UserOutputDTO}
-//	@Router		/api/user/{id} [get]
-func (h UserHandler) GetByID(c *fiber.Ctx) error {
+//	@Router		/api/user/{id}/detailed [get]
+func (h UserHandler) GetDetailedDataByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
@@ -53,7 +53,7 @@ func (h UserHandler) GetByID(c *fiber.Ctx) error {
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
-	user, err := h.userService.GetByID(uid)
+	user, err := h.userService.GetDetailedDataByID(uid)
 	if err != nil {
 		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
 	}
@@ -67,7 +67,7 @@ func (h UserHandler) GetByID(c *fiber.Ctx) error {
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Param		id	path		string	true	"User Id"
+//	@Param		id	path		string	true	"User ID"
 //	@Success	200	{object}	dto.GeneralResponseDTO
 //	@Router		/api/user/{id} [delete]
 func (h UserHandler) Delete(c *fiber.Ctx) error {

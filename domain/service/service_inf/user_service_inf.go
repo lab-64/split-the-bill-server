@@ -11,7 +11,7 @@ type IUserService interface {
 
 	GetAll() ([]UserOutputDTO, error)
 
-	GetByID(id UUID) (UserOutputDTO, error)
+	GetDetailedDataByID(id UUID) (UserOutputDTO, error)
 
 	Login(credentials CredentialsInputDTO) (UserOutputDTO, fiber.Cookie, error)
 

@@ -648,6 +648,37 @@ const docTemplate = `{
             }
         },
         "/api/user/{id}": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Delete User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/{id}/detailed": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -658,11 +689,11 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Get User by ID",
+                "summary": "Get detailed User data by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User Id",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -685,35 +716,6 @@ const docTemplate = `{
                                     }
                                 }
                             ]
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Delete User",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User Id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
                         }
                     }
                 }
