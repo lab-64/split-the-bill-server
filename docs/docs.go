@@ -570,7 +570,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/dto.UserOutputDTO"
+                                                "$ref": "#/definitions/dto.UserDetailedOutputDTO"
                                             }
                                         }
                                     }
@@ -648,6 +648,47 @@ const docTemplate = `{
             }
         },
         "/api/user/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get core User data by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UserCoreOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
             "delete": {
                 "consumes": [
                     "application/json"
@@ -711,7 +752,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.UserOutputDTO"
+                                            "$ref": "#/definitions/dto.UserDetailedOutputDTO"
                                         }
                                     }
                                 }
@@ -905,18 +946,18 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.UserInputDTO": {
+        "dto.UserCoreOutputDTO": {
             "type": "object",
             "properties": {
                 "email": {
                     "type": "string"
                 },
-                "password": {
+                "id": {
                     "type": "string"
                 }
             }
         },
-        "dto.UserOutputDTO": {
+        "dto.UserDetailedOutputDTO": {
             "type": "object",
             "properties": {
                 "email": {
@@ -936,6 +977,17 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "dto.UserInputDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 }
             }
         }

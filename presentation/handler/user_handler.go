@@ -25,7 +25,7 @@ func NewUserHandler(userService *IUserService, v *password.Validator) *UserHandl
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=[]dto.UserOutputDTO}
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=[]dto.UserDetailedOutputDTO}
 //	@Router		/api/user [get]
 func (h UserHandler) GetAll(c *fiber.Ctx) error {
 	users, err := h.userService.GetAll()
@@ -35,6 +35,32 @@ func (h UserHandler) GetAll(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgUsersFound, users)
 }
 
+// GetCoreDataByID 		func get the core user data from a user id
+//
+//	@Summary	Get core User data by ID
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"User ID"
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.UserCoreOutputDTO}
+//	@Router		/api/user/{id} [get]
+func (h UserHandler) GetCoreDataByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
+	}
+	user, err := h.userService.GetCoreDataByID(uid)
+	if err != nil {
+		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
+	}
+
+	return core.Success(c, fiber.StatusOK, SuccessMsgUserFound, user)
+}
+
 // GetDetailedDataByID 		func get the detailed user data from a user id
 //
 //	@Summary	Get detailed User data by ID
@@ -42,7 +68,7 @@ func (h UserHandler) GetAll(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"User ID"
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.UserOutputDTO}
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.UserDetailedOutputDTO}
 //	@Router		/api/user/{id}/detailed [get]
 func (h UserHandler) GetDetailedDataByID(c *fiber.Ctx) error {
 	id := c.Params("id")

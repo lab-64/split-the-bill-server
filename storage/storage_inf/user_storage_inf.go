@@ -15,7 +15,7 @@ type IUserStorage interface {
 	// GetAll returns all users in the storage.
 	GetAll() ([]UserModel, error)
 
-	// GetByID returns the detailed user data from the given ID, or a NoSuchUserError if no such user exists.
+	// GetByID returns the user data from the given ID, or a NoSuchUserError if no such user exists.
 	GetByID(id UUID) (UserModel, error)
 
 	// GetByEmail returns the user with the given email, or a NoSuchUserError if no such user exists.
