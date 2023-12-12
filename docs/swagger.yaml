@@ -118,13 +118,6 @@ definitions:
       price:
         type: number
     type: object
-  dto.UserCoreOutputDTO:
-    properties:
-      email:
-        type: string
-      id:
-        type: string
-    type: object
   dto.UserDetailedOutputDTO:
     properties:
       email:
@@ -505,31 +498,6 @@ paths:
       summary: Delete User
       tags:
       - User
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.UserCoreOutputDTO'
-              type: object
-      summary: Get core User data by ID
-      tags:
-      - User
-  /api/user/{id}/detailed:
     get:
       consumes:
       - application/json

@@ -35,33 +35,7 @@ func (h UserHandler) GetAll(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgUsersFound, users)
 }
 
-// GetCoreDataByID 		func get the core user data from a user id
-//
-//	@Summary	Get core User data by ID
-//	@Tags		User
-//	@Accept		json
-//	@Produce	json
-//	@Param		id	path		string	true	"User ID"
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.UserCoreOutputDTO}
-//	@Router		/api/user/{id} [get]
-func (h UserHandler) GetCoreDataByID(c *fiber.Ctx) error {
-	id := c.Params("id")
-	if id == "" {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
-	}
-	uid, err := uuid.Parse(id)
-	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
-	}
-	user, err := h.userService.GetCoreDataByID(uid)
-	if err != nil {
-		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
-	}
-
-	return core.Success(c, fiber.StatusOK, SuccessMsgUserFound, user)
-}
-
-// GetDetailedDataByID 		func get the detailed user data from a user id
+// GetByID 		func get the detailed user data from a user id
 //
 //	@Summary	Get detailed User data by ID
 //	@Tags		User
@@ -69,8 +43,8 @@ func (h UserHandler) GetCoreDataByID(c *fiber.Ctx) error {
 //	@Produce	json
 //	@Param		id	path		string	true	"User ID"
 //	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.UserDetailedOutputDTO}
-//	@Router		/api/user/{id}/detailed [get]
-func (h UserHandler) GetDetailedDataByID(c *fiber.Ctx) error {
+//	@Router		/api/user/{id} [get]
+func (h UserHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
@@ -79,7 +53,7 @@ func (h UserHandler) GetDetailedDataByID(c *fiber.Ctx) error {
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
-	user, err := h.userService.GetDetailedDataByID(uid)
+	user, err := h.userService.GetByID(uid)
 	if err != nil {
 		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
 	}

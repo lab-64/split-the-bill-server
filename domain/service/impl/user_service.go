@@ -24,31 +24,22 @@ func (u *UserService) Delete(id UUID) error {
 	return err
 }
 
-func (u *UserService) GetAll() ([]UserCoreOutputDTO, error) {
+func (u *UserService) GetAll() ([]UserDetailedOutputDTO, error) {
 	users, err := u.userStorage.GetAll()
 	if err != nil {
-		return []UserCoreOutputDTO{}, err
+		return []UserDetailedOutputDTO{}, err
 	}
 
-	usersDTO := make([]UserCoreOutputDTO, len(users))
+	usersDTO := make([]UserDetailedOutputDTO, len(users))
 
 	for i, user := range users {
-		usersDTO[i] = ToUserCoreDTO(&user)
+		usersDTO[i] = ToUserDetailedDTO(&user)
 	}
 
 	return usersDTO, err
 }
 
-func (u *UserService) GetCoreDataByID(id UUID) (UserCoreOutputDTO, error) {
-	user, err := u.userStorage.GetByID(id)
-	if err != nil {
-		return UserCoreOutputDTO{}, err
-	}
-
-	return ToUserCoreDTO(&user), err
-}
-
-func (u *UserService) GetDetailedDataByID(id UUID) (UserDetailedOutputDTO, error) {
+func (u *UserService) GetByID(id UUID) (UserDetailedOutputDTO, error) {
 	user, err := u.userStorage.GetByID(id)
 	if err != nil {
 		return UserDetailedOutputDTO{}, err

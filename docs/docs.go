@@ -658,7 +658,7 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Get core User data by ID",
+                "summary": "Get detailed User data by ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -680,7 +680,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.UserCoreOutputDTO"
+                                            "$ref": "#/definitions/dto.UserDetailedOutputDTO"
                                         }
                                     }
                                 }
@@ -714,49 +714,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.GeneralResponseDTO"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/user/{id}/detailed": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Get detailed User data by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.UserDetailedOutputDTO"
-                                        }
-                                    }
-                                }
-                            ]
                         }
                     }
                 }
@@ -943,17 +900,6 @@ const docTemplate = `{
                 },
                 "price": {
                     "type": "number"
-                }
-            }
-        },
-        "dto.UserCoreOutputDTO": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
                 }
             }
         },
