@@ -12,8 +12,8 @@ type GroupInvitationInputDTO struct {
 }
 
 type GroupInvitationOutputDTO struct {
-	InvitationID UUID           `json:"invitationID"`
-	Group        GroupOutputDTO `json:"group"`
+	InvitationID UUID                   `json:"invitationID"`
+	Group        GroupDetailedOutputDTO `json:"group"`
 }
 
 type InvitationResponseInputDTO struct {
@@ -25,7 +25,7 @@ func ToGroupInvitationModel(groupID UUID, userID UUID) GroupInvitationModel {
 }
 
 func ToGroupInvitationDTO(invitation GroupInvitationModel) GroupInvitationOutputDTO {
-	group := ToGroupDTO(invitation.Group)
+	group := ToGroupDetailedDTO(invitation.Group)
 
 	return GroupInvitationOutputDTO{
 		InvitationID: invitation.ID,

@@ -25,7 +25,7 @@ func NewGroupHandler(GroupService *IGroupService, InvitationService *IInvitation
 //	@Accept		json
 //	@Produce	json
 //	@Param		request	body		dto.GroupInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.GroupOutputDTO}
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.GroupDetailedOutputDTO}
 //	@Router		/api/group [post]
 func (h GroupHandler) Create(c *fiber.Ctx) error {
 
@@ -59,7 +59,7 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"Group Id"
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.GroupOutputDTO}
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.GroupDetailedOutputDTO}
 //	@Router		/api/group/{id} [get]
 //
 // TODO: maybe delete, or add authentication and allow only query of own groups
@@ -89,7 +89,7 @@ func (h GroupHandler) GetByID(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		userId	query		string	true	"User Id"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.GroupOutputDTO}
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.GroupDetailedOutputDTO}
 //	@Router		/api/group [get]
 func (h GroupHandler) GetAllByUser(c *fiber.Ctx) error {
 	userID := c.Query("userId")
