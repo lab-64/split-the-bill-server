@@ -133,7 +133,7 @@ func (u *UserStorage) handleGroupInvitation(user model.UserModel, invitationID u
 					return storage.NoSuchGroupError
 				}
 				// insert user into group members
-				group.Members = append(group.Members, user.ID)
+				group.Members = append(group.Members, user)
 				u.e.Groups[group.ID] = group
 				// add group pointer to user struct
 				groupList := append(user.Groups, *group)

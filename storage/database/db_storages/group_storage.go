@@ -23,7 +23,10 @@ func (g *GroupStorage) AddGroup(group GroupModel) (GroupModel, error) {
 	groupItem := ToGroupEntity(group)
 
 	// try to store new group in storage
-	res := g.DB.Where(Group{Base: Base{ID: groupItem.ID}}).FirstOrCreate(&groupItem)
+	res := g.DB.
+		Where(Group{Base: Base{ID: groupItem.ID}}).
+		Preload("Owner").
+		FirstOrCreate(&groupItem)
 	// RowsAffected == 0 -> group already exists
 	if res.RowsAffected == 0 {
 		return GroupModel{}, storage.GroupAlreadyExistsError

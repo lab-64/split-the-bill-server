@@ -12,10 +12,10 @@ type GroupInputDTO struct {
 }
 
 type GroupOutputDTO struct {
-	Owner   UUID                `json:"ownerID"`
+	Owner   UserCoreOutputDTO   `json:"owner"`
 	ID      UUID                `json:"id"`
 	Name    string              `json:"name"`
-	Members []UUID              `json:"memberIDs"`
+	Members []UserCoreOutputDTO `json:"members"`
 	Bills   []BillCoreOutputDTO `json:"bills"`
 }
 
@@ -26,12 +26,14 @@ func ToGroupModel(g GroupInputDTO) GroupModel {
 func ToGroupDTO(g GroupModel) GroupOutputDTO {
 
 	billsDTO := ToBillCoreDTOs(g.Bills)
+	owner := ToUserCoreDTO(&g.Owner)
+	members := ToUserCoreDTOs(g.Members)
 
 	return GroupOutputDTO{
-		Owner:   g.Owner,
+		Owner:   owner,
 		ID:      g.ID,
 		Name:    g.Name,
-		Members: g.Members,
+		Members: members,
 		Bills:   billsDTO,
 	}
 }

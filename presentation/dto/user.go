@@ -26,6 +26,15 @@ func ToUserModel(r UserInputDTO) UserModel {
 	return CreateUserModel(r.Email)
 }
 
+func ToUserCoreDTOs(users []UserModel) []UserCoreOutputDTO {
+	usersDTO := make([]UserCoreOutputDTO, len(users))
+
+	for i, user := range users {
+		usersDTO[i] = ToUserCoreDTO(&user)
+	}
+	return usersDTO
+}
+
 func ToUserCoreDTO(u *UserModel) UserCoreOutputDTO {
 	return UserCoreOutputDTO{
 		ID:    u.ID,
