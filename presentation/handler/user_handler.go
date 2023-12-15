@@ -25,7 +25,7 @@ func NewUserHandler(userService *IUserService, v *password.Validator) *UserHandl
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=[]dto.UserOutputDTO}
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=[]dto.UserDetailedOutputDTO}
 //	@Router		/api/user [get]
 func (h UserHandler) GetAll(c *fiber.Ctx) error {
 	users, err := h.userService.GetAll()
@@ -35,14 +35,14 @@ func (h UserHandler) GetAll(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgUsersFound, users)
 }
 
-// GetByID 		func get user by id
+// GetByID 		func get the detailed user data from a user id
 //
-//	@Summary	Get User by ID
+//	@Summary	Get detailed User data by ID
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Param		id	path		string	true	"User Id"
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.UserOutputDTO}
+//	@Param		id	path		string	true	"User ID"
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.UserDetailedOutputDTO}
 //	@Router		/api/user/{id} [get]
 func (h UserHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -67,7 +67,7 @@ func (h UserHandler) GetByID(c *fiber.Ctx) error {
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Param		id	path		string	true	"User Id"
+//	@Param		id	path		string	true	"User ID"
 //	@Success	200	{object}	dto.GeneralResponseDTO
 //	@Router		/api/user/{id} [delete]
 func (h UserHandler) Delete(c *fiber.Ctx) error {
@@ -93,7 +93,7 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		request	body		dto.UserInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserDetailedOutputDTO}
 //	@Router		/api/user/register [post]
 func (h UserHandler) Register(c *fiber.Ctx) error {
 	var request UserInputDTO
@@ -121,7 +121,7 @@ func (h UserHandler) Register(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		request	body		dto.CredentialsInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserDetailedOutputDTO}
 //	@Router		/api/user/login [post]
 //
 // Login uses the given login credentials for login and returns an authentication token for the user.

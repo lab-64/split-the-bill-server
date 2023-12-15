@@ -118,14 +118,7 @@ definitions:
       price:
         type: number
     type: object
-  dto.UserInputDTO:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    type: object
-  dto.UserOutputDTO:
+  dto.UserDetailedOutputDTO:
     properties:
       email:
         type: string
@@ -139,6 +132,13 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  dto.UserInputDTO:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -472,7 +472,7 @@ paths:
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/dto.UserOutputDTO'
+                    $ref: '#/definitions/dto.UserDetailedOutputDTO'
                   type: array
               type: object
       summary: Get all Users
@@ -483,7 +483,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: User Id
+      - description: User ID
         in: path
         name: id
         required: true
@@ -502,7 +502,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: User Id
+      - description: User ID
         in: path
         name: id
         required: true
@@ -517,9 +517,9 @@ paths:
             - $ref: '#/definitions/dto.GeneralResponseDTO'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.UserOutputDTO'
+                  $ref: '#/definitions/dto.UserDetailedOutputDTO'
               type: object
-      summary: Get User by ID
+      summary: Get detailed User data by ID
       tags:
       - User
   /api/user/login:

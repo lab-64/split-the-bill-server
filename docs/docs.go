@@ -570,7 +570,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/dto.UserOutputDTO"
+                                                "$ref": "#/definitions/dto.UserDetailedOutputDTO"
                                             }
                                         }
                                     }
@@ -658,11 +658,11 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Get User by ID",
+                "summary": "Get detailed User data by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User Id",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -680,7 +680,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.UserOutputDTO"
+                                            "$ref": "#/definitions/dto.UserDetailedOutputDTO"
                                         }
                                     }
                                 }
@@ -703,7 +703,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User Id",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -903,18 +903,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.UserInputDTO": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UserOutputDTO": {
+        "dto.UserDetailedOutputDTO": {
             "type": "object",
             "properties": {
                 "email": {
@@ -934,6 +923,17 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "dto.UserInputDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 }
             }
         }

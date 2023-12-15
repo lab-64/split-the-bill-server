@@ -24,60 +24,60 @@ func (u *UserService) Delete(id UUID) error {
 	return err
 }
 
-func (u *UserService) GetAll() ([]UserOutputDTO, error) {
+func (u *UserService) GetAll() ([]UserDetailedOutputDTO, error) {
 	users, err := u.userStorage.GetAll()
 	if err != nil {
-		return []UserOutputDTO{}, err
+		return []UserDetailedOutputDTO{}, err
 	}
 
-	usersDTO := make([]UserOutputDTO, len(users))
+	usersDTO := make([]UserDetailedOutputDTO, len(users))
 
 	for i, user := range users {
-		usersDTO[i] = ToUserDTO(&user)
+		usersDTO[i] = ToUserDetailedDTO(&user)
 	}
 
 	return usersDTO, err
 }
 
-func (u *UserService) GetByID(id UUID) (UserOutputDTO, error) {
+func (u *UserService) GetByID(id UUID) (UserDetailedOutputDTO, error) {
 	user, err := u.userStorage.GetByID(id)
 	if err != nil {
-		return UserOutputDTO{}, err
+		return UserDetailedOutputDTO{}, err
 	}
 
-	return ToUserDTO(&user), err
+	return ToUserDetailedDTO(&user), err
 }
 
-func (u *UserService) Register(userDTO UserInputDTO) (UserOutputDTO, error) {
+func (u *UserService) Register(userDTO UserInputDTO) (UserCoreOutputDTO, error) {
 	user := ToUserModel(userDTO)
 	passwordHash, err := authentication.HashPassword(userDTO.Password)
 	if err != nil {
-		return UserOutputDTO{}, err
+		return UserCoreOutputDTO{}, err
 	}
 
 	err = u.userStorage.Create(user, passwordHash)
 	if err != nil {
-		return UserOutputDTO{}, err
+		return UserCoreOutputDTO{}, err
 	}
 
-	return ToUserDTO(&user), err
+	return ToUserCoreDTO(&user), err
 }
 
-func (u *UserService) Login(credentials CredentialsInputDTO) (UserOutputDTO, fiber.Cookie, error) {
+func (u *UserService) Login(credentials CredentialsInputDTO) (UserCoreOutputDTO, fiber.Cookie, error) {
 	// Log-in user, get authentication cookie
 	user, err := u.userStorage.GetByEmail(credentials.Email)
 	if err != nil {
-		return UserOutputDTO{}, fiber.Cookie{}, err
+		return UserCoreOutputDTO{}, fiber.Cookie{}, err
 	}
 
 	creds, err := u.userStorage.GetCredentials(user.ID)
 	if err != nil {
-		return UserOutputDTO{}, fiber.Cookie{}, err
+		return UserCoreOutputDTO{}, fiber.Cookie{}, err
 	}
 
 	err = authentication.ComparePassword(creds, credentials.Password)
 	if err != nil {
-		return UserOutputDTO{}, fiber.Cookie{}, err
+		return UserCoreOutputDTO{}, fiber.Cookie{}, err
 	}
 
 	sc := authentication.GenerateSessionCookie(user.ID)
@@ -96,5 +96,5 @@ func (u *UserService) Login(credentials CredentialsInputDTO) (UserOutputDTO, fib
 		//Secure:   true,
 	}
 
-	return ToUserDTO(&user), cookie, err
+	return ToUserCoreDTO(&user), cookie, err
 }
