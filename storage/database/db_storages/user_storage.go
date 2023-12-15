@@ -28,7 +28,7 @@ func (u *UserStorage) GetAll() ([]UserModel, error) {
 	var users []User
 	// find all users in the database
 	// TODO: GetAllUsers should not return an error, if no users are found
-	tx := u.DB.Find(&users)
+	tx := u.DB.Preload("Groups.Members").Preload("GroupInvitations").Find(&users)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
