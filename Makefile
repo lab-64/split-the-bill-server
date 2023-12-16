@@ -16,7 +16,7 @@ clean:
 	@rm split-the-bill-server
 
 test-all:
-	@go test ./...
+	@go test --cover ./...
 
 start-db:
 	@docker compose up --no-attach pgadmin

@@ -3,6 +3,7 @@ module split-the-bill-server
 go 1.21
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.1
 	github.com/caitlinelfring/nist-password-validator v0.0.0-20190321104149-45ab5d3140de
 	github.com/gofiber/fiber/v2 v2.50.0
 	github.com/gofiber/swagger v0.1.14
@@ -14,7 +15,6 @@ require (
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/devfeel/mapper v0.7.13 // indirect
 	github.com/go-openapi/jsonpointer v0.20.0 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
 	github.com/go-openapi/spec v0.20.9 // indirect
