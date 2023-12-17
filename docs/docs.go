@@ -397,73 +397,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/invitation/accept": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Invitation"
-                ],
-                "summary": "Accept Group Invitation",
-                "parameters": [
-                    {
-                        "description": "Request Body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.HandleInvitationInputDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/invitation/decline": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Invitation"
-                ],
-                "summary": "Decline Group Invitation",
-                "parameters": [
-                    {
-                        "description": "Request Body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.HandleInvitationInputDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GroupInvitationOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -494,7 +440,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.GroupInvitationOutputDTO"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -519,6 +480,58 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GroupInvitationOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/invitation/{id}/response": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invitation"
+                ],
+                "summary": "Accept or decline Group Invitation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invitation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.InvitationResponseInputDTO"
+                        }
                     }
                 ],
                 "responses": {
@@ -557,7 +570,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/dto.UserOutputDTO"
+                                                "$ref": "#/definitions/dto.UserDetailedOutputDTO"
                                             }
                                         }
                                     }
@@ -655,11 +668,11 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Get User by ID",
+                "summary": "Get detailed User data by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User Id",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -677,7 +690,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.UserOutputDTO"
+                                            "$ref": "#/definitions/dto.UserDetailedOutputDTO"
                                         }
                                     }
                                 }
@@ -700,7 +713,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User Id",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -812,13 +825,24 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.GroupInvitationOutputDTO": {
+            "type": "object",
+            "properties": {
+                "group": {
+                    "$ref": "#/definitions/dto.GroupOutputDTO"
+                },
+                "invitationID": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.GroupOutputDTO": {
             "type": "object",
             "properties": {
-                "billIDs": {
+                "bills": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dto.BillOutputDTO"
                     }
                 },
                 "id": {
@@ -838,14 +862,11 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.HandleInvitationInputDTO": {
+        "dto.InvitationResponseInputDTO": {
             "type": "object",
             "properties": {
-                "invitationID": {
-                    "type": "string"
-                },
-                "issuerID": {
-                    "type": "string"
+                "isAccept": {
+                    "type": "boolean"
                 }
             }
         },
@@ -892,18 +913,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.UserInputDTO": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UserOutputDTO": {
+        "dto.UserDetailedOutputDTO": {
             "type": "object",
             "properties": {
                 "email": {
@@ -923,6 +933,17 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "dto.UserInputDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 }
             }
         }

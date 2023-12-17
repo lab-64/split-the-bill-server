@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"split-the-bill-server/core"
 	. "split-the-bill-server/domain/service/service_inf"
-	"split-the-bill-server/presentation/dto"
+	. "split-the-bill-server/presentation/dto"
 )
 
 type InvitationHandler struct {
@@ -24,7 +24,7 @@ func NewInvitationHandler(invitationService *IInvitationService) *InvitationHand
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"Invitation ID"
-//	@Success	200	{object}	dto.GeneralResponseDTO
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=GroupInvitationOutputDTO}
 //	@Router		/api/invitation/{id} [get]
 func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -35,6 +35,7 @@ func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
 	if err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
+
 	invitation, err := h.invitationService.GetGroupInvitationByID(uid)
 	if err != nil {
 		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
@@ -42,16 +43,16 @@ func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgInvitationFound, invitation)
 }
 
-// GetAllFromUser returns all group invitations for the given user.
+// GetAllByUser returns all group invitations for the given user.
 //
 //	@Summary	Get All Group Invitations From User
 //	@Tags		Invitation
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"User ID"
-//	@Success	200	{object}	dto.GeneralResponseDTO
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=[]GroupInvitationOutputDTO}
 //	@Router		/api/invitation/user/{id} [get]
-func (h InvitationHandler) GetAllFromUser(c *fiber.Ctx) error {
+func (h InvitationHandler) GetAllByUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
@@ -60,7 +61,9 @@ func (h InvitationHandler) GetAllFromUser(c *fiber.Ctx) error {
 	if err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
+
 	invitations, err := h.invitationService.GetGroupInvitationsByUser(uid)
+	println(invitations)
 	if err != nil {
 		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
 	}
@@ -74,65 +77,54 @@ func (h InvitationHandler) GetAllFromUser(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		request	body		dto.GroupInvitationInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=GroupInvitationOutputDTO}
 //	@Router		/api/invitation [post]
 func (h InvitationHandler) Create(c *fiber.Ctx) error {
 	// TODO: validate inputs
 	// parse request
-	var request dto.GroupInvitationInputDTO
+	var request GroupInvitationInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
 	}
 	// create invitation for all invitees
-	err := h.invitationService.CreateGroupInvitation(request)
+	invitations, err := h.invitationService.CreateGroupInvitations(request)
 	if err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationCreate, err))
 	}
-	// TODO: return some data?
-	return core.Success(c, fiber.StatusOK, SuccessMsgInvitationCreate, nil)
+
+	return core.Success(c, fiber.StatusCreated, SuccessMsgInvitationCreate, invitations)
 }
 
-// Accept accepts a group invitation.
+// HandleInvitation handles a group invitation.
 //
-//	@Summary	Accept Group Invitation
+//	@Summary	Accept or decline Group Invitation
 //	@Tags		Invitation
 //	@Accept		json
 //	@Produce	json
-//	@Param		request	body		dto.HandleInvitationInputDTO	true	"Request Body"
+//	@Param		id		path		string							true	"Invitation ID"
+//	@Param		request	body		dto.InvitationResponseInputDTO	true	"Request Body"
 //	@Success	200		{object}	dto.GeneralResponseDTO
-//	@Router		/api/invitation/accept [post]
-func (h InvitationHandler) Accept(c *fiber.Ctx) error {
-	// parse request
-	var request dto.HandleInvitationInputDTO
-	if err := c.BodyParser(&request); err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
+//	@Router		/api/invitation/{id}/response [post]
+func (h InvitationHandler) HandleInvitation(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
-	// accept invitation
-	err := h.invitationService.AcceptGroupInvitation(request.InvitationID, request.Issuer)
+	uid, err := uuid.Parse(id)
 	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
-	return core.Success(c, fiber.StatusOK, SuccessMsgInvitationHandled, err)
-}
 
-// Decline declines a group invitation.
-//
-//	@Summary	Decline Group Invitation
-//	@Tags		Invitation
-//	@Accept		json
-//	@Produce	json
-//	@Param		request	body		dto.HandleInvitationInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO
-//	@Router		/api/invitation/decline [post]
-func (h InvitationHandler) Decline(c *fiber.Ctx) error {
 	// parse request
-	var request dto.HandleInvitationInputDTO
+	var request InvitationResponseInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
 	}
-	err := h.invitationService.DeclineGroupInvitation(request.InvitationID)
-	if err != nil {
+
+	// handle invitation
+	if err := h.invitationService.HandleGroupInvitation(uid, request.IsAccept); err != nil {
 		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
 	}
+
 	return core.Success(c, fiber.StatusOK, SuccessMsgInvitationHandled, err)
 }

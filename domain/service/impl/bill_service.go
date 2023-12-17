@@ -16,26 +16,26 @@ func NewBillService(billStorage *IBillStorage, groupStorage *IGroupStorage) IBil
 	return &BillService{billStorage: *billStorage, groupStorage: *groupStorage}
 }
 
-func (b *BillService) Create(billDTO BillInputDTO) (BillOutputDTO, error) {
+func (b *BillService) Create(billDTO BillInputDTO) (BillDetailedOutputDTO, error) {
 
 	// create bill model including items
 	bill := ToBillModel(billDTO)
 	// store bill in billStorage
 	bill, err := b.billStorage.Create(bill)
 	if err != nil {
-		return BillOutputDTO{}, err
+		return BillDetailedOutputDTO{}, err
 	}
 
-	return ToBillDTO(bill), err
+	return ToBillDetailedDTO(bill), err
 }
 
-func (b *BillService) GetByID(id uuid.UUID) (BillOutputDTO, error) {
+func (b *BillService) GetByID(id uuid.UUID) (BillDetailedOutputDTO, error) {
 	bill, err := b.billStorage.GetByID(id)
 	if err != nil {
-		return BillOutputDTO{}, err
+		return BillDetailedOutputDTO{}, err
 	}
 
-	return ToBillDTO(bill), err
+	return ToBillDetailedDTO(bill), err
 }
 
 func (b *BillService) AddItem(itemDTO ItemInputDTO) (ItemOutputDTO, error) {

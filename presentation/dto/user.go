@@ -10,7 +10,12 @@ type UserInputDTO struct {
 	Password string `json:"password"`
 }
 
-type UserOutputDTO struct {
+type UserCoreOutputDTO struct {
+	ID    uuid.UUID `json:"id"`
+	Email string    `json:"email"`
+}
+
+type UserDetailedOutputDTO struct {
 	ID          uuid.UUID        `json:"id"`
 	Email       string           `json:"email"`
 	Groups      []GroupOutputDTO `json:"groups"`
@@ -21,7 +26,14 @@ func ToUserModel(r UserInputDTO) UserModel {
 	return CreateUserModel(r.Email)
 }
 
-func ToUserDTO(u *UserModel) UserOutputDTO {
+func ToUserCoreDTO(u *UserModel) UserCoreOutputDTO {
+	return UserCoreOutputDTO{
+		ID:    u.ID,
+		Email: u.Email,
+	}
+}
+
+func ToUserDetailedDTO(u *UserModel) UserDetailedOutputDTO {
 	groupsDTO := make([]GroupOutputDTO, len(u.Groups))
 
 	for i, group := range u.Groups {
@@ -34,7 +46,7 @@ func ToUserDTO(u *UserModel) UserOutputDTO {
 		invitations[i] = inv.ID
 	}
 
-	return UserOutputDTO{
+	return UserDetailedOutputDTO{
 		ID:          u.ID,
 		Email:       u.Email,
 		Groups:      groupsDTO,

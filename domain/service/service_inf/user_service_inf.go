@@ -9,11 +9,11 @@ import (
 type IUserService interface {
 	Delete(id UUID) error
 
-	GetAll() ([]UserOutputDTO, error)
+	GetAll() ([]UserDetailedOutputDTO, error)
 
-	GetByID(id UUID) (UserOutputDTO, error)
+	GetByID(id UUID) (UserDetailedOutputDTO, error)
 
-	Login(credentials CredentialsInputDTO) (UserOutputDTO, fiber.Cookie, error)
+	Login(credentials CredentialsInputDTO) (UserCoreOutputDTO, fiber.Cookie, error)
 
-	Create(user UserInputDTO) (UserOutputDTO, error)
+	Create(user UserInputDTO) (UserCoreOutputDTO, error)
 }
