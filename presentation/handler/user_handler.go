@@ -93,7 +93,7 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		request	body		dto.UserInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserDetailedOutputDTO}
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserCoreOutputDTO}
 //	@Router		/api/user [post]
 func (h UserHandler) Create(c *fiber.Ctx) error {
 	var request UserInputDTO
@@ -120,7 +120,7 @@ func (h UserHandler) Create(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		request	body		dto.CredentialsInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserDetailedOutputDTO}
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserCoreOutputDTO}
 //	@Router		/api/user/login [post]
 //
 // Login uses the given login credentials for login and returns an authentication token for the user.

@@ -50,7 +50,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.BillOutputDTO"
+                                            "$ref": "#/definitions/dto.BillDetailedOutputDTO"
                                         }
                                     }
                                 }
@@ -231,7 +231,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.BillOutputDTO"
+                                            "$ref": "#/definitions/dto.BillDetailedOutputDTO"
                                         }
                                     }
                                 }
@@ -614,7 +614,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.UserOutputDTO"
+                                            "$ref": "#/definitions/dto.UserCoreOutputDTO"
                                         }
                                     }
                                 }
@@ -651,7 +651,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UserCoreOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -731,6 +743,43 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.BillCoreOutputDTO": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.BillDetailedOutputDTO": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ItemOutputDTO"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ownerID": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.BillInputDTO": {
             "type": "object",
             "properties": {
@@ -744,29 +793,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dto.ItemInputDTO"
-                    }
-                },
-                "name": {
-                    "type": "string"
-                },
-                "ownerID": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.BillOutputDTO": {
-            "type": "object",
-            "properties": {
-                "date": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.ItemOutputDTO"
                     }
                 },
                 "name": {
@@ -842,7 +868,7 @@ const docTemplate = `{
                 "bills": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.BillOutputDTO"
+                        "$ref": "#/definitions/dto.BillCoreOutputDTO"
                     }
                 },
                 "id": {
@@ -910,6 +936,17 @@ const docTemplate = `{
                 },
                 "price": {
                     "type": "number"
+                }
+            }
+        },
+        "dto.UserCoreOutputDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
                 }
             }
         },
