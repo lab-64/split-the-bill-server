@@ -9,6 +9,7 @@ import (
 	. "split-the-bill-server/storage/database"
 	. "split-the-bill-server/storage/database/entity"
 	. "split-the-bill-server/storage/storage_inf"
+	"strings"
 )
 
 type UserStorage struct {
@@ -77,14 +78,19 @@ func (u *UserStorage) Create(user UserModel, passwordHash []byte) error {
 		res := tx.Create(&item)
 
 		if res.Error != nil {
-			return storage.UserAlreadyExistsError
+			if strings.Contains(res.Error.Error(), "duplicate key value violates unique constraint") {
+				return storage.UserAlreadyExistsError
+			}
+			if strings.Contains(res.Error.Error(), "violates not-null constraint") {
+				return storage.InvalidUserInputError
+			}
+			return storage.InvalidUserInputError
 		}
 
 		// store credentials
 		res = tx.Create(&Credentials{UserID: item.ID, Hash: passwordHash})
 		if res.Error != nil {
-			// TODO: create suitable error msg
-			return res.Error
+			return storage.InvalidUserInputError
 		}
 
 		return nil

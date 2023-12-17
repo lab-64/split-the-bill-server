@@ -14,6 +14,7 @@ type Connection interface {
 // User Errors
 var UserAlreadyExistsError = errors.New("user already exists")
 var NoSuchUserError = errors.New("no such user")
+var InvalidUserInputError = errors.New("invalid user input")
 
 // Credentials Errors
 var NoCredentialsError = errors.New("no credentials for user")
