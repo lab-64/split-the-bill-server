@@ -69,17 +69,17 @@ func (u *UserStorage) GetByEmail(email string) (model.UserModel, error) {
 	return user, nil
 }
 
-func (u *UserStorage) Create(user model.UserModel, hash []byte) error {
+func (u *UserStorage) Create(user model.UserModel, hash []byte) (model.UserModel, error) {
 	u.e.Lock.Lock()
 	defer u.e.Lock.Unlock()
 
 	if _, ok := u.e.NameIndex[user.Email]; ok {
-		return storage.UserAlreadyExistsError
+		return model.UserModel{}, storage.UserAlreadyExistsError
 	}
 
 	_, ok := u.e.Users[user.ID]
 	if ok {
-		return storage.UserAlreadyExistsError
+		return model.UserModel{}, storage.UserAlreadyExistsError
 	}
 
 	u.e.Users[user.ID] = user
@@ -87,10 +87,10 @@ func (u *UserStorage) Create(user model.UserModel, hash []byte) error {
 
 	_, exists := u.e.Passwords[user.ID]
 	if exists {
-		return errors.New("fatal: user already has saved password")
+		return model.UserModel{}, errors.New("fatal: user already has saved password")
 	}
 	u.e.Passwords[user.ID] = hash
-	return nil
+	return user, nil
 }
 
 func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
