@@ -15,7 +15,7 @@ func addUsers(uut IUserStorage, users []UserModel, t *testing.T, finished chan<-
 	for _, user := range users {
 		pw, err := authentication.HashPassword("ehhh")
 		require.NoError(t, err)
-		user, err = uut.Create(user, pw)
+		_, err = uut.Create(user, pw)
 		require.NoError(t, err)
 	}
 	close(finished)
