@@ -14,12 +14,6 @@ type BillInputDTO struct {
 	Items []ItemInputDTO `json:"items"`
 }
 
-type BillCoreOutputDTO struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
-	Date time.Time `json:"date"`
-}
-
 type BillDetailedOutputDTO struct {
 	ID      uuid.UUID       `json:"id"`
 	Name    string          `json:"name"`
