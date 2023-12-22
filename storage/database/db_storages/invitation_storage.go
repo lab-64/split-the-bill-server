@@ -73,7 +73,11 @@ func (i InvitationStorage) AcceptGroupInvitation(id uuid.UUID) error {
 
 func (i InvitationStorage) GetGroupInvitationByID(id uuid.UUID) (GroupInvitationModel, error) {
 	var groupInvitation GroupInvitation
-	tx := i.DB.Preload("For.Members").Limit(1).Find(&groupInvitation, "id = ?", id)
+	tx := i.DB.
+		Preload("For.Owner").
+		Preload("For.Members").
+		Limit(1).
+		Find(&groupInvitation, "id = ?", id)
 	if tx.RowsAffected == 0 {
 		return GroupInvitationModel{}, storage.NoSuchGroupInvitationError
 	}
@@ -82,7 +86,10 @@ func (i InvitationStorage) GetGroupInvitationByID(id uuid.UUID) (GroupInvitation
 
 func (i InvitationStorage) GetGroupInvitationsByUserID(userID uuid.UUID) ([]GroupInvitationModel, error) {
 	var groupInvitations []GroupInvitation
-	tx := i.DB.Preload("For.Members").Find(&groupInvitations, "Invitee_id = ?", userID)
+	tx := i.DB.
+		Preload("For.Owner").
+		Preload("For.Members").
+		Find(&groupInvitations, "Invitee_id = ?", userID)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}

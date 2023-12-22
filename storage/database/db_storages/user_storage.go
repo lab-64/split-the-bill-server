@@ -28,7 +28,10 @@ func (u *UserStorage) GetAll() ([]UserModel, error) {
 	var users []User
 	// find all users in the database
 	// TODO: GetAllUsers should not return an error, if no users are found
-	tx := u.DB.Preload("Groups.Members").Preload("GroupInvitations").Find(&users)
+	tx := u.DB.
+		Preload("Groups.Owner").
+		Preload("Groups.Members").
+		Preload("GroupInvitations").Find(&users)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -39,7 +42,11 @@ func (u *UserStorage) GetAll() ([]UserModel, error) {
 
 func (u *UserStorage) GetByID(id uuid.UUID) (UserModel, error) {
 	var user User
-	tx := u.DB.Limit(1).Preload("Groups.Members").Preload("GroupInvitations").Find(&user, "id = ?", id)
+	tx := u.DB.Limit(1).
+		Preload("Groups.Owner").
+		Preload("Groups.Members").
+		Preload("GroupInvitations").
+		Find(&user, "id = ?", id)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return UserModel{}, storage.NoSuchUserError

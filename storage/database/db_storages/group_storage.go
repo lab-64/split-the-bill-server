@@ -22,8 +22,13 @@ func NewGroupStorage(DB *Database) IGroupStorage {
 func (g *GroupStorage) AddGroup(group GroupModel) (GroupModel, error) {
 	groupItem := ToGroupEntity(group)
 
-	// try to store new group in storage
-	res := g.DB.Where(Group{Base: Base{ID: groupItem.ID}}).FirstOrCreate(&groupItem)
+	// .First(...) in the end enables preload on create (kind of workaround)
+	// https://github.com/go-gorm/gen/issues/618
+	res := g.DB.
+		Preload(clause.Associations).
+		Create(&groupItem).
+		First(&groupItem)
+
 	// RowsAffected == 0 -> group already exists
 	if res.RowsAffected == 0 {
 		return GroupModel{}, storage.GroupAlreadyExistsError

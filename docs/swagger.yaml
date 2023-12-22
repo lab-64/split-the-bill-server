@@ -1,5 +1,20 @@
 basePath: /
 definitions:
+  dto.BillDetailedOutputDTO:
+    properties:
+      date:
+        type: string
+      id:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.ItemOutputDTO'
+        type: array
+      name:
+        type: string
+      ownerID:
+        type: string
+    type: object
   dto.BillInputDTO:
     properties:
       date:
@@ -9,21 +24,6 @@ definitions:
       items:
         items:
           $ref: '#/definitions/dto.ItemInputDTO'
-        type: array
-      name:
-        type: string
-      ownerID:
-        type: string
-    type: object
-  dto.BillOutputDTO:
-    properties:
-      date:
-        type: string
-      id:
-        type: string
-      items:
-        items:
-          $ref: '#/definitions/dto.ItemOutputDTO'
         type: array
       name:
         type: string
@@ -42,6 +42,36 @@ definitions:
       data: {}
       message:
         type: string
+    type: object
+  dto.GroupCoreOutputDTO:
+    properties:
+      id:
+        type: string
+      members:
+        items:
+          $ref: '#/definitions/dto.UserCoreOutputDTO'
+        type: array
+      name:
+        type: string
+      owner:
+        $ref: '#/definitions/dto.UserCoreOutputDTO'
+    type: object
+  dto.GroupDetailedOutputDTO:
+    properties:
+      bills:
+        items:
+          $ref: '#/definitions/dto.BillDetailedOutputDTO'
+        type: array
+      id:
+        type: string
+      members:
+        items:
+          $ref: '#/definitions/dto.UserCoreOutputDTO'
+        type: array
+      name:
+        type: string
+      owner:
+        $ref: '#/definitions/dto.UserCoreOutputDTO'
     type: object
   dto.GroupInputDTO:
     properties:
@@ -64,25 +94,8 @@ definitions:
   dto.GroupInvitationOutputDTO:
     properties:
       group:
-        $ref: '#/definitions/dto.GroupOutputDTO'
+        $ref: '#/definitions/dto.GroupCoreOutputDTO'
       invitationID:
-        type: string
-    type: object
-  dto.GroupOutputDTO:
-    properties:
-      bills:
-        items:
-          $ref: '#/definitions/dto.BillOutputDTO'
-        type: array
-      id:
-        type: string
-      memberIDs:
-        items:
-          type: string
-        type: array
-      name:
-        type: string
-      ownerID:
         type: string
     type: object
   dto.InvitationResponseInputDTO:
@@ -118,13 +131,20 @@ definitions:
       price:
         type: number
     type: object
+  dto.UserCoreOutputDTO:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+    type: object
   dto.UserDetailedOutputDTO:
     properties:
       email:
         type: string
       groups:
         items:
-          $ref: '#/definitions/dto.GroupOutputDTO'
+          $ref: '#/definitions/dto.GroupCoreOutputDTO'
         type: array
       id:
         type: string
@@ -167,7 +187,7 @@ paths:
             - $ref: '#/definitions/dto.GeneralResponseDTO'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.BillOutputDTO'
+                  $ref: '#/definitions/dto.BillDetailedOutputDTO'
               type: object
       summary: Create Bill
       tags:
@@ -192,7 +212,7 @@ paths:
             - $ref: '#/definitions/dto.GeneralResponseDTO'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.BillOutputDTO'
+                  $ref: '#/definitions/dto.BillDetailedOutputDTO'
               type: object
       summary: Get Bill by ID
       tags:
@@ -298,7 +318,7 @@ paths:
             - $ref: '#/definitions/dto.GeneralResponseDTO'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.GroupOutputDTO'
+                  $ref: '#/definitions/dto.GroupDetailedOutputDTO'
               type: object
       summary: Get Groups by User
       tags:
@@ -323,7 +343,7 @@ paths:
             - $ref: '#/definitions/dto.GeneralResponseDTO'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.GroupOutputDTO'
+                  $ref: '#/definitions/dto.GroupDetailedOutputDTO'
               type: object
       summary: Create Group
       tags:
@@ -348,7 +368,7 @@ paths:
             - $ref: '#/definitions/dto.GeneralResponseDTO'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.GroupOutputDTO'
+                  $ref: '#/definitions/dto.GroupDetailedOutputDTO'
               type: object
       summary: Get Group by ID
       tags:
@@ -539,7 +559,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GeneralResponseDTO'
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserDetailedOutputDTO'
+              type: object
       summary: Login User
       tags:
       - User
@@ -560,7 +585,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GeneralResponseDTO'
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserDetailedOutputDTO'
+              type: object
       summary: Register User
       tags:
       - User

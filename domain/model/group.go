@@ -6,17 +6,22 @@ import (
 
 type GroupModel struct {
 	ID      uuid.UUID
-	Owner   uuid.UUID
 	Name    string
-	Members []uuid.UUID
+	Owner   UserModel
+	Members []UserModel
 	Bills   []BillModel
 }
 
 func CreateGroupModel(owner uuid.UUID, name string, members []uuid.UUID) GroupModel {
+	// store memberIDs in empty UserModel
+	memberModel := make([]UserModel, len(members))
+	for i, member := range members {
+		memberModel[i] = UserModel{ID: member}
+	}
 	return GroupModel{
-		Owner:   owner,
 		ID:      uuid.New(),
+		Owner:   UserModel{ID: owner}, // store ownerID in empty UserModel
 		Name:    name,
-		Members: members,
+		Members: memberModel,
 	}
 }
