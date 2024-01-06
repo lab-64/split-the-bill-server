@@ -8,8 +8,10 @@ require (
 	github.com/gofiber/fiber/v2 v2.50.0
 	github.com/gofiber/swagger v0.1.14
 	github.com/joho/godotenv v1.5.1
+	github.com/sirupsen/logrus v1.9.3
 	github.com/swaggo/swag v1.16.2
 	golang.org/x/crypto v0.14.0
+	gorm.io/driver/mysql v1.5.2
 )
 
 require (
@@ -19,6 +21,7 @@ require (
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
 	github.com/go-openapi/spec v0.20.9 // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.3.1 // indirect

@@ -4,10 +4,41 @@ import (
 	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
+	"log"
+	"split-the-bill-server/authentication"
+	. "split-the-bill-server/domain/service/impl"
+	"split-the-bill-server/presentation/dto"
+	"split-the-bill-server/presentation/handler"
 	. "split-the-bill-server/storage"
+	"split-the-bill-server/storage/database"
 	. "split-the-bill-server/storage/database/test_util"
 	"testing"
 )
+
+func TestCase(t *testing.T) {
+	db, err := database.NewDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	passwordValidator, err := authentication.NewPasswordValidator()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	userStorage := NewUserStorage(db)
+	cookieStorage := NewCookieStorage(db)
+	userService := NewUserService(&userStorage, &cookieStorage)
+	userHandler := handler.NewUserHandler(&userService, passwordValidator)
+	log.Println(userHandler)
+
+	// Test case: Successful creation
+	user := dto.UserInputDTO{
+		Email:    "felix@mail.com",
+		Password: "alek1337",
+	}
+	log.Println(user)
+}
 
 func TestUserStorage_Create_Success(t *testing.T) {
 	sqlDB, gormDB, mock := InitMockDB(t)
