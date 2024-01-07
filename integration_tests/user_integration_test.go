@@ -3,12 +3,14 @@ package integration_tests
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"log"
 	"net/http/httptest"
 	"split-the-bill-server/presentation/dto"
-	"strings"
+	"split-the-bill-server/presentation/handler"
+	"split-the-bill-server/storage"
 	"testing"
 )
 
@@ -21,25 +23,25 @@ func TestCreateUser(t *testing.T) {
 		route           string // route path to testcase
 		expectedCode    int    // expected HTTP status code
 		expectedMessage string // expected message in response body
+		expectReturn    bool   // expected return value
 	}{
-		// First testcase case
-		/*		{
-					description:  "get HTTP status 200",
-					route:        "/",
-					expectedCode: 200,
-				},
-				// Second testcase case
-				{
-					description:  "get HTTP status 404, when route is not exists",
-					route:        "/not-found",
-					expectedCode: 404,
-				},*/
+		// test successful user creation
 		{
-			description:     "get HTTP status 201",
+			description:     "Test successful user creation",
 			inputJSON:       `{"email": "test3@mail.com", "password": "alek1337"}`,
 			route:           "/api/user/register",
 			expectedCode:    201,
-			expectedMessage: "User created",
+			expectedMessage: handler.SuccessMsgUserCreate,
+			expectReturn:    true,
+		},
+		// test user already exist
+		{
+			description:     "Test user already exists",
+			inputJSON:       `{"email": "test3@mail.com", "password": "alek1337"}`,
+			route:           "/api/user/register",
+			expectedCode:    500,
+			expectedMessage: fmt.Sprintf(handler.ErrMsgUserCreate, storage.InvalidUserInputError),
+			expectReturn:    false,
 		},
 	}
 
@@ -73,11 +75,11 @@ func TestCreateUser(t *testing.T) {
 			log.Println("unmarshal err")
 			panic(err)
 		}
-		log.Println(response)
+		log.Println(response.Message)
 
 		// Verify, if test case is successfully passed
-		assert.Equalf(t, testcase.expectedCode, resp.StatusCode, testcase.description) // check status code
-		assert.True(t, strings.Contains(response.Message, testcase.expectedMessage))   // check message
-		assert.NotEmpty(t, response.Data)                                              // check returned data
+		assert.Equalf(t, testcase.expectedCode, resp.StatusCode, testcase.description)      // check status code
+		assert.Equalf(t, testcase.expectedMessage, response.Message, testcase.description)  // check message
+		assert.Equalf(t, testcase.expectReturn, response.Data != nil, testcase.description) // check returned data
 	}
 }
