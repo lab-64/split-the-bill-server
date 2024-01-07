@@ -1,48 +1,83 @@
 package integration_tests
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"bytes"
+	"encoding/json"
 	"github.com/stretchr/testify/assert"
+	"io"
+	"log"
 	"net/http/httptest"
+	"split-the-bill-server/presentation/dto"
+	"strings"
 	"testing"
 )
 
 func TestCreateUser(t *testing.T) {
-	database()
+	refreshDB()
 
 	tests := []struct {
-		description  string // description of the test case
-		route        string // route path to test
-		expectedCode int    // expected HTTP status code
+		inputJSON       string
+		description     string // description of the testcase case
+		route           string // route path to testcase
+		expectedCode    int    // expected HTTP status code
+		expectedMessage string // expected message in response body
 	}{
-		// First test case
+		// First testcase case
+		/*		{
+					description:  "get HTTP status 200",
+					route:        "/",
+					expectedCode: 200,
+				},
+				// Second testcase case
+				{
+					description:  "get HTTP status 404, when route is not exists",
+					route:        "/not-found",
+					expectedCode: 404,
+				},*/
 		{
-			description:  "get HTTP status 200",
-			route:        "/",
-			expectedCode: 200,
-		},
-		// Second test case
-		{
-			description:  "get HTTP status 404, when route is not exists",
-			route:        "/not-found",
-			expectedCode: 404,
+			description:     "get HTTP status 201",
+			inputJSON:       `{"email": "test3@mail.com", "password": "alek1337"}`,
+			route:           "/api/user/register",
+			expectedCode:    201,
+			expectedMessage: "User created",
 		},
 	}
 
-	// Define Fiber app.
-	app := fiber.New()
-
-	// Iterate through test single test cases
-	for _, test := range tests {
-		// Create a new http request with the route from the test case
-		req := httptest.NewRequest("GET", test.route, nil)
+	// Iterate through testcase single testcase cases
+	for _, testcase := range tests {
+		// Create a new http request with the route from the testcase case
+		req := httptest.NewRequest("POST", testcase.route, bytes.NewBufferString(testcase.inputJSON))
+		req.Header.Set("Content-Type", "application/json")
 
 		// Perform the request plain with the app,
 		// the second argument is a request latency
 		// (set to -1 for no latency)
-		resp, _ := app.Test(req, 1)
+		resp, err := app.Test(req, -1)
+		if resp != nil {
+			defer resp.Body.Close()
+		}
+		if err != nil {
+			log.Println("test err")
+			panic(err)
+		}
 
-		// Verify, if the status code is as expected
-		assert.Equalf(t, test.expectedCode, resp.StatusCode, test.description)
+		// Read response body
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Println("read err")
+			panic(err)
+		}
+		// Parse response body to GeneralResponseDTO
+		var response dto.GeneralResponseDTO
+		if err = json.Unmarshal(body, &response); err != nil { // Parse []byte to go struct pointer
+			log.Println("unmarshal err")
+			panic(err)
+		}
+		log.Println(response)
+
+		// Verify, if test case is successfully passed
+		assert.Equalf(t, testcase.expectedCode, resp.StatusCode, testcase.description) // check status code
+		assert.True(t, strings.Contains(response.Message, testcase.expectedMessage))   // check message
+		assert.NotEmpty(t, response.Data)                                              // check returned data
 	}
 }

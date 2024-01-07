@@ -1,42 +1,95 @@
 package integration_tests
 
 import (
-	"database/sql"
-	"fmt"
-	"github.com/joho/godotenv"
-	"gorm.io/driver/mysql"
+	"github.com/gofiber/fiber/v2"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
 	"os"
+	"split-the-bill-server/authentication"
+	"split-the-bill-server/domain/service/impl"
+	"split-the-bill-server/presentation/handler"
+	"split-the-bill-server/presentation/router"
+	"split-the-bill-server/storage/database"
+	"split-the-bill-server/storage/database/db_storages"
+	. "split-the-bill-server/storage/database/entity"
+	"split-the-bill-server/storage/storage_inf"
 	"testing"
 )
 
 var (
-	dbConn *sql.DB
-	db     *gorm.DB
+	db  *database.Database
+	app *fiber.App
 )
 
+// TestMain initializes the test environment. It is called before the tests are executed.
 func TestMain(m *testing.M) {
-	var err error
-	err = godotenv.Load(os.ExpandEnv("./../.env"))
-	if err != nil {
-		log.Fatalf("Error getting env %v\n", err)
-	}
+	setupTestEnv()
 	os.Exit(m.Run())
 }
 
-func database() {
-	//dbdriver := os.Getenv("DBDRIVER")
-	username := os.Getenv("USERNAME_TEST")
-	password := os.Getenv("PASSWORD_TEST")
-	host := os.Getenv("HOST_TEST")
-	dbName := os.Getenv("DATABASE_TEST")
-	port := os.Getenv("PORT_TEST")
+// setupTestEnv initializes and configures the storage components and the webserver routes for the integration tests.
+func setupTestEnv() {
+	initDB()
 
-	//dsn := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, dbName)
-	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", username, password, host, port, dbName)
+	// setupTestEnv storage
+	userStorage, groupStorage, cookieStorage, billStorage, invitationStorage := setupStorage()
 
-	db, _ = gorm.Open(mysql.Open(DBURL), &gorm.Config{})
+	// services
+	userService := impl.NewUserService(&userStorage, &cookieStorage)
+	groupService := impl.NewGroupService(&groupStorage, &userStorage)
+	billService := impl.NewBillService(&billStorage, &groupStorage)
+	invitationService := impl.NewInvitationService(&invitationStorage, &groupStorage)
 
-	//dbConn, _ = sql.Open(dbdriver, DBURL)
+	// password validator
+	passwordValidator, err := authentication.NewPasswordValidator()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// handlers
+	userHandler := handler.NewUserHandler(&userService, passwordValidator)
+	groupHandler := handler.NewGroupHandler(&groupService, &invitationService)
+	billHandler := handler.NewBillHandler(&billService, &groupService)
+	invitationHandler := handler.NewInvitationHandler(&invitationService)
+
+	// authenticator
+	authenticator := authentication.NewAuthenticator(&cookieStorage)
+
+	// create webserver
+	fiberApp := fiber.New()
+
+	// setupTestEnv routing
+	router.SetupRoutes(fiberApp, *userHandler, *groupHandler, *billHandler, *invitationHandler, *authenticator)
+
+	app = fiberApp
+}
+
+// setupStorage initializes and configures the storage components for the integration tests.
+func setupStorage() (storage_inf.IUserStorage, storage_inf.IGroupStorage, storage_inf.ICookieStorage, storage_inf.IBillStorage, storage_inf.IInvitationStorage) {
+	return db_storages.NewUserStorage(db), db_storages.NewGroupStorage(db), db_storages.NewCookieStorage(db), db_storages.NewBillStorage(db), db_storages.NewInvitationStorage(db)
+
+}
+
+// initDB initializes the test database connection.
+func initDB() {
+	db = &database.Database{}
+
+	sqliteDB, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	err = sqliteDB.AutoMigrate(&User{}, &AuthCookie{}, &Credentials{}, &Group{}, &GroupInvitation{}, &Bill{}, &Item{})
+	if err != nil {
+		panic("failed to migrate database")
+	}
+	db.Context = sqliteDB
+
+}
+
+// refreshDB deletes all entries from the database.
+func refreshDB() {
+	db.Context.Unscoped().Where("1 = 1").Delete(&User{})
+	return
 }
