@@ -3,14 +3,17 @@ package db_storages
 import (
 	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"log"
+	"reflect"
 	"split-the-bill-server/authentication"
 	. "split-the-bill-server/domain/service/impl"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/handler"
 	. "split-the-bill-server/storage"
 	"split-the-bill-server/storage/database"
+	"split-the-bill-server/storage/database/entity"
 	. "split-the-bill-server/storage/database/test_util"
 	"testing"
 )
@@ -139,5 +142,80 @@ func TestUserStorage_Create_Already_Exist(t *testing.T) {
 	// Ensure all expectations were met
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("Unfulfilled expectations: %s", err)
+	}
+}
+
+func TestGetByID(t *testing.T) {
+	// Initialize mock DB and UserStorage
+	sqlDB, gormDB, mock := InitMockDB(t)
+	defer sqlDB.Close()
+	userStorage := UserStorage{DB: gormDB}
+
+	// test data
+	userIDSuccess := uuid.New()
+
+	tests := []struct {
+		name    string
+		storage UserStorage
+		userUID uuid.UUID
+		mock    func()
+		wantErr bool
+		want    entity.User
+	}{
+		{
+			// When everything works as expected
+			name:    "Get User by ID Success",
+			storage: userStorage,
+			userUID: userIDSuccess,
+			mock: func() {
+				// ExpectQuery for SELECT Query
+				// ExpectExec for INSERT, UPDATE, DELETE, ...
+				// We added one row
+				userRows := sqlmock.NewRows([]string{"ID", "Email"}).AddRow(userIDSuccess, "mail@mail.com")
+				mock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(userIDSuccess).WillReturnRows(userRows)
+				groupInvitationRows := sqlmock.NewRows([]string{"ID", "InviteeID"}).AddRow(uuid.New(), userIDSuccess) // Include field where user is stored
+				mock.ExpectQuery(`SELECT (.+) FROM "group_invitations"`).WithArgs(userIDSuccess).WillReturnRows(groupInvitationRows)
+				groupMemberRows := sqlmock.NewRows([]string{"ID", "OwnerUID"}).AddRow(uuid.New(), userIDSuccess)
+				mock.ExpectQuery(`SELECT (.+) FROM "group_members"`).WithArgs(userIDSuccess).WillReturnRows(groupMemberRows)
+			},
+			want: entity.User{Base: entity.Base{ID: userIDSuccess}},
+		},
+		/*		{
+					//When the role tried to access is not found
+					name:    "Not Found",
+					storage:       userStorage,
+					userUID: uuid.New(),
+					mock: func() {
+						rows := sqlmock.NewRows([]string{"Id", "Email", "CreatedAt"}) //observe that we didnt add any role here
+						mock.ExpectPrepare("SELECT (.+) FROM users").ExpectQuery().WithArgs(1).WillReturnRows(rows)
+					},
+					wantErr: true,
+					want:    entity.User{},
+				},
+				{
+					//When invalid statement is provided, ie the SQL syntax is wrong(in this case, we provided a wrong database)
+					name:    "Invalid Prepare",
+					storage:       userStorage,
+					userUID: uuid.New(),
+					mock: func() {
+						rows := sqlmock.NewRows([]string{"Id", "Title", "Body", "CreatedAt"}).AddRow(1, "title", "body", created_at)
+						mock.ExpectPrepare("SELECT (.+) FROM wrong_table").ExpectQuery().WithArgs(1).WillReturnRows(rows)
+					},
+					wantErr: true,
+					want:    entity.User{},
+				},*/
+	}
+	for _, testcase := range tests {
+		t.Run(testcase.name, func(t *testing.T) {
+			testcase.mock()
+			got, err := testcase.storage.GetByID(testcase.userUID)
+			if (err != nil) != testcase.wantErr {
+				t.Errorf("Get() error new = %v, wantErr %v", err, testcase.wantErr)
+				return
+			}
+			if err == nil && !reflect.DeepEqual(got.ID, testcase.want.ID) {
+				t.Errorf("Get() = %v, want %v", got, testcase.want)
+			}
+		})
 	}
 }
