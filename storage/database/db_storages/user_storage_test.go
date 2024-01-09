@@ -1,54 +1,54 @@
 package db_storages
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 	"log"
+	"os"
 	"reflect"
-	"split-the-bill-server/authentication"
-	. "split-the-bill-server/domain/service/impl"
-	"split-the-bill-server/presentation/dto"
-	"split-the-bill-server/presentation/handler"
 	. "split-the-bill-server/storage"
-	"split-the-bill-server/storage/database"
 	"split-the-bill-server/storage/database/entity"
 	. "split-the-bill-server/storage/database/test_util"
 	"testing"
 )
 
-func TestCase(t *testing.T) {
-	db, err := database.NewDatabase()
+var (
+	sqlDB       *sql.DB
+	mock        sqlmock.Sqlmock
+	gormDB      *gorm.DB
+	userStorage UserStorage
+)
+
+func TestMain(m *testing.M) {
+	// Perform setup
+	var err error
+	// Initialize mock db
+	sqlDB, gormDB, mock, err = InitMockDB()
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
+	// Create an instance of UserStorage with the mocked DB
+	userStorage = UserStorage{DB: gormDB}
 
-	passwordValidator, err := authentication.NewPasswordValidator()
-	if err != nil {
-		t.Fatal(err)
-	}
+	// Run tests
+	exitCode := m.Run()
 
-	userStorage := NewUserStorage(db)
-	cookieStorage := NewCookieStorage(db)
-	userService := NewUserService(&userStorage, &cookieStorage)
-	userHandler := handler.NewUserHandler(&userService, passwordValidator)
-	log.Println(userHandler)
-
-	// Test case: Successful creation
-	user := dto.UserInputDTO{
-		Email:    "felix@mail.com",
-		Password: "alek1337",
-	}
-	log.Println(user)
-}
-
-func TestUserStorage_Create_Success(t *testing.T) {
-	sqlDB, gormDB, mock := InitMockDB(t)
+	// Perform cleanup or resource teardown
 	defer sqlDB.Close()
 
-	// Create an instance of UserStorage with the mocked DB
-	userStorage := UserStorage{DB: gormDB}
+	// Exit with the same code as the test run
+	os.Exit(exitCode)
+}
+
+// Reminder:
+// ExpectQuery for SELECT Query
+// ExpectExec for INSERT, UPDATE, DELETE, ...
+
+func TestUserStorage_Create_Success(t *testing.T) {
 
 	currentUser := User
 
@@ -72,10 +72,6 @@ func TestUserStorage_Create_Success(t *testing.T) {
 }
 
 func TestUserStorage_Create_Bad_Inputs(t *testing.T) {
-	// Initialize mock DB and UserStorage
-	sqlDB, gormDB, mock := InitMockDB(t)
-	defer sqlDB.Close()
-	userStorage := UserStorage{DB: gormDB}
 
 	// Test case: Create user with empty email
 	userWithEmptyEmail := UserWithEmptyEmail
@@ -96,10 +92,6 @@ func TestUserStorage_Create_Bad_Inputs(t *testing.T) {
 }
 
 func TestUserStorage_Create_Already_Exist(t *testing.T) {
-	// Initialize mock DB and UserStorage
-	sqlDB, gormDB, mock := InitMockDB(t)
-	defer sqlDB.Close()
-	userStorage := UserStorage{DB: gormDB}
 
 	// Test case: Successful creation
 	user := User
@@ -146,30 +138,24 @@ func TestUserStorage_Create_Already_Exist(t *testing.T) {
 }
 
 func TestGetByID(t *testing.T) {
-	// Initialize mock DB and UserStorage
-	sqlDB, gormDB, mock := InitMockDB(t)
-	defer sqlDB.Close()
-	userStorage := UserStorage{DB: gormDB}
 
+	// TODO: use test data from testdata.go
 	// test data
 	userIDSuccess := uuid.New()
 
 	tests := []struct {
-		name    string
-		storage UserStorage
-		userUID uuid.UUID
-		mock    func()
-		wantErr bool
-		want    entity.User
+		name        string
+		userUID     uuid.UUID
+		mock        func()
+		wantErr     bool
+		expectedErr error
+		want        entity.User
 	}{
 		{
 			// When everything works as expected
 			name:    "Get User by ID Success",
-			storage: userStorage,
 			userUID: userIDSuccess,
 			mock: func() {
-				// ExpectQuery for SELECT Query
-				// ExpectExec for INSERT, UPDATE, DELETE, ...
 				// We added one row
 				userRows := sqlmock.NewRows([]string{"ID", "Email"}).AddRow(userIDSuccess, "mail@mail.com")
 				mock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(userIDSuccess).WillReturnRows(userRows)
@@ -178,7 +164,9 @@ func TestGetByID(t *testing.T) {
 				groupMemberRows := sqlmock.NewRows([]string{"ID", "OwnerUID"}).AddRow(uuid.New(), userIDSuccess)
 				mock.ExpectQuery(`SELECT (.+) FROM "group_members"`).WithArgs(userIDSuccess).WillReturnRows(groupMemberRows)
 			},
-			want: entity.User{Base: entity.Base{ID: userIDSuccess}},
+			wantErr:     false,
+			expectedErr: nil,
+			want:        entity.User{Base: entity.Base{ID: userIDSuccess}},
 		},
 		/*		{
 					//When the role tried to access is not found
@@ -208,7 +196,9 @@ func TestGetByID(t *testing.T) {
 	for _, testcase := range tests {
 		t.Run(testcase.name, func(t *testing.T) {
 			testcase.mock()
-			got, err := testcase.storage.GetByID(testcase.userUID)
+			got, err := userStorage.GetByID(testcase.userUID)
+
+			// TODO: test validation
 			if (err != nil) != testcase.wantErr {
 				t.Errorf("Get() error new = %v, wantErr %v", err, testcase.wantErr)
 				return

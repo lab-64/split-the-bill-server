@@ -6,23 +6,23 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"testing"
 )
 
-func InitMockDB(t *testing.T) (*sql.DB, *gorm.DB, sqlmock.Sqlmock) {
-	sqldb, mock, err := sqlmock.New()
+// InitMockDB initializes a mock database and returns the sql.DB, gorm.DB and sqlmock.Sqlmock instances.
+func InitMockDB() (*sql.DB, *gorm.DB, sqlmock.Sqlmock, error) {
+	sqlDB, dbMock, err := sqlmock.New()
 	if err != nil {
-		t.Fatal(err)
+		return nil, nil, nil, err
 	}
-	gormdb, err := gorm.Open(postgres.New(postgres.Config{
-		Conn: sqldb,
+	gormDB, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: sqlDB,
 	}), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 
 	if err != nil {
-		t.Fatal(err)
+		return nil, nil, nil, err
 	}
 
-	return sqldb, gormdb, mock
+	return sqlDB, gormDB, dbMock, nil
 }
