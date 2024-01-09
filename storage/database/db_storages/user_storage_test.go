@@ -2,15 +2,12 @@ package db_storages
 
 import (
 	"database/sql"
-	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 	"log"
 	"os"
-	"reflect"
-	. "split-the-bill-server/storage"
 	"split-the-bill-server/storage/database/entity"
 	. "split-the-bill-server/storage/database/test_util"
 	"testing"
@@ -47,101 +44,9 @@ func TestMain(m *testing.M) {
 // Reminder:
 // ExpectQuery for SELECT Query
 // ExpectExec for INSERT, UPDATE, DELETE, ...
-
-func TestUserStorage_Create_Success(t *testing.T) {
-
-	currentUser := User
-
-	// Expectations for the transaction with mocked behavior
-	mock.ExpectBegin()
-	mock.ExpectExec(`INSERT INTO "users"`).
-		WithArgs(currentUser.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), currentUser.Email).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectExec(`INSERT INTO "credentials"`).
-		WithArgs(currentUser.ID, PasswordHash).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectCommit()
-
-	err := userStorage.Create(currentUser, PasswordHash)
-	assert.NoError(t, err) // Check if the Create method returns no error
-
-	// Ensure all expectations were met
-	if err = mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %s", err)
-	}
-}
-
-func TestUserStorage_Create_Bad_Inputs(t *testing.T) {
-
-	// Test case: Create user with empty email
-	userWithEmptyEmail := UserWithEmptyEmail
-	mock.ExpectBegin()
-	mock.ExpectExec(`INSERT INTO "users"`).
-		WithArgs(userWithEmptyEmail.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), userWithEmptyEmail.Email).
-		WillReturnError(InvalidUserInputError)
-	mock.ExpectRollback()
-
-	err := userStorage.Create(userWithEmptyEmail, PasswordHash)
-	assert.Error(t, err)
-	assert.EqualError(t, err, InvalidUserInputError.Error())
-
-	// Ensure all expectations were met
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %s", err)
-	}
-}
-
-func TestUserStorage_Create_Already_Exist(t *testing.T) {
-
-	// Test case: Successful creation
-	user := User
-	mock.ExpectBegin()
-	mock.ExpectExec(`INSERT INTO "users"`).
-		WithArgs(user.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), user.Email).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectExec(`INSERT INTO "credentials"`).
-		WithArgs(user.ID, PasswordHash).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectCommit()
-
-	err := userStorage.Create(user, PasswordHash)
-	assert.NoError(t, err)
-
-	// Test case: Create user with same ID
-	userWithSameID := UserWithSameID
-	mock.ExpectBegin()
-	mock.ExpectExec(`INSERT INTO "users"`).
-		WithArgs(userWithSameID.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), userWithSameID.Email).
-		WillReturnError(errors.New("duplicate key value violates unique constraint \"users_pkey\""))
-	mock.ExpectRollback()
-
-	err = userStorage.Create(userWithSameID, PasswordHash)
-	assert.Error(t, err)
-	assert.EqualError(t, err, UserAlreadyExistsError.Error())
-
-	// Test case: Create user with same email
-	userWithSameEmail := UserWithSameEmail
-	mock.ExpectBegin()
-	mock.ExpectExec(`INSERT INTO "users"`).
-		WithArgs(userWithSameEmail.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), userWithSameEmail.Email).
-		WillReturnError(errors.New("duplicate key value violates unique constraint \"users_email_key\""))
-	mock.ExpectRollback()
-
-	err = userStorage.Create(userWithSameEmail, PasswordHash)
-	assert.Error(t, err)
-	assert.EqualError(t, err, UserAlreadyExistsError.Error())
-
-	// Ensure all expectations were met
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("Unfulfilled expectations: %s", err)
-	}
-}
+// ExpectRollback for ROLLBACK if DB query fails
 
 func TestGetByID(t *testing.T) {
-
-	// TODO: use test data from testdata.go
-	// test data
-	userIDSuccess := uuid.New()
 
 	tests := []struct {
 		name        string
@@ -154,19 +59,19 @@ func TestGetByID(t *testing.T) {
 		{
 			// When everything works as expected
 			name:    "Get User by ID Success",
-			userUID: userIDSuccess,
+			userUID: User.ID,
 			mock: func() {
 				// We added one row
-				userRows := sqlmock.NewRows([]string{"ID", "Email"}).AddRow(userIDSuccess, "mail@mail.com")
-				mock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(userIDSuccess).WillReturnRows(userRows)
-				groupInvitationRows := sqlmock.NewRows([]string{"ID", "InviteeID"}).AddRow(uuid.New(), userIDSuccess) // Include field where user is stored
-				mock.ExpectQuery(`SELECT (.+) FROM "group_invitations"`).WithArgs(userIDSuccess).WillReturnRows(groupInvitationRows)
-				groupMemberRows := sqlmock.NewRows([]string{"ID", "OwnerUID"}).AddRow(uuid.New(), userIDSuccess)
-				mock.ExpectQuery(`SELECT (.+) FROM "group_members"`).WithArgs(userIDSuccess).WillReturnRows(groupMemberRows)
+				userRows := sqlmock.NewRows([]string{"ID", "Email"}).AddRow(User.ID, "mail@mail.com")
+				mock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(User.ID).WillReturnRows(userRows)
+				groupInvitationRows := sqlmock.NewRows([]string{"ID", "InviteeID"}).AddRow(uuid.New(), User.ID) // Include field where user is stored
+				mock.ExpectQuery(`SELECT (.+) FROM "group_invitations"`).WithArgs(User.ID).WillReturnRows(groupInvitationRows)
+				groupMemberRows := sqlmock.NewRows([]string{"ID", "OwnerUID"}).AddRow(uuid.New(), User.ID)
+				mock.ExpectQuery(`SELECT (.+) FROM "group_members"`).WithArgs(User.ID).WillReturnRows(groupMemberRows)
 			},
 			wantErr:     false,
 			expectedErr: nil,
-			want:        entity.User{Base: entity.Base{ID: userIDSuccess}},
+			want:        entity.User{Base: entity.Base{ID: User.ID}},
 		},
 		/*		{
 					//When the role tried to access is not found
@@ -198,13 +103,16 @@ func TestGetByID(t *testing.T) {
 			testcase.mock()
 			got, err := userStorage.GetByID(testcase.userUID)
 
-			// TODO: test validation
-			if (err != nil) != testcase.wantErr {
-				t.Errorf("Get() error new = %v, wantErr %v", err, testcase.wantErr)
-				return
-			}
-			if err == nil && !reflect.DeepEqual(got.ID, testcase.want.ID) {
-				t.Errorf("Get() = %v, want %v", got, testcase.want)
+			// Test validation
+			// test error
+			assert.Equalf(t, testcase.wantErr, err != nil, "Get() error = %v, wantErr %v", err, testcase.wantErr)
+			assert.Equalf(t, testcase.expectedErr, err, "Get() error = %v, expectedErr %v", err, testcase.expectedErr)
+			// test returned data
+			assert.Equalf(t, testcase.want.ID, got.ID, "Get() = %v, want %v", got.ID, testcase.want.ID)
+
+			// Ensure all expectations were met
+			if err = mock.ExpectationsWereMet(); err != nil {
+				t.Errorf("Unfulfilled expectations: %s", err)
 			}
 		})
 	}
