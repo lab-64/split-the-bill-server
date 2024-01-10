@@ -7,6 +7,7 @@ import (
 
 // Users
 var User = UserModel{ID: uuid.New(), Email: "tester@mail.com"}
+var User2 = UserModel{ID: uuid.New(), Email: "tester2@mail.com"}
 var UserWithEmptyEmail = UserModel{ID: uuid.New()}
 var UserWithSameEmail = UserModel{ID: uuid.New(), Email: "tester@mail.com"}
 var UserWithSameID = UserModel{ID: User.ID, Email: "new@mail.com"}
