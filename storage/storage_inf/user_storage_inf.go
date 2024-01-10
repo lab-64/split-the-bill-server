@@ -23,7 +23,7 @@ type IUserStorage interface {
 
 	// Create adds the given user to the storage and saves the password. If a user with the same ID or email
 	// already exists, a UserAlreadyExistsError is returned.
-	Create(user UserModel, passwordHash []byte) error
+	Create(user UserModel, passwordHash []byte) (UserModel, error)
 
 	// GetCredentials returns the password hash for the user with the given ID, or a NoCredentialsError, if no
 	// credentials are stored for the user.
