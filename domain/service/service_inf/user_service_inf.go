@@ -15,5 +15,5 @@ type IUserService interface {
 
 	Login(credentials CredentialsInputDTO) (UserCoreOutputDTO, fiber.Cookie, error)
 
-	Register(user UserInputDTO) (UserCoreOutputDTO, error)
+	Create(user UserInputDTO) (UserCoreOutputDTO, error)
 }

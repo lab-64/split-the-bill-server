@@ -23,7 +23,7 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, i
 	// routes
 	userRoute.Get("/", a.Authenticate, u.GetAll)
 	userRoute.Get("/:id", a.Authenticate, u.GetByID)
-	userRoute.Post("/register", u.Register)
+	userRoute.Post("/", u.Register)
 	userRoute.Post("/login", u.Login)
 	//userRoute.Put("/:id", u.UpdateUser)
 	userRoute.Delete("/:id", a.Authenticate, u.Delete)
