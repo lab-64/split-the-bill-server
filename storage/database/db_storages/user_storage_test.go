@@ -105,3 +105,77 @@ func TestGetByID(t *testing.T) {
 		})
 	}
 }
+
+func TestCreate(t *testing.T) {
+
+	tests := []struct {
+		name        string
+		user        UserModel
+		mock        func()
+		wantErr     bool
+		expectedErr error
+		want        UserModel
+	}{
+		{
+			name: "Success",
+			user: User,
+			mock: func() {
+				mock.ExpectBegin()
+				mock.ExpectExec(`INSERT INTO "users"`).
+					WithArgs(User.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), User.Email).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(`INSERT INTO "credentials"`).
+					WithArgs(User.ID, PasswordHash).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			wantErr:     false,
+			expectedErr: nil,
+			want:        UserModel{},
+		},
+		{
+			name: "User Already Exists",
+			user: User,
+			mock: func() {
+				mock.ExpectBegin()
+				mock.ExpectExec(`INSERT INTO "users"`).
+					WithArgs(User.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), User.Email).
+					WillReturnError(gorm.ErrDuplicatedKey)
+				mock.ExpectRollback()
+			},
+			wantErr:     true,
+			expectedErr: storage.UserAlreadyExistsError,
+			want:        UserModel{},
+		},
+		{
+			name: "Invalid User Input",
+			user: UserWithEmptyEmail,
+			mock: func() {
+				mock.ExpectBegin()
+				mock.ExpectExec(`INSERT INTO "users"`).
+					WithArgs(UserWithEmptyEmail.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), UserWithEmptyEmail.Email).
+					WillReturnError(gorm.ErrInvalidData)
+				mock.ExpectRollback()
+			},
+			wantErr:     true,
+			expectedErr: storage.InvalidUserInputError,
+			want:        UserModel{},
+		},
+	}
+
+	for _, testcase := range tests {
+		t.Run(testcase.name, func(t *testing.T) {
+			testcase.mock()
+			err := userStorage.Create(testcase.user, PasswordHash)
+
+			// Validate error
+			assert.Equalf(t, testcase.wantErr, err != nil, "Get() error = %v, wantErr %v", err, testcase.wantErr)
+			assert.Equalf(t, testcase.expectedErr, err, "Get() error = %v, expectedErr %v", err, testcase.expectedErr)
+
+			// Ensure all expectations were met
+			if err = mock.ExpectationsWereMet(); err != nil {
+				t.Errorf("Unfulfilled expectations: %s", err)
+			}
+		})
+	}
+}
