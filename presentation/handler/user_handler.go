@@ -86,16 +86,16 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 	return core.Success(c, fiber.StatusOK, SuccessMsgUserDelete, nil)
 }
 
-// Create 	parses a dto.UserInputDTO from the request body, compares and validates both passwords and creates a new user.
+// Register 	parses a dto.UserInputDTO from the request body, compares and validates both passwords and creates a new user.
 //
-//	@Summary	Create User
+//	@Summary	Register User
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
 //	@Param		request	body		dto.UserInputDTO	true	"Request Body"
 //	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserCoreOutputDTO}
 //	@Router		/api/user [post]
-func (h UserHandler) Create(c *fiber.Ctx) error {
+func (h UserHandler) Register(c *fiber.Ctx) error {
 	var request UserInputDTO
 	if err := c.BodyParser(&request); err != nil {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
