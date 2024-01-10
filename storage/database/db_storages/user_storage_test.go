@@ -93,8 +93,8 @@ func TestGetByID(t *testing.T) {
 			// Validate error
 			assert.Equalf(t, testcase.wantErr, err != nil, "Get() error = %v, wantErr %v", err, testcase.wantErr)
 			assert.Equalf(t, testcase.expectedErr, err, "Get() error = %v, expectedErr %v", err, testcase.expectedErr)
-			// Validate returned data if err != nil
-			if err != nil {
+			// Validate returned data if err == nil
+			if err == nil {
 				assert.Equalf(t, testcase.want.ID, got.ID, "Get() = %v, want %v", got.ID, testcase.want.ID)
 			}
 
@@ -131,7 +131,7 @@ func TestCreate(t *testing.T) {
 			},
 			wantErr:     false,
 			expectedErr: nil,
-			want:        UserModel{},
+			want:        User,
 		},
 		{
 			name: "User Already Exists",
@@ -166,11 +166,16 @@ func TestCreate(t *testing.T) {
 	for _, testcase := range tests {
 		t.Run(testcase.name, func(t *testing.T) {
 			testcase.mock()
-			err := userStorage.Create(testcase.user, PasswordHash)
+			ret, err := userStorage.Create(testcase.user, PasswordHash)
 
 			// Validate error
 			assert.Equalf(t, testcase.wantErr, err != nil, "Get() error = %v, wantErr %v", err, testcase.wantErr)
 			assert.Equalf(t, testcase.expectedErr, err, "Get() error = %v, expectedErr %v", err, testcase.expectedErr)
+
+			// Validate returned data if err == nil
+			if err == nil {
+				assert.Equalf(t, testcase.want.ID, ret.ID, "Get() = %v, want %v", ret.ID, testcase.want.ID)
+			}
 
 			// Ensure all expectations were met
 			if err = mock.ExpectationsWereMet(); err != nil {
