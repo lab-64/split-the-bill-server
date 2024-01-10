@@ -498,6 +498,31 @@ paths:
       summary: Get all Users
       tags:
       - User
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserInputDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserCoreOutputDTO'
+              type: object
+      summary: Register User
+      tags:
+      - User
   /api/user/{id}:
     delete:
       consumes:
@@ -563,35 +588,9 @@ paths:
             - $ref: '#/definitions/dto.GeneralResponseDTO'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.UserDetailedOutputDTO'
+                  $ref: '#/definitions/dto.UserCoreOutputDTO'
               type: object
       summary: Login User
-      tags:
-      - User
-  /api/user/register:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Request Body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UserInputDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.UserDetailedOutputDTO'
-              type: object
-      summary: Register User
       tags:
       - User
 swagger: "2.0"

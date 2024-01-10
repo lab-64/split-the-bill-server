@@ -75,7 +75,7 @@ func (u *UserStorage) GetByEmail(email string) (UserModel, error) {
 	return ToUserModel(user), nil
 }
 
-func (u *UserStorage) Create(user UserModel, passwordHash []byte) error {
+func (u *UserStorage) Create(user UserModel, passwordHash []byte) (UserModel, error) {
 	item := ToUserEntity(user)
 
 	// run as a transaction to ensure consistency. user shouldn't be created if saving credentials failed and vice versa
@@ -97,7 +97,7 @@ func (u *UserStorage) Create(user UserModel, passwordHash []byte) error {
 		return nil
 	})
 
-	return err
+	return ToUserModel(item), err
 }
 
 func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
