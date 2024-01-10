@@ -48,7 +48,7 @@ func (g *GroupStorage) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) e
 	if exists {
 		return storage.NoSuchUserError
 	}
-	group.Members = append(group.Members, user.ID)
+	group.Members = append(group.Members, user)
 	g.e.Groups[groupID] = group
 	return nil
 }
