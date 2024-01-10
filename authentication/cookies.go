@@ -53,6 +53,9 @@ func (a *Authenticator) Authenticate(c *fiber.Ctx) error {
 		return core.Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
 	}
 
+	// set userID in context
+	c.Locals("userID", sessionCookie.UserID)
+
 	// go to the next handler
 	err = c.Next()
 

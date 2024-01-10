@@ -373,6 +373,36 @@ paths:
       summary: Get Group by ID
       tags:
       - Group
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GroupInputDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupDetailedOutputDTO'
+              type: object
+      summary: Update Group
+      tags:
+      - Group
   /api/invitation:
     post:
       consumes:

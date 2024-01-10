@@ -30,6 +30,30 @@ func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupDetailedOutputDTO, e
 	return ToGroupDetailedDTO(group), nil
 }
 
+func (g *GroupService) Update(userID UUID, groupID UUID, groupDTO GroupInputDTO) (GroupDetailedOutputDTO, error) {
+	group, err := g.groupStorage.GetGroupByID(groupID)
+
+	if err != nil {
+		return GroupDetailedOutputDTO{}, err
+	}
+
+	// Validate
+	if userID != group.Owner.ID {
+		return GroupDetailedOutputDTO{}, ErrNotAuthorized
+	}
+
+	// Update fields
+	group.Name = groupDTO.Name
+	group.Owner.ID = groupDTO.OwnerID
+
+	group, err = g.groupStorage.UpdateGroup(group)
+	if err != nil {
+		return GroupDetailedOutputDTO{}, err
+	}
+
+	return ToGroupDetailedDTO(group), err
+}
+
 func (g *GroupService) GetByID(id UUID) (GroupDetailedOutputDTO, error) {
 	group, err := g.groupStorage.GetGroupByID(id)
 	if err != nil {
