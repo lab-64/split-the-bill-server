@@ -8,7 +8,8 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
-	"split-the-bill-server/storage/database/entity"
+	. "split-the-bill-server/domain/model"
+	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database/test_util"
 	"testing"
 )
@@ -44,7 +45,9 @@ func TestMain(m *testing.M) {
 // Reminder:
 // ExpectQuery for SELECT Query
 // ExpectExec for INSERT, UPDATE, DELETE, ...
-// ExpectRollback for ROLLBACK if DB query fails
+// ExpectRollback if DB query fails on INSERT
+// ExpectCommit if DB query succeeds on INSERT
+// ExpectBegin if TRANSACTION is started
 
 func TestGetByID(t *testing.T) {
 
@@ -54,14 +57,12 @@ func TestGetByID(t *testing.T) {
 		mock        func()
 		wantErr     bool
 		expectedErr error
-		want        entity.User
+		want        UserModel
 	}{
 		{
-			// When everything works as expected
-			name:    "Get User by ID Success",
+			name:    "Success",
 			userUID: User.ID,
 			mock: func() {
-				// We added one row
 				userRows := sqlmock.NewRows([]string{"ID", "Email"}).AddRow(User.ID, "mail@mail.com")
 				mock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(User.ID).WillReturnRows(userRows)
 				groupInvitationRows := sqlmock.NewRows([]string{"ID", "InviteeID"}).AddRow(uuid.New(), User.ID) // Include field where user is stored
@@ -71,44 +72,31 @@ func TestGetByID(t *testing.T) {
 			},
 			wantErr:     false,
 			expectedErr: nil,
-			want:        entity.User{Base: entity.Base{ID: User.ID}},
+			want:        UserModel{ID: User.ID, Email: User.Email},
 		},
-		/*		{
-					//When the role tried to access is not found
-					name:    "Not Found",
-					storage:       userStorage,
-					userUID: uuid.New(),
-					mock: func() {
-						rows := sqlmock.NewRows([]string{"Id", "Email", "CreatedAt"}) //observe that we didnt add any role here
-						mock.ExpectPrepare("SELECT (.+) FROM users").ExpectQuery().WithArgs(1).WillReturnRows(rows)
-					},
-					wantErr: true,
-					want:    entity.User{},
-				},
-				{
-					//When invalid statement is provided, ie the SQL syntax is wrong(in this case, we provided a wrong database)
-					name:    "Invalid Prepare",
-					storage:       userStorage,
-					userUID: uuid.New(),
-					mock: func() {
-						rows := sqlmock.NewRows([]string{"Id", "Title", "Body", "CreatedAt"}).AddRow(1, "title", "body", created_at)
-						mock.ExpectPrepare("SELECT (.+) FROM wrong_table").ExpectQuery().WithArgs(1).WillReturnRows(rows)
-					},
-					wantErr: true,
-					want:    entity.User{},
-				},*/
+		{
+			name:    "Not Found",
+			userUID: User.ID,
+			mock: func() {
+				mock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(User.ID).WillReturnError(gorm.ErrRecordNotFound) // if this query returns an error the other queries featuring the preload entities won't be executed
+			},
+			wantErr:     true,
+			expectedErr: storage.NoSuchUserError,
+			want:        UserModel{},
+		},
 	}
 	for _, testcase := range tests {
 		t.Run(testcase.name, func(t *testing.T) {
 			testcase.mock()
 			got, err := userStorage.GetByID(testcase.userUID)
 
-			// Test validation
-			// test error
+			// Validate error
 			assert.Equalf(t, testcase.wantErr, err != nil, "Get() error = %v, wantErr %v", err, testcase.wantErr)
 			assert.Equalf(t, testcase.expectedErr, err, "Get() error = %v, expectedErr %v", err, testcase.expectedErr)
-			// test returned data
-			assert.Equalf(t, testcase.want.ID, got.ID, "Get() = %v, want %v", got.ID, testcase.want.ID)
+			// Validate returned data if err != nil
+			if err != nil {
+				assert.Equalf(t, testcase.want.ID, got.ID, "Get() = %v, want %v", got.ID, testcase.want.ID)
+			}
 
 			// Ensure all expectations were met
 			if err = mock.ExpectationsWereMet(); err != nil {
