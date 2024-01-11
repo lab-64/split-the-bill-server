@@ -11,7 +11,7 @@ var (
 	MockUserGetByID        func(id uuid.UUID) (model.UserModel, error)
 	MockUserGetAll         func() ([]model.UserModel, error)
 	MockUserGetByEmail     func(email string) (model.UserModel, error)
-	MockUserCreate         func(user model.UserModel, passwordHash []byte) error
+	MockUserCreate         func(user model.UserModel, passwordHash []byte) (model.UserModel, error)
 	MockUserGetCredentials func(id uuid.UUID) ([]byte, error)
 )
 
@@ -38,8 +38,8 @@ func (u UserStorageMock) GetByEmail(email string) (model.UserModel, error) {
 	return MockUserGetByEmail(email)
 }
 
-func (u UserStorageMock) Create(userModel model.UserModel, passwordHash []byte) error {
-	return MockUserCreate(userModel, passwordHash)
+func (u UserStorageMock) Create(user model.UserModel, passwordHash []byte) (model.UserModel, error) {
+	return MockUserCreate(user, passwordHash)
 }
 
 func (u UserStorageMock) GetCredentials(id uuid.UUID) ([]byte, error) {
