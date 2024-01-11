@@ -37,7 +37,7 @@ func (g *GroupService) Update(userID UUID, groupID UUID, groupDTO GroupInputDTO)
 		return GroupDetailedOutputDTO{}, err
 	}
 
-	// Validate
+	// Authorize
 	if userID != group.Owner.ID {
 		return GroupDetailedOutputDTO{}, ErrNotAuthorized
 	}
