@@ -29,7 +29,7 @@ func TestCreateUser(t *testing.T) {
 		{
 			description:     "Test successful user creation",
 			inputJSON:       `{"email": "test3@mail.com", "password": "alek1337"}`,
-			route:           "/api/user/register",
+			route:           "/api/user",
 			expectedCode:    201,
 			expectedMessage: handler.SuccessMsgUserCreate,
 			expectReturn:    true,
@@ -38,7 +38,7 @@ func TestCreateUser(t *testing.T) {
 		{
 			description:     "Test user already exists",
 			inputJSON:       `{"email": "test3@mail.com", "password": "alek1337"}`,
-			route:           "/api/user/register",
+			route:           "/api/user",
 			expectedCode:    500,
 			expectedMessage: fmt.Sprintf(handler.ErrMsgUserCreate, storage.InvalidUserInputError),
 			expectReturn:    false,
