@@ -13,4 +13,5 @@ var UserWithSameEmail = UserModel{ID: uuid.New(), Email: "tester@mail.com"}
 var UserWithSameID = UserModel{ID: User.ID, Email: "new@mail.com"}
 
 // Credentials
+var Password = "test1337"
 var PasswordHash = []byte("hashed_password")
