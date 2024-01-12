@@ -13,6 +13,7 @@ import (
 	"split-the-bill-server/storage/database"
 	"split-the-bill-server/storage/database/db_storages"
 	. "split-the-bill-server/storage/database/entity"
+	"split-the-bill-server/storage/database/seed"
 	"split-the-bill-server/storage/storage_inf"
 	"testing"
 )
@@ -24,8 +25,23 @@ var (
 
 // TestMain initializes the test environment. It is called before the tests are executed.
 func TestMain(m *testing.M) {
+	// remove old sqlite
+	os.Remove("gorm.db")
+
 	setupTestEnv()
-	os.Exit(m.Run())
+
+	// seed db
+	for _, s := range seed.All() {
+		if err := s.Run(db.Context); err != nil {
+			log.Fatalf("Running seed '%s', failed with error: %s", s.Name, err)
+		}
+	}
+
+	// Run tests
+	exitCode := m.Run()
+
+	// Exit with the same code as the test run
+	os.Exit(exitCode)
 }
 
 // setupTestEnv initializes and configures the storage components and the webserver routes for the integration tests.
@@ -77,19 +93,13 @@ func initDB() {
 
 	sqliteDB, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		log.Fatal("Error while connecting to the database: " + err.Error())
 	}
 
 	err = sqliteDB.AutoMigrate(&User{}, &AuthCookie{}, &Credentials{}, &Group{}, &GroupInvitation{}, &Bill{}, &Item{})
 	if err != nil {
-		panic("failed to migrate database")
+		log.Fatal("Error while migrating the database: " + err.Error())
 	}
 	db.Context = sqliteDB
 
-}
-
-// refreshDB deletes all entries from the database.
-func refreshDB() {
-	db.Context.Unscoped().Where("1 = 1").Delete(&User{})
-	return
 }

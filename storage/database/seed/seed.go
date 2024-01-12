@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	. "gorm.io/gorm"
+	"split-the-bill-server/authentication"
 	. "split-the-bill-server/storage/database/entity"
 	"time"
 )
@@ -13,177 +14,186 @@ type Seed struct {
 	Run  func(*DB) error
 }
 
-func All() []Seed {
-
+var (
 	// USERS
-	user1 := User{
+	User1 = User{
 		Base:  Base{ID: uuid.New()},
 		Email: "felix@gmail.com",
 	}
 
-	user2 := User{
+	User2 = User{
 		Base:  Base{ID: uuid.New()},
 		Email: "marivn@gmail.com",
 	}
 
-	user3 := User{
+	User3 = User{
 		Base:  Base{ID: uuid.New()},
 		Email: "jan@gmail.com",
 	}
 
+	// COOKIES
+	Cookie1 = AuthCookie{
+		Base:        Base{ID: uuid.New()},
+		UserID:      User1.ID,
+		ValidBefore: time.Now().Add(authentication.SessionCookieValidityPeriod),
+	}
+
 	// CREDENTIALS
-	pw, _ := bcrypt.GenerateFromPassword([]byte("test"), 10)
+	Pw, _ = bcrypt.GenerateFromPassword([]byte("test"), 10)
 
-	credentials1 := Credentials{
-		UserID: user1.ID,
-		Hash:   pw,
+	Credentials1 = Credentials{
+		UserID: User1.ID,
+		Hash:   Pw,
 	}
 
-	credentials2 := Credentials{
-		UserID: user2.ID,
-		Hash:   pw,
+	Credentials2 = Credentials{
+		UserID: User2.ID,
+		Hash:   Pw,
 	}
 
-	credentials3 := Credentials{
-		UserID: user3.ID,
-		Hash:   pw,
+	Credentials3 = Credentials{
+		UserID: User3.ID,
+		Hash:   Pw,
 	}
 
 	// GROUPS
-	group1 := Group{
+	Group1 = Group{
 		Base:     Base{ID: uuid.New()},
 		Name:     "Wohnung",
-		OwnerUID: user1.ID,
-		Members:  []*User{&user1, &user2, &user3},
+		OwnerUID: User1.ID,
+		Members:  []*User{&User1, &User2, &User3},
 	}
 
-	group2 := Group{
+	Group2 = Group{
 		Base:     Base{ID: uuid.New()},
 		Name:     "Urlaub",
-		OwnerUID: user1.ID,
-		Members:  []*User{&user1, &user2},
+		OwnerUID: User1.ID,
+		Members:  []*User{&User1, &User2},
 	}
 
-	group3 := Group{
+	Group3 = Group{
 		Base:     Base{ID: uuid.New()},
 		Name:     "Partyyy",
-		OwnerUID: user2.ID,
-		Members:  []*User{&user2, &user3},
+		OwnerUID: User2.ID,
+		Members:  []*User{&User2, &User3},
 	}
 
 	// ITEMS
-	item1 := Item{
+	Item1 = Item{
 		Base:         Base{ID: uuid.New()},
 		Name:         "Bread",
 		Price:        2.5,
-		Contributors: []*User{&user1, &user2},
+		Contributors: []*User{&User1, &User2},
 	}
 
-	item2 := Item{
+	Item2 = Item{
 		Base:         Base{ID: uuid.New()},
 		Name:         "Milk",
 		Price:        1.5,
-		Contributors: []*User{&user1},
+		Contributors: []*User{&User1},
 	}
 
-	item3 := Item{
+	Item3 = Item{
 		Base:         Base{ID: uuid.New()},
 		Name:         "Miete",
 		Price:        1050,
-		Contributors: []*User{&user1, &user2, &user3},
+		Contributors: []*User{&User1, &User2, &User3},
 	}
 
-	item4 := Item{
+	Item4 = Item{
 		Base:         Base{ID: uuid.New()},
 		Name:         "Sunscreen",
 		Price:        10.0,
-		Contributors: []*User{&user1, &user2},
+		Contributors: []*User{&User1, &User2},
 	}
 
-	item5 := Item{
+	Item5 = Item{
 		Base:         Base{ID: uuid.New()},
 		Name:         "Beach Towels",
 		Price:        15.0,
-		Contributors: []*User{&user1, &user2},
+		Contributors: []*User{&User1, &User2},
 	}
 
-	item6 := Item{
+	Item6 = Item{
 		Base:         Base{ID: uuid.New()},
 		Name:         "Snorkel Gear",
 		Price:        25.0,
-		Contributors: []*User{&user2},
+		Contributors: []*User{&User2},
 	}
 
 	// BILLS
-	bill1 := Bill{
+	Bill1 = Bill{
 		Base:    Base{ID: uuid.New()},
-		OwnerID: user1.ID,
+		OwnerID: User1.ID,
 		Name:    "Groceries",
 		Date:    time.Now(),
-		Items:   []Item{item1, item2},
-		GroupID: group1.ID,
+		Items:   []Item{Item1, Item2},
+		GroupID: Group1.ID,
 	}
 
-	bill2 := Bill{
+	Bill2 = Bill{
 		Base:    Base{ID: uuid.New()},
-		OwnerID: user1.ID,
+		OwnerID: User1.ID,
 		Name:    "Miete",
 		Date:    time.Now(),
-		Items:   []Item{item3},
-		GroupID: group1.ID,
+		Items:   []Item{Item3},
+		GroupID: Group1.ID,
 	}
 
-	bill3 := Bill{
+	Bill3 = Bill{
 		Base:    Base{ID: uuid.New()},
-		OwnerID: user1.ID,
+		OwnerID: User1.ID,
 		Name:    "Beach Trip Expenses",
 		Date:    time.Now().AddDate(0, 0, 10),
-		Items:   []Item{item4, item5},
-		GroupID: group2.ID,
+		Items:   []Item{Item4, Item5},
+		GroupID: Group2.ID,
 	}
 
-	bill4 := Bill{
+	Bill4 = Bill{
 		Base:    Base{ID: uuid.New()},
-		OwnerID: user2.ID,
+		OwnerID: User2.ID,
 		Name:    "Water Sports",
 		Date:    time.Now().AddDate(0, 0, 15),
-		Items:   []Item{item6},
-		GroupID: group2.ID,
+		Items:   []Item{Item6},
+		GroupID: Group2.ID,
 	}
 
 	// INVITATIONS
-	invitation1 := GroupInvitation{
+	Invitation1 = GroupInvitation{
 		Base:      Base{ID: uuid.New()},
 		Date:      time.Now(),
-		GroupID:   group1.ID,
-		InviteeID: user2.ID,
+		GroupID:   Group1.ID,
+		InviteeID: User2.ID,
 	}
 
-	invitation2 := GroupInvitation{
+	Invitation2 = GroupInvitation{
 		Base:      Base{ID: uuid.New()},
 		Date:      time.Now(),
-		GroupID:   group2.ID,
-		InviteeID: user3.ID,
+		GroupID:   Group2.ID,
+		InviteeID: User3.ID,
 	}
 
-	invitation3 := GroupInvitation{
+	Invitation3 = GroupInvitation{
 		Base:      Base{ID: uuid.New()},
 		Date:      time.Now(),
-		GroupID:   group3.ID,
-		InviteeID: user1.ID,
+		GroupID:   Group3.ID,
+		InviteeID: User1.ID,
 	}
+)
+
+func All() []Seed {
 
 	return []Seed{
 		{
 			Name: "CreateUsers",
 			Run: func(db *DB) error {
-				if err := db.Create(&user1).Error; err != nil {
+				if err := db.Create(&User1).Error; err != nil {
 					return err
 				}
-				if err := db.Create(&user2).Error; err != nil {
+				if err := db.Create(&User2).Error; err != nil {
 					return err
 				}
-				if err := db.Create(&user3).Error; err != nil {
+				if err := db.Create(&User3).Error; err != nil {
 					return err
 				}
 				return nil
@@ -192,13 +202,22 @@ func All() []Seed {
 		{
 			Name: "CreateCredentials",
 			Run: func(db *DB) error {
-				if err := db.Create(&credentials1).Error; err != nil {
+				if err := db.Create(&Credentials1).Error; err != nil {
 					return err
 				}
-				if err := db.Create(&credentials2).Error; err != nil {
+				if err := db.Create(&Credentials2).Error; err != nil {
 					return err
 				}
-				if err := db.Create(&credentials3).Error; err != nil {
+				if err := db.Create(&Credentials3).Error; err != nil {
+					return err
+				}
+				return nil
+			},
+		},
+		{
+			Name: "CreateAuthCookies",
+			Run: func(db *DB) error {
+				if err := db.Create(&Cookie1).Error; err != nil {
 					return err
 				}
 				return nil
@@ -207,13 +226,13 @@ func All() []Seed {
 		{
 			Name: "CreateGroups",
 			Run: func(db *DB) error {
-				if err := db.Create(&group1).Error; err != nil {
+				if err := db.Create(&Group1).Error; err != nil {
 					return err
 				}
-				if err := db.Create(&group2).Error; err != nil {
+				if err := db.Create(&Group2).Error; err != nil {
 					return err
 				}
-				if err := db.Create(&group3).Error; err != nil {
+				if err := db.Create(&Group3).Error; err != nil {
 					return err
 				}
 				return nil
@@ -222,16 +241,16 @@ func All() []Seed {
 		{
 			Name: "CreateBills",
 			Run: func(db *DB) error {
-				if err := db.Create(&bill1).Error; err != nil {
+				if err := db.Create(&Bill1).Error; err != nil {
 					return err
 				}
-				if err := db.Create(&bill2).Error; err != nil {
+				if err := db.Create(&Bill2).Error; err != nil {
 					return err
 				}
-				if err := db.Create(&bill3).Error; err != nil {
+				if err := db.Create(&Bill3).Error; err != nil {
 					return err
 				}
-				if err := db.Create(&bill4).Error; err != nil {
+				if err := db.Create(&Bill4).Error; err != nil {
 					return err
 				}
 				return nil
@@ -240,13 +259,13 @@ func All() []Seed {
 		{
 			Name: "CreateGroupInvitations",
 			Run: func(db *DB) error {
-				if err := db.Create(&invitation1).Error; err != nil {
+				if err := db.Create(&Invitation1).Error; err != nil {
 					return err
 				}
-				if err := db.Create(&invitation2).Error; err != nil {
+				if err := db.Create(&Invitation2).Error; err != nil {
 					return err
 				}
-				if err := db.Create(&invitation3).Error; err != nil {
+				if err := db.Create(&Invitation3).Error; err != nil {
 					return err
 				}
 				return nil
