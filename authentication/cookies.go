@@ -56,10 +56,6 @@ func (a *Authenticator) Authenticate(c *fiber.Ctx) error {
 	// go to the next handler
 	err = c.Next()
 
-	if err != nil {
-		return err
-	}
-
 	return err
 }
 
