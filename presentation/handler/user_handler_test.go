@@ -65,7 +65,7 @@ func TestRegisterSuccess(t *testing.T) {
 		Email:    User.Email,
 		Password: Password,
 	}
-	jsonBody, err := json.Marshal(reqBody)
+	jsonBody, _ := json.Marshal(reqBody)
 	req, _ := http.NewRequest(http.MethodPost, "/api/user/register", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := app.Test(req)

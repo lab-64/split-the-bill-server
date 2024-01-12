@@ -86,6 +86,7 @@ func TestAuthenticate_NoCookie(t *testing.T) {
 	var response dto.GeneralResponseDTO
 	err = json.Unmarshal(body, &response)
 
+	assert.NoError(t, err)
 	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	assert.Equal(t, ErrMsgNoCookie, response.Message)
 }
@@ -115,6 +116,7 @@ func TestAuthenticate_InvalidCookie(t *testing.T) {
 	var response dto.GeneralResponseDTO
 	err = json.Unmarshal(body, &response)
 
+	assert.NoError(t, err)
 	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	assert.Equal(t, ErrMsgInvalidCookie, response.Message)
 }
@@ -150,6 +152,7 @@ func TestAuthenticate_DeclineCookie(t *testing.T) {
 	var response dto.GeneralResponseDTO
 	err = json.Unmarshal(body, &response)
 
+	assert.NoError(t, err)
 	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	assert.Equal(t, fmt.Sprintf(ErrMsgAuthentication, storage.NoSuchCookieError), response.Message)
 
@@ -190,6 +193,7 @@ func TestAuthenticate_ExpiredCookie(t *testing.T) {
 	var response dto.GeneralResponseDTO
 	err = json.Unmarshal(body, &response)
 
+	assert.NoError(t, err)
 	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	assert.Equal(t, fmt.Sprintf(ErrMsgAuthentication, SessionExpiredError), response.Message)
 }
