@@ -4,6 +4,8 @@ definitions:
     properties:
       date:
         type: string
+      groupID:
+        type: string
       id:
         type: string
       items:
@@ -322,7 +324,7 @@ paths:
               type: object
       summary: Get Groups by User
       tags:
-      - Group
+      - GroupID
     post:
       consumes:
       - application/json
@@ -353,7 +355,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: Group Id
+      - description: GroupID Id
         in: path
         name: id
         required: true
