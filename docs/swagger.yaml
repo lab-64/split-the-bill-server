@@ -324,7 +324,7 @@ paths:
               type: object
       summary: Get Groups by User
       tags:
-      - GroupID
+      - Group
     post:
       consumes:
       - application/json
@@ -355,7 +355,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: GroupID Id
+      - description: Group Id
         in: path
         name: id
         required: true
