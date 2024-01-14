@@ -9,11 +9,11 @@ import (
 func TestEphemeral(t *testing.T) {
 	e, _ := ephemeral.NewEphemeral()
 	userStorage := eph_storages.NewUserStorage(e)
-	UserStorageTest(e, userStorage, t)
+	UserStorageTest(userStorage, t)
 }
 
 func TestEphemeralEdgeCases(t *testing.T) {
 	e, _ := ephemeral.NewEphemeral()
 	userStorage := eph_storages.NewUserStorage(e)
-	UserStorageEdgeCaseTest(e, userStorage, t)
+	UserStorageEdgeCaseTest(userStorage, t)
 }
