@@ -27,8 +27,9 @@ const (
 	RBills     Resource = 0x1 << iota
 
 	// KEEP THIS AS LAST LINE
-	NumResources int = iota
+	NumResources uint = iota
 )
+const _ = 1 / (64 / NumResources) // compile time check that there are no more than 64 resources
 
 func NewEphemeral() (*Ephemeral, error) {
 	return &Ephemeral{
