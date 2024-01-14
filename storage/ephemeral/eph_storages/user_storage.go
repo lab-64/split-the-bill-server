@@ -7,21 +7,21 @@ import (
 	"log"
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
-	"split-the-bill-server/storage/ephemeral"
+	eph "split-the-bill-server/storage/ephemeral"
 	"split-the-bill-server/storage/storage_inf"
 )
 
 type UserStorage struct {
-	e *ephemeral.Ephemeral
+	e *eph.Ephemeral
 }
 
-func NewUserStorage(ephemeral *ephemeral.Ephemeral) storage_inf.IUserStorage {
+func NewUserStorage(ephemeral *eph.Ephemeral) storage_inf.IUserStorage {
 	return &UserStorage{e: ephemeral}
 }
 
 func (u *UserStorage) Delete(id uuid.UUID) error {
-	u.e.Lock.Lock()
-	defer u.e.Lock.Unlock()
+	r := u.e.Locker.Lock(eph.RUsers, eph.RNameIndex, eph.RPasswords)
+	defer u.e.Locker.Unlock(r)
 	user, exists := u.e.Users[id]
 	if !exists {
 		return nil
@@ -33,8 +33,8 @@ func (u *UserStorage) Delete(id uuid.UUID) error {
 }
 
 func (u *UserStorage) GetAll() ([]model.UserModel, error) {
-	u.e.Lock.Lock()
-	defer u.e.Lock.Unlock()
+	r := u.e.Locker.Lock(eph.RUsers)
+	defer u.e.Locker.Unlock(r)
 	users := make([]model.UserModel, len(u.e.Users))
 	i := 0
 	for _, user := range u.e.Users {
@@ -45,8 +45,8 @@ func (u *UserStorage) GetAll() ([]model.UserModel, error) {
 }
 
 func (u *UserStorage) GetByID(id uuid.UUID) (model.UserModel, error) {
-	u.e.Lock.Lock()
-	defer u.e.Lock.Unlock()
+	r := u.e.Locker.Lock(eph.RUsers)
+	defer u.e.Locker.Unlock(r)
 	user, ok := u.e.Users[id]
 	if !ok {
 		return user, storage.NoSuchUserError
@@ -55,8 +55,8 @@ func (u *UserStorage) GetByID(id uuid.UUID) (model.UserModel, error) {
 }
 
 func (u *UserStorage) GetByEmail(email string) (model.UserModel, error) {
-	u.e.Lock.Lock()
-	defer u.e.Lock.Unlock()
+	r := u.e.Locker.Lock(eph.RUsers, eph.RNameIndex)
+	defer u.e.Locker.Unlock(r)
 	id, ok := u.e.NameIndex[email]
 	if !ok {
 		return model.UserModel{}, storage.NoSuchUserError
@@ -70,8 +70,8 @@ func (u *UserStorage) GetByEmail(email string) (model.UserModel, error) {
 }
 
 func (u *UserStorage) Create(user model.UserModel, hash []byte) (model.UserModel, error) {
-	u.e.Lock.Lock()
-	defer u.e.Lock.Unlock()
+	r := u.e.Locker.Lock(eph.RUsers, eph.RNameIndex, eph.RPasswords)
+	defer u.e.Locker.Unlock(r)
 
 	if _, ok := u.e.NameIndex[user.Email]; ok {
 		return model.UserModel{}, storage.UserAlreadyExistsError
@@ -94,8 +94,8 @@ func (u *UserStorage) Create(user model.UserModel, hash []byte) (model.UserModel
 }
 
 func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
-	u.e.Lock.Lock()
-	defer u.e.Lock.Unlock()
+	r := u.e.Locker.Lock(eph.RPasswords)
+	defer u.e.Locker.Unlock(r)
 	hash, exists := u.e.Passwords[id]
 	if !exists {
 		return nil, storage.NoCredentialsError
@@ -105,8 +105,8 @@ func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
 
 // TODO: move to invitation storage
 func (u *UserStorage) HandleInvitation(invitationType string, userID uuid.UUID, invitationID uuid.UUID, accept bool) error {
-	u.e.Lock.Lock()
-	defer u.e.Lock.Unlock()
+	r := u.e.Locker.Lock(eph.RUsers, eph.RGroups)
+	defer u.e.Locker.Unlock(r)
 	// get user
 	user, exists := u.e.Users[userID]
 	if !exists {
