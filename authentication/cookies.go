@@ -13,6 +13,7 @@ import (
 
 const SessionCookieValidityPeriod = time.Hour * 24 * 7
 const SessionCookieName = "session_cookie"
+const UserID = "user_id"
 const ErrMsgAuthentication = "Authentication declined: %v"
 const ErrMsgNoCookie = "Authentication cookie is missing"
 const ErrMsgInvalidCookie = "Authentication cookie is invalid"
@@ -54,7 +55,7 @@ func (a *Authenticator) Authenticate(c *fiber.Ctx) error {
 	}
 
 	// set userID in context
-	c.Locals("userID", sessionCookie.UserID)
+	c.Locals(UserID, sessionCookie.UserID)
 
 	// go to the next handler
 	err = c.Next()

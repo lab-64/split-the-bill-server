@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"split-the-bill-server/authentication"
 	"split-the-bill-server/core"
 	. "split-the-bill-server/domain/service/service_inf"
 	. "split-the-bill-server/presentation/dto"
@@ -81,7 +82,7 @@ func (g GroupHandler) Update(c *fiber.Ctx) error {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupParse, err))
 	}
 
-	userID := c.Locals("userID").(uuid.UUID)
+	userID := c.Locals(authentication.UserID).(uuid.UUID)
 
 	// update item
 	item, err := g.groupService.Update(userID, uid, request)
