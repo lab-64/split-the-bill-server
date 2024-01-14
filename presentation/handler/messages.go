@@ -22,11 +22,13 @@ const (
 	// Bill - ERROR
 	ErrMsgBillParse    = "Could not parse bill: %v"
 	ErrMsgBillCreate   = "Could not create bill: %v"
+	ErrMsgBillUpdate   = "Could not update bill: %v"
 	ErrMsgBillNotFound = "Bill not found: %v"
 
 	// Bill - SUCCESS
 	SuccessMsgBillFound  = "Bill found"
 	SuccessMsgBillCreate = "Bill created"
+	SuccessMsgBillUpdate = "Bill update"
 
 	// Item - ERROR
 	ErrMsgItemParse    = "Could not parse item: %v"

@@ -29,6 +29,29 @@ func (b *BillService) Create(billDTO BillInputDTO) (BillDetailedOutputDTO, error
 	return ToBillDetailedDTO(bill), err
 }
 
+func (b *BillService) Update(userID uuid.UUID, billID uuid.UUID, billDTO BillInputDTO) (BillDetailedOutputDTO, error) {
+	bill, err := b.billStorage.GetByID(billID)
+
+	if err != nil {
+		return BillDetailedOutputDTO{}, err
+	}
+
+	// Authorize
+	if userID != bill.OwnerID {
+		return BillDetailedOutputDTO{}, ErrNotAuthorized
+	}
+
+	updatedBill := ToBillModel(billDTO)
+	updatedBill.ID = bill.ID
+
+	bill, err = b.billStorage.UpdateBill(updatedBill)
+	if err != nil {
+		return BillDetailedOutputDTO{}, err
+	}
+
+	return ToBillDetailedDTO(bill), err
+
+}
 func (b *BillService) GetByID(id uuid.UUID) (BillDetailedOutputDTO, error) {
 	bill, err := b.billStorage.GetByID(id)
 	if err != nil {

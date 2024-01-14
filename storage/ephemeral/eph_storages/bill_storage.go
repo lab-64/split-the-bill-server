@@ -12,6 +12,11 @@ type BillStorage struct {
 	e *ephemeral.Ephemeral
 }
 
+func (b BillStorage) UpdateBill(bill model.BillModel) (model.BillModel, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func NewBillStorage(ephemeral *ephemeral.Ephemeral) storage_inf.IBillStorage {
 	return &BillStorage{e: ephemeral}
 }

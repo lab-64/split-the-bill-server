@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"split-the-bill-server/authentication"
 	"split-the-bill-server/core"
 	. "split-the-bill-server/domain/service/service_inf"
 	. "split-the-bill-server/presentation/dto"
@@ -73,6 +74,46 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 	}
 
 	return core.Success(c, fiber.StatusCreated, SuccessMsgBillCreate, bill)
+}
+
+// Update updates a bill with the given id.
+//
+//	@Summary	Update Bill
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path		string				true	"Bill ID"
+//	@Param		request	body		dto.BillInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.BillDetailedOutputDTO}
+//
+//	@Router		/api/bill/{id} [put]
+func (g BillHandler) Update(c *fiber.Ctx) error {
+	// parse parameters
+	id := c.Params("id")
+	if id == "" {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+	}
+
+	// parse request
+	var request BillInputDTO
+	if err := c.BodyParser(&request); err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
+	}
+
+	userID := c.Locals(authentication.UserID).(uuid.UUID)
+
+	// update item
+	item, err := g.billService.Update(userID, uid, request)
+	if err != nil {
+		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillUpdate, err))
+	}
+
+	return core.Success(c, fiber.StatusOK, SuccessMsgBillUpdate, item)
 }
 
 // AddItem 		adds item to a bill.

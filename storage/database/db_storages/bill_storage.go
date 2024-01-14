@@ -41,6 +41,39 @@ func (b *BillStorage) Create(bill BillModel) (BillModel, error) {
 	return ToBillModel(item), res.Error
 }
 
+func (b *BillStorage) UpdateBill(bill BillModel) (BillModel, error) {
+	billEntity := ToBillEntity(bill)
+
+	err := b.DB.Transaction(func(tx *gorm.DB) error {
+		// update base bill fields
+		ret := b.DB.
+			Model(&billEntity).
+			Updates(&billEntity)
+
+		if ret.RowsAffected == 0 {
+			return storage.NoSuchBillError
+		}
+
+		if ret.Error != nil {
+			return ret.Error
+		}
+
+		// update items
+		res := tx.
+			Model(&billEntity).
+			Association("Items").
+			Replace(billEntity.Items)
+
+		if res != nil {
+			return res
+		}
+
+		return nil
+	})
+
+	return ToBillModel(billEntity), err
+}
+
 func (b *BillStorage) GetByID(id uuid.UUID) (BillModel, error) {
 	var bill Bill
 	tx := b.DB.Limit(1).Preload("Items.Contributors").Find(&bill, "id = ?", id)
