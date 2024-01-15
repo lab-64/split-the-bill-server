@@ -27,7 +27,3 @@ func NewEphemeral() (*Ephemeral, error) {
 		Bills:     make(map[uuid.UUID]*model.BillModel),
 	}, nil
 }
-
-func (e *Ephemeral) Connect() error {
-	return nil
-}

@@ -82,7 +82,7 @@ func (g GroupHandler) Update(c *fiber.Ctx) error {
 		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupParse, err))
 	}
 
-	userID := c.Locals(authentication.UserID).(uuid.UUID)
+	userID := c.Locals(authentication.UserKey).(uuid.UUID)
 
 	// update item
 	item, err := g.groupService.Update(userID, uid, request)

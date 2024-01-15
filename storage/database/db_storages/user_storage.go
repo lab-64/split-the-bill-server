@@ -84,14 +84,16 @@ func (u *UserStorage) Create(user UserModel, passwordHash []byte) (UserModel, er
 		res := tx.Create(&item)
 
 		if res.Error != nil {
-			return storage.UserAlreadyExistsError
+			if errors.Is(res.Error, gorm.ErrDuplicatedKey) {
+				return storage.UserAlreadyExistsError
+			}
+			return storage.InvalidUserInputError
 		}
 
 		// store credentials
 		res = tx.Create(&Credentials{UserID: item.ID, Hash: passwordHash})
 		if res.Error != nil {
-			// TODO: create suitable error msg
-			return res.Error
+			return storage.InvalidUserInputError
 		}
 
 		return nil
