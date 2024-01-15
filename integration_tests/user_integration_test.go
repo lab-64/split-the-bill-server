@@ -54,7 +54,7 @@ func TestCreateUser(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 
 		// Perform request
-		resp, err := app.Test(req)
+		resp, err := app.Test(req, -1)
 		if resp != nil {
 			defer resp.Body.Close()
 		}
@@ -134,7 +134,7 @@ func TestGetUser(t *testing.T) {
 			req.AddCookie(testcase.cookie)
 		}
 		// Perform request
-		resp, err := app.Test(req)
+		resp, err := app.Test(req, -1)
 		if resp != nil {
 			defer resp.Body.Close()
 		}
