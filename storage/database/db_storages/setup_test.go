@@ -20,9 +20,8 @@ var (
 
 func TestMain(m *testing.M) {
 	// Perform setup
-	var err error
 	// Initialize mock db
-	err = initMockDB()
+	err := initMockDB()
 	if err != nil {
 		log.Fatal(err)
 	}
