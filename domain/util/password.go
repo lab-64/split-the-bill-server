@@ -5,13 +5,23 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"os"
 	"split-the-bill-server/domain"
+	"path/filepath"
+	"runtime"
 )
 
 func NewPasswordValidator() (*password.Validator, error) {
 	// Setup Password Validation
 	var validator = password.NewValidator(false, 8, 64)
+	// Generate dynamically the path to the common-password-list.txt
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		// TODO: change error message
+		return nil, errors.New("cannot get current file path")
+	}
+	dir := filepath.Dir(filename)
+	path := filepath.Join(dir, "common-password-list.txt")
 	// Load common password list
-	var commonPasswords, err = os.Open("common-password-list.txt")
+	commonPasswords, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}

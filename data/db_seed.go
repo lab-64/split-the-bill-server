@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
-	"split-the-bill-server/storage/database/seed"
+	"split-the-bill-server/integration_tests"
 	"strconv"
 )
 
@@ -30,7 +30,7 @@ func main() {
 	}
 
 	log.Println("Running seeds")
-	for _, s := range seed.All() {
+	for _, s := range integration_tests.All() {
 		if err := s.Run(db); err != nil {
 			log.Fatalf("Running seed '%s', failed with error: %s", s.Name, err)
 		}
