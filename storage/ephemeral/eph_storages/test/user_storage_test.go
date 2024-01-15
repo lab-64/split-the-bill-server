@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"split-the-bill-server/authentication"
 	. "split-the-bill-server/domain/model"
-	types_test "split-the-bill-server/domain/model/test"
+	types_test "split-the-bill-server/domain/model/test_util"
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/storage_inf"
 	"testing"
