@@ -1,21 +1,20 @@
 package impl
 
 import (
-	"fmt"
-	"github.com/gofiber/fiber/v2"
 	. "github.com/google/uuid"
-	"split-the-bill-server/authentication"
-	. "split-the-bill-server/domain/service/service_inf"
+	. "split-the-bill-server/domain/model"
+	. "split-the-bill-server/domain/service"
+	"split-the-bill-server/domain/util"
 	. "split-the-bill-server/presentation/dto"
-	. "split-the-bill-server/storage/storage_inf"
+	"split-the-bill-server/storage"
 )
 
 type UserService struct {
-	userStorage   IUserStorage
-	cookieStorage ICookieStorage
+	userStorage   storage.IUserStorage
+	cookieStorage storage.ICookieStorage
 }
 
-func NewUserService(userStorage *IUserStorage, cookieStorage *ICookieStorage) IUserService {
+func NewUserService(userStorage *storage.IUserStorage, cookieStorage *storage.ICookieStorage) IUserService {
 	return &UserService{userStorage: *userStorage, cookieStorage: *cookieStorage}
 }
 
@@ -50,7 +49,7 @@ func (u *UserService) GetByID(id UUID) (UserDetailedOutputDTO, error) {
 
 func (u *UserService) Create(userDTO UserInputDTO) (UserCoreOutputDTO, error) {
 	user := ToUserModel(userDTO)
-	passwordHash, err := authentication.HashPassword(userDTO.Password)
+	passwordHash, err := util.HashPassword(userDTO.Password)
 	if err != nil {
 		return UserCoreOutputDTO{}, err
 	}
@@ -63,38 +62,26 @@ func (u *UserService) Create(userDTO UserInputDTO) (UserCoreOutputDTO, error) {
 	return ToUserCoreDTO(&user), err
 }
 
-func (u *UserService) Login(credentials CredentialsInputDTO) (UserCoreOutputDTO, fiber.Cookie, error) {
+func (u *UserService) Login(credentials CredentialsInputDTO) (UserCoreOutputDTO, AuthCookieModel, error) {
 	// Log-in user, get authentication cookie
 	user, err := u.userStorage.GetByEmail(credentials.Email)
 	if err != nil {
-		return UserCoreOutputDTO{}, fiber.Cookie{}, err
+		return UserCoreOutputDTO{}, AuthCookieModel{}, err
 	}
 
 	creds, err := u.userStorage.GetCredentials(user.ID)
 	if err != nil {
-		return UserCoreOutputDTO{}, fiber.Cookie{}, err
+		return UserCoreOutputDTO{}, AuthCookieModel{}, err
 	}
 
-	err = authentication.ComparePassword(creds, credentials.Password)
+	err = util.ComparePassword(creds, credentials.Password)
 	if err != nil {
-		return UserCoreOutputDTO{}, fiber.Cookie{}, err
+		return UserCoreOutputDTO{}, AuthCookieModel{}, err
 	}
 
-	sc := authentication.GenerateSessionCookie(user.ID)
-
-	fmt.Printf("%v", user.ID)
+	sc := GenerateSessionCookie(user.ID)
 
 	u.cookieStorage.AddAuthenticationCookie(sc)
 
-	// Create response cookie
-	// TODO: add Secure flag after development (cookie will only be sent over HTTPS)
-	cookie := fiber.Cookie{
-		Name:     authentication.SessionCookieName,
-		Value:    sc.Token.String(),
-		Expires:  sc.ValidBefore,
-		HTTPOnly: true,
-		//Secure:   true,
-	}
-
-	return ToUserCoreDTO(&user), cookie, err
+	return ToUserCoreDTO(&user), sc, err
 }

@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"split-the-bill-server/core"
-	. "split-the-bill-server/domain/service/service_inf"
+	"split-the-bill-server/domain/service"
+	"split-the-bill-server/presentation"
 	. "split-the-bill-server/presentation/dto"
 )
 
 type BillHandler struct {
-	billService  IBillService
-	groupService IGroupService
+	billService  service.IBillService
+	groupService service.IGroupService
 }
 
-func NewBillHandler(billService *IBillService, groupService *IGroupService) *BillHandler {
+func NewBillHandler(billService *service.IBillService, groupService *service.IGroupService) *BillHandler {
 	return &BillHandler{billService: *billService, groupService: *groupService}
 }
 
@@ -30,20 +30,20 @@ func NewBillHandler(billService *IBillService, groupService *IGroupService) *Bil
 func (h BillHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
 
 	bill, err := h.billService.GetByID(uid)
 	if err != nil {
-		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgBillNotFound, err))
+		return presentation.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgBillNotFound, err))
 	}
 
-	return core.Success(c, fiber.StatusOK, SuccessMsgBillFound, bill)
+	return presentation.Success(c, fiber.StatusOK, SuccessMsgBillFound, bill)
 }
 
 // Create 		creates a bill.
@@ -63,16 +63,16 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 	// parse nested bill from request body
 	err := c.BodyParser(&request)
 	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
+		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
 	}
 
 	// create bill
 	bill, err := h.billService.Create(request)
 	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillCreate, err))
+		return presentation.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillCreate, err))
 	}
 
-	return core.Success(c, fiber.StatusCreated, SuccessMsgBillCreate, bill)
+	return presentation.Success(c, fiber.StatusCreated, SuccessMsgBillCreate, bill)
 }
 
 // AddItem 		adds item to a bill.
@@ -88,16 +88,16 @@ func (h BillHandler) AddItem(c *fiber.Ctx) error {
 	// parse request
 	var request ItemInputDTO
 	if err := c.BodyParser(&request); err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
+		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
 	}
 
 	// create item
 	item, err := h.billService.AddItem(request)
 	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemCreate, err))
+		return presentation.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemCreate, err))
 	}
 
-	return core.Success(c, fiber.StatusCreated, SuccessMsgItemCreate, item)
+	return presentation.Success(c, fiber.StatusCreated, SuccessMsgItemCreate, item)
 }
 
 // GetItemByID 	 gets item by ID.
@@ -112,20 +112,20 @@ func (h BillHandler) AddItem(c *fiber.Ctx) error {
 func (h BillHandler) GetItemByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
 
 	item, err := h.billService.GetItemByID(uid)
 	if err != nil {
-		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgItemNotFound, err))
+		return presentation.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgItemNotFound, err))
 	}
 
-	return core.Success(c, fiber.StatusOK, SuccesMsgItemFound, item)
+	return presentation.Success(c, fiber.StatusOK, SuccesMsgItemFound, item)
 }
 
 // ChangeItem 	changes item.
@@ -143,25 +143,25 @@ func (h BillHandler) ChangeItem(c *fiber.Ctx) error {
 	// parse parameters
 	id := c.Params("id")
 	if id == "" {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
 
 	// parse request
 	var request ItemInputDTO
 	if err := c.BodyParser(&request); err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
+		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
 	}
 
 	// update item
 	item, err := h.billService.ChangeItem(uid, request)
 	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemUpdate, err))
+		return presentation.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemUpdate, err))
 	}
 
-	return core.Success(c, fiber.StatusOK, SuccessMsgItemUpdate, item)
+	return presentation.Success(c, fiber.StatusOK, SuccessMsgItemUpdate, item)
 }

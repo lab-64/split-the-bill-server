@@ -1,10 +1,10 @@
-package authentication
+package util
 
 import (
-	"errors"
 	"github.com/caitlinelfring/nist-password-validator/password"
 	"golang.org/x/crypto/bcrypt"
 	"os"
+	"split-the-bill-server/domain"
 )
 
 func NewPasswordValidator() (*password.Validator, error) {
@@ -32,9 +32,7 @@ func ComparePassword(hash []byte, pwd string) error {
 	// Compare password with hash
 	res := bcrypt.CompareHashAndPassword(hash, []byte(pwd))
 	if res != nil {
-		return InvalidCredentials
+		return domain.InvalidCredentials
 	}
 	return nil
 }
-
-var InvalidCredentials = errors.New("invalid credentials")
