@@ -16,7 +16,7 @@ func NewGroupService(groupStorage *IGroupStorage, userStorage *IUserStorage) IGr
 	return &GroupService{groupStorage: *groupStorage, userStorage: *userStorage}
 }
 
-func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupOutputDTO, error) {
+func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupDetailedOutputDTO, error) {
 
 	// create group with the only member being the owner
 	group := ToGroupModel(groupDTO)
@@ -24,29 +24,53 @@ func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupOutputDTO, error) {
 	// store group in db
 	group, err := g.groupStorage.AddGroup(group)
 	if err != nil {
-		return GroupOutputDTO{}, err
+		return GroupDetailedOutputDTO{}, err
 	}
 
-	return ToGroupDTO(group), nil
+	return ToGroupDetailedDTO(group), nil
 }
 
-func (g *GroupService) GetByID(id UUID) (GroupOutputDTO, error) {
+func (g *GroupService) Update(userID UUID, groupID UUID, groupDTO GroupInputDTO) (GroupDetailedOutputDTO, error) {
+	group, err := g.groupStorage.GetGroupByID(groupID)
+
+	if err != nil {
+		return GroupDetailedOutputDTO{}, err
+	}
+
+	// Authorize
+	if userID != group.Owner.ID {
+		return GroupDetailedOutputDTO{}, ErrNotAuthorized
+	}
+
+	// Update fields
+	group.Name = groupDTO.Name
+	group.Owner.ID = groupDTO.OwnerID
+
+	group, err = g.groupStorage.UpdateGroup(group)
+	if err != nil {
+		return GroupDetailedOutputDTO{}, err
+	}
+
+	return ToGroupDetailedDTO(group), err
+}
+
+func (g *GroupService) GetByID(id UUID) (GroupDetailedOutputDTO, error) {
 	group, err := g.groupStorage.GetGroupByID(id)
 	if err != nil {
-		return GroupOutputDTO{}, err
+		return GroupDetailedOutputDTO{}, err
 	}
-	return ToGroupDTO(group), nil
+	return ToGroupDetailedDTO(group), nil
 }
 
-func (g *GroupService) GetAllByUser(userID UUID) ([]GroupOutputDTO, error) {
+func (g *GroupService) GetAllByUser(userID UUID) ([]GroupDetailedOutputDTO, error) {
 	groups, err := g.groupStorage.GetGroupsByUserID(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	groupsDTO := make([]GroupOutputDTO, len(groups))
+	groupsDTO := make([]GroupDetailedOutputDTO, len(groups))
 	for i := range groups {
-		groupsDTO[i] = ToGroupDTO(groups[i])
+		groupsDTO[i] = ToGroupDetailedDTO(groups[i])
 	}
 
 	return groupsDTO, nil

@@ -16,14 +16,23 @@ type UserCoreOutputDTO struct {
 }
 
 type UserDetailedOutputDTO struct {
-	ID          uuid.UUID        `json:"id"`
-	Email       string           `json:"email"`
-	Groups      []GroupOutputDTO `json:"groups"`
-	Invitations []uuid.UUID      `json:"invitationIDs"`
+	ID          uuid.UUID            `json:"id"`
+	Email       string               `json:"email"`
+	Groups      []GroupCoreOutputDTO `json:"groups"`
+	Invitations []uuid.UUID          `json:"invitationIDs"`
 }
 
 func ToUserModel(r UserInputDTO) UserModel {
 	return CreateUserModel(r.Email)
+}
+
+func ToUserCoreDTOs(users []UserModel) []UserCoreOutputDTO {
+	usersDTO := make([]UserCoreOutputDTO, len(users))
+
+	for i, user := range users {
+		usersDTO[i] = ToUserCoreDTO(&user)
+	}
+	return usersDTO
 }
 
 func ToUserCoreDTO(u *UserModel) UserCoreOutputDTO {
@@ -34,10 +43,10 @@ func ToUserCoreDTO(u *UserModel) UserCoreOutputDTO {
 }
 
 func ToUserDetailedDTO(u *UserModel) UserDetailedOutputDTO {
-	groupsDTO := make([]GroupOutputDTO, len(u.Groups))
+	groupsDTO := make([]GroupCoreOutputDTO, len(u.Groups))
 
 	for i, group := range u.Groups {
-		groupsDTO[i] = ToGroupDTO(group)
+		groupsDTO[i] = ToGroupCoreDTO(group)
 	}
 
 	invitations := make([]uuid.UUID, len(u.PendingGroupInvitations))

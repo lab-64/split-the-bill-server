@@ -10,17 +10,17 @@ type BillModel struct {
 	OwnerID uuid.UUID
 	Name    string
 	Date    time.Time
-	Group   uuid.UUID
+	GroupID uuid.UUID
 	Items   []ItemModel
 }
 
-func CreateBillModel(ownerID uuid.UUID, name string, date time.Time, group uuid.UUID, items []ItemModel) BillModel {
+func CreateBillModel(ownerID uuid.UUID, name string, date time.Time, groupID uuid.UUID, items []ItemModel) BillModel {
 	return BillModel{
 		ID:      uuid.New(),
 		OwnerID: ownerID,
 		Name:    name,
 		Date:    date,
-		Group:   group,
+		GroupID: groupID,
 		Items:   items,
 	}
 }

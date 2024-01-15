@@ -4,13 +4,6 @@ import (
 	"errors"
 )
 
-// TODO: Add generic storage tests
-
-type Connection interface {
-	// Connect connects to the storage and must be called exactly once before interacting with the storage.
-	Connect() error
-}
-
 // User Errors
 var UserAlreadyExistsError = errors.New("user already exists")
 var NoSuchUserError = errors.New("no such user")

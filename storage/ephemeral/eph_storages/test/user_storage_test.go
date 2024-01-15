@@ -45,12 +45,10 @@ func deleteUsersAndAssert(uut IUserStorage, users []UserModel, t *testing.T, fin
 	close(finished)
 }
 
-func UserStorageTest(e storage.Connection, uut IUserStorage, t *testing.T) {
+func UserStorageTest(uut IUserStorage, t *testing.T) {
 	const amount = 10
 	const concurrency = 10
 	users := types_test.GenerateDifferentUsers(amount)
-	err := e.Connect()
-	require.NoError(t, err)
 	allUsers, err := uut.GetAll()
 	require.NoError(t, err)
 	require.Equal(t, 0, len(allUsers))
@@ -86,11 +84,9 @@ func UserStorageTest(e storage.Connection, uut IUserStorage, t *testing.T) {
 	require.Equal(t, 0, len(allUsers))
 }
 
-func UserStorageEdgeCaseTest(e storage.Connection, uut IUserStorage, t *testing.T) {
-	err := e.Connect()
-	require.NoError(t, err)
+func UserStorageEdgeCaseTest(uut IUserStorage, t *testing.T) {
 	users := types_test.GenerateUsersWithEmails([]string{"a", "a"})
-	err = uut.Delete(users[0].ID)
+	err := uut.Delete(users[0].ID)
 	require.NoError(t, err)
 	pw, err := authentication.HashPassword("ehhh")
 	require.NoError(t, err)

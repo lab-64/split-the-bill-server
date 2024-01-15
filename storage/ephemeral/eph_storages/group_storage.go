@@ -27,6 +27,11 @@ func (g *GroupStorage) AddGroup(group model.GroupModel) (model.GroupModel, error
 	return group, nil
 }
 
+func (g *GroupStorage) UpdateGroup(group model.GroupModel) (model.GroupModel, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (g *GroupStorage) GetGroupByID(id uuid.UUID) (model.GroupModel, error) {
 	g.e.Lock.Lock()
 	defer g.e.Lock.Unlock()
@@ -48,7 +53,7 @@ func (g *GroupStorage) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) e
 	if exists {
 		return storage.NoSuchUserError
 	}
-	group.Members = append(group.Members, user.ID)
+	group.Members = append(group.Members, user)
 	g.e.Groups[groupID] = group
 	return nil
 }

@@ -6,9 +6,11 @@ import (
 )
 
 type IGroupService interface {
-	Create(groupDTO GroupInputDTO) (GroupOutputDTO, error)
+	Create(groupDTO GroupInputDTO) (GroupDetailedOutputDTO, error)
 
-	GetByID(id UUID) (GroupOutputDTO, error)
+	Update(userID UUID, groupID UUID, group GroupInputDTO) (GroupDetailedOutputDTO, error)
 
-	GetAllByUser(userID UUID) ([]GroupOutputDTO, error)
+	GetByID(id UUID) (GroupDetailedOutputDTO, error)
+
+	GetAllByUser(userID UUID) ([]GroupDetailedOutputDTO, error)
 }

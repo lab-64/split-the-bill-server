@@ -7,31 +7,53 @@ import (
 )
 
 type GroupInputDTO struct {
-	Owner UUID   `json:"ownerID"`
-	Name  string `json:"name"`
+	OwnerID UUID   `json:"ownerID"`
+	Name    string `json:"name"`
 }
 
-type GroupOutputDTO struct {
-	Owner   UUID                `json:"ownerID"`
+type GroupCoreOutputDTO struct {
+	Owner   UserCoreOutputDTO   `json:"owner"`
 	ID      UUID                `json:"id"`
 	Name    string              `json:"name"`
-	Members []UUID              `json:"memberIDs"`
-	Bills   []BillCoreOutputDTO `json:"bills"`
+	Members []UserCoreOutputDTO `json:"members"`
+}
+
+type GroupDetailedOutputDTO struct {
+	Owner   UserCoreOutputDTO       `json:"owner"`
+	ID      UUID                    `json:"id"`
+	Name    string                  `json:"name"`
+	Members []UserCoreOutputDTO     `json:"members"`
+	Bills   []BillDetailedOutputDTO `json:"bills"`
 }
 
 func ToGroupModel(g GroupInputDTO) GroupModel {
-	return CreateGroupModel(g.Owner, g.Name, []UUID{g.Owner})
+	return CreateGroupModel(g.OwnerID, g.Name, []UUID{g.OwnerID})
 }
 
-func ToGroupDTO(g GroupModel) GroupOutputDTO {
+func ToGroupCoreDTO(g GroupModel) GroupCoreOutputDTO {
 
-	billsDTO := ToBillCoreDTOs(g.Bills)
+	owner := ToUserCoreDTO(&g.Owner)
+	members := ToUserCoreDTOs(g.Members)
 
-	return GroupOutputDTO{
-		Owner:   g.Owner,
+	return GroupCoreOutputDTO{
+		Owner:   owner,
 		ID:      g.ID,
 		Name:    g.Name,
-		Members: g.Members,
+		Members: members,
+	}
+}
+
+func ToGroupDetailedDTO(g GroupModel) GroupDetailedOutputDTO {
+
+	billsDTO := ToBillDetailedDTOs(g.Bills)
+	owner := ToUserCoreDTO(&g.Owner)
+	members := ToUserCoreDTOs(g.Members)
+
+	return GroupDetailedOutputDTO{
+		Owner:   owner,
+		ID:      g.ID,
+		Name:    g.Name,
+		Members: members,
 		Bills:   billsDTO,
 	}
 }
