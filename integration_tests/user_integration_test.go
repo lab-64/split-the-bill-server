@@ -13,7 +13,6 @@ import (
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/handler"
 	"split-the-bill-server/storage"
-	"split-the-bill-server/storage/database/seed"
 	"testing"
 )
 
@@ -99,19 +98,19 @@ func TestGetUser(t *testing.T) {
 	}{
 		{
 			description:     "Test successful user query",
-			parameter:       seed.User1.ID.String(),
-			cookie:          &http.Cookie{Name: "session_cookie", Value: seed.Cookie1.ID.String()},
+			parameter:       User1.ID.String(),
+			cookie:          &http.Cookie{Name: "session_cookie", Value: Cookie1.ID.String()},
 			expectedCode:    200,
 			expectedMessage: handler.SuccessMsgUserFound,
 			expectReturn:    true,
 			expectReturnedData: dto.UserCoreOutputDTO{
-				ID:    seed.User1.ID,
-				Email: seed.User1.Email,
+				ID:    User1.ID,
+				Email: User1.Email,
 			},
 		},
 		{
 			description:     "Test auth cookie is missing",
-			parameter:       seed.User1.ID.String(),
+			parameter:       User1.ID.String(),
 			cookie:          nil,
 			expectedCode:    401,
 			expectedMessage: authentication.ErrMsgNoCookie,
@@ -119,7 +118,7 @@ func TestGetUser(t *testing.T) {
 		},
 		{
 			description:     "Test user is unauthorized",
-			parameter:       seed.User1.ID.String(),
+			parameter:       User1.ID.String(),
 			cookie:          &http.Cookie{Name: "session_cookie", Value: uuid.NewString()},
 			expectedCode:    401,
 			expectedMessage: fmt.Sprintf(authentication.ErrMsgAuthentication, storage.NoSuchCookieError),

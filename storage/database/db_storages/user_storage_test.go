@@ -1,53 +1,28 @@
 package db_storages
 
 import (
-	"database/sql"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"log"
-	"os"
-	. "split-the-bill-server/domain/model"
+	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
-	. "split-the-bill-server/storage/database/test_util"
 	"testing"
 )
 
+// Testdata
 var (
-	sqlDB       *sql.DB
-	mock        sqlmock.Sqlmock
-	gormDB      *gorm.DB
-	userStorage UserStorage
-)
-
-func TestMain(m *testing.M) {
-	// Perform setup
-	var err error
-	// Initialize mock db
-	sqlDB, gormDB, mock, err = InitMockDB()
-	if err != nil {
-		log.Fatal(err)
+	TestUser = model.UserModel{
+		ID:    uuid.New(),
+		Email: "test@mail.com",
 	}
-	// Create an instance of UserStorage with the mocked DB
-	userStorage = UserStorage{DB: gormDB}
-
-	// Run tests
-	exitCode := m.Run()
-
-	// Perform cleanup or resource teardown
-	defer sqlDB.Close()
-
-	// Exit with the same code as the test run
-	os.Exit(exitCode)
-}
-
-// Reminder:
-// ExpectQuery for SELECT Query
-// ExpectExec for INSERT, UPDATE, DELETE, ...
-// ExpectRollback if DB query fails on INSERT
-// ExpectCommit if DB query succeeds on INSERT
-// ExpectBegin if TRANSACTION is started
+	TestUserWithEmptyEmail = model.UserModel{
+		ID:    uuid.New(),
+		Email: "",
+	}
+	TestPasswordHash, _ = bcrypt.GenerateFromPassword([]byte("test1337"), 10)
+)
 
 func TestGetByID(t *testing.T) {
 
@@ -57,32 +32,33 @@ func TestGetByID(t *testing.T) {
 		mock        func()
 		wantErr     bool
 		expectedErr error
-		want        UserModel
+		want        model.UserModel
 	}{
 		{
+			// TODO: Use seed user instead of test user
 			name:    "Success",
-			userUID: User.ID,
+			userUID: TestUser.ID,
 			mock: func() {
-				userRows := sqlmock.NewRows([]string{"ID", "Email"}).AddRow(User.ID, "mail@mail.com")
-				mock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(User.ID).WillReturnRows(userRows)
-				groupInvitationRows := sqlmock.NewRows([]string{"ID", "InviteeID"}).AddRow(uuid.New(), User.ID) // Include field where user is stored
-				mock.ExpectQuery(`SELECT (.+) FROM "group_invitations"`).WithArgs(User.ID).WillReturnRows(groupInvitationRows)
-				groupMemberRows := sqlmock.NewRows([]string{"ID", "OwnerUID"}).AddRow(uuid.New(), User.ID)
-				mock.ExpectQuery(`SELECT (.+) FROM "group_members"`).WithArgs(User.ID).WillReturnRows(groupMemberRows)
+				userRows := sqlmock.NewRows([]string{"ID", "Email"}).AddRow(TestUser.ID, TestUser.Email)
+				dbMock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(TestUser.ID).WillReturnRows(userRows)
+				groupInvitationRows := sqlmock.NewRows([]string{"ID", "InviteeID"}).AddRow(uuid.New(), TestUser.ID) // Include field where user is stored
+				dbMock.ExpectQuery(`SELECT (.+) FROM "group_invitations"`).WithArgs(TestUser.ID).WillReturnRows(groupInvitationRows)
+				groupMemberRows := sqlmock.NewRows([]string{"ID", "OwnerUID"}).AddRow(uuid.New(), TestUser.ID)
+				dbMock.ExpectQuery(`SELECT (.+) FROM "group_members"`).WithArgs(TestUser.ID).WillReturnRows(groupMemberRows)
 			},
 			wantErr:     false,
 			expectedErr: nil,
-			want:        UserModel{ID: User.ID, Email: User.Email},
+			want:        TestUser,
 		},
 		{
 			name:    "Not Found",
-			userUID: User.ID,
+			userUID: TestUser.ID,
 			mock: func() {
-				mock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(User.ID).WillReturnError(gorm.ErrRecordNotFound) // if this query returns an error the other queries featuring the preload entities won't be executed
+				dbMock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(TestUser.ID).WillReturnError(gorm.ErrRecordNotFound) // if this query returns an error the other queries featuring the preload entities won't be executed
 			},
 			wantErr:     true,
 			expectedErr: storage.NoSuchUserError,
-			want:        UserModel{},
+			want:        model.UserModel{},
 		},
 	}
 	for _, testcase := range tests {
@@ -99,7 +75,7 @@ func TestGetByID(t *testing.T) {
 			}
 
 			// Ensure all expectations were met
-			if err = mock.ExpectationsWereMet(); err != nil {
+			if err = dbMock.ExpectationsWereMet(); err != nil {
 				t.Errorf("Unfulfilled expectations: %s", err)
 			}
 		})
@@ -110,63 +86,63 @@ func TestCreate(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		user        UserModel
+		user        model.UserModel
 		mock        func()
 		wantErr     bool
 		expectedErr error
-		want        UserModel
+		want        model.UserModel
 	}{
 		{
 			name: "Success",
-			user: User,
+			user: TestUser,
 			mock: func() {
-				mock.ExpectBegin()
-				mock.ExpectExec(`INSERT INTO "users"`).
-					WithArgs(User.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), User.Email).
+				dbMock.ExpectBegin()
+				dbMock.ExpectExec(`INSERT INTO "users"`).
+					WithArgs(TestUser.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUser.Email).
 					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectExec(`INSERT INTO "credentials"`).
-					WithArgs(User.ID, PasswordHash).
+				dbMock.ExpectExec(`INSERT INTO "credentials"`).
+					WithArgs(TestUser.ID, TestPasswordHash).
 					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
+				dbMock.ExpectCommit()
 			},
 			wantErr:     false,
 			expectedErr: nil,
-			want:        User,
+			want:        TestUser,
 		},
 		{
 			name: "User Already Exists",
-			user: User,
+			user: TestUser,
 			mock: func() {
-				mock.ExpectBegin()
-				mock.ExpectExec(`INSERT INTO "users"`).
-					WithArgs(User.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), User.Email).
+				dbMock.ExpectBegin()
+				dbMock.ExpectExec(`INSERT INTO "users"`).
+					WithArgs(TestUser.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUser.Email).
 					WillReturnError(gorm.ErrDuplicatedKey)
-				mock.ExpectRollback()
+				dbMock.ExpectRollback()
 			},
 			wantErr:     true,
 			expectedErr: storage.UserAlreadyExistsError,
-			want:        UserModel{},
+			want:        model.UserModel{},
 		},
 		{
 			name: "Invalid User Input",
-			user: UserWithEmptyEmail,
+			user: TestUserWithEmptyEmail,
 			mock: func() {
-				mock.ExpectBegin()
-				mock.ExpectExec(`INSERT INTO "users"`).
-					WithArgs(UserWithEmptyEmail.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), UserWithEmptyEmail.Email).
+				dbMock.ExpectBegin()
+				dbMock.ExpectExec(`INSERT INTO "users"`).
+					WithArgs(TestUserWithEmptyEmail.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUserWithEmptyEmail.Email).
 					WillReturnError(gorm.ErrInvalidData)
-				mock.ExpectRollback()
+				dbMock.ExpectRollback()
 			},
 			wantErr:     true,
 			expectedErr: storage.InvalidUserInputError,
-			want:        UserModel{},
+			want:        model.UserModel{},
 		},
 	}
 
 	for _, testcase := range tests {
 		t.Run(testcase.name, func(t *testing.T) {
 			testcase.mock()
-			ret, err := userStorage.Create(testcase.user, PasswordHash)
+			ret, err := userStorage.Create(testcase.user, TestPasswordHash)
 
 			// Validate error
 			assert.Equalf(t, testcase.wantErr, err != nil, "Get() error = %v, wantErr %v", err, testcase.wantErr)
@@ -178,7 +154,7 @@ func TestCreate(t *testing.T) {
 			}
 
 			// Ensure all expectations were met
-			if err = mock.ExpectationsWereMet(); err != nil {
+			if err = dbMock.ExpectationsWereMet(); err != nil {
 				t.Errorf("Unfulfilled expectations: %s", err)
 			}
 		})

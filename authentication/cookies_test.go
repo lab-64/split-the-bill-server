@@ -3,49 +3,36 @@ package authentication
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
-	"os"
-	"split-the-bill-server/core"
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/storage"
-	. "split-the-bill-server/storage/database/test_util"
 	storagemocks "split-the-bill-server/storage/mocks"
 	"testing"
 	"time"
 )
 
+// Testdata
 var (
-	app           *fiber.App
-	authenticator *Authenticator
+	TestUser = model.UserModel{
+		ID:    uuid.New(),
+		Email: "test@mail.com",
+	}
+	TestUserCookie = model.AuthCookieModel{
+		UserID:      TestUser.ID,
+		Token:       uuid.New(),
+		ValidBefore: time.Now().Add(SessionCookieValidityPeriod),
+	}
 )
-
-func TestMain(m *testing.M) {
-	// setup authentication
-	cookieStorage := storagemocks.NewCookieStorageMock()
-	authenticator = NewAuthenticator(&cookieStorage)
-
-	// setup fiber
-	app = fiber.New()
-	// setup test route
-	app.Get("/user", authenticator.Authenticate, func(c *fiber.Ctx) error { return core.Success(c, fiber.StatusOK, "Authentication accept", nil) })
-
-	// Run tests
-	exitCode := m.Run()
-
-	// Exit with the same code as the test run
-	os.Exit(exitCode)
-}
 
 func TestAuthenticate_Success(t *testing.T) {
 
 	// mock get cookie from storage
 	storagemocks.MockCookieGetCookieFromToken = func(token uuid.UUID) (model.AuthCookieModel, error) {
-		return UserCookie, nil
+		return TestUserCookie, nil
 	}
 
 	// setup request
@@ -53,7 +40,7 @@ func TestAuthenticate_Success(t *testing.T) {
 	// add cookie to request
 	req.AddCookie(&http.Cookie{
 		Name:  "session_cookie",
-		Value: UserCookie.Token.String(),
+		Value: TestUserCookie.Token.String(),
 	})
 	// perform request
 	resp, err := app.Test(req)
@@ -133,7 +120,7 @@ func TestAuthenticate_DeclineCookie(t *testing.T) {
 	// add cookie to request
 	req.AddCookie(&http.Cookie{
 		Name:  "session_cookie",
-		Value: UserCookie.Token.String(),
+		Value: TestUserCookie.Token.String(),
 	})
 	// perform request
 	resp, err := app.Test(req)
@@ -163,7 +150,7 @@ func TestAuthenticate_ExpiredCookie(t *testing.T) {
 	// mock get cookie from storage
 	storagemocks.MockCookieGetCookieFromToken = func(token uuid.UUID) (model.AuthCookieModel, error) {
 		return model.AuthCookieModel{
-			UserID:      User.ID,
+			UserID:      TestUser.ID,
 			Token:       token,
 			ValidBefore: time.Now().Add(-time.Hour),
 		}, nil
@@ -174,7 +161,7 @@ func TestAuthenticate_ExpiredCookie(t *testing.T) {
 	// add cookie to request
 	req.AddCookie(&http.Cookie{
 		Name:  "session_cookie",
-		Value: UserCookie.Token.String(),
+		Value: TestUserCookie.Token.String(),
 	})
 	// perform request
 	resp, err := app.Test(req)

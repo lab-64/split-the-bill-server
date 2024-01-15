@@ -1,4 +1,4 @@
-package seed
+package integration_tests
 
 import (
 	"github.com/google/uuid"

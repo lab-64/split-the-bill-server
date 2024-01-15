@@ -13,7 +13,6 @@ import (
 	"split-the-bill-server/storage/database"
 	"split-the-bill-server/storage/database/db_storages"
 	. "split-the-bill-server/storage/database/entity"
-	"split-the-bill-server/storage/database/seed"
 	"split-the-bill-server/storage/storage_inf"
 	"testing"
 )
@@ -31,7 +30,7 @@ func TestMain(m *testing.M) {
 	setupTestEnv()
 
 	// seed db
-	for _, s := range seed.All() {
+	for _, s := range All() {
 		if err := s.Run(db.Context); err != nil {
 			log.Fatalf("Running seed '%s', failed with error: %s", s.Name, err)
 		}
