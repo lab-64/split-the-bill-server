@@ -1,12 +1,13 @@
 package util
 
 import (
+	"errors"
 	"github.com/caitlinelfring/nist-password-validator/password"
 	"golang.org/x/crypto/bcrypt"
 	"os"
-	"split-the-bill-server/domain"
 	"path/filepath"
 	"runtime"
+	"split-the-bill-server/domain"
 )
 
 func NewPasswordValidator() (*password.Validator, error) {

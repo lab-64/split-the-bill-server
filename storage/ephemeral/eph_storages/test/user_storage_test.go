@@ -4,9 +4,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"math/rand"
 	. "split-the-bill-server/domain/model"
-	types_test "split-the-bill-server/domain/model/test"
-	"split-the-bill-server/domain/util"
 	types_test "split-the-bill-server/domain/model/test_util"
+	"split-the-bill-server/domain/util"
 	"split-the-bill-server/storage"
 	"testing"
 )

@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	. "split-the-bill-server/domain/model"
-	"split-the-bill-server/presentation"
+	. "split-the-bill-server/presentation"
 	. "split-the-bill-server/storage"
 	"time"
 )
@@ -32,25 +32,25 @@ func NewAuthenticator(cookieStorage *ICookieStorage) *Authenticator {
 func (a *Authenticator) Authenticate(c *fiber.Ctx) error {
 	cookie := c.Cookies(SessionCookieName)
 	if cookie == "" {
-		return presentation.Error(c, fiber.StatusUnauthorized, ErrMsgNoCookie)
+		return Error(c, fiber.StatusUnauthorized, ErrMsgNoCookie)
 	}
 
 	tokenUUID, err := uuid.Parse(cookie)
 	if err != nil {
-		return presentation.Error(c, fiber.StatusUnauthorized, ErrMsgInvalidCookie)
+		return Error(c, fiber.StatusUnauthorized, ErrMsgInvalidCookie)
 	}
 
 	// get auth cookie from storage
 	sessionCookie, err := a.cookieStorage.GetCookieFromToken(tokenUUID)
 
 	if err != nil {
-		return presentation.Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
+		return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
 	}
 
 	err = isSessionCookieValid(sessionCookie)
 
 	if err != nil {
-		return presentation.Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
+		return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
 	}
 
 	// set userID in context

@@ -1,9 +1,9 @@
 package mocks
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"split-the-bill-server/domain/service/service_inf"
+	"split-the-bill-server/domain/model"
+	"split-the-bill-server/domain/service"
 	"split-the-bill-server/presentation/dto"
 )
 
@@ -11,11 +11,11 @@ var (
 	MockUserDelete  func(id uuid.UUID) error
 	MockUserGetAll  func() ([]dto.UserDetailedOutputDTO, error)
 	MockUserGetByID func(id uuid.UUID) (dto.UserDetailedOutputDTO, error)
-	MockUserLogin   func(credentials dto.CredentialsInputDTO) (dto.UserCoreOutputDTO, fiber.Cookie, error)
+	MockUserLogin   func(credentials dto.CredentialsInputDTO) (dto.UserCoreOutputDTO, model.AuthCookieModel, error)
 	MockUserCreate  func(user dto.UserInputDTO) (dto.UserCoreOutputDTO, error)
 )
 
-func NewUserServiceMock() service_inf.IUserService {
+func NewUserServiceMock() service.IUserService {
 	return &UserServiceMock{}
 }
 
@@ -34,7 +34,7 @@ func (u UserServiceMock) GetByID(id uuid.UUID) (dto.UserDetailedOutputDTO, error
 	return MockUserGetByID(id)
 }
 
-func (u UserServiceMock) Login(credentials dto.CredentialsInputDTO) (dto.UserCoreOutputDTO, fiber.Cookie, error) {
+func (u UserServiceMock) Login(credentials dto.CredentialsInputDTO) (dto.UserCoreOutputDTO, model.AuthCookieModel, error) {
 	return MockUserLogin(credentials)
 }
 

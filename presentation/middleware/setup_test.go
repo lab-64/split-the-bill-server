@@ -1,23 +1,22 @@
-package authentication
+package middleware
 
 import (
 	"github.com/gofiber/fiber/v2"
 	"os"
 	"split-the-bill-server/presentation"
-	"split-the-bill-server/presentation/middleware"
 	storagemocks "split-the-bill-server/storage/mocks"
 	"testing"
 )
 
 var (
 	app           *fiber.App
-	authenticator *middleware.Authenticator
+	authenticator *Authenticator
 )
 
 func TestMain(m *testing.M) {
 	// setup authentication
 	cookieStorage := storagemocks.NewCookieStorageMock()
-	authenticator = middleware.NewAuthenticator(&cookieStorage)
+	authenticator = NewAuthenticator(&cookieStorage)
 
 	// setup fiber
 	app = fiber.New()

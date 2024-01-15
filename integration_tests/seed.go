@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	. "gorm.io/gorm"
-	"split-the-bill-server/authentication"
+	"split-the-bill-server/domain/model"
 	. "split-the-bill-server/storage/database/entity"
 	"time"
 )
@@ -35,7 +35,7 @@ var (
 	Cookie1 = AuthCookie{
 		Base:        Base{ID: uuid.New()},
 		UserID:      User1.ID,
-		ValidBefore: time.Now().Add(authentication.SessionCookieValidityPeriod),
+		ValidBefore: time.Now().Add(model.SessionCookieValidityPeriod),
 	}
 
 	// CREDENTIALS

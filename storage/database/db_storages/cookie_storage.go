@@ -9,7 +9,6 @@ import (
 	. "split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database"
 	. "split-the-bill-server/storage/database/entity"
-	. "split-the-bill-server/storage/storage_inf"
 )
 
 type CookieStorage struct {

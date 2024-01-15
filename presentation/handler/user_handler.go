@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"split-the-bill-server/domain/service"
-	"split-the-bill-server/presentation"
+	. "split-the-bill-server/presentation"
 	. "split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/middleware"
 )
@@ -31,9 +31,9 @@ func NewUserHandler(userService *service.IUserService, v *password.Validator) *U
 func (h UserHandler) GetAll(c *fiber.Ctx) error {
 	users, err := h.userService.GetAll()
 	if err != nil {
-		return presentation.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUsersNotFound, err))
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUsersNotFound, err))
 	}
-	return presentation.Success(c, fiber.StatusOK, SuccessMsgUsersFound, users)
+	return Success(c, fiber.StatusOK, SuccessMsgUsersFound, users)
 }
 
 // GetByID 		func get the detailed user data from a user id
@@ -48,18 +48,18 @@ func (h UserHandler) GetAll(c *fiber.Ctx) error {
 func (h UserHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return presentation.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
 	user, err := h.userService.GetByID(uid)
 	if err != nil {
-		return presentation.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
+		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
 	}
 
-	return presentation.Success(c, fiber.StatusOK, SuccessMsgUserFound, user)
+	return Success(c, fiber.StatusOK, SuccessMsgUserFound, user)
 }
 
 // Delete 		func delete user
@@ -74,17 +74,17 @@ func (h UserHandler) GetByID(c *fiber.Ctx) error {
 func (h UserHandler) Delete(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return presentation.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
 	err = h.userService.Delete(uid)
 	if err != nil {
-		return presentation.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserDelete, err))
+		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserDelete, err))
 	}
-	return presentation.Success(c, fiber.StatusOK, SuccessMsgUserDelete, nil)
+	return Success(c, fiber.StatusOK, SuccessMsgUserDelete, nil)
 }
 
 // Register 	parses a dto.UserInputDTO from the request body, compares and validates both passwords and creates a new user.
@@ -99,19 +99,19 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 func (h UserHandler) Register(c *fiber.Ctx) error {
 	var request UserInputDTO
 	if err := c.BodyParser(&request); err != nil {
-		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
 
 	if err := h.passwordValidator.ValidatePassword(request.Password); err != nil {
-		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBadPassword, err))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBadPassword, err))
 	}
 
 	user, err := h.userService.Create(request)
 	if err != nil {
-		return presentation.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserCreate, err))
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserCreate, err))
 	}
 
-	return presentation.Success(c, fiber.StatusCreated, SuccessMsgUserCreate, user)
+	return Success(c, fiber.StatusCreated, SuccessMsgUserCreate, user)
 }
 
 // Login 		func login user
@@ -128,17 +128,17 @@ func (h UserHandler) Register(c *fiber.Ctx) error {
 func (h UserHandler) Login(c *fiber.Ctx) error {
 	var userCredentials CredentialsInputDTO
 	if err := c.BodyParser(&userCredentials); err != nil {
-		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserCredentialsParse, err))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserCredentialsParse, err))
 	}
 	// Checks if all input fields are filled out
 	err := userCredentials.ValidateInputs()
 	if err != nil {
-		return presentation.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
 	}
 
 	user, sc, err := h.userService.Login(userCredentials)
 	if err != nil {
-		return presentation.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserLogin, err))
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserLogin, err))
 	}
 
 	// Create response cookie
@@ -152,5 +152,5 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 	}
 
 	c.Cookie(&cookie)
-	return presentation.Success(c, fiber.StatusOK, SuccessMsgUserLogin, user)
+	return Success(c, fiber.StatusOK, SuccessMsgUserLogin, user)
 }

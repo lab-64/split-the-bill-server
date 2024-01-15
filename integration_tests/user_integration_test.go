@@ -9,9 +9,9 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"split-the-bill-server/authentication"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/handler"
+	"split-the-bill-server/presentation/middleware"
 	"split-the-bill-server/storage"
 	"testing"
 )
@@ -113,7 +113,7 @@ func TestGetUser(t *testing.T) {
 			parameter:       User1.ID.String(),
 			cookie:          nil,
 			expectedCode:    401,
-			expectedMessage: authentication.ErrMsgNoCookie,
+			expectedMessage: middleware.ErrMsgNoCookie,
 			expectReturn:    false,
 		},
 		{
@@ -121,7 +121,7 @@ func TestGetUser(t *testing.T) {
 			parameter:       User1.ID.String(),
 			cookie:          &http.Cookie{Name: "session_cookie", Value: uuid.NewString()},
 			expectedCode:    401,
-			expectedMessage: fmt.Sprintf(authentication.ErrMsgAuthentication, storage.NoSuchCookieError),
+			expectedMessage: fmt.Sprintf(middleware.ErrMsgAuthentication, storage.NoSuchCookieError),
 			expectReturn:    false,
 		},
 	}
