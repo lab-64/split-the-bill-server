@@ -27,6 +27,11 @@ func (g *GroupStorage) AddGroup(group model.GroupModel) (model.GroupModel, error
 	return group, nil
 }
 
+func (g *GroupStorage) UpdateGroup(group model.GroupModel) (model.GroupModel, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (g *GroupStorage) GetGroupByID(id uuid.UUID) (model.GroupModel, error) {
 	g.e.Lock.Lock()
 	defer g.e.Lock.Unlock()

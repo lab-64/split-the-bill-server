@@ -250,7 +250,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "GroupID"
+                    "Group"
                 ],
                 "summary": "Get Groups by User",
                 "parameters": [
@@ -291,9 +291,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "GroupID"
+                    "Group"
                 ],
-                "summary": "Create GroupID",
+                "summary": "Create Group",
                 "parameters": [
                     {
                         "description": "Request Body",
@@ -336,16 +336,66 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "GroupID"
+                    "Group"
                 ],
-                "summary": "Get GroupID by ID",
+                "summary": "Get Group by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "GroupID Id",
+                        "description": "Group Id",
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GroupDetailedOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Group"
+                ],
+                "summary": "Update Group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupInputDTO"
+                        }
                     }
                 ],
                 "responses": {
@@ -381,7 +431,7 @@ const docTemplate = `{
                 "tags": [
                     "Invitation"
                 ],
-                "summary": "Create GroupID Invitation",
+                "summary": "Create Group Invitation",
                 "parameters": [
                     {
                         "description": "Request Body",
@@ -426,7 +476,7 @@ const docTemplate = `{
                 "tags": [
                     "Invitation"
                 ],
-                "summary": "Get All GroupID Invitations From User",
+                "summary": "Get All Group Invitations From User",
                 "parameters": [
                     {
                         "type": "string",
@@ -472,7 +522,7 @@ const docTemplate = `{
                 "tags": [
                     "Invitation"
                 ],
-                "summary": "Get GroupID Invitation By ID",
+                "summary": "Get Group Invitation By ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -515,7 +565,7 @@ const docTemplate = `{
                 "tags": [
                     "Invitation"
                 ],
-                "summary": "Accept or decline GroupID Invitation",
+                "summary": "Accept or decline Group Invitation",
                 "parameters": [
                     {
                         "type": "string",

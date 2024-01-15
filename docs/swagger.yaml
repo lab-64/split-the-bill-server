@@ -324,7 +324,7 @@ paths:
               type: object
       summary: Get Groups by User
       tags:
-      - GroupID
+      - Group
     post:
       consumes:
       - application/json
@@ -347,15 +347,15 @@ paths:
                 data:
                   $ref: '#/definitions/dto.GroupDetailedOutputDTO'
               type: object
-      summary: Create GroupID
+      summary: Create Group
       tags:
-      - GroupID
+      - Group
   /api/group/{id}:
     get:
       consumes:
       - application/json
       parameters:
-      - description: GroupID Id
+      - description: Group Id
         in: path
         name: id
         required: true
@@ -372,9 +372,39 @@ paths:
                 data:
                   $ref: '#/definitions/dto.GroupDetailedOutputDTO'
               type: object
-      summary: Get GroupID by ID
+      summary: Get Group by ID
       tags:
-      - GroupID
+      - Group
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GroupInputDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupDetailedOutputDTO'
+              type: object
+      summary: Update Group
+      tags:
+      - Group
   /api/invitation:
     post:
       consumes:
@@ -398,7 +428,7 @@ paths:
                 data:
                   $ref: '#/definitions/dto.GroupInvitationOutputDTO'
               type: object
-      summary: Create GroupID Invitation
+      summary: Create Group Invitation
       tags:
       - Invitation
   /api/invitation/{id}:
@@ -423,7 +453,7 @@ paths:
                 data:
                   $ref: '#/definitions/dto.GroupInvitationOutputDTO'
               type: object
-      summary: Get GroupID Invitation By ID
+      summary: Get Group Invitation By ID
       tags:
       - Invitation
   /api/invitation/{id}/response:
@@ -449,7 +479,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.GeneralResponseDTO'
-      summary: Accept or decline GroupID Invitation
+      summary: Accept or decline Group Invitation
       tags:
       - Invitation
   /api/invitation/user/{id}:
@@ -476,7 +506,7 @@ paths:
                     $ref: '#/definitions/dto.GroupInvitationOutputDTO'
                   type: array
               type: object
-      summary: Get All GroupID Invitations From User
+      summary: Get All Group Invitations From User
       tags:
       - Invitation
   /api/user:

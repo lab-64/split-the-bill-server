@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"split-the-bill-server/authentication"
 	"split-the-bill-server/core"
 	. "split-the-bill-server/domain/service/service_inf"
 	. "split-the-bill-server/presentation/dto"
@@ -50,6 +51,46 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 	}
 
 	return core.Success(c, fiber.StatusCreated, SuccessMsgGroupCreate, group)
+}
+
+// Update updates a group with the given id.
+//
+//	@Summary	Update Group
+//	@Tags		Group
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path		string				true	"Group ID"
+//	@Param		request	body		dto.GroupInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.GroupDetailedOutputDTO}
+//
+//	@Router		/api/group/{id} [put]
+func (g GroupHandler) Update(c *fiber.Ctx) error {
+	// parse parameters
+	id := c.Params("id")
+	if id == "" {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+	}
+
+	// parse request
+	var request GroupInputDTO
+	if err := c.BodyParser(&request); err != nil {
+		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupParse, err))
+	}
+
+	userID := c.Locals(authentication.UserKey).(uuid.UUID)
+
+	// update item
+	item, err := g.groupService.Update(userID, uid, request)
+	if err != nil {
+		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupUpdate, err))
+	}
+
+	return core.Success(c, fiber.StatusOK, SuccessMsgGroupUpdate, item)
 }
 
 // GetByID returns the group with the given ID.

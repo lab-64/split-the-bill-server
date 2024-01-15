@@ -36,6 +36,27 @@ func (g *GroupStorage) AddGroup(group GroupModel) (GroupModel, error) {
 	return ToGroupModel(&groupItem), res.Error
 }
 
+func (g *GroupStorage) UpdateGroup(group GroupModel) (GroupModel, error) {
+	groupEntity := ToGroupEntity(group)
+
+	res := g.DB.
+		Preload(clause.Associations).
+		Model(&groupEntity).
+		Updates(&groupEntity).
+		First(&groupEntity)
+
+	// TODO: add finer error handling
+	if res.Error != nil {
+		return GroupModel{}, res.Error
+	}
+
+	if res.RowsAffected == 0 {
+		return GroupModel{}, storage.NoSuchGroupError
+	}
+
+	return ToGroupModel(&groupEntity), nil
+}
+
 func (g *GroupStorage) GetGroupByID(id uuid.UUID) (GroupModel, error) {
 	var group Group
 
