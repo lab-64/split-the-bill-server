@@ -8,14 +8,13 @@ import (
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/ephemeral"
-	"split-the-bill-server/storage/storage_inf"
 )
 
 type UserStorage struct {
 	e *ephemeral.Ephemeral
 }
 
-func NewUserStorage(ephemeral *ephemeral.Ephemeral) storage_inf.IUserStorage {
+func NewUserStorage(ephemeral *ephemeral.Ephemeral) storage.IUserStorage {
 	return &UserStorage{e: ephemeral}
 }
 
@@ -26,7 +25,7 @@ func (u *UserStorage) Delete(id uuid.UUID) error {
 	if !exists {
 		return nil
 	}
-	delete(u.e.NameIndex, user.Username)
+	delete(u.e.NameIndex, user.Email)
 	delete(u.e.Users, id)
 	delete(u.e.Passwords, id)
 	return nil
@@ -54,43 +53,43 @@ func (u *UserStorage) GetByID(id uuid.UUID) (model.UserModel, error) {
 	return user, nil
 }
 
-func (u *UserStorage) GetByUsername(username string) (model.UserModel, error) {
+func (u *UserStorage) GetByEmail(email string) (model.UserModel, error) {
 	u.e.Lock.Lock()
 	defer u.e.Lock.Unlock()
-	id, ok := u.e.NameIndex[username]
+	id, ok := u.e.NameIndex[email]
 	if !ok {
 		return model.UserModel{}, storage.NoSuchUserError
 	}
 	user, ok := u.e.Users[id]
 	if !ok {
-		log.Printf("FATAL error: user storage inconsistent: username '%s' points to non-existent user", username)
-		return user, fmt.Errorf("user storage inconsistent: username '%s' points to non-existent user", username)
+		log.Printf("FATAL error: user storage inconsistent: email '%s' points to non-existent user", email)
+		return user, fmt.Errorf("user storage inconsistent: email '%s' points to non-existent user", email)
 	}
 	return user, nil
 }
 
-func (u *UserStorage) Create(user model.UserModel, hash []byte) error {
+func (u *UserStorage) Create(user model.UserModel, hash []byte) (model.UserModel, error) {
 	u.e.Lock.Lock()
 	defer u.e.Lock.Unlock()
 
-	if _, ok := u.e.NameIndex[user.Username]; ok {
-		return storage.UserAlreadyExistsError
+	if _, ok := u.e.NameIndex[user.Email]; ok {
+		return model.UserModel{}, storage.UserAlreadyExistsError
 	}
 
 	_, ok := u.e.Users[user.ID]
 	if ok {
-		return storage.UserAlreadyExistsError
+		return model.UserModel{}, storage.UserAlreadyExistsError
 	}
 
 	u.e.Users[user.ID] = user
-	u.e.NameIndex[user.Username] = user.ID
+	u.e.NameIndex[user.Email] = user.ID
 
 	_, exists := u.e.Passwords[user.ID]
 	if exists {
-		return errors.New("fatal: user already has saved password")
+		return model.UserModel{}, errors.New("fatal: user already has saved password")
 	}
 	u.e.Passwords[user.ID] = hash
-	return nil
+	return user, nil
 }
 
 func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
@@ -103,24 +102,7 @@ func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
 	return hash, nil
 }
 
-// TODO: maybe change, group struct will not be safed in group invitation. If function should return the same values (group) as the postgres function, we need to add the group.
-func (u *UserStorage) AddGroupInvitation(invitation model.GroupInvitationModel, userID uuid.UUID) error {
-	/*
-		u.e.Lock.Lock()
-		defer u.e.Lock.Unlock()
-		user, exists := u.e.users[userID]
-		if !exists {
-			return storage.NoSuchUserError
-		}
-		// update invitation list
-		invitations := append(user.PendingGroupInvitations, &invitation)
-		user.PendingGroupInvitations = invitations
-		u.e.users[userID] = user
-
-	*/
-	return nil
-}
-
+// TODO: move to invitation storage
 func (u *UserStorage) HandleInvitation(invitationType string, userID uuid.UUID, invitationID uuid.UUID, accept bool) error {
 	u.e.Lock.Lock()
 	defer u.e.Lock.Unlock()
@@ -134,7 +116,7 @@ func (u *UserStorage) HandleInvitation(invitationType string, userID uuid.UUID, 
 		return u.handleGroupInvitation(user, invitationID, accept)
 	}
 	// TODO: handle further invitation replies
-	return storage.InvitationNotFoundError
+	return storage.NoSuchGroupInvitationError
 }
 
 // handleGroupInvitation handles the reply to a group invitation. If the invitation gets accepted, the user gets added to the group and the invitations gets deleted.
@@ -153,7 +135,7 @@ func (u *UserStorage) handleGroupInvitation(user model.UserModel, invitationID u
 				group.Members = append(group.Members, user)
 				u.e.Groups[group.ID] = group
 				// add group pointer to user struct
-				groupList := append(user.Groups, group)
+				groupList := append(user.Groups, *group)
 				user.Groups = groupList
 			}
 			// remove invitation

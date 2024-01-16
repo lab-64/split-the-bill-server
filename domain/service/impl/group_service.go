@@ -1,47 +1,78 @@
 package impl
 
 import (
-	"github.com/google/uuid"
-	"split-the-bill-server/core"
-	. "split-the-bill-server/domain/service/service_inf"
+	. "github.com/google/uuid"
+	. "split-the-bill-server/domain"
+	. "split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation/dto"
-	. "split-the-bill-server/storage/storage_inf"
+	"split-the-bill-server/storage"
 )
 
 type GroupService struct {
-	groupStorage IGroupStorage
-	userStorage  IUserStorage
+	groupStorage storage.IGroupStorage
+	userStorage  storage.IUserStorage
 }
 
-func NewGroupService(groupStorage *IGroupStorage, userStorage *IUserStorage) IGroupService {
+func NewGroupService(groupStorage *storage.IGroupStorage, userStorage *storage.IUserStorage) IGroupService {
 	return &GroupService{groupStorage: *groupStorage, userStorage: *userStorage}
 }
 
-func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupOutputDTO, error) {
-
-	// TODO: get user id from authenticated user
-	// TODO: delete, just for testing
-	user, err := g.userStorage.GetByUsername("felix")
-	if err != nil {
-		return GroupOutputDTO{}, err
-	}
-	groupDTO.Owner = user.ID
+func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupDetailedOutputDTO, error) {
 
 	// create group with the only member being the owner
 	group := ToGroupModel(groupDTO)
 
 	// store group in db
-	err = g.groupStorage.AddGroup(group)
+	group, err := g.groupStorage.AddGroup(group)
 	if err != nil {
-		return GroupOutputDTO{}, err
+		return GroupDetailedOutputDTO{}, err
 	}
 
-	return ToGroupDTO(&group), err
+	return ToGroupDetailedDTO(group), nil
 }
 
-func (g *GroupService) GetByID(id uuid.UUID) (GroupOutputDTO, error) {
-	group, err := g.groupStorage.GetGroupByID(id)
-	core.LogError(err)
+func (g *GroupService) Update(userID UUID, groupID UUID, groupDTO GroupInputDTO) (GroupDetailedOutputDTO, error) {
+	group, err := g.groupStorage.GetGroupByID(groupID)
 
-	return ToGroupDTO(&group), err
+	if err != nil {
+		return GroupDetailedOutputDTO{}, err
+	}
+
+	// Authorize
+	if userID != group.Owner.ID {
+		return GroupDetailedOutputDTO{}, ErrNotAuthorized
+	}
+
+	// Update fields
+	group.Name = groupDTO.Name
+	group.Owner.ID = groupDTO.OwnerID
+
+	group, err = g.groupStorage.UpdateGroup(group)
+	if err != nil {
+		return GroupDetailedOutputDTO{}, err
+	}
+
+	return ToGroupDetailedDTO(group), err
+}
+
+func (g *GroupService) GetByID(id UUID) (GroupDetailedOutputDTO, error) {
+	group, err := g.groupStorage.GetGroupByID(id)
+	if err != nil {
+		return GroupDetailedOutputDTO{}, err
+	}
+	return ToGroupDetailedDTO(group), nil
+}
+
+func (g *GroupService) GetAllByUser(userID UUID) ([]GroupDetailedOutputDTO, error) {
+	groups, err := g.groupStorage.GetGroupsByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	groupsDTO := make([]GroupDetailedOutputDTO, len(groups))
+	for i := range groups {
+		groupsDTO[i] = ToGroupDetailedDTO(groups[i])
+	}
+
+	return groupsDTO, nil
 }

@@ -5,26 +5,30 @@ import (
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/ephemeral"
-	"split-the-bill-server/storage/storage_inf"
 )
 
 type GroupStorage struct {
 	e *ephemeral.Ephemeral
 }
 
-func NewGroupStorage(ephemeral *ephemeral.Ephemeral) storage_inf.IGroupStorage {
+func NewGroupStorage(ephemeral *ephemeral.Ephemeral) storage.IGroupStorage {
 	return &GroupStorage{e: ephemeral}
 }
 
-func (g *GroupStorage) AddGroup(group model.GroupModel) error {
+func (g *GroupStorage) AddGroup(group model.GroupModel) (model.GroupModel, error) {
 	g.e.Lock.Lock()
 	defer g.e.Lock.Unlock()
 	_, exists := g.e.Groups[group.ID]
 	if exists {
-		return storage.GroupAlreadyExistsError
+		return model.GroupModel{}, storage.GroupAlreadyExistsError
 	}
 	g.e.Groups[group.ID] = &group
-	return nil
+	return group, nil
+}
+
+func (g *GroupStorage) UpdateGroup(group model.GroupModel) (model.GroupModel, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (g *GroupStorage) GetGroupByID(id uuid.UUID) (model.GroupModel, error) {
@@ -53,16 +57,7 @@ func (g *GroupStorage) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) e
 	return nil
 }
 
-func (g *GroupStorage) AddBillToGroup(bill *model.BillModel, groupID uuid.UUID) error {
-	g.e.Lock.Lock()
-	defer g.e.Lock.Unlock()
-	group, exists := g.e.Groups[groupID]
-	if !exists {
-		return storage.NoSuchGroupError
-	}
-
-	// change group
-	group.Bills = append(group.Bills, *bill)
-	g.e.Groups[group.ID] = group
-	return nil
+func (g *GroupStorage) GetGroupsByUserID(userID uuid.UUID) ([]model.GroupModel, error) {
+	//TODO implement me
+	panic("implement me")
 }

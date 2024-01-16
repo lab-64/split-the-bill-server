@@ -39,6 +39,94 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.BillDetailedOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/bill/item": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bill"
+                ],
+                "summary": "Add Item to Bill",
+                "parameters": [
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ItemInputDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ItemOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/bill/item/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bill"
+                ],
+                "summary": "Get Item by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -50,7 +138,57 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.BillOutputDTO"
+                                            "$ref": "#/definitions/dto.ItemOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bill"
+                ],
+                "summary": "Change Item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ItemInputDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ItemOutputDTO"
                                         }
                                     }
                                 }
@@ -75,7 +213,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bill Id",
+                        "description": "Bill ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -93,7 +231,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.BillOutputDTO"
+                                            "$ref": "#/definitions/dto.BillDetailedOutputDTO"
                                         }
                                     }
                                 }
@@ -104,6 +242,47 @@ const docTemplate = `{
             }
         },
         "/api/group": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Group"
+                ],
+                "summary": "Get Groups by User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Id",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GroupDetailedOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -138,7 +317,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.GroupOutputDTO"
+                                            "$ref": "#/definitions/dto.GroupDetailedOutputDTO"
                                         }
                                     }
                                 }
@@ -159,7 +338,7 @@ const docTemplate = `{
                 "tags": [
                     "Group"
                 ],
-                "summary": "Get Group",
+                "summary": "Get Group by ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -181,11 +360,235 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.GroupOutputDTO"
+                                            "$ref": "#/definitions/dto.GroupDetailedOutputDTO"
                                         }
                                     }
                                 }
                             ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Group"
+                ],
+                "summary": "Update Group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupInputDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GroupDetailedOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/invitation": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invitation"
+                ],
+                "summary": "Create Group Invitation",
+                "parameters": [
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GroupInvitationInputDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GroupInvitationOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/invitation/user/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invitation"
+                ],
+                "summary": "Get All Group Invitations From User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.GroupInvitationOutputDTO"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/invitation/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invitation"
+                ],
+                "summary": "Get Group Invitation By ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invitation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GroupInvitationOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/invitation/{id}/response": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invitation"
+                ],
+                "summary": "Accept or decline Group Invitation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invitation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.InvitationResponseInputDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponseDTO"
                         }
                     }
                 }
@@ -217,7 +620,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/dto.UserOutputDTO"
+                                                "$ref": "#/definitions/dto.UserDetailedOutputDTO"
                                             }
                                         }
                                     }
@@ -226,9 +629,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/api/user/invitations": {
+            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -239,7 +640,7 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Handle pending invitation",
+                "summary": "Register User",
                 "parameters": [
                     {
                         "description": "Request Body",
@@ -247,7 +648,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.InvitationInputDTO"
+                            "$ref": "#/definitions/dto.UserInputDTO"
                         }
                     }
                 ],
@@ -255,7 +656,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UserCoreOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -288,40 +701,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/user/register": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Register User",
-                "parameters": [
-                    {
-                        "description": "Request Body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UserInputDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UserCoreOutputDTO"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -338,11 +730,11 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Get User by ID",
+                "summary": "Get detailed User data by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User Id",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -360,7 +752,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.UserOutputDTO"
+                                            "$ref": "#/definitions/dto.UserDetailedOutputDTO"
                                         }
                                     }
                                 }
@@ -383,7 +775,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User Username",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -398,88 +790,54 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/api/user/{username}": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Get User by username",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User Username",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.UserOutputDTO"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
+        "dto.BillDetailedOutputDTO": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "groupID": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ItemOutputDTO"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ownerID": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.BillInputDTO": {
             "type": "object",
             "properties": {
                 "date": {
                     "type": "string"
                 },
-                "group": {
+                "groupID": {
                     "type": "string"
                 },
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.ItemDTO"
+                        "$ref": "#/definitions/dto.ItemInputDTO"
                     }
                 },
                 "name": {
                     "type": "string"
                 },
-                "owner": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.BillOutputDTO": {
-            "type": "object",
-            "properties": {
-                "date": {
-                    "type": "string"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.ItemDTO"
-                    }
-                },
-                "name": {
+                "ownerID": {
                     "type": "string"
                 }
             }
@@ -487,10 +845,10 @@ const docTemplate = `{
         "dto.CredentialsInputDTO": {
             "type": "object",
             "properties": {
-                "password": {
+                "email": {
                     "type": "string"
                 },
-                "username": {
+                "password": {
                     "type": "string"
                 }
             }
@@ -501,36 +859,36 @@ const docTemplate = `{
                 "data": {},
                 "message": {
                     "type": "string"
-                },
-                "status": {
-                    "type": "string"
                 }
             }
         },
-        "dto.GroupInputDTO": {
+        "dto.GroupCoreOutputDTO": {
             "type": "object",
             "properties": {
-                "invites": {
+                "id": {
+                    "type": "string"
+                },
+                "members": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dto.UserCoreOutputDTO"
                     }
                 },
                 "name": {
                     "type": "string"
                 },
                 "owner": {
-                    "type": "string"
+                    "$ref": "#/definitions/dto.UserCoreOutputDTO"
                 }
             }
         },
-        "dto.GroupOutputDTO": {
+        "dto.GroupDetailedOutputDTO": {
             "type": "object",
             "properties": {
                 "bills": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.BillOutputDTO"
+                        "$ref": "#/definitions/dto.BillDetailedOutputDTO"
                     }
                 },
                 "id": {
@@ -539,38 +897,71 @@ const docTemplate = `{
                 "members": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dto.UserCoreOutputDTO"
                     }
                 },
                 "name": {
                     "type": "string"
                 },
                 "owner": {
+                    "$ref": "#/definitions/dto.UserCoreOutputDTO"
+                }
+            }
+        },
+        "dto.GroupInputDTO": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "ownerID": {
                     "type": "string"
                 }
             }
         },
-        "dto.InvitationInputDTO": {
+        "dto.GroupInvitationInputDTO": {
             "type": "object",
             "properties": {
-                "accept": {
+                "groupID": {
+                    "type": "string"
+                },
+                "inviteeIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "issuerID": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GroupInvitationOutputDTO": {
+            "type": "object",
+            "properties": {
+                "group": {
+                    "$ref": "#/definitions/dto.GroupCoreOutputDTO"
+                },
+                "invitationID": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.InvitationResponseInputDTO": {
+            "type": "object",
+            "properties": {
+                "isAccept": {
                     "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "user": {
-                    "type": "string"
                 }
             }
         },
-        "dto.ItemDTO": {
+        "dto.ItemInputDTO": {
             "type": "object",
             "properties": {
-                "contributors": {
+                "billId": {
+                    "type": "string"
+                },
+                "contributorIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -584,7 +975,30 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.UserInputDTO": {
+        "dto.ItemOutputDTO": {
+            "type": "object",
+            "properties": {
+                "billId": {
+                    "type": "string"
+                },
+                "contributorIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                }
+            }
+        },
+        "dto.UserCoreOutputDTO": {
             "type": "object",
             "properties": {
                 "email": {
@@ -592,16 +1006,10 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },
-        "dto.UserOutputDTO": {
+        "dto.UserDetailedOutputDTO": {
             "type": "object",
             "properties": {
                 "email": {
@@ -610,19 +1018,27 @@ const docTemplate = `{
                 "groups": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.GroupOutputDTO"
+                        "$ref": "#/definitions/dto.GroupCoreOutputDTO"
                     }
                 },
                 "id": {
                     "type": "string"
                 },
-                "invitations": {
+                "invitationIDs": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "dto.UserInputDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
                 },
-                "username": {
+                "password": {
                     "type": "string"
                 }
             }

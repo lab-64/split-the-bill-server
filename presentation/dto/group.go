@@ -2,41 +2,55 @@ package dto
 
 import (
 	"errors"
-	"github.com/google/uuid"
+	. "github.com/google/uuid"
 	. "split-the-bill-server/domain/model"
 )
 
 type GroupInputDTO struct {
-	Owner   uuid.UUID   `json:"owner"`
-	Name    string      `json:"name"`
-	Invites []uuid.UUID `json:"invites"`
+	OwnerID UUID   `json:"ownerID"`
+	Name    string `json:"name"`
 }
 
-type GroupOutputDTO struct {
-	Owner   uuid.UUID       `json:"owner"`
-	ID      uuid.UUID       `json:"id"`
-	Name    string          `json:"name"`
-	Members []uuid.UUID     `json:"members"`
-	Bills   []BillOutputDTO `json:"bills"`
+type GroupCoreOutputDTO struct {
+	Owner   UserCoreOutputDTO   `json:"owner"`
+	ID      UUID                `json:"id"`
+	Name    string              `json:"name"`
+	Members []UserCoreOutputDTO `json:"members"`
+}
+
+type GroupDetailedOutputDTO struct {
+	Owner   UserCoreOutputDTO       `json:"owner"`
+	ID      UUID                    `json:"id"`
+	Name    string                  `json:"name"`
+	Members []UserCoreOutputDTO     `json:"members"`
+	Bills   []BillDetailedOutputDTO `json:"bills"`
 }
 
 func ToGroupModel(g GroupInputDTO) GroupModel {
-	return CreateGroupModel(UserModel{ID: g.Owner}, g.Name)
+	return CreateGroupModel(g.OwnerID, g.Name, []UUID{g.OwnerID})
 }
 
-func ToGroupDTO(g *GroupModel) GroupOutputDTO {
-	billsDTO := make([]BillOutputDTO, len(g.Bills))
+func ToGroupCoreDTO(g GroupModel) GroupCoreOutputDTO {
 
-	for i, bill := range g.Bills {
-		billsDTO[i] = ToBillDTO(bill)
+	owner := ToUserCoreDTO(&g.Owner)
+	members := ToUserCoreDTOs(g.Members)
+
+	return GroupCoreOutputDTO{
+		Owner:   owner,
+		ID:      g.ID,
+		Name:    g.Name,
+		Members: members,
 	}
-	// get all member ids
-	var members []uuid.UUID
-	for _, member := range g.Members {
-		members = append(members, member.ID)
-	}
-	return GroupOutputDTO{
-		Owner:   g.Owner.ID,
+}
+
+func ToGroupDetailedDTO(g GroupModel) GroupDetailedOutputDTO {
+
+	billsDTO := ToBillDetailedDTOs(g.Bills)
+	owner := ToUserCoreDTO(&g.Owner)
+	members := ToUserCoreDTOs(g.Members)
+
+	return GroupDetailedOutputDTO{
+		Owner:   owner,
 		ID:      g.ID,
 		Name:    g.Name,
 		Members: members,
@@ -44,8 +58,7 @@ func ToGroupDTO(g *GroupModel) GroupOutputDTO {
 	}
 }
 
-// Validator
-
+// ValidateInput validates the inputs of the group creation request
 func (g GroupInputDTO) ValidateInput() error {
 	if g.Name == "" {
 		return errors.New("name is required")

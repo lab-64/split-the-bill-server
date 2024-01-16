@@ -7,39 +7,53 @@ import (
 )
 
 type BillInputDTO struct {
-	Owner uuid.UUID `json:"owner"`
-	Name  string    `json:"name"`
-	Date  time.Time `json:"date"`
-	Items []ItemDTO `json:"items"`
-	Group uuid.UUID `json:"group"`
+	Owner   uuid.UUID      `json:"ownerID"`
+	Name    string         `json:"name"`
+	Date    time.Time      `json:"date"`
+	GroupID uuid.UUID      `json:"groupID"`
+	Items   []ItemInputDTO `json:"items"`
 }
 
-type BillOutputDTO struct {
-	Name  string    `json:"name"`
-	Date  time.Time `json:"date"`
-	Items []ItemDTO `json:"items"`
+type BillDetailedOutputDTO struct {
+	ID      uuid.UUID       `json:"id"`
+	Name    string          `json:"name"`
+	Date    time.Time       `json:"date"`
+	Items   []ItemOutputDTO `json:"items"`
+	GroupID uuid.UUID       `json:"groupID"`
+	OwnerID uuid.UUID       `json:"ownerID"`
 }
 
-func ToBillModel(b BillInputDTO) (BillModel, error) {
+func ToBillModel(b BillInputDTO) BillModel {
 	// convert each item
-	var items []*ItemModel
+	var items []ItemModel
 	for _, item := range b.Items {
-		convertedItem := ToItemModel(item)
-		items = append(items, &convertedItem)
+		items = append(items, ToItemModel(uuid.Nil, item))
 	}
-	return CreateBill(b.Owner, b.Name, b.Date, items), nil
+	return CreateBillModel(b.Owner, b.Name, b.Date, b.GroupID, items)
 }
 
-func ToBillDTO(bill BillModel) BillOutputDTO {
-	itemsDTO := make([]ItemDTO, len(bill.Items))
+func ToBillDetailedDTOs(bills []BillModel) []BillDetailedOutputDTO {
+	billsDTO := make([]BillDetailedOutputDTO, len(bills))
+
+	for i, bill := range bills {
+		billsDTO[i] = ToBillDetailedDTO(bill)
+	}
+	return billsDTO
+}
+
+func ToBillDetailedDTO(bill BillModel) BillDetailedOutputDTO {
+	itemsDTO := make([]ItemOutputDTO, len(bill.Items))
 
 	for i, item := range bill.Items {
-		itemsDTO[i] = ToItemDTO(*item)
+		itemsDTO[i] = ToItemDTO(item)
 	}
 
-	return BillOutputDTO{
-		Name:  bill.Name,
-		Date:  bill.Date,
-		Items: itemsDTO,
+	return BillDetailedOutputDTO{
+		ID:      bill.ID,
+		Name:    bill.Name,
+		Date:    bill.Date,
+		Items:   itemsDTO,
+		OwnerID: bill.OwnerID,
+		GroupID: bill.GroupID,
 	}
 }

@@ -1,18 +1,18 @@
 package main_test
 
 import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"net/http/httptest"
-	"split-the-bill-server/authentication"
 	"split-the-bill-server/domain/service/impl"
+	"split-the-bill-server/domain/util"
 	"split-the-bill-server/presentation/handler"
+	"split-the-bill-server/presentation/middleware"
 	"split-the-bill-server/presentation/router"
 	"split-the-bill-server/storage/ephemeral"
 	"split-the-bill-server/storage/ephemeral/eph_storages"
 	"testing"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/stretchr/testify/assert"
 )
 
 // TestlandingPage tests whether the fiber client starts correctly.
@@ -21,10 +21,10 @@ func TestLandingPage(t *testing.T) {
 	app := fiber.New()
 	e, err := ephemeral.NewEphemeral()
 	require.NoError(t, err)
-	v, err := authentication.NewPasswordValidator()
+	v, err := util.NewPasswordValidator()
 	require.NoError(t, err)
 
-	//eph_storages
+	//storages
 	userStorage := eph_storages.NewUserStorage(e)
 	groupStorage := eph_storages.NewGroupStorage(e)
 	cookieStorage := eph_storages.NewCookieStorage(e)
@@ -35,18 +35,19 @@ func TestLandingPage(t *testing.T) {
 	userService := impl.NewUserService(&userStorage, &cookieStorage)
 	groupService := impl.NewGroupService(&groupStorage, &userStorage)
 	billService := impl.NewBillService(&billStorage, &groupStorage)
-	invitationService := impl.NewInvitationService(&invitationStorage, &userStorage)
+	invitationService := impl.NewInvitationService(&invitationStorage, &groupStorage)
 
 	//handlers
 	userHandler := handler.NewUserHandler(&userService, v)
 	groupHandler := handler.NewGroupHandler(&groupService, &invitationService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
+	invitationHandler := handler.NewInvitationHandler(&invitationService)
 
 	// authenticator
-	authenticator := authentication.NewAuthenticator(&cookieStorage)
+	authenticator := middleware.NewAuthenticator(&cookieStorage)
 
 	//routing
-	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *authenticator)
+	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *invitationHandler, *authenticator)
 
 	// Create a new http get request on landingpage
 	req := httptest.NewRequest("GET", "/", nil)
