@@ -2,6 +2,7 @@ package impl
 
 import (
 	"github.com/google/uuid"
+	"split-the-bill-server/domain"
 	. "split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation/dto"
 	"split-the-bill-server/storage"
@@ -38,7 +39,7 @@ func (b *BillService) Update(userID uuid.UUID, billID uuid.UUID, billDTO BillInp
 
 	// Authorize
 	if userID != bill.OwnerID {
-		return BillDetailedOutputDTO{}, ErrNotAuthorized
+		return BillDetailedOutputDTO{}, domain.ErrNotAuthorized
 	}
 
 	updatedBill := ToBillModel(billDTO)
