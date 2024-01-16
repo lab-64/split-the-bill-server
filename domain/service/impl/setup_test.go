@@ -2,16 +2,16 @@ package impl
 
 import (
 	"os"
-	"split-the-bill-server/domain/service/service_inf"
+	"split-the-bill-server/domain/service"
+	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/mocks"
-	"split-the-bill-server/storage/storage_inf"
 	"testing"
 )
 
 var (
-	userStorage   storage_inf.IUserStorage
-	cookieStorage storage_inf.ICookieStorage
-	userService   service_inf.IUserService
+	userStorage   storage.IUserStorage
+	cookieStorage storage.ICookieStorage
+	userService   service.IUserService
 )
 
 func TestMain(m *testing.M) {

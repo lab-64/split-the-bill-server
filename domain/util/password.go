@@ -1,4 +1,4 @@
-package authentication
+package util
 
 import (
 	"errors"
@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"split-the-bill-server/domain"
 )
 
 func NewPasswordValidator() (*password.Validator, error) {
@@ -42,9 +43,7 @@ func ComparePassword(hash []byte, pwd string) error {
 	// Compare password with hash
 	res := bcrypt.CompareHashAndPassword(hash, []byte(pwd))
 	if res != nil {
-		return InvalidCredentials
+		return domain.InvalidCredentials
 	}
 	return nil
 }
-
-var InvalidCredentials = errors.New("invalid credentials")

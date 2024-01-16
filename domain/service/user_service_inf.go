@@ -1,8 +1,8 @@
-package service_inf
+package service
 
 import (
-	"github.com/gofiber/fiber/v2"
 	. "github.com/google/uuid"
+	. "split-the-bill-server/domain/model"
 	. "split-the-bill-server/presentation/dto"
 )
 
@@ -13,7 +13,7 @@ type IUserService interface {
 
 	GetByID(id UUID) (UserDetailedOutputDTO, error)
 
-	Login(credentials CredentialsInputDTO) (UserCoreOutputDTO, fiber.Cookie, error)
+	Login(credentials CredentialsInputDTO) (UserCoreOutputDTO, AuthCookieModel, error)
 
 	Create(user UserInputDTO) (UserCoreOutputDTO, error)
 }

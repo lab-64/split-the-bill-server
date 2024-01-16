@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"split-the-bill-server/core"
-	. "split-the-bill-server/domain/service/service_inf"
+	"split-the-bill-server/domain/service"
+	. "split-the-bill-server/presentation"
 	. "split-the-bill-server/presentation/dto"
 )
 
 type InvitationHandler struct {
-	invitationService IInvitationService
+	invitationService service.IInvitationService
 }
 
-func NewInvitationHandler(invitationService *IInvitationService) *InvitationHandler {
+func NewInvitationHandler(invitationService *service.IInvitationService) *InvitationHandler {
 	return &InvitationHandler{invitationService: *invitationService}
 }
 
@@ -29,18 +29,18 @@ func NewInvitationHandler(invitationService *IInvitationService) *InvitationHand
 func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
 
 	invitation, err := h.invitationService.GetGroupInvitationByID(uid)
 	if err != nil {
-		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
+		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
 	}
-	return core.Success(c, fiber.StatusOK, SuccessMsgInvitationFound, invitation)
+	return Success(c, fiber.StatusOK, SuccessMsgInvitationFound, invitation)
 }
 
 // GetAllByUser returns all group invitations for the given user.
@@ -55,19 +55,19 @@ func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
 func (h InvitationHandler) GetAllByUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
 
 	invitations, err := h.invitationService.GetGroupInvitationsByUser(uid)
 	println(invitations)
 	if err != nil {
-		return core.Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
+		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
 	}
-	return core.Success(c, fiber.StatusOK, SuccessMsgInvitationFound, invitations)
+	return Success(c, fiber.StatusOK, SuccessMsgInvitationFound, invitations)
 }
 
 // Create creates a new group invitation.
@@ -84,15 +84,15 @@ func (h InvitationHandler) Create(c *fiber.Ctx) error {
 	// parse request
 	var request GroupInvitationInputDTO
 	if err := c.BodyParser(&request); err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
 	}
 	// create invitation for all invitees
 	invitations, err := h.invitationService.CreateGroupInvitations(request)
 	if err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationCreate, err))
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationCreate, err))
 	}
 
-	return core.Success(c, fiber.StatusCreated, SuccessMsgInvitationCreate, invitations)
+	return Success(c, fiber.StatusCreated, SuccessMsgInvitationCreate, invitations)
 }
 
 // HandleInvitation handles a group invitation.
@@ -108,23 +108,23 @@ func (h InvitationHandler) Create(c *fiber.Ctx) error {
 func (h InvitationHandler) HandleInvitation(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
 
 	// parse request
 	var request InvitationResponseInputDTO
 	if err := c.BodyParser(&request); err != nil {
-		return core.Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
 	}
 
 	// handle invitation
 	if err := h.invitationService.HandleGroupInvitation(uid, request.IsAccept); err != nil {
-		return core.Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
 	}
 
-	return core.Success(c, fiber.StatusOK, SuccessMsgInvitationHandled, err)
+	return Success(c, fiber.StatusOK, SuccessMsgInvitationHandled, err)
 }

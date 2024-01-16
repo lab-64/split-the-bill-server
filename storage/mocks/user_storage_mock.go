@@ -3,7 +3,7 @@ package mocks
 import (
 	"github.com/google/uuid"
 	"split-the-bill-server/domain/model"
-	"split-the-bill-server/storage/storage_inf"
+	"split-the-bill-server/storage"
 )
 
 var (
@@ -15,7 +15,7 @@ var (
 	MockUserGetCredentials func(id uuid.UUID) ([]byte, error)
 )
 
-func NewUserStorageMock() storage_inf.IUserStorage {
+func NewUserStorageMock() storage.IUserStorage {
 	return &UserStorageMock{}
 }
 

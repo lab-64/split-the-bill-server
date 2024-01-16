@@ -8,14 +8,13 @@ import (
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/ephemeral"
-	"split-the-bill-server/storage/storage_inf"
 )
 
 type UserStorage struct {
 	e *ephemeral.Ephemeral
 }
 
-func NewUserStorage(ephemeral *ephemeral.Ephemeral) storage_inf.IUserStorage {
+func NewUserStorage(ephemeral *ephemeral.Ephemeral) storage.IUserStorage {
 	return &UserStorage{e: ephemeral}
 }
 

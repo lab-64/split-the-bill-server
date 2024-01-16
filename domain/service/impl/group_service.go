@@ -2,17 +2,18 @@ package impl
 
 import (
 	. "github.com/google/uuid"
-	. "split-the-bill-server/domain/service/service_inf"
+	. "split-the-bill-server/domain"
+	. "split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation/dto"
-	. "split-the-bill-server/storage/storage_inf"
+	"split-the-bill-server/storage"
 )
 
 type GroupService struct {
-	groupStorage IGroupStorage
-	userStorage  IUserStorage
+	groupStorage storage.IGroupStorage
+	userStorage  storage.IUserStorage
 }
 
-func NewGroupService(groupStorage *IGroupStorage, userStorage *IUserStorage) IGroupService {
+func NewGroupService(groupStorage *storage.IGroupStorage, userStorage *storage.IUserStorage) IGroupService {
 	return &GroupService{groupStorage: *groupStorage, userStorage: *userStorage}
 }
 

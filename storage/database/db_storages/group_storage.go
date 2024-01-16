@@ -8,14 +8,13 @@ import (
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database"
 	. "split-the-bill-server/storage/database/entity"
-	. "split-the-bill-server/storage/storage_inf"
 )
 
 type GroupStorage struct {
 	DB *gorm.DB
 }
 
-func NewGroupStorage(DB *Database) IGroupStorage {
+func NewGroupStorage(DB *Database) storage.IGroupStorage {
 	return &GroupStorage{DB: DB.Context}
 }
 
