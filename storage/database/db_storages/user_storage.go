@@ -8,14 +8,13 @@ import (
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database"
 	. "split-the-bill-server/storage/database/entity"
-	. "split-the-bill-server/storage/storage_inf"
 )
 
 type UserStorage struct {
 	DB *gorm.DB
 }
 
-func NewUserStorage(DB *Database) IUserStorage {
+func NewUserStorage(DB *Database) storage.IUserStorage {
 	return &UserStorage{DB: DB.Context}
 }
 

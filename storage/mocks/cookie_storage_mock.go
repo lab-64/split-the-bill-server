@@ -3,7 +3,7 @@ package mocks
 import (
 	"github.com/google/uuid"
 	"split-the-bill-server/domain/model"
-	"split-the-bill-server/storage/storage_inf"
+	"split-the-bill-server/storage"
 )
 
 var (
@@ -12,7 +12,7 @@ var (
 	MockCookieGetCookieFromToken      func(token uuid.UUID) (model.AuthCookieModel, error)
 )
 
-func NewCookieStorageMock() storage_inf.ICookieStorage {
+func NewCookieStorageMock() storage.ICookieStorage {
 	return &CookieStorageMock{}
 }
 

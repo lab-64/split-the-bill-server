@@ -1,4 +1,4 @@
-package authentication
+package middleware
 
 import (
 	"encoding/json"
@@ -24,7 +24,7 @@ var (
 	TestUserCookie = model.AuthCookieModel{
 		UserID:      TestUser.ID,
 		Token:       uuid.New(),
-		ValidBefore: time.Now().Add(SessionCookieValidityPeriod),
+		ValidBefore: time.Now().Add(model.SessionCookieValidityPeriod),
 	}
 )
 

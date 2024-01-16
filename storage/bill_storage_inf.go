@@ -1,4 +1,4 @@
-package storage_inf
+package storage
 
 import (
 	. "github.com/google/uuid"

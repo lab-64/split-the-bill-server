@@ -5,19 +5,20 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
-	"split-the-bill-server/authentication"
-	"split-the-bill-server/core"
 	_ "split-the-bill-server/docs"
 	"split-the-bill-server/domain/service/impl"
+	"split-the-bill-server/domain/util"
 	"split-the-bill-server/presentation/handler"
+	"split-the-bill-server/presentation/middleware"
 	"split-the-bill-server/presentation/router"
+	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/database"
 	"split-the-bill-server/storage/database/db_storages"
 	"split-the-bill-server/storage/ephemeral"
 	"split-the-bill-server/storage/ephemeral/eph_storages"
-	"split-the-bill-server/storage/storage_inf"
 )
 
 // @title		Split The Bill API
@@ -26,7 +27,7 @@ import (
 // @BasePath	/
 func main() {
 
-	err := core.LoadConfig()
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -44,7 +45,7 @@ func main() {
 	invitationService := impl.NewInvitationService(&invitationStorage, &groupStorage)
 
 	// password validator
-	passwordValidator, err := authentication.NewPasswordValidator()
+	passwordValidator, err := util.NewPasswordValidator()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,7 +60,7 @@ func main() {
 	app.Use(logger.New())
 
 	// authenticator
-	authenticator := authentication.NewAuthenticator(&cookieStorage)
+	authenticator := middleware.NewAuthenticator(&cookieStorage)
 
 	// routing
 	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *invitationHandler, *authenticator)
@@ -82,7 +83,7 @@ func main() {
 }
 
 // setupStorage initializes and configures the storage components based on the STORAGE_TYPE environment variable.
-func setupStorage() (storage_inf.IUserStorage, storage_inf.IGroupStorage, storage_inf.ICookieStorage, storage_inf.IBillStorage, storage_inf.IInvitationStorage) {
+func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICookieStorage, storage.IBillStorage, storage.IInvitationStorage) {
 
 	storageType := os.Getenv("STORAGE_TYPE")
 

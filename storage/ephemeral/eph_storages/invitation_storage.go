@@ -3,8 +3,8 @@ package eph_storages
 import (
 	"github.com/google/uuid"
 	"split-the-bill-server/domain/model"
+	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/ephemeral"
-	"split-the-bill-server/storage/storage_inf"
 )
 
 type InvitationStorage struct {
@@ -16,7 +16,7 @@ func (i InvitationStorage) DeleteGroupInvitation(id uuid.UUID) error {
 	panic("implement me")
 }
 
-func NewInvitationStorage(ephemeral *ephemeral.Ephemeral) storage_inf.IInvitationStorage {
+func NewInvitationStorage(ephemeral *ephemeral.Ephemeral) storage.IInvitationStorage {
 	return &InvitationStorage{e: ephemeral}
 }
 

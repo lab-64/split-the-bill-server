@@ -1,9 +1,9 @@
-package authentication
+package middleware
 
 import (
 	"github.com/gofiber/fiber/v2"
 	"os"
-	"split-the-bill-server/core"
+	"split-the-bill-server/presentation"
 	storagemocks "split-the-bill-server/storage/mocks"
 	"testing"
 )
@@ -21,7 +21,7 @@ func TestMain(m *testing.M) {
 	// setup fiber
 	app = fiber.New()
 	// setup test route
-	app.Get("/user", authenticator.Authenticate, func(c *fiber.Ctx) error { return core.Success(c, fiber.StatusOK, "Authentication accept", nil) })
+	app.Get("/user", authenticator.Authenticate, func(c *fiber.Ctx) error { return presentation.Success(c, fiber.StatusOK, "Authentication accept", nil) })
 
 	// Run tests
 	exitCode := m.Run()

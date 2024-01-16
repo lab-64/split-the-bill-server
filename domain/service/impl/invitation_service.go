@@ -2,17 +2,17 @@ package impl
 
 import (
 	. "github.com/google/uuid"
-	. "split-the-bill-server/domain/service/service_inf"
+	. "split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation/dto"
-	. "split-the-bill-server/storage/storage_inf"
+	"split-the-bill-server/storage"
 )
 
 type InvitationService struct {
-	invitationStorage IInvitationStorage
-	groupStorage      IGroupStorage
+	invitationStorage storage.IInvitationStorage
+	groupStorage      storage.IGroupStorage
 }
 
-func NewInvitationService(invitationStorage *IInvitationStorage, groupStorage *IGroupStorage) IInvitationService {
+func NewInvitationService(invitationStorage *storage.IInvitationStorage, groupStorage *storage.IGroupStorage) IInvitationService {
 	return &InvitationService{invitationStorage: *invitationStorage, groupStorage: *groupStorage}
 }
 

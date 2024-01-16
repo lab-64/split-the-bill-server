@@ -6,14 +6,15 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
-	"split-the-bill-server/authentication"
 	"split-the-bill-server/domain/service/impl"
+	"split-the-bill-server/domain/util"
 	"split-the-bill-server/presentation/handler"
+	"split-the-bill-server/presentation/middleware"
 	"split-the-bill-server/presentation/router"
+	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/database"
 	"split-the-bill-server/storage/database/db_storages"
 	. "split-the-bill-server/storage/database/entity"
-	"split-the-bill-server/storage/storage_inf"
 	"testing"
 )
 
@@ -57,7 +58,7 @@ func setupTestEnv() {
 	invitationService := impl.NewInvitationService(&invitationStorage, &groupStorage)
 
 	// password validator
-	passwordValidator, err := authentication.NewPasswordValidator()
+	passwordValidator, err := util.NewPasswordValidator()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -69,7 +70,7 @@ func setupTestEnv() {
 	invitationHandler := handler.NewInvitationHandler(&invitationService)
 
 	// authenticator
-	authenticator := authentication.NewAuthenticator(&cookieStorage)
+	authenticator := middleware.NewAuthenticator(&cookieStorage)
 
 	// create webserver
 	fiberApp := fiber.New()
@@ -81,7 +82,7 @@ func setupTestEnv() {
 }
 
 // setupStorage initializes and configures the storage components for the integration tests.
-func setupStorage() (storage_inf.IUserStorage, storage_inf.IGroupStorage, storage_inf.ICookieStorage, storage_inf.IBillStorage, storage_inf.IInvitationStorage) {
+func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICookieStorage, storage.IBillStorage, storage.IInvitationStorage) {
 	return db_storages.NewUserStorage(db), db_storages.NewGroupStorage(db), db_storages.NewCookieStorage(db), db_storages.NewBillStorage(db), db_storages.NewInvitationStorage(db)
 
 }

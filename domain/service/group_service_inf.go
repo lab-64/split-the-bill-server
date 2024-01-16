@@ -1,4 +1,4 @@
-package service_inf
+package service
 
 import (
 	. "github.com/google/uuid"

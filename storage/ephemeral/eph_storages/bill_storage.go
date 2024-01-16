@@ -5,20 +5,19 @@ import (
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/ephemeral"
-	"split-the-bill-server/storage/storage_inf"
 )
 
 type BillStorage struct {
 	e *ephemeral.Ephemeral
 }
 
+func NewBillStorage(ephemeral *ephemeral.Ephemeral) storage.IBillStorage {
+	return &BillStorage{e: ephemeral}
+}
+
 func (b BillStorage) UpdateBill(bill model.BillModel) (model.BillModel, error) {
 	//TODO implement me
 	panic("implement me")
-}
-
-func NewBillStorage(ephemeral *ephemeral.Ephemeral) storage_inf.IBillStorage {
-	return &BillStorage{e: ephemeral}
 }
 
 func (b BillStorage) Create(bill model.BillModel) (model.BillModel, error) {

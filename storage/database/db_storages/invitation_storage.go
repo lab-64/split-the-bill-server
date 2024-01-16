@@ -8,14 +8,13 @@ import (
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database"
 	. "split-the-bill-server/storage/database/entity"
-	. "split-the-bill-server/storage/storage_inf"
 )
 
 type InvitationStorage struct {
 	DB *gorm.DB
 }
 
-func NewInvitationStorage(DB *Database) IInvitationStorage {
+func NewInvitationStorage(DB *Database) storage.IInvitationStorage {
 	return &InvitationStorage{DB: DB.Context}
 }
 

@@ -2,12 +2,12 @@ package router
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"split-the-bill-server/authentication"
 	. "split-the-bill-server/presentation/handler"
+	"split-the-bill-server/presentation/middleware"
 )
 
 // SetupRoutes creates webserver routes and connect them to the related handlers.
-func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, i InvitationHandler, a authentication.Authenticator) {
+func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, i InvitationHandler, a middleware.Authenticator) {
 
 	// Define landing page
 	app.Get("/", func(c *fiber.Ctx) error {
