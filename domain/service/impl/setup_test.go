@@ -10,6 +10,7 @@ import (
 var (
 	userService  service.IUserService
 	groupService service.IGroupService
+	billService  service.IBillService
 )
 
 func TestMain(m *testing.M) {
@@ -19,6 +20,8 @@ func TestMain(m *testing.M) {
 	userService = NewUserService(&userStorage, &cookieStorage)
 	groupStorage := mocks.NewGroupStorageMock()
 	groupService = NewGroupService(&groupStorage, &userStorage)
+	billStorage := mocks.NewBillStorageMock()
+	billService = NewBillService(&billStorage, &groupStorage)
 
 	// Run tests
 	exitCode := m.Run()

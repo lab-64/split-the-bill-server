@@ -28,7 +28,7 @@ const (
 	// Bill - SUCCESS
 	SuccessMsgBillFound  = "Bill found"
 	SuccessMsgBillCreate = "Bill created"
-	SuccessMsgBillUpdate = "Bill update"
+	SuccessMsgBillUpdate = "Bill updated"
 
 	// Item - ERROR
 	ErrMsgItemParse    = "Could not parse item: %v"
