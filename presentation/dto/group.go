@@ -24,6 +24,7 @@ type GroupDetailedOutputDTO struct {
 	Name    string                  `json:"name"`
 	Members []UserCoreOutputDTO     `json:"members"`
 	Bills   []BillDetailedOutputDTO `json:"bills"`
+	Balance map[UUID]float64        `json:"balance,omitempty"` // include balance only if balance is set
 }
 
 func ToGroupModel(g GroupInputDTO) GroupModel {
@@ -56,6 +57,11 @@ func ToGroupDetailedDTO(g GroupModel) GroupDetailedOutputDTO {
 		Members: members,
 		Bills:   billsDTO,
 	}
+}
+
+func (g GroupDetailedOutputDTO) SetBalance(balance map[UUID]float64) GroupDetailedOutputDTO {
+	g.Balance = balance
+	return g
 }
 
 // ValidateInput validates the inputs of the group creation request
