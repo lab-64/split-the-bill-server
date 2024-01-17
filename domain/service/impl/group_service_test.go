@@ -83,4 +83,5 @@ func TestGroupService_GetAllByUser(t *testing.T) {
 	}
 	ret, err = groupService.GetAllByUser(TestUser.ID)
 	assert.NotNilf(t, err, "Error should not be nil")
+	assert.Equalf(t, len(ret), 0, "Returned data should have 0 elements")
 }
