@@ -3,6 +3,7 @@ package impl
 import (
 	. "github.com/google/uuid"
 	. "split-the-bill-server/domain"
+	"split-the-bill-server/domain/model"
 	. "split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation/dto"
 	"split-the-bill-server/storage"
@@ -60,7 +61,9 @@ func (g *GroupService) GetByID(id UUID) (GroupDetailedOutputDTO, error) {
 	if err != nil {
 		return GroupDetailedOutputDTO{}, err
 	}
-	return ToGroupDetailedDTO(group), nil
+
+	balance := calculateBalance(group)
+	return ToGroupDetailedDTO(group).SetBalance(balance), nil
 }
 
 func (g *GroupService) GetAllByUser(userID UUID) ([]GroupDetailedOutputDTO, error) {
@@ -71,8 +74,27 @@ func (g *GroupService) GetAllByUser(userID UUID) ([]GroupDetailedOutputDTO, erro
 
 	groupsDTO := make([]GroupDetailedOutputDTO, len(groups))
 	for i := range groups {
-		groupsDTO[i] = ToGroupDetailedDTO(groups[i])
+		balance := calculateBalance(groups[i])
+		groupsDTO[i] = ToGroupDetailedDTO(groups[i]).SetBalance(balance)
 	}
 
 	return groupsDTO, nil
+}
+
+func calculateBalance(group model.GroupModel) map[UUID]float64 {
+	balance := make(map[UUID]float64)
+	// init balance for all members
+	for _, member := range group.Members {
+		balance[member.ID] = 0
+	}
+	for _, bill := range group.Bills {
+		for _, item := range bill.Items {
+			ppp := item.Price / float64(len(item.Contributors))
+			for _, contributor := range item.Contributors {
+				balance[contributor] -= ppp
+			}
+			balance[bill.OwnerID] += item.Price
+		}
+	}
+	return balance
 }
