@@ -62,8 +62,9 @@ func (g *GroupService) GetByID(id UUID) (GroupDetailedOutputDTO, error) {
 		return GroupDetailedOutputDTO{}, err
 	}
 
-	balance := calculateBalance(group)
-	return ToGroupDetailedDTO(group).SetBalance(balance), nil
+	balance := group.CalculateBalance()
+	group.Balance = balance
+	return ToGroupDetailedDTO(group), nil
 }
 
 func (g *GroupService) GetAllByUser(userID UUID) ([]GroupDetailedOutputDTO, error) {
@@ -72,10 +73,11 @@ func (g *GroupService) GetAllByUser(userID UUID) ([]GroupDetailedOutputDTO, erro
 		return nil, err
 	}
 
-	groupsDTO := make([]GroupDetailedOutputDTO, len(groups))
-	for i := range groups {
-		balance := calculateBalance(groups[i])
-		groupsDTO[i] = ToGroupDetailedDTO(groups[i]).SetBalance(balance)
+	var groupsDTO []GroupDetailedOutputDTO
+	for _, group := range groups {
+		balance := group.CalculateBalance()
+		group.Balance = balance
+		groupsDTO = append(groupsDTO, ToGroupDetailedDTO(group))
 	}
 
 	return groupsDTO, nil

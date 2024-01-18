@@ -49,19 +49,14 @@ func ToGroupDetailedDTO(g GroupModel) GroupDetailedOutputDTO {
 	billsDTO := ToBillDetailedDTOs(g.Bills)
 	owner := ToUserCoreDTO(&g.Owner)
 	members := ToUserCoreDTOs(g.Members)
-
 	return GroupDetailedOutputDTO{
 		Owner:   owner,
 		ID:      g.ID,
 		Name:    g.Name,
 		Members: members,
 		Bills:   billsDTO,
+		Balance: g.Balance,
 	}
-}
-
-func (g GroupDetailedOutputDTO) SetBalance(balance map[UUID]float64) GroupDetailedOutputDTO {
-	g.Balance = balance
-	return g
 }
 
 // ValidateInput validates the inputs of the group creation request

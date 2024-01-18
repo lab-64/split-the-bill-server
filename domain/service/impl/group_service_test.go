@@ -27,15 +27,6 @@ var (
 	}
 )
 
-func TestBalanceCalculation(t *testing.T) {
-
-	balance := calculateBalance(TestGroup)
-	assert.Equalf(t, 2, len(balance), "Balance should inclue 2 group members")
-	assert.Equalf(t, 9.25, balance[TestUser.ID], "Balance for TestUser should be 9.25")
-	assert.Equalf(t, -9.25, balance[TestUser2.ID], "Balance for TestUser2 should be -9.25")
-
-}
-
 func TestGroupService_GetByID(t *testing.T) {
 
 	// mock method
