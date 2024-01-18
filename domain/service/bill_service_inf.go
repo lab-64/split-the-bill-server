@@ -8,6 +8,8 @@ import (
 type IBillService interface {
 	Create(bill BillInputDTO) (BillDetailedOutputDTO, error)
 
+	Update(userID UUID, billID UUID, billDTO BillInputDTO) (BillDetailedOutputDTO, error)
+
 	GetByID(id UUID) (BillDetailedOutputDTO, error)
 
 	AddItem(item ItemInputDTO) (ItemOutputDTO, error)

@@ -15,6 +15,11 @@ func NewBillStorage(ephemeral *ephemeral.Ephemeral) storage.IBillStorage {
 	return &BillStorage{e: ephemeral}
 }
 
+func (b BillStorage) UpdateBill(bill model.BillModel) (model.BillModel, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (b BillStorage) Create(bill model.BillModel) (model.BillModel, error) {
 	b.e.Lock.Lock()
 	defer b.e.Lock.Unlock()

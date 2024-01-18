@@ -8,6 +8,8 @@ import (
 type IBillStorage interface {
 	Create(bill BillModel) (BillModel, error)
 
+	UpdateBill(bill BillModel) (BillModel, error)
+
 	GetByID(id UUID) (BillModel, error)
 
 	// CreateItem creates an item for a bill

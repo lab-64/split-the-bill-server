@@ -1,10 +1,13 @@
 package integration_tests
 
 import (
+	"bytes"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
+	"net/http/httptest"
 	"os"
 	"split-the-bill-server/domain/service/impl"
 	"split-the-bill-server/domain/util"
@@ -22,6 +25,23 @@ var (
 	db  *database.Database
 	app *fiber.App
 )
+
+// login logs in a user with given credentials and returns the generated session cookie used to prove authentication.
+func login(email string, password string) (string, error) {
+	// login
+	req := httptest.NewRequest("POST", "/api/user/login", bytes.NewBufferString(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, email, password)))
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := app.Test(req, -1)
+	if resp != nil {
+		for _, cookie := range resp.Cookies() {
+			if cookie.Name == "session_cookie" {
+				return cookie.Value, nil
+			}
+		}
+		defer resp.Body.Close()
+	}
+	return "No cookie found!", err
+}
 
 // TestMain initializes the test environment. It is called before the tests are executed.
 func TestMain(m *testing.M) {
