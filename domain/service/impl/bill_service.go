@@ -62,32 +62,32 @@ func (b *BillService) GetByID(id uuid.UUID) (BillDetailedOutputDTO, error) {
 	return ToBillDetailedDTO(bill), err
 }
 
-func (b *BillService) AddItem(itemDTO ItemInputDTO) (ItemOutputDTO, error) {
-	item := ToItemModel(uuid.Nil, itemDTO)
+func (b *BillService) AddItem(itemDTO Item) (Item, error) {
+	item := ToItemModel(uuid.New(), itemDTO.BaseItem)
 
 	item, err := b.billStorage.CreateItem(item)
 	if err != nil {
-		return ItemOutputDTO{}, err
+		return Item{}, err
 	}
 
 	return ToItemDTO(item), err
 }
 
-func (b *BillService) ChangeItem(itemID uuid.UUID, itemDTO ItemInputDTO) (ItemOutputDTO, error) {
-	item := ToItemModel(itemID, itemDTO)
+func (b *BillService) ChangeItem(itemID uuid.UUID, itemDTO Item) (Item, error) {
+	item := ToItemModel(itemID, itemDTO.BaseItem)
 
 	item, err := b.billStorage.UpdateItem(item)
 	if err != nil {
-		return ItemOutputDTO{}, err
+		return Item{}, err
 	}
 
 	return ToItemDTO(item), err
 }
 
-func (b *BillService) GetItemByID(id uuid.UUID) (ItemOutputDTO, error) {
+func (b *BillService) GetItemByID(id uuid.UUID) (Item, error) {
 	item, err := b.billStorage.GetItemByID(id)
 	if err != nil {
-		return ItemOutputDTO{}, err
+		return Item{}, err
 	}
 
 	return ToItemDTO(item), err

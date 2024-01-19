@@ -28,22 +28,26 @@ func TestUpdateBill(t *testing.T) {
 	}
 
 	// Testdata
-	updatedItem1 := dto.ItemInputDTO{
-		Name:         Item1.Name,
-		Price:        Item1.Price,
-		Contributors: []uuid.UUID{User1.ID, User2.ID},
+	updatedItem1 := dto.Item{
+		BaseItem: dto.BaseItem{
+			Name:           Item1.Name,
+			Price:          Item1.Price,
+			ContributorIDs: []uuid.UUID{User1.ID, User2.ID},
+		},
 	}
 
-	updatedItem2 := dto.ItemInputDTO{
-		Name:         Item2.Name,
-		Price:        Item2.Price,
-		Contributors: []uuid.UUID{User1.ID},
+	updatedItem2 := dto.Item{
+		BaseItem: dto.BaseItem{
+			Name:           Item2.Name,
+			Price:          Item2.Price,
+			ContributorIDs: []uuid.UUID{User1.ID},
+		},
 	}
 
 	updatedBill := dto.BillInputDTO{
 		Name:  "Updated Bill",
 		Owner: User1.ID,
-		Items: []dto.ItemInputDTO{updatedItem1, updatedItem2},
+		Items: []dto.Item{updatedItem1, updatedItem2},
 	}
 
 	inputJson, _ := json.Marshal(updatedBill)
@@ -119,7 +123,7 @@ func TestUpdateBill(t *testing.T) {
 			//assert.Equal(t, testcase.expectReturnedData.Items[0].ID, item.ID) // ID should not be changed
 			assert.Equal(t, updatedBill.Items[i].Name, item.Name)
 			assert.Equal(t, updatedBill.Items[i].Price, item.Price)
-			assert.Equal(t, len(updatedBill.Items[i].Contributors), len(item.Contributors))
+			assert.Equal(t, len(updatedBill.Items[i].ContributorIDs), len(item.ContributorIDs))
 		}
 
 	}

@@ -127,7 +127,7 @@ func (g BillHandler) Update(c *fiber.Ctx) error {
 //	@Router		/api/bill/item [post]
 func (h BillHandler) AddItem(c *fiber.Ctx) error {
 	// parse request
-	var request ItemInputDTO
+	var request Item
 	if err := c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
 	}
@@ -193,8 +193,8 @@ func (h BillHandler) ChangeItem(c *fiber.Ctx) error {
 	}
 
 	// parse request
-	var request ItemInputDTO
-	if err := c.BodyParser(&request); err != nil {
+	var request Item
+	if err = c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
 	}
 

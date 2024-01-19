@@ -57,22 +57,26 @@ func TestBillService_Update(t *testing.T) {
 		return TestBill, nil
 	}
 
-	itemUpdated := dto.ItemInputDTO{
-		Name:         TestItem1Updated.Name,
-		Price:        TestItem1Updated.Price,
-		Contributors: TestItem1Updated.Contributors,
+	itemUpdated := dto.Item{
+		BaseItem: dto.BaseItem{
+			Name:           TestItem1Updated.Name,
+			Price:          TestItem1Updated.Price,
+			ContributorIDs: TestItem1Updated.Contributors,
+		},
 	}
-	item2 := dto.ItemInputDTO{
-		Name:         TestItem2.Name,
-		Price:        TestItem2.Price,
-		Contributors: TestItem2.Contributors,
+	item2 := dto.Item{
+		BaseItem: dto.BaseItem{
+			Name:           TestItem2.Name,
+			Price:          TestItem2.Price,
+			ContributorIDs: TestItem2.Contributors,
+		},
 	}
 
 	// updated fields
 	billUpdated := dto.BillInputDTO{
 		Owner: TestBillUpdated.OwnerID,
 		Name:  TestBillUpdated.Name,
-		Items: []dto.ItemInputDTO{itemUpdated, item2},
+		Items: []dto.Item{itemUpdated, item2},
 	}
 
 	ret, err := billService.Update(TestUser.ID, TestBill.ID, billUpdated)
@@ -84,6 +88,6 @@ func TestBillService_Update(t *testing.T) {
 		assert.Equal(t, TestBillUpdated.Items[i].ID, item.ID)
 		assert.Equal(t, TestBillUpdated.Items[i].Name, item.Name)
 		assert.Equal(t, TestBillUpdated.Items[i].Price, item.Price)
-		assert.Equal(t, TestBillUpdated.Items[i].Contributors, item.Contributors)
+		assert.Equal(t, TestBillUpdated.Items[i].Contributors, item.ContributorIDs)
 	}
 }
