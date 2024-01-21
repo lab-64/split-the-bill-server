@@ -14,12 +14,12 @@ type BillModel struct {
 	Items   []ItemModel
 }
 
-func CreateBillModel(ownerID uuid.UUID, name string, date time.Time, groupID uuid.UUID, items []ItemModel) BillModel {
+func CreateBillModel(id uuid.UUID, owner uuid.UUID, name string, data time.Time, groupID uuid.UUID, items []ItemModel) BillModel {
 	return BillModel{
-		ID:      uuid.New(),
-		OwnerID: ownerID,
+		ID:      id,
+		OwnerID: owner,
 		Name:    name,
-		Date:    date,
+		Date:    data,
 		GroupID: groupID,
 		Items:   items,
 	}

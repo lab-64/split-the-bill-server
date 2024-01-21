@@ -53,14 +53,14 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 //	@Tags		Bill
 //	@Accept		json
 //	@Produce	json
-//	@Param		request	body		dto.BillInputDTO	true	"Request Body"
+//	@Param		request	body		dto.Bill	true	"Request Body"
 //	@Success	201		{object}	dto.GeneralResponseDTO{data=dto.BillDetailedOutputDTO}
 //	@Router		/api/bill [post]
 //
 // TODO: How to handle bills without a group? Maybe add a default group which features only the owner? => how to mark such a group?
 func (h BillHandler) Create(c *fiber.Ctx) error {
 
-	var request BillInputDTO
+	var request Bill
 	// parse nested bill from request body
 	err := c.BodyParser(&request)
 	if err != nil {
@@ -83,8 +83,8 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		id		path		string				true	"Bill ID"
-//	@Param		request	body		dto.BillInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.BillDetailedOutputDTO}
+//	@Param		request	body		dto.Bill	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.Bill}
 //
 //	@Router		/api/bill/{id} [put]
 func (g BillHandler) Update(c *fiber.Ctx) error {
@@ -100,7 +100,7 @@ func (g BillHandler) Update(c *fiber.Ctx) error {
 	}
 
 	// parse request
-	var request BillInputDTO
+	var request Bill
 	if err := c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
 	}

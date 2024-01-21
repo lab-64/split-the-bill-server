@@ -3,8 +3,9 @@ package impl
 import (
 	"github.com/google/uuid"
 	"split-the-bill-server/domain"
+	"split-the-bill-server/domain/model"
 	. "split-the-bill-server/domain/service"
-	. "split-the-bill-server/presentation/dto"
+	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/storage"
 )
 
@@ -17,78 +18,89 @@ func NewBillService(billStorage *storage.IBillStorage, groupStorage *storage.IGr
 	return &BillService{billStorage: *billStorage, groupStorage: *groupStorage}
 }
 
-func (b *BillService) Create(billDTO BillInputDTO) (BillDetailedOutputDTO, error) {
+func (b *BillService) Create(billDTO dto.Bill) (dto.Bill, error) {
 
-	// create bill model including items
-	bill := ToBillModel(billDTO)
+	// create new items
+	items := make([]model.ItemModel, len(billDTO.Items))
+	for i, item := range billDTO.Items {
+		items[i] = dto.ToItemModel(uuid.New(), item.BaseItem)
+	}
+	// create new bill
+	bill := dto.ToBillModel(uuid.New(), billDTO.BaseBill, items)
+
 	// store bill in billStorage
 	bill, err := b.billStorage.Create(bill)
 	if err != nil {
-		return BillDetailedOutputDTO{}, err
+		return dto.Bill{}, err
 	}
 
-	return ToBillDetailedDTO(bill), err
+	return dto.ToBillDTO(bill), err
 }
 
-func (b *BillService) Update(userID uuid.UUID, billID uuid.UUID, billDTO BillInputDTO) (BillDetailedOutputDTO, error) {
+func (b *BillService) Update(userID uuid.UUID, billID uuid.UUID, billDTO dto.Bill) (dto.Bill, error) {
 	bill, err := b.billStorage.GetByID(billID)
 
 	if err != nil {
-		return BillDetailedOutputDTO{}, err
+		return dto.Bill{}, err
 	}
 
 	// Authorize
 	if userID != bill.OwnerID {
-		return BillDetailedOutputDTO{}, domain.ErrNotAuthorized
+		return dto.Bill{}, domain.ErrNotAuthorized
 	}
 
-	updatedBill := ToBillModel(billDTO)
-	updatedBill.ID = bill.ID
+	// update items
+	items := make([]model.ItemModel, len(billDTO.Items))
+	for i, item := range billDTO.Items {
+		items[i] = dto.ToItemModel(item.ID, item.BaseItem) // use id from dto
+	}
+	// update bill
+	updatedBill := dto.ToBillModel(billID, billDTO.BaseBill, items)
 
 	bill, err = b.billStorage.UpdateBill(updatedBill)
 	if err != nil {
-		return BillDetailedOutputDTO{}, err
+		return dto.Bill{}, err
 	}
 
-	return ToBillDetailedDTO(bill), err
+	return dto.ToBillDTO(bill), err
 
 }
-func (b *BillService) GetByID(id uuid.UUID) (BillDetailedOutputDTO, error) {
+func (b *BillService) GetByID(id uuid.UUID) (dto.BillDetailedOutputDTO, error) {
 	bill, err := b.billStorage.GetByID(id)
 	if err != nil {
-		return BillDetailedOutputDTO{}, err
+		return dto.BillDetailedOutputDTO{}, err
 	}
 
-	return ToBillDetailedDTO(bill), err
+	return dto.ToBillDetailedDTO(bill), err
 }
 
-func (b *BillService) AddItem(itemDTO Item) (Item, error) {
-	item := ToItemModel(uuid.New(), itemDTO.BaseItem)
+func (b *BillService) AddItem(itemDTO dto.Item) (dto.Item, error) {
+	item := dto.ToItemModel(uuid.New(), itemDTO.BaseItem)
 
 	item, err := b.billStorage.CreateItem(item)
 	if err != nil {
-		return Item{}, err
+		return dto.Item{}, err
 	}
 
-	return ToItemDTO(item), err
+	return dto.ToItemDTO(item), err
 }
 
-func (b *BillService) ChangeItem(itemID uuid.UUID, itemDTO Item) (Item, error) {
-	item := ToItemModel(itemID, itemDTO.BaseItem)
+func (b *BillService) ChangeItem(itemID uuid.UUID, itemDTO dto.Item) (dto.Item, error) {
+	item := dto.ToItemModel(itemID, itemDTO.BaseItem)
 
 	item, err := b.billStorage.UpdateItem(item)
 	if err != nil {
-		return Item{}, err
+		return dto.Item{}, err
 	}
 
-	return ToItemDTO(item), err
+	return dto.ToItemDTO(item), err
 }
 
-func (b *BillService) GetItemByID(id uuid.UUID) (Item, error) {
+func (b *BillService) GetItemByID(id uuid.UUID) (dto.Item, error) {
 	item, err := b.billStorage.GetItemByID(id)
 	if err != nil {
-		return Item{}, err
+		return dto.Item{}, err
 	}
 
-	return ToItemDTO(item), err
+	return dto.ToItemDTO(item), err
 }

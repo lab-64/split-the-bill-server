@@ -16,7 +16,7 @@ var (
 		Name:    "Test Group",
 		Owner:   TestUser,
 		Members: []model.UserModel{TestUser, TestUser2},
-		Bills:   []model.BillModel{TestBill},
+		Bills:   []model.BillModel{TestBillStored},
 	}
 
 	TestGroup2 = model.GroupModel{
