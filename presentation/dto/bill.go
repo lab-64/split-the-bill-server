@@ -32,15 +32,6 @@ func CreateBill(id uuid.UUID, owner uuid.UUID, name string, data time.Time, grou
 	}
 }
 
-type BillDetailedOutputDTO struct {
-	ID      uuid.UUID `json:"id"`
-	Name    string    `json:"name"`
-	Date    time.Time `json:"date"`
-	Items   []Item    `json:"items"`
-	GroupID uuid.UUID `json:"groupID"`
-	OwnerID uuid.UUID `json:"ownerID"`
-}
-
 func ToBillModel(id uuid.UUID, bill BaseBill, items []ItemModel) BillModel {
 	return CreateBillModel(id, bill.OwnerID, bill.Name, bill.Date, bill.GroupID, items)
 }
@@ -54,28 +45,11 @@ func ToBillDTO(bill BillModel) Bill {
 	return CreateBill(bill.ID, bill.OwnerID, bill.Name, bill.Date, bill.GroupID, items)
 }
 
-func ToBillDetailedDTOs(bills []BillModel) []BillDetailedOutputDTO {
-	billsDTO := make([]BillDetailedOutputDTO, len(bills))
+func ToBillDTOs(bills []BillModel) []Bill {
+	billsDTO := make([]Bill, len(bills))
 
 	for i, bill := range bills {
-		billsDTO[i] = ToBillDetailedDTO(bill)
+		billsDTO[i] = ToBillDTO(bill)
 	}
 	return billsDTO
-}
-
-func ToBillDetailedDTO(bill BillModel) BillDetailedOutputDTO {
-	itemsDTO := make([]Item, len(bill.Items))
-
-	for i, item := range bill.Items {
-		itemsDTO[i] = ToItemDTO(item)
-	}
-
-	return BillDetailedOutputDTO{
-		ID:      bill.ID,
-		Name:    bill.Name,
-		Date:    bill.Date,
-		Items:   itemsDTO,
-		OwnerID: bill.OwnerID,
-		GroupID: bill.GroupID,
-	}
 }

@@ -10,7 +10,7 @@ type IBillService interface {
 
 	Update(userID UUID, billID UUID, billDTO dto.Bill) (dto.Bill, error)
 
-	GetByID(id UUID) (dto.BillDetailedOutputDTO, error)
+	GetByID(id UUID) (dto.Bill, error)
 
 	AddItem(item dto.Item) (dto.Item, error)
 

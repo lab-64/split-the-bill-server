@@ -19,12 +19,12 @@ type GroupCoreOutputDTO struct {
 }
 
 type GroupDetailedOutputDTO struct {
-	Owner   UserCoreOutputDTO       `json:"owner"`
-	ID      UUID                    `json:"id"`
-	Name    string                  `json:"name"`
-	Members []UserCoreOutputDTO     `json:"members"`
-	Bills   []BillDetailedOutputDTO `json:"bills"`
-	Balance map[UUID]float64        `json:"balance,omitempty"` // include balance only if balance is set
+	Owner   UserCoreOutputDTO   `json:"owner"`
+	ID      UUID                `json:"id"`
+	Name    string              `json:"name"`
+	Members []UserCoreOutputDTO `json:"members"`
+	Bills   []Bill              `json:"bills"`
+	Balance map[UUID]float64    `json:"balance,omitempty"` // include balance only if balance is set
 }
 
 func ToGroupModel(g GroupInputDTO) GroupModel {
@@ -46,7 +46,7 @@ func ToGroupCoreDTO(g GroupModel) GroupCoreOutputDTO {
 
 func ToGroupDetailedDTO(g GroupModel) GroupDetailedOutputDTO {
 
-	billsDTO := ToBillDetailedDTOs(g.Bills)
+	billsDTO := ToBillDTOs(g.Bills)
 	owner := ToUserCoreDTO(&g.Owner)
 	members := ToUserCoreDTOs(g.Members)
 	return GroupDetailedOutputDTO{

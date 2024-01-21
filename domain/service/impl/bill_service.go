@@ -65,13 +65,13 @@ func (b *BillService) Update(userID uuid.UUID, billID uuid.UUID, billDTO dto.Bil
 	return dto.ToBillDTO(bill), err
 
 }
-func (b *BillService) GetByID(id uuid.UUID) (dto.BillDetailedOutputDTO, error) {
+func (b *BillService) GetByID(id uuid.UUID) (dto.Bill, error) {
 	bill, err := b.billStorage.GetByID(id)
 	if err != nil {
-		return dto.BillDetailedOutputDTO{}, err
+		return dto.Bill{}, err
 	}
 
-	return dto.ToBillDetailedDTO(bill), err
+	return dto.ToBillDTO(bill), err
 }
 
 func (b *BillService) AddItem(itemDTO dto.Item) (dto.Item, error) {

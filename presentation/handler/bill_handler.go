@@ -26,7 +26,7 @@ func NewBillHandler(billService *service.IBillService, groupService *service.IGr
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"Bill ID"
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.BillDetailedOutputDTO}
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.Bill}
 //	@Router		/api/bill/{id} [get]
 func (h BillHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
