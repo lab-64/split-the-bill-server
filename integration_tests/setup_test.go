@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
@@ -41,6 +42,17 @@ func login(email string, password string) (string, error) {
 		defer resp.Body.Close()
 	}
 	return "No cookie found!", err
+}
+
+func getStoredBill(id uuid.UUID) (Bill, error) {
+	var bill Bill
+	res := db.Context.Limit(1).
+		Preload("Items.Contributors").
+		Find(&bill, "id = ?", id)
+	if res.Error != nil {
+		return Bill{}, res.Error
+	}
+	return bill, nil
 }
 
 // TestMain initializes the test environment. It is called before the tests are executed.

@@ -38,8 +38,11 @@ var (
 		ValidBefore: time.Now().Add(model.SessionCookieValidityPeriod),
 	}
 
+	// PASSWORD
+	Password = "test"
+
 	// CREDENTIALS
-	Pw, _ = bcrypt.GenerateFromPassword([]byte("test"), 10)
+	Pw, _ = bcrypt.GenerateFromPassword([]byte(Password), 10)
 
 	Credentials1 = Credentials{
 		UserID: User1.ID,
