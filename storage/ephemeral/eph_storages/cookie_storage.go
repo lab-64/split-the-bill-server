@@ -5,14 +5,13 @@ import (
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	eph "split-the-bill-server/storage/ephemeral"
-	"split-the-bill-server/storage/storage_inf"
 )
 
 type CookieStorage struct {
 	e *eph.Ephemeral
 }
 
-func NewCookieStorage(ephemeral *eph.Ephemeral) storage_inf.ICookieStorage {
+func NewCookieStorage(ephemeral *eph.Ephemeral) storage.ICookieStorage {
 	return &CookieStorage{e: ephemeral}
 }
 

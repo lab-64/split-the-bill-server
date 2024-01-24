@@ -1,4 +1,4 @@
-package storage_inf
+package storage
 
 import (
 	. "github.com/google/uuid"
@@ -7,6 +7,8 @@ import (
 
 type IBillStorage interface {
 	Create(bill BillModel) (BillModel, error)
+
+	UpdateBill(bill BillModel) (BillModel, error)
 
 	GetByID(id UUID) (BillModel, error)
 

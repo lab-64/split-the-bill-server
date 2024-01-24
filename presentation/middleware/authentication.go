@@ -1,18 +1,18 @@
-package authentication
+package middleware
 
 import (
 	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"split-the-bill-server/core"
 	. "split-the-bill-server/domain/model"
-	. "split-the-bill-server/storage/storage_inf"
+	. "split-the-bill-server/presentation"
+	. "split-the-bill-server/storage"
 	"time"
 )
 
-const SessionCookieValidityPeriod = time.Hour * 24 * 7
 const SessionCookieName = "session_cookie"
+const UserKey = "user_key"
 const ErrMsgAuthentication = "Authentication declined: %v"
 const ErrMsgNoCookie = "Authentication cookie is missing"
 const ErrMsgInvalidCookie = "Authentication cookie is invalid"
@@ -32,44 +32,34 @@ func NewAuthenticator(cookieStorage *ICookieStorage) *Authenticator {
 func (a *Authenticator) Authenticate(c *fiber.Ctx) error {
 	cookie := c.Cookies(SessionCookieName)
 	if cookie == "" {
-		return core.Error(c, fiber.StatusUnauthorized, ErrMsgNoCookie)
+		return Error(c, fiber.StatusUnauthorized, ErrMsgNoCookie)
 	}
 
 	tokenUUID, err := uuid.Parse(cookie)
 	if err != nil {
-		return core.Error(c, fiber.StatusUnauthorized, ErrMsgInvalidCookie)
+		return Error(c, fiber.StatusUnauthorized, ErrMsgInvalidCookie)
 	}
 
 	// get auth cookie from storage
 	sessionCookie, err := a.cookieStorage.GetCookieFromToken(tokenUUID)
 
 	if err != nil {
-		return core.Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
+		return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
 	}
 
 	err = isSessionCookieValid(sessionCookie)
 
 	if err != nil {
-		return core.Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
+		return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
 	}
+
+	// set userID in context
+	c.Locals(UserKey, sessionCookie.UserID)
 
 	// go to the next handler
 	err = c.Next()
 
-	if err != nil {
-		return err
-	}
-
 	return err
-}
-
-func GenerateSessionCookie(userID uuid.UUID) AuthCookieModel {
-	// TODO: Safely generate a session cookie.
-	return AuthCookieModel{
-		UserID:      userID,
-		Token:       uuid.New(),
-		ValidBefore: time.Now().Add(SessionCookieValidityPeriod),
-	}
 }
 
 // isSessionCookieValid validates the given session cookie by checking if the ValidBefore time is in the future. Returns SessionExpiredError if the cookie is not valid anymore.

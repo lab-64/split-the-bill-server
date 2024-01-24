@@ -16,13 +16,13 @@ clean:
 	@rm split-the-bill-server
 
 test-all:
-	@go test ./...
+	@go test --cover ./...
 
 start-db:
 	@docker compose up --no-attach pgadmin
 
 seed-db:
-	@docker exec split-the-bill-server sh -c "go run data/db_seed.go"
+	@docker exec split-the-bill-server sh -c "go run script/db_seed.go"
 
 stop-db:
 	@docker compose down

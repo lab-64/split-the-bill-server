@@ -8,14 +8,13 @@ import (
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database"
 	. "split-the-bill-server/storage/database/entity"
-	. "split-the-bill-server/storage/storage_inf"
 )
 
 type UserStorage struct {
 	DB *gorm.DB
 }
 
-func NewUserStorage(DB *Database) IUserStorage {
+func NewUserStorage(DB *Database) storage.IUserStorage {
 	return &UserStorage{DB: DB.Context}
 }
 
@@ -84,14 +83,16 @@ func (u *UserStorage) Create(user UserModel, passwordHash []byte) (UserModel, er
 		res := tx.Create(&item)
 
 		if res.Error != nil {
-			return storage.UserAlreadyExistsError
+			if errors.Is(res.Error, gorm.ErrDuplicatedKey) {
+				return storage.UserAlreadyExistsError
+			}
+			return storage.InvalidUserInputError
 		}
 
 		// store credentials
 		res = tx.Create(&Credentials{UserID: item.ID, Hash: passwordHash})
 		if res.Error != nil {
-			// TODO: create suitable error msg
-			return res.Error
+			return storage.InvalidUserInputError
 		}
 
 		return nil

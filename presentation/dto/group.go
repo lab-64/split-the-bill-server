@@ -7,8 +7,8 @@ import (
 )
 
 type GroupInputDTO struct {
-	Owner UUID   `json:"ownerID"`
-	Name  string `json:"name"`
+	OwnerID UUID   `json:"ownerID"`
+	Name    string `json:"name"`
 }
 
 type GroupCoreOutputDTO struct {
@@ -24,10 +24,11 @@ type GroupDetailedOutputDTO struct {
 	Name    string                  `json:"name"`
 	Members []UserCoreOutputDTO     `json:"members"`
 	Bills   []BillDetailedOutputDTO `json:"bills"`
+	Balance map[UUID]float64        `json:"balance,omitempty"` // include balance only if balance is set
 }
 
 func ToGroupModel(g GroupInputDTO) GroupModel {
-	return CreateGroupModel(g.Owner, g.Name, []UUID{g.Owner})
+	return CreateGroupModel(g.OwnerID, g.Name, []UUID{g.OwnerID})
 }
 
 func ToGroupCoreDTO(g GroupModel) GroupCoreOutputDTO {
@@ -48,13 +49,13 @@ func ToGroupDetailedDTO(g GroupModel) GroupDetailedOutputDTO {
 	billsDTO := ToBillDetailedDTOs(g.Bills)
 	owner := ToUserCoreDTO(&g.Owner)
 	members := ToUserCoreDTOs(g.Members)
-
 	return GroupDetailedOutputDTO{
 		Owner:   owner,
 		ID:      g.ID,
 		Name:    g.Name,
 		Members: members,
 		Bills:   billsDTO,
+		Balance: g.Balance,
 	}
 }
 

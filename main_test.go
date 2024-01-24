@@ -1,18 +1,18 @@
 package main_test
 
 import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"net/http/httptest"
-	"split-the-bill-server/authentication"
 	"split-the-bill-server/domain/service/impl"
+	"split-the-bill-server/domain/util"
 	"split-the-bill-server/presentation/handler"
+	"split-the-bill-server/presentation/middleware"
 	"split-the-bill-server/presentation/router"
 	"split-the-bill-server/storage/ephemeral"
 	"split-the-bill-server/storage/ephemeral/eph_storages"
 	"testing"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/stretchr/testify/assert"
 )
 
 // TestlandingPage tests whether the fiber client starts correctly.
@@ -21,7 +21,7 @@ func TestLandingPage(t *testing.T) {
 	app := fiber.New()
 	e, err := ephemeral.NewEphemeral()
 	require.NoError(t, err)
-	v, err := authentication.NewPasswordValidator()
+	v, err := util.NewPasswordValidator()
 	require.NoError(t, err)
 
 	//storages
@@ -44,7 +44,7 @@ func TestLandingPage(t *testing.T) {
 	invitationHandler := handler.NewInvitationHandler(&invitationService)
 
 	// authenticator
-	authenticator := authentication.NewAuthenticator(&cookieStorage)
+	authenticator := middleware.NewAuthenticator(&cookieStorage)
 
 	//routing
 	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *invitationHandler, *authenticator)

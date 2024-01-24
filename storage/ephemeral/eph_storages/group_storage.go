@@ -5,14 +5,13 @@ import (
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	eph "split-the-bill-server/storage/ephemeral"
-	"split-the-bill-server/storage/storage_inf"
 )
 
 type GroupStorage struct {
 	e *eph.Ephemeral
 }
 
-func NewGroupStorage(ephemeral *eph.Ephemeral) storage_inf.IGroupStorage {
+func NewGroupStorage(ephemeral *eph.Ephemeral) storage.IGroupStorage {
 	return &GroupStorage{e: ephemeral}
 }
 
@@ -25,6 +24,11 @@ func (g *GroupStorage) AddGroup(group model.GroupModel) (model.GroupModel, error
 	}
 	g.e.Groups[group.ID] = &group
 	return group, nil
+}
+
+func (g *GroupStorage) UpdateGroup(group model.GroupModel) (model.GroupModel, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (g *GroupStorage) GetGroupByID(id uuid.UUID) (model.GroupModel, error) {

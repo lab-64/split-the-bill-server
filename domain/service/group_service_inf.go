@@ -1,4 +1,4 @@
-package service_inf
+package service
 
 import (
 	. "github.com/google/uuid"
@@ -7,6 +7,8 @@ import (
 
 type IGroupService interface {
 	Create(groupDTO GroupInputDTO) (GroupDetailedOutputDTO, error)
+
+	Update(userID UUID, groupID UUID, group GroupInputDTO) (GroupDetailedOutputDTO, error)
 
 	GetByID(id UUID) (GroupDetailedOutputDTO, error)
 
