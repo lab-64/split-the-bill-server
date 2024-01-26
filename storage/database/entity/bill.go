@@ -41,7 +41,7 @@ func ConvertToBillModel(bill Bill, isDetailed bool) model.BillModel {
 	if isDetailed {
 
 		for i, item := range bill.Items {
-			items[i] = ConvertToItemModel(item, false)
+			items[i] = ConvertToItemModel(item, true)
 		}
 		owner = ConvertToUserModel(bill.Owner, false)
 	}

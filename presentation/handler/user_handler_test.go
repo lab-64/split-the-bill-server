@@ -23,7 +23,7 @@ func TestGetByIDSuccess(t *testing.T) {
 
 	// mock method
 	mocks.MockUserGetByID = func(id uuid.UUID) (dto.UserDetailedOutputDTO, error) {
-		return dto.ToUserDetailedDTO(&TestUser), nil
+		return dto.ConvertToUserDetailedDTO(&TestUser), nil
 	}
 
 	// setup request
@@ -63,7 +63,7 @@ func TestRegisterSuccess(t *testing.T) {
 
 	// mock method
 	mocks.MockUserCreate = func(user dto.UserInputDTO) (dto.UserCoreOutputDTO, error) {
-		return dto.ToUserCoreDTO(&TestUser), nil
+		return dto.ConvertToUserCoreDTO(&TestUser), nil
 	}
 
 	// setup request

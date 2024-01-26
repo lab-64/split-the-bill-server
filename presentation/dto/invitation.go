@@ -1,18 +1,19 @@
 package dto
 
 import (
-	. "github.com/google/uuid"
+	"github.com/google/uuid"
 	. "split-the-bill-server/domain/model"
+	"time"
 )
 
 type GroupInvitationInputDTO struct {
-	Issuer   UUID   `json:"issuerID"`
-	GroupID  UUID   `json:"groupID"`
-	Invitees []UUID `json:"inviteeIDs"`
+	Issuer   uuid.UUID   `json:"issuerID"`
+	GroupID  uuid.UUID   `json:"groupID"`
+	Invitees []uuid.UUID `json:"inviteeIDs"`
 }
 
 type GroupInvitationOutputDTO struct {
-	InvitationID UUID               `json:"invitationID"`
+	InvitationID uuid.UUID          `json:"invitationID"`
 	Group        GroupCoreOutputDTO `json:"group"`
 }
 
@@ -20,12 +21,17 @@ type InvitationResponseInputDTO struct {
 	IsAccept bool `json:"isAccept"`
 }
 
-func ToGroupInvitationModel(groupID UUID, userID UUID) GroupInvitationModel {
-	return CreateGroupInvitation(groupID, userID)
+func CreateGroupInvitationModel(id uuid.UUID, groupID uuid.UUID, inviteeID uuid.UUID) GroupInvitationModel {
+	return GroupInvitationModel{
+		ID:      id,
+		Date:    time.Now(),
+		Group:   GroupModel{ID: groupID},
+		Invitee: UserModel{ID: inviteeID},
+	}
 }
 
-func ToGroupInvitationDTO(invitation GroupInvitationModel) GroupInvitationOutputDTO {
-	group := ToGroupCoreDTO(invitation.Group)
+func ConvertToGroupInvitationDTO(invitation GroupInvitationModel) GroupInvitationOutputDTO {
+	group := ConvertToGroupCoreDTO(invitation.Group)
 
 	return GroupInvitationOutputDTO{
 		InvitationID: invitation.ID,

@@ -1,7 +1,7 @@
 package impl
 
 import (
-	. "github.com/google/uuid"
+	"github.com/google/uuid"
 	. "split-the-bill-server/domain/model"
 	. "split-the-bill-server/domain/service"
 	"split-the-bill-server/domain/util"
@@ -18,7 +18,7 @@ func NewUserService(userStorage *storage.IUserStorage, cookieStorage *storage.IC
 	return &UserService{userStorage: *userStorage, cookieStorage: *cookieStorage}
 }
 
-func (u *UserService) Delete(id UUID) error {
+func (u *UserService) Delete(id uuid.UUID) error {
 	err := u.userStorage.Delete(id)
 	return err
 }
@@ -32,23 +32,23 @@ func (u *UserService) GetAll() ([]UserDetailedOutputDTO, error) {
 	usersDTO := make([]UserDetailedOutputDTO, len(users))
 
 	for i, user := range users {
-		usersDTO[i] = ToUserDetailedDTO(&user)
+		usersDTO[i] = ConvertToUserDetailedDTO(&user)
 	}
 
 	return usersDTO, err
 }
 
-func (u *UserService) GetByID(id UUID) (UserDetailedOutputDTO, error) {
+func (u *UserService) GetByID(id uuid.UUID) (UserDetailedOutputDTO, error) {
 	user, err := u.userStorage.GetByID(id)
 	if err != nil {
 		return UserDetailedOutputDTO{}, err
 	}
 
-	return ToUserDetailedDTO(&user), err
+	return ConvertToUserDetailedDTO(&user), err
 }
 
 func (u *UserService) Create(userDTO UserInputDTO) (UserCoreOutputDTO, error) {
-	user := ToUserModel(userDTO)
+	user := CreateUserModel(uuid.New(), userDTO)
 	passwordHash, err := util.HashPassword(userDTO.Password)
 	if err != nil {
 		return UserCoreOutputDTO{}, err
@@ -59,7 +59,7 @@ func (u *UserService) Create(userDTO UserInputDTO) (UserCoreOutputDTO, error) {
 		return UserCoreOutputDTO{}, err
 	}
 
-	return ToUserCoreDTO(&user), err
+	return ConvertToUserCoreDTO(&user), err
 }
 
 func (u *UserService) Login(credentials CredentialsInputDTO) (UserCoreOutputDTO, AuthCookieModel, error) {
@@ -83,5 +83,5 @@ func (u *UserService) Login(credentials CredentialsInputDTO) (UserCoreOutputDTO,
 
 	u.cookieStorage.AddAuthenticationCookie(sc)
 
-	return ToUserCoreDTO(&user), sc, err
+	return ConvertToUserCoreDTO(&user), sc, err
 }

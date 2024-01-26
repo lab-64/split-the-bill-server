@@ -13,27 +13,33 @@ type ItemInputDTO struct {
 }
 
 type ItemOutputDTO struct {
-	ID           uuid.UUID             `json:"id"`
-	Name         string                `json:"name"`
-	Price        float64               `json:"price"`
-	BillID       uuid.UUID             `json:"billId"`
-	Contributors []UserPublicOutputDTO `json:"contributors"`
+	ID           uuid.UUID           `json:"id"`
+	Name         string              `json:"name"`
+	Price        float64             `json:"price"`
+	BillID       uuid.UUID           `json:"billId"`
+	Contributors []UserCoreOutputDTO `json:"contributors"`
 }
 
-func ToItemModel(id uuid.UUID, i ItemInputDTO) ItemModel {
+func CreateItemModel(id uuid.UUID, item ItemInputDTO) ItemModel {
 	// convert contributorIDs to simple UserModels
-	contributors := make([]UserModel, len(i.Contributors))
-	for i, contributorID := range i.Contributors {
+	contributors := make([]UserModel, len(item.Contributors))
+	for i, contributorID := range item.Contributors {
 		contributors[i] = UserModel{ID: contributorID}
 	}
-	return CreateItemModel(id, i.Name, i.Price, contributors, i.BillID)
+	return ItemModel{
+		ID:           id,
+		Name:         item.Name,
+		Price:        item.Price,
+		BillID:       item.BillID,
+		Contributors: contributors,
+	}
+
 }
 
-// ToItemDTO converts an ItemModel to an ItemOutputDTO
-func ToItemDTO(item ItemModel) ItemOutputDTO {
-	contributors := make([]UserPublicOutputDTO, len(item.Contributors))
+func ConvertToItemDTO(item ItemModel) ItemOutputDTO {
+	contributors := make([]UserCoreOutputDTO, len(item.Contributors))
 	for i, cont := range item.Contributors {
-		contributors[i] = ToUserPublicDTO(cont)
+		contributors[i] = ConvertToUserCoreDTO(&cont)
 	}
 
 	return ItemOutputDTO{

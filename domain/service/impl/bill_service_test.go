@@ -70,9 +70,9 @@ func TestBillService_Update(t *testing.T) {
 
 	// updated fields
 	billUpdated := dto.BillInputDTO{
-		Owner: TestBillUpdated.Owner.ID,
-		Name:  TestBillUpdated.Name,
-		Items: []dto.ItemInputDTO{itemUpdated, item2},
+		OwnerID: TestBillUpdated.Owner.ID,
+		Name:    TestBillUpdated.Name,
+		Items:   []dto.ItemInputDTO{itemUpdated, item2},
 	}
 
 	ret, err := billService.Update(TestUser.ID, TestBill.ID, billUpdated)

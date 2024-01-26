@@ -9,17 +9,3 @@ type ItemModel struct {
 	BillID       uuid.UUID
 	Contributors []UserModel
 }
-
-func CreateItemModel(id uuid.UUID, name string, price float64, contributors []UserModel, billID uuid.UUID) ItemModel {
-	if id == uuid.Nil {
-		id = uuid.New()
-	}
-
-	return ItemModel{
-		ID:           id,
-		Name:         name,
-		Price:        price,
-		Contributors: contributors,
-		BillID:       billID,
-	}
-}

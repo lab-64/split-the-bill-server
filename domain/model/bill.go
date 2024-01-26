@@ -13,14 +13,3 @@ type BillModel struct {
 	GroupID uuid.UUID
 	Items   []ItemModel
 }
-
-func CreateBillModel(owner UserModel, name string, date time.Time, groupID uuid.UUID, items []ItemModel) BillModel {
-	return BillModel{
-		ID:      uuid.New(),
-		Owner:   owner,
-		Name:    name,
-		Date:    date,
-		GroupID: groupID,
-		Items:   items,
-	}
-}
