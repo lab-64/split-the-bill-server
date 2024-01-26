@@ -2,7 +2,6 @@ package dto
 
 import (
 	"github.com/google/uuid"
-	"log"
 	. "split-the-bill-server/domain/model"
 	"time"
 )
@@ -50,7 +49,6 @@ func ConvertToBillDetailedDTOs(bills []BillModel) []BillDetailedOutputDTO {
 }
 
 func ConvertToBillDetailedDTO(bill BillModel) BillDetailedOutputDTO {
-	log.Println(bill.Items)
 	itemsDTO := make([]ItemOutputDTO, len(bill.Items))
 
 	for i, item := range bill.Items {

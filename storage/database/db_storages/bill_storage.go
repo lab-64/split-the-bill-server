@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"log"
 	. "split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/database"
@@ -83,11 +82,6 @@ func (b *BillStorage) GetByID(id uuid.UUID) (BillModel, error) {
 	}
 	if tx.RowsAffected == 0 {
 		return BillModel{}, storage.NoSuchBillError
-	}
-	for _, item := range bill.Items {
-		for _, contributor := range item.Contributors {
-			log.Println(contributor)
-		}
 	}
 	billModel := ConvertToBillModel(bill, true)
 	return billModel, nil

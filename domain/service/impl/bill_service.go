@@ -2,7 +2,6 @@ package impl
 
 import (
 	"github.com/google/uuid"
-	"log"
 	"split-the-bill-server/domain"
 	. "split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation/dto"
@@ -59,7 +58,6 @@ func (b *BillService) GetByID(id uuid.UUID) (BillDetailedOutputDTO, error) {
 	if err != nil {
 		return BillDetailedOutputDTO{}, err
 	}
-	log.Println(bill.Items)
 	return ConvertToBillDetailedDTO(bill), err
 }
 
