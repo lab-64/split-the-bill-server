@@ -1,6 +1,7 @@
 package types_test
 
 import (
+	"github.com/google/uuid"
 	"split-the-bill-server/domain/model"
 )
 
@@ -30,7 +31,9 @@ func GenerateDifferentUsers(amount int) []model.UserModel {
 func GenerateUsersWithEmails(emails []string) []model.UserModel {
 	users := make([]model.UserModel, len(emails))
 	for i := 0; i < len(emails); i++ {
-		users[i] = model.CreateUserModel(emails[i])
+		users[i] = model.UserModel{
+			ID:    uuid.New(),
+			Email: emails[i]}
 	}
 	return users
 }
