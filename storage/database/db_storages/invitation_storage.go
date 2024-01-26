@@ -20,7 +20,7 @@ func NewInvitationStorage(DB *Database) storage.IInvitationStorage {
 
 func (i InvitationStorage) AddGroupInvitation(invitation GroupInvitationModel) (GroupInvitationModel, error) {
 	// make group invitation entity
-	groupInvitation := ToGroupInvitationEntity(invitation)
+	groupInvitation := CreateGroupInvitationEntity(invitation)
 
 	// store group invitation in db
 	res := i.DB.Where(&groupInvitation).Preload(clause.Associations).FirstOrCreate(&groupInvitation)
@@ -28,7 +28,7 @@ func (i InvitationStorage) AddGroupInvitation(invitation GroupInvitationModel) (
 		return GroupInvitationModel{}, storage.GroupInvitationAlreadyExistsError
 	}
 
-	return ToGroupInvitationModel(groupInvitation), res.Error
+	return ConvertToGroupInvitationModel(groupInvitation, true), res.Error
 }
 
 func (i InvitationStorage) DeleteGroupInvitation(id uuid.UUID) error {
@@ -80,7 +80,7 @@ func (i InvitationStorage) GetGroupInvitationByID(id uuid.UUID) (GroupInvitation
 	if tx.RowsAffected == 0 {
 		return GroupInvitationModel{}, storage.NoSuchGroupInvitationError
 	}
-	return ToGroupInvitationModel(groupInvitation), tx.Error
+	return ConvertToGroupInvitationModel(groupInvitation, true), tx.Error
 }
 
 func (i InvitationStorage) GetGroupInvitationsByUserID(userID uuid.UUID) ([]GroupInvitationModel, error) {
@@ -94,7 +94,7 @@ func (i InvitationStorage) GetGroupInvitationsByUserID(userID uuid.UUID) ([]Grou
 	}
 	var result []GroupInvitationModel
 	for _, groupInvitation := range groupInvitations {
-		result = append(result, ToGroupInvitationModel(groupInvitation))
+		result = append(result, ConvertToGroupInvitationModel(groupInvitation, true))
 	}
 	return result, nil
 }

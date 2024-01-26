@@ -2,7 +2,7 @@ package entity
 
 import (
 	"github.com/google/uuid"
-	. "split-the-bill-server/domain/model"
+	"split-the-bill-server/domain/model"
 	"time"
 )
 
@@ -16,13 +16,12 @@ type Bill struct {
 	GroupID uuid.UUID `gorm:"type:uuid"`         // group has many bills
 }
 
-// ToBillEntity converts a BillModel to a Bill
-func ToBillEntity(bill BillModel) Bill {
+func CreateBillEntity(bill model.BillModel) Bill {
 
 	// convert items
 	var items []Item
 	for _, item := range bill.Items {
-		items = append(items, ToItemEntity(item))
+		items = append(items, CreateItemEntity(item))
 	}
 
 	return Bill{
@@ -35,21 +34,24 @@ func ToBillEntity(bill BillModel) Bill {
 	}
 }
 
-// ToBillModel converts a Bill to a BillModel
-func ToBillModel(bill Bill) BillModel {
+func ConvertToBillModel(bill Bill, isDetailed bool) model.BillModel {
+	items := make([]model.ItemModel, len(bill.Items))
+	owner := model.UserModel{}
 
-	// convert items
-	var items []ItemModel
-	for _, item := range bill.Items {
-		items = append(items, ToItemModel(item))
+	if isDetailed {
+
+		for i, item := range bill.Items {
+			items[i] = ConvertToItemModel(item, false)
+		}
+		owner = ConvertToUserModel(bill.Owner, false)
 	}
 
-	return BillModel{
+	return model.BillModel{
 		ID:      bill.ID,
 		Name:    bill.Name,
 		Date:    bill.Date,
+		Owner:   owner,
 		GroupID: bill.GroupID,
 		Items:   items,
-		Owner:   ToCoreUserModel(bill.Owner),
 	}
 }

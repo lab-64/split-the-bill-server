@@ -14,19 +14,23 @@ type GroupInvitation struct {
 	InviteeID uuid.UUID
 }
 
-func ToGroupInvitationModel(groupInvitation GroupInvitation) GroupInvitationModel {
-	return GroupInvitationModel{
-		ID:    groupInvitation.ID,
-		Date:  groupInvitation.Date,
-		Group: ToGroupModel(&groupInvitation.For),
-	}
-}
-
-func ToGroupInvitationEntity(groupInvitation GroupInvitationModel) GroupInvitation {
+func CreateGroupInvitationEntity(groupInvitation GroupInvitationModel) GroupInvitation {
 	return GroupInvitation{
 		Base:      Base{ID: groupInvitation.ID},
 		Date:      groupInvitation.Date,
 		GroupID:   groupInvitation.Group.ID,
 		InviteeID: groupInvitation.Invitee.ID,
+	}
+}
+
+func ConvertToGroupInvitationModel(inv GroupInvitation, isDetailed bool) GroupInvitationModel {
+	group := GroupModel{}
+	if isDetailed {
+		group = ConvertToGroupModel(inv.For, false)
+	}
+	return GroupInvitationModel{
+		ID:    inv.ID,
+		Date:  inv.Date,
+		Group: group,
 	}
 }

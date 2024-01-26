@@ -14,38 +14,45 @@ type Group struct {
 	Bills    []Bill    `gorm:"foreignKey:GroupID"` // has many bills
 }
 
-func ToGroupEntity(group GroupModel) Group {
+func CreateGroupEntity(group GroupModel) Group {
 	// convert uuids to users
 	var members []*User
 	for _, member := range group.Members {
 		members = append(members, &User{Base: Base{ID: member.ID}})
 	}
-
 	return Group{Base: Base{ID: group.ID}, OwnerUID: group.Owner.ID, Name: group.Name, Members: members}
 }
 
-func ToGroupModel(group *Group) GroupModel {
-	// convert users
-	var members []UserModel
-	for _, member := range group.Members {
-		members = append(members, ToUserModel(*member))
+func ConvertToGroupModel(group Group, isDetailed bool) GroupModel {
+	members := make([]UserModel, len(group.Members))
+	bills := make([]BillModel, len(group.Bills))
+	owner := UserModel{}
+
+	if isDetailed {
+
+		for i, member := range group.Members {
+			members[i] = ConvertToUserModel(*member, false)
+		}
+
+		for i, bill := range group.Bills {
+			bills[i] = ConvertToBillModel(bill, false)
+		}
+		owner = ConvertToUserModel(group.Owner, false)
 	}
 
-	// convert bills
-	var bills []BillModel
-	for _, bill := range group.Bills {
-		bills = append(bills, ToBillModel(bill))
+	return GroupModel{
+		ID:      group.ID,
+		Name:    group.Name,
+		Owner:   owner,
+		Members: members,
+		Bills:   bills,
 	}
-
-	owner := ToUserModel(group.Owner)
-
-	return GroupModel{ID: group.ID, Owner: owner, Name: group.Name, Members: members, Bills: bills}
 }
 
 func ToGroupModelSlice(groups []Group) []GroupModel {
 	s := make([]GroupModel, len(groups))
 	for i, group := range groups {
-		s[i] = ToGroupModel(&group)
+		s[i] = ConvertToGroupModel(group, true)
 	}
 	return s
 }

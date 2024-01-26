@@ -2,7 +2,7 @@ package entity
 
 import (
 	"github.com/google/uuid"
-	. "split-the-bill-server/domain/model"
+	"split-the-bill-server/domain/model"
 )
 
 type Item struct {
@@ -13,9 +13,8 @@ type Item struct {
 	Contributors []*User   `gorm:"many2many:item_contributors;"` // many to many
 }
 
-// ToItemEntity converts an ItemModel to an Item
-func ToItemEntity(item ItemModel) Item {
-	// convert contributors to user entities
+func CreateItemEntity(item model.ItemModel) Item {
+	// create user entities with the given ids for the contributors
 	var contributors []*User
 	for _, contributor := range item.Contributors {
 		contributors = append(contributors, &User{Base: Base{ID: contributor.ID}})
@@ -23,12 +22,20 @@ func ToItemEntity(item ItemModel) Item {
 	return Item{Base: Base{ID: item.ID}, Name: item.Name, Price: item.Price, BillID: item.BillID, Contributors: contributors}
 }
 
-// ToItemModel converts an Item to an ItemModel
-func ToItemModel(item Item) ItemModel {
-	// convert contributors to core user models
-	var contributors []UserModel
-	for _, contributor := range item.Contributors {
-		contributors = append(contributors, ToCoreUserModel(*contributor))
+func ConvertToItemModel(item Item, isDetailed bool) model.ItemModel {
+	contributors := make([]model.UserModel, len(item.Contributors))
+
+	if isDetailed {
+		for i, contributor := range item.Contributors {
+			contributors[i] = ConvertToUserModel(*contributor, false)
+		}
 	}
-	return ItemModel{ID: item.ID, Name: item.Name, Price: item.Price, BillID: item.BillID, Contributors: contributors}
+
+	return model.ItemModel{
+		ID:           item.ID,
+		Name:         item.Name,
+		Price:        item.Price,
+		BillID:       item.BillID,
+		Contributors: contributors,
+	}
 }

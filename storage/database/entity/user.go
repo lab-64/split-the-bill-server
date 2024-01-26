@@ -1,10 +1,9 @@
 package entity
 
 import (
-	. "split-the-bill-server/domain/model"
+	"split-the-bill-server/domain/model"
 )
 
-// User struct
 type User struct {
 	Base
 	Email            string            `gorm:"unique;not null"`
@@ -12,46 +11,40 @@ type User struct {
 	GroupInvitations []GroupInvitation `gorm:"foreignKey:InviteeID"`
 }
 
-func ToUserEntity(user UserModel) User {
+func CreateUserEntity(user model.UserModel) User {
 	return User{
 		Base:  Base{ID: user.ID},
 		Email: user.Email,
 	}
 }
 
-func ToCoreUserModel(user User) UserModel {
-	return UserModel{
-		ID:    user.ID,
-		Email: user.Email,
-	}
-}
+func ConvertToUserModel(user User, isDetailed bool) model.UserModel {
 
-func ToUserModel(user User) UserModel {
+	groupInvitations := make([]model.GroupInvitationModel, len(user.GroupInvitations))
+	groupModels := make([]model.GroupModel, len(user.Groups))
 
-	// convert groups
-	var groups []GroupModel
-	for _, group := range user.Groups {
-		groups = append(groups, ToGroupModel(group))
-	}
+	if isDetailed {
+		for i, inv := range user.GroupInvitations {
+			groupInvitations[i] = ConvertToGroupInvitationModel(inv, false)
+		}
 
-	// convert group invitations
-	var groupInvitations []GroupInvitationModel
-	for _, groupInv := range user.GroupInvitations {
-		groupInvitations = append(groupInvitations, ToGroupInvitationModel(groupInv))
+		for i, group := range user.Groups {
+			groupModels[i] = ConvertToGroupModel(*group, false)
+		}
 	}
 
-	return UserModel{
+	return model.UserModel{
 		ID:                      user.ID,
 		Email:                   user.Email,
-		Groups:                  groups,
 		PendingGroupInvitations: groupInvitations,
+		Groups:                  groupModels,
 	}
 }
 
-func ToUserModelSlice(users []User) []UserModel {
-	s := make([]UserModel, len(users))
+func ToUserModelSlice(users []User) []model.UserModel {
+	s := make([]model.UserModel, len(users))
 	for i, user := range users {
-		s[i] = ToUserModel(user)
+		s[i] = ConvertToUserModel(user, true)
 	}
 	return s
 }
