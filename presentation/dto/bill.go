@@ -15,12 +15,13 @@ type BillInputDTO struct {
 }
 
 type BillDetailedOutputDTO struct {
-	ID      uuid.UUID       `json:"id"`
-	Name    string          `json:"name"`
-	Date    time.Time       `json:"date"`
-	Items   []ItemOutputDTO `json:"items"`
-	GroupID uuid.UUID       `json:"groupID"`
-	OwnerID uuid.UUID       `json:"ownerID"`
+	ID      uuid.UUID             `json:"id"`
+	Name    string                `json:"name"`
+	Date    time.Time             `json:"date"`
+	Items   []ItemOutputDTO       `json:"items"`
+	GroupID uuid.UUID             `json:"groupID"`
+	OwnerID uuid.UUID             `json:"ownerID"`
+	Balance map[uuid.UUID]float64 `json:"balance,omitempty"` // include balance only if balance is set
 }
 
 func ToBillModel(b BillInputDTO) BillModel {
@@ -55,5 +56,6 @@ func ToBillDetailedDTO(bill BillModel) BillDetailedOutputDTO {
 		Items:   itemsDTO,
 		OwnerID: bill.OwnerID,
 		GroupID: bill.GroupID,
+		Balance: bill.Balance,
 	}
 }

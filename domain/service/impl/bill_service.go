@@ -59,6 +59,9 @@ func (b *BillService) GetByID(id uuid.UUID) (BillDetailedOutputDTO, error) {
 		return BillDetailedOutputDTO{}, err
 	}
 
+	balance := bill.CalculateBalance()
+	bill.Balance = balance
+
 	return ToBillDetailedDTO(bill), err
 }
 
