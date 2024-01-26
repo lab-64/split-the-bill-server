@@ -28,14 +28,14 @@ var (
 		ID:           uuid.New(),
 		Name:         "Test Item 1",
 		Price:        10,
-		Contributors: []uuid.UUID{TestUser.ID},
+		Contributors: []UserModel{TestUser},
 	}
 
 	TestItem2 = ItemModel{
 		ID:           uuid.New(),
 		Name:         "Test Item 2",
 		Price:        18.5,
-		Contributors: []uuid.UUID{TestUser.ID, TestUser2.ID},
+		Contributors: []UserModel{TestUser, TestUser2},
 	}
 
 	TestGroup = GroupModel{

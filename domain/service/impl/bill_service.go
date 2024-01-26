@@ -89,6 +89,5 @@ func (b *BillService) GetItemByID(id uuid.UUID) (ItemOutputDTO, error) {
 	if err != nil {
 		return ItemOutputDTO{}, err
 	}
-
 	return ToItemDTO(item), err
 }

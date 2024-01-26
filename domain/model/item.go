@@ -7,10 +7,10 @@ type ItemModel struct {
 	Name         string
 	Price        float64
 	BillID       uuid.UUID
-	Contributors []uuid.UUID
+	Contributors []UserModel
 }
 
-func CreateItemModel(id uuid.UUID, name string, price float64, contributors []uuid.UUID, billID uuid.UUID) ItemModel {
+func CreateItemModel(id uuid.UUID, name string, price float64, contributors []UserModel, billID uuid.UUID) ItemModel {
 	if id == uuid.Nil {
 		id = uuid.New()
 	}

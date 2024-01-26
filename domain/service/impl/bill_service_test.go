@@ -15,21 +15,21 @@ var (
 		ID:           uuid.New(),
 		Name:         "Test Item 1",
 		Price:        10,
-		Contributors: []uuid.UUID{TestUser.ID},
+		Contributors: []model.UserModel{TestUser},
 	}
 
 	TestItem1Updated = model.ItemModel{
 		ID:           TestItem1.ID,
 		Name:         "Test Item 1 Updated",
 		Price:        12,
-		Contributors: []uuid.UUID{TestUser.ID},
+		Contributors: []model.UserModel{TestUser},
 	}
 
 	TestItem2 = model.ItemModel{
 		ID:           uuid.New(),
 		Name:         "Test Item 2",
 		Price:        18.5,
-		Contributors: []uuid.UUID{TestUser.ID, TestUser2.ID},
+		Contributors: []model.UserModel{TestUser, TestUser2},
 	}
 
 	TestBill = model.BillModel{
@@ -60,12 +60,12 @@ func TestBillService_Update(t *testing.T) {
 	itemUpdated := dto.ItemInputDTO{
 		Name:         TestItem1Updated.Name,
 		Price:        TestItem1Updated.Price,
-		Contributors: TestItem1Updated.Contributors,
+		Contributors: []uuid.UUID{TestUser.ID},
 	}
 	item2 := dto.ItemInputDTO{
 		Name:         TestItem2.Name,
 		Price:        TestItem2.Price,
-		Contributors: TestItem2.Contributors,
+		Contributors: []uuid.UUID{TestUser.ID, TestUser2.ID},
 	}
 
 	// updated fields
@@ -84,6 +84,8 @@ func TestBillService_Update(t *testing.T) {
 		assert.Equal(t, TestBillUpdated.Items[i].ID, item.ID)
 		assert.Equal(t, TestBillUpdated.Items[i].Name, item.Name)
 		assert.Equal(t, TestBillUpdated.Items[i].Price, item.Price)
-		assert.Equal(t, TestBillUpdated.Items[i].Contributors, item.Contributors)
+		for j, contributor := range item.Contributors {
+			assert.Equal(t, TestBillUpdated.Items[i].Contributors[j].ID, contributor.ID)
+		}
 	}
 }
