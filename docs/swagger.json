@@ -839,6 +839,13 @@
         "dto.BillDetailedOutputDTO": {
             "type": "object",
             "properties": {
+                "balance": {
+                    "description": "include balance only if balance is set",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number"
+                    }
+                },
                 "date": {
                     "type": "string"
                 },
@@ -928,6 +935,13 @@
         "dto.GroupDetailedOutputDTO": {
             "type": "object",
             "properties": {
+                "balance": {
+                    "description": "include balance only if balance is set",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number"
+                    }
+                },
                 "bills": {
                     "type": "array",
                     "items": {
