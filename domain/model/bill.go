@@ -7,17 +7,17 @@ import (
 
 type BillModel struct {
 	ID      uuid.UUID
-	OwnerID uuid.UUID
+	Owner   UserModel
 	Name    string
 	Date    time.Time
 	GroupID uuid.UUID
 	Items   []ItemModel
 }
 
-func CreateBillModel(ownerID uuid.UUID, name string, date time.Time, groupID uuid.UUID, items []ItemModel) BillModel {
+func CreateBillModel(owner UserModel, name string, date time.Time, groupID uuid.UUID, items []ItemModel) BillModel {
 	return BillModel{
 		ID:      uuid.New(),
-		OwnerID: ownerID,
+		Owner:   owner,
 		Name:    name,
 		Date:    date,
 		GroupID: groupID,

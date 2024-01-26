@@ -19,6 +19,13 @@ func ToUserEntity(user UserModel) User {
 	}
 }
 
+func ToCoreUserModel(user User) UserModel {
+	return UserModel{
+		ID:    user.ID,
+		Email: user.Email,
+	}
+}
+
 func ToUserModel(user User) UserModel {
 
 	// convert groups

@@ -39,7 +39,7 @@ func (group GroupModel) CalculateBalance() map[uuid.UUID]float64 {
 			for _, contributor := range item.Contributors {
 				balance[contributor] -= ppp
 			}
-			balance[bill.OwnerID] += item.Price
+			balance[bill.Owner.ID] += item.Price
 		}
 	}
 	return balance

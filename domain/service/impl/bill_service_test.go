@@ -33,17 +33,17 @@ var (
 	}
 
 	TestBill = model.BillModel{
-		ID:      uuid.New(),
-		Name:    "Test Bill",
-		OwnerID: TestUser.ID,
-		Items:   []model.ItemModel{TestItem1, TestItem2},
+		ID:    uuid.New(),
+		Name:  "Test Bill",
+		Owner: TestUser,
+		Items: []model.ItemModel{TestItem1, TestItem2},
 	}
 
 	TestBillUpdated = model.BillModel{
-		ID:      TestBill.ID,
-		Name:    "Test Bill Updated",
-		OwnerID: TestUser.ID,
-		Items:   []model.ItemModel{TestItem1Updated, TestItem2},
+		ID:    TestBill.ID,
+		Name:  "Test Bill Updated",
+		Owner: TestUser,
+		Items: []model.ItemModel{TestItem1Updated, TestItem2},
 	}
 )
 
@@ -70,7 +70,7 @@ func TestBillService_Update(t *testing.T) {
 
 	// updated fields
 	billUpdated := dto.BillInputDTO{
-		Owner: TestBillUpdated.OwnerID,
+		Owner: TestBillUpdated.Owner.ID,
 		Name:  TestBillUpdated.Name,
 		Items: []dto.ItemInputDTO{itemUpdated, item2},
 	}

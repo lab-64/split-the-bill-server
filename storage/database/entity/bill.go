@@ -30,7 +30,7 @@ func ToBillEntity(bill BillModel) Bill {
 		Name:    bill.Name,
 		Date:    bill.Date,
 		GroupID: bill.GroupID,
-		OwnerID: bill.OwnerID,
+		OwnerID: bill.Owner.ID,
 		Items:   items,
 	}
 }
@@ -50,6 +50,6 @@ func ToBillModel(bill Bill) BillModel {
 		Date:    bill.Date,
 		GroupID: bill.GroupID,
 		Items:   items,
-		OwnerID: bill.OwnerID,
+		Owner:   ToCoreUserModel(bill.Owner),
 	}
 }

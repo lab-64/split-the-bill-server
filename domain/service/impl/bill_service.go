@@ -38,7 +38,7 @@ func (b *BillService) Update(userID uuid.UUID, billID uuid.UUID, billDTO BillInp
 	}
 
 	// Authorize
-	if userID != bill.OwnerID {
+	if userID != bill.Owner.ID {
 		return BillDetailedOutputDTO{}, domain.ErrNotAuthorized
 	}
 

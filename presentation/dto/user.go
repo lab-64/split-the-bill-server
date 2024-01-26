@@ -5,25 +5,33 @@ import (
 	. "split-the-bill-server/domain/model"
 )
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Input Section
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 type UserInputDTO struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+func ToUserModel(r UserInputDTO) UserModel {
+	return CreateUserModel(r.Email)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Output Section
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type UserCoreOutputDTO struct {
 	ID    uuid.UUID `json:"id"`
 	Email string    `json:"email"`
 }
 
-type UserDetailedOutputDTO struct {
-	ID          uuid.UUID            `json:"id"`
-	Email       string               `json:"email"`
-	Groups      []GroupCoreOutputDTO `json:"groups"`
-	Invitations []uuid.UUID          `json:"invitationIDs"`
-}
-
-func ToUserModel(r UserInputDTO) UserModel {
-	return CreateUserModel(r.Email)
+func ToUserCoreDTO(u *UserModel) UserCoreOutputDTO {
+	return UserCoreOutputDTO{
+		ID:    u.ID,
+		Email: u.Email,
+	}
 }
 
 func ToUserCoreDTOs(users []UserModel) []UserCoreOutputDTO {
@@ -35,11 +43,11 @@ func ToUserCoreDTOs(users []UserModel) []UserCoreOutputDTO {
 	return usersDTO
 }
 
-func ToUserCoreDTO(u *UserModel) UserCoreOutputDTO {
-	return UserCoreOutputDTO{
-		ID:    u.ID,
-		Email: u.Email,
-	}
+type UserDetailedOutputDTO struct {
+	ID          uuid.UUID            `json:"id"`
+	Email       string               `json:"email"`
+	Groups      []GroupCoreOutputDTO `json:"groups"`
+	Invitations []uuid.UUID          `json:"invitationIDs"`
 }
 
 func ToUserDetailedDTO(u *UserModel) UserDetailedOutputDTO {
@@ -60,5 +68,18 @@ func ToUserDetailedDTO(u *UserModel) UserDetailedOutputDTO {
 		Email:       u.Email,
 		Groups:      groupsDTO,
 		Invitations: invitations,
+	}
+}
+
+// TODO: maybe delete and use UserCoreOutputDTO instead
+type UserPublicOutputDTO struct {
+	ID    uuid.UUID `json:"id"`
+	Email string    `json:"email"`
+}
+
+func ToUserPublicDTO(u UserModel) UserPublicOutputDTO {
+	return UserPublicOutputDTO{
+		ID:    u.ID,
+		Email: u.Email,
 	}
 }

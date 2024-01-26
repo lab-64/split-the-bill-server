@@ -75,7 +75,7 @@ func (b *BillStorage) UpdateBill(bill BillModel) (BillModel, error) {
 
 func (b *BillStorage) GetByID(id uuid.UUID) (BillModel, error) {
 	var bill Bill
-	tx := b.DB.Limit(1).Preload("Items.Contributors").Find(&bill, "id = ?", id)
+	tx := b.DB.Limit(1).Preload("Items.Contributors").Preload("Owner").Find(&bill, "id = ?", id)
 	// TODO: return general error
 	if tx.Error != nil {
 		return BillModel{}, storage.NoSuchBillError

@@ -15,12 +15,12 @@ type BillInputDTO struct {
 }
 
 type BillDetailedOutputDTO struct {
-	ID      uuid.UUID       `json:"id"`
-	Name    string          `json:"name"`
-	Date    time.Time       `json:"date"`
-	Items   []ItemOutputDTO `json:"items"`
-	GroupID uuid.UUID       `json:"groupID"`
-	OwnerID uuid.UUID       `json:"ownerID"`
+	ID      uuid.UUID           `json:"id"`
+	Name    string              `json:"name"`
+	Date    time.Time           `json:"date"`
+	Items   []ItemOutputDTO     `json:"items"`
+	GroupID uuid.UUID           `json:"groupID"`
+	Owner   UserPublicOutputDTO `json:"owner"`
 }
 
 func ToBillModel(b BillInputDTO) BillModel {
@@ -29,7 +29,7 @@ func ToBillModel(b BillInputDTO) BillModel {
 	for _, item := range b.Items {
 		items = append(items, ToItemModel(uuid.Nil, item))
 	}
-	return CreateBillModel(b.Owner, b.Name, b.Date, b.GroupID, items)
+	return CreateBillModel(UserModel{ID: b.Owner}, b.Name, b.Date, b.GroupID, items)
 }
 
 func ToBillDetailedDTOs(bills []BillModel) []BillDetailedOutputDTO {
@@ -53,7 +53,7 @@ func ToBillDetailedDTO(bill BillModel) BillDetailedOutputDTO {
 		Name:    bill.Name,
 		Date:    bill.Date,
 		Items:   itemsDTO,
-		OwnerID: bill.OwnerID,
+		Owner:   ToUserPublicDTO(bill.Owner),
 		GroupID: bill.GroupID,
 	}
 }

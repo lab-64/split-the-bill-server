@@ -18,10 +18,10 @@ var (
 	}
 
 	TestBill = BillModel{
-		ID:      uuid.New(),
-		Name:    "Test Bill",
-		OwnerID: TestUser.ID,
-		Items:   []ItemModel{TestItem1, TestItem2},
+		ID:    uuid.New(),
+		Name:  "Test Bill",
+		Owner: TestUser,
+		Items: []ItemModel{TestItem1, TestItem2},
 	}
 
 	TestItem1 = ItemModel{
