@@ -16,4 +16,6 @@ type IUserService interface {
 	Login(credentials CredentialsInputDTO) (UserCoreOutputDTO, AuthCookieModel, error)
 
 	Create(user UserInputDTO) (UserCoreOutputDTO, error)
+
+	Update(id UUID, user UserUpdateDTO) (UserCoreOutputDTO, error)
 }

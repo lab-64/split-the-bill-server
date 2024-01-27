@@ -101,6 +101,12 @@ func (u *UserStorage) Create(user UserModel, passwordHash []byte) (UserModel, er
 	return ConvertToUserModel(item, true), err
 }
 
+func (u *UserStorage) Update(user UserModel) (UserModel, error) {
+	res := u.DB.Model(&User{}).Where("id = ?", user.ID).Updates(User{Email: user.Email, Username: user.Username})
+	// TODO: error handling
+	return user, res.Error
+}
+
 func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
 	var credentials Credentials
 	// get credentials from given user

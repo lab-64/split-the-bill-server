@@ -160,3 +160,48 @@ func TestCreate(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdate(t *testing.T) {
+
+	tests := []struct {
+		name        string
+		user        model.UserModel
+		mock        func()
+		expectedErr error
+		want        model.UserModel
+	}{
+		{
+			name: "Success",
+			user: TestUser,
+			mock: func() {
+				dbMock.ExpectBegin()
+				dbMock.ExpectExec(`UPDATE "users"`).
+					WithArgs(sqlmock.AnyArg(), TestUser.Email, TestUser.ID).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				dbMock.ExpectCommit()
+			},
+			expectedErr: nil,
+			want:        TestUser,
+		},
+	}
+
+	for _, testcase := range tests {
+		t.Run(testcase.name, func(t *testing.T) {
+			testcase.mock()
+			ret, err := userStorage.Update(testcase.user)
+
+			// Validate error
+			assert.Equal(t, testcase.expectedErr, err)
+
+			// Validate returned data if err == nil
+			if err == nil {
+				assert.Equal(t, testcase.want.ID, ret.ID)
+			}
+
+			// Ensure all expectations were met
+			if err = dbMock.ExpectationsWereMet(); err != nil {
+				t.Errorf("Unfulfilled expectations: %s", err)
+			}
+		})
+	}
+}

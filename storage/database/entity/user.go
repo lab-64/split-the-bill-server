@@ -6,15 +6,17 @@ import (
 
 type User struct {
 	Base
-	Email            string            `gorm:"unique;not null"`
+	Email            string `gorm:"unique;not null"`
+	Username         string
 	Groups           []*Group          `gorm:"many2many:group_members;"`
 	GroupInvitations []GroupInvitation `gorm:"foreignKey:InviteeID"`
 }
 
 func CreateUserEntity(user model.UserModel) User {
 	return User{
-		Base:  Base{ID: user.ID},
-		Email: user.Email,
+		Base:     Base{ID: user.ID},
+		Email:    user.Email,
+		Username: user.Username,
 	}
 }
 
@@ -27,7 +29,6 @@ func ConvertToUserModel(user User, isDetailed bool) model.UserModel {
 		for i, inv := range user.GroupInvitations {
 			groupInvitations[i] = ConvertToGroupInvitationModel(inv, false)
 		}
-
 		for i, group := range user.Groups {
 			groupModels[i] = ConvertToGroupModel(*group, false)
 		}
@@ -36,6 +37,7 @@ func ConvertToUserModel(user User, isDetailed bool) model.UserModel {
 	return model.UserModel{
 		ID:                      user.ID,
 		Email:                   user.Email,
+		Username:                user.Username,
 		PendingGroupInvitations: groupInvitations,
 		Groups:                  groupModels,
 	}

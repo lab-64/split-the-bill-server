@@ -25,6 +25,9 @@ type IUserStorage interface {
 	// already exists, a UserAlreadyExistsError is returned.
 	Create(user UserModel, passwordHash []byte) (UserModel, error)
 
+	// Update updates the user with the given ID with the given data.
+	Update(user UserModel) (UserModel, error)
+
 	// GetCredentials returns the password hash for the user with the given ID, or a NoCredentialsError, if no
 	// credentials are stored for the user.
 	GetCredentials(id UUID) ([]byte, error)

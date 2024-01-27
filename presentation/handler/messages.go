@@ -39,12 +39,13 @@ const (
 	// Item - SUCCESS
 	SuccessMsgItemCreate = "Item created"
 	SuccessMsgItemUpdate = "Item updated"
-	SuccesMsgItemFound   = "Item found"
+	SuccessMsgItemFound  = "Item found"
 
 	// User - ERROR
 	ErrMsgUserParse            = "Could not parse user: %v"
 	ErrMsgUserCreate           = "Could not create user: %v"
 	ErrMsgUserDelete           = "Could not delete user: %v"
+	ErrMsgUserUpdate           = "Could not update user: %v"
 	ErrMsgUserNotFound         = "User not found: %v"
 	ErrMsgUsersNotFound        = "Users not found: %v"
 	ErrMsgUserLogin            = "Could not log in: %v"
@@ -58,6 +59,7 @@ const (
 	SuccessMsgUsersFound = "Users found"
 	SuccessMsgUserCreate = "User created"
 	SuccessMsgUserDelete = "User deleted"
+	SuccessMsgUserUpdate = "User updated"
 
 	// Invitation - ERROR
 	ErrMsgInvitationParse  = "Could not parse invitation: %v"

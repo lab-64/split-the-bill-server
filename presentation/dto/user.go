@@ -14,11 +14,10 @@ type UserInputDTO struct {
 	Password string `json:"password"`
 }
 
-func CreateUserModel(id uuid.UUID, user UserInputDTO) model.UserModel {
-	return model.UserModel{
-		ID:    id,
-		Email: user.Email,
-	}
+type UserUpdateDTO struct {
+	ID       uuid.UUID `json:"id"`
+	Email    string    `json:"email"`
+	Username string    `json:"username"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,14 +25,16 @@ func CreateUserModel(id uuid.UUID, user UserInputDTO) model.UserModel {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type UserCoreOutputDTO struct {
-	ID    uuid.UUID `json:"id"`
-	Email string    `json:"email"`
+	ID       uuid.UUID `json:"id"`
+	Email    string    `json:"email"`
+	Username string    `json:"username"`
 }
 
 func ConvertToUserCoreDTO(u *model.UserModel) UserCoreOutputDTO {
 	return UserCoreOutputDTO{
-		ID:    u.ID,
-		Email: u.Email,
+		ID:       u.ID,
+		Email:    u.Email,
+		Username: u.Username,
 	}
 }
 
@@ -49,6 +50,7 @@ func ConvertToUserCoreDTOs(users []model.UserModel) []UserCoreOutputDTO {
 type UserDetailedOutputDTO struct {
 	ID            uuid.UUID            `json:"id"`
 	Email         string               `json:"email"`
+	Username      string               `json:"username"`
 	Groups        []GroupCoreOutputDTO `json:"groups"`
 	InvitationIDs []uuid.UUID          `json:"invitationIDs"`
 }
@@ -69,6 +71,7 @@ func ConvertToUserDetailedDTO(u *model.UserModel) UserDetailedOutputDTO {
 	return UserDetailedOutputDTO{
 		ID:            u.ID,
 		Email:         u.Email,
+		Username:      u.Username,
 		Groups:        groupsDTO,
 		InvitationIDs: invitations,
 	}

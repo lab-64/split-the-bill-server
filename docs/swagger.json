@@ -804,6 +804,44 @@
                     }
                 }
             },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserUpdateDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "consumes": [
                     "application/json"
@@ -857,8 +895,8 @@
                 "name": {
                     "type": "string"
                 },
-                "ownerID": {
-                    "type": "string"
+                "owner": {
+                    "$ref": "#/definitions/dto.UserCoreOutputDTO"
                 }
             }
         },
@@ -928,6 +966,13 @@
         "dto.GroupDetailedOutputDTO": {
             "type": "object",
             "properties": {
+                "balance": {
+                    "description": "include balance only if balance is set",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number"
+                    }
+                },
                 "bills": {
                     "type": "array",
                     "items": {
@@ -1024,10 +1069,10 @@
                 "billId": {
                     "type": "string"
                 },
-                "contributorIDs": {
+                "contributors": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dto.UserCoreOutputDTO"
                     }
                 },
                 "id": {
@@ -1048,6 +1093,9 @@
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -1072,6 +1120,9 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },
@@ -1082,6 +1133,20 @@
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserUpdateDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }

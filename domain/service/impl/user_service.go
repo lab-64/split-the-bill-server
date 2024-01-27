@@ -48,7 +48,7 @@ func (u *UserService) GetByID(id uuid.UUID) (UserDetailedOutputDTO, error) {
 }
 
 func (u *UserService) Create(userDTO UserInputDTO) (UserCoreOutputDTO, error) {
-	user := CreateUserModel(uuid.New(), userDTO)
+	user := CreateUser(uuid.New(), userDTO.Email, "")
 	passwordHash, err := util.HashPassword(userDTO.Password)
 	if err != nil {
 		return UserCoreOutputDTO{}, err
@@ -84,4 +84,17 @@ func (u *UserService) Login(credentials CredentialsInputDTO) (UserCoreOutputDTO,
 	u.cookieStorage.AddAuthenticationCookie(sc)
 
 	return ConvertToUserCoreDTO(&user), sc, err
+}
+
+func (u *UserService) Update(id uuid.UUID, user UserUpdateDTO) (UserCoreOutputDTO, error) {
+	// TODO: Add authorization
+
+	userModel := CreateUser(id, user.Email, user.Username)
+
+	userModel, err := u.userStorage.Update(userModel)
+	if err != nil {
+		return UserCoreOutputDTO{}, err
+	}
+
+	return ConvertToUserCoreDTO(&userModel), err
 }
