@@ -2,6 +2,7 @@ package dto
 
 import (
 	"github.com/google/uuid"
+	"mime/multipart"
 	"split-the-bill-server/domain/model"
 )
 
@@ -18,6 +19,10 @@ type UserUpdateDTO struct {
 	ID       uuid.UUID `json:"id"`
 	Email    string    `json:"email"`
 	Username string    `json:"username"`
+}
+
+type UserUploadImageDTO struct {
+	Image *multipart.FileHeader `form:"image" json:"-" binding:"required"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

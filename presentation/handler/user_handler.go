@@ -6,6 +6,10 @@ import (
 	"github.com/caitlinelfring/nist-password-validator/password"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"io"
+	"log"
+	"os"
+	"path/filepath"
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
@@ -193,4 +197,68 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgUserUpdate, retUser)
+}
+
+// UploadImage 		func upload user image
+//
+//	@Summary	Upload User Image
+//	@Tags		User
+//	@Accept		multipart/form-data
+//	@Produce	json
+//	@Param		id		path		string	true	"User ID"
+//	@Param		image	formData	file	true	"User Image"
+//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Router		/api/user/upload/{id} [post]
+func (h UserHandler) UploadImage(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	_, err := uuid.Parse(id)
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
+	}
+	// get file
+	file, err := c.FormFile("image")
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserImageUpload, err))
+	}
+	// convert file to byte array
+	// Read the file content
+	content, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer content.Close()
+	data, err := io.ReadAll(content)
+	if err != nil {
+		return err
+	}
+
+	storagePath := "./uploads/" + id
+
+	// create storage directory for id
+	if err = os.MkdirAll(storagePath, os.ModePerm); err != nil {
+		return err
+	}
+
+	// save file
+	filePath := filepath.Join(storagePath, file.Filename)
+	err = os.WriteFile(filePath, data, 0644)
+	if err != nil {
+		return err
+	}
+	log.Println("File saved to: " + filePath)
+
+	// Read the image file
+	imageData, err := os.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	// Set the appropriate content type for the image
+	c.Set("Content-Type", "image/jpeg")
+
+	// Return the image data in the response body
+	return c.Send(imageData)
 }

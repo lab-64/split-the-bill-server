@@ -69,4 +69,6 @@ const (
 	SuccessMsgInvitationCreate  = "Invitation created"
 	SuccessMsgInvitationFound   = "Invitation found"
 	SuccessMsgInvitationHandled = "Invitation handled"
+
+	ErrMsgUserImageUpload = "Could not upload user image: %v"
 )
