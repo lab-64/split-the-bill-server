@@ -2,6 +2,11 @@ basePath: /
 definitions:
   dto.BillDetailedOutputDTO:
     properties:
+      balance:
+        additionalProperties:
+          type: number
+        description: include balance only if balance is set
+        type: object
       date:
         type: string
       groupID:

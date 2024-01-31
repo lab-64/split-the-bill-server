@@ -21,6 +21,7 @@ type BillDetailedOutputDTO struct {
 	Items   []ItemOutputDTO   `json:"items"`
 	GroupID uuid.UUID         `json:"groupID"`
 	Owner   UserCoreOutputDTO `json:"owner"`
+	Balance map[uuid.UUID]float64 `json:"balance,omitempty"` // include balance only if balance is set
 }
 
 func CreateBillModel(id uuid.UUID, b BillInputDTO) BillModel {
@@ -62,5 +63,6 @@ func ConvertToBillDetailedDTO(bill BillModel) BillDetailedOutputDTO {
 		Items:   itemsDTO,
 		Owner:   ConvertToUserCoreDTO(&bill.Owner),
 		GroupID: bill.GroupID,
+		Balance: bill.Balance,
 	}
 }

@@ -16,42 +16,25 @@ var (
 		ID:    uuid.New(),
 		Email: "test2@mail.com",
 	}
-
-	TestBill = BillModel{
+	TestUser3 = UserModel{
 		ID:    uuid.New(),
-		Name:  "Test Bill",
-		Owner: TestUser,
-		Items: []ItemModel{TestItem1, TestItem2},
-	}
-
-	TestItem1 = ItemModel{
-		ID:           uuid.New(),
-		Name:         "Test Item 1",
-		Price:        10,
-		Contributors: []UserModel{TestUser},
-	}
-
-	TestItem2 = ItemModel{
-		ID:           uuid.New(),
-		Name:         "Test Item 2",
-		Price:        18.5,
-		Contributors: []UserModel{TestUser, TestUser2},
+		Email: "test3@mail.com",
 	}
 
 	TestGroup = GroupModel{
 		ID:      uuid.New(),
 		Name:    "Test Group",
 		Owner:   TestUser,
-		Members: []UserModel{TestUser, TestUser2},
-		Bills:   []BillModel{TestBill},
+		Members: []UserModel{TestUser, TestUser2, TestUser3},
+		Bills:   []BillModel{TestBill, TestBill2},
 	}
 )
 
-func TestBalanceCalculation(t *testing.T) {
+func TestGroupBalanceCalculation(t *testing.T) {
 
 	balance := TestGroup.CalculateBalance()
-	assert.Equalf(t, 2, len(balance), "Balance should inclue 2 group members")
-	assert.Equalf(t, 9.25, balance[TestUser.ID], "Balance for TestUser should be 9.25")
-	assert.Equalf(t, -9.25, balance[TestUser2.ID], "Balance for TestUser2 should be -9.25")
-
+	assert.Equal(t, 3, len(balance))
+	assert.Equal(t, -20.75, balance[TestUser.ID])
+	assert.Equal(t, 20.75, balance[TestUser2.ID])
+	assert.Equal(t, 0.0, balance[TestUser3.ID])
 }

@@ -58,6 +58,10 @@ func (b *BillService) GetByID(id uuid.UUID) (BillDetailedOutputDTO, error) {
 	if err != nil {
 		return BillDetailedOutputDTO{}, err
 	}
+
+	balance := bill.CalculateBalance()
+	bill.Balance = balance
+
 	return ConvertToBillDetailedDTO(bill), err
 }
 

@@ -884,6 +884,13 @@ const docTemplate = `{
         "dto.BillDetailedOutputDTO": {
             "type": "object",
             "properties": {
+                "balance": {
+                    "description": "include balance only if balance is set",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number"
+                    }
+                },
                 "date": {
                     "type": "string"
                 },
