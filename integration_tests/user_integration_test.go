@@ -9,12 +9,19 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"split-the-bill-server/domain"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/handler"
 	"split-the-bill-server/presentation/middleware"
 	"split-the-bill-server/storage"
+	"split-the-bill-server/storage/database/entity"
 	"testing"
 )
+
+type UserResponseDTO struct {
+	Message string                `json:"message"`
+	Data    dto.UserCoreOutputDTO `json:"data"`
+}
 
 func TestCreateUser(t *testing.T) {
 
@@ -169,5 +176,121 @@ func TestGetUser(t *testing.T) {
 		}
 
 	}
+}
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Start of UpdateUser test cases
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func performUpdateUserRequest(parameter uuid.UUID, testInputUser dto.UserUpdateDTO, username string) (UserResponseDTO, *http.Response, error) {
+	route := "/api/user/"
+
+	// Get Authentication Token
+	cookieToken, setupErr := login(username, Password)
+	if setupErr != nil {
+		return UserResponseDTO{}, nil, setupErr
+	}
+
+	inputJSON, _ := json.Marshal(testInputUser)
+	cookie := &http.Cookie{Name: "session_cookie", Value: cookieToken}
+
+	// Create http request
+	req := httptest.NewRequest("PUT", route+parameter.String(), bytes.NewReader(inputJSON))
+	req.Header.Set("Content-Type", "application/json")
+	// add cookie to request
+	req.AddCookie(cookie)
+
+	// Perform request
+	resp, err := app.Test(req, -1)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	if err != nil {
+		return UserResponseDTO{}, resp, err
+	}
+
+	// Read response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return UserResponseDTO{}, resp, err
+	}
+	// Parse response body to GeneralResponseDTO
+	var response UserResponseDTO
+	if err = json.Unmarshal(body, &response); err != nil { // Parse []byte to go struct pointer
+		return UserResponseDTO{}, resp, err
+	}
+	return response, resp, nil
+}
+
+func TestUpdateUser(t *testing.T) {
+
+	tests := []struct {
+		description        string
+		loggedInUser       entity.User
+		parameter          uuid.UUID
+		inputUser          dto.UserUpdateDTO
+		expectedCode       int
+		expectedMessage    string
+		expectReturn       bool
+		expectReturnedData dto.UserCoreOutputDTO
+	}{
+		{
+			description:  "Test successful user update",
+			loggedInUser: User1,
+			parameter:    User1.ID,
+			inputUser: dto.UserUpdateDTO{
+				Email:    "new-mail@mail.com",
+				Username: "Franz",
+			},
+			expectedCode:    200,
+			expectedMessage: handler.SuccessMsgUserUpdate,
+			expectReturn:    true,
+			expectReturnedData: dto.UserCoreOutputDTO{
+				ID:       User1.ID,
+				Email:    "new-mail@mail.com",
+				Username: "Franz",
+			},
+		},
+		{
+			description:     "Test unsuccessful behavior: user is unauthorized to update foreign user",
+			loggedInUser:    User2,
+			parameter:       User1.ID,
+			inputUser:       dto.UserUpdateDTO{},
+			expectedCode:    401,
+			expectedMessage: fmt.Sprintf(handler.ErrMsgUserUpdate, domain.ErrNotAuthorized),
+			expectReturn:    false,
+		},
+		{
+			description:     "Test unsuccessful behavior: user is not logged in",
+			loggedInUser:    entity.User{},
+			parameter:       User1.ID,
+			inputUser:       dto.UserUpdateDTO{},
+			expectedCode:    401,
+			expectedMessage: middleware.ErrMsgInvalidCookie,
+			expectReturn:    false,
+		},
+	}
+
+	for _, testcase := range tests {
+		responseData, httpResponse, err := performUpdateUserRequest(testcase.parameter, testcase.inputUser, testcase.loggedInUser.Email)
+		if err != nil {
+			t.Fatalf("Error during setup while performing request: %s", err.Error())
+		}
+
+		assert.Nil(t, err)
+		assert.Equal(t, testcase.expectedCode, httpResponse.StatusCode)
+		assert.Equal(t, testcase.expectedMessage, responseData.Message)
+		if testcase.expectReturn {
+			// validate response
+			assert.Equal(t, testcase.parameter, responseData.Data.ID) // parameter contains the id of the issuer
+			assert.Equal(t, testcase.inputUser.Email, responseData.Data.Email)
+			assert.Equal(t, testcase.inputUser.Username, responseData.Data.Username)
+			// get the stored user from the storage for comparison
+			storedUser, _ := getStoredUserEntity(testcase.parameter)
+			// validate updated user in storage
+			assert.Equal(t, testcase.parameter, storedUser.ID)
+			assert.Equal(t, testcase.inputUser.Email, storedUser.Email)
+			assert.Equal(t, testcase.inputUser.Username, storedUser.Username)
+		}
+	}
 }

@@ -98,7 +98,7 @@ func TestCreate(t *testing.T) {
 			mock: func() {
 				dbMock.ExpectBegin()
 				dbMock.ExpectExec(`INSERT INTO "users"`).
-					WithArgs(TestUser.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUser.Email).
+					WithArgs(TestUser.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUser.Email, "").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				dbMock.ExpectExec(`INSERT INTO "credentials"`).
 					WithArgs(TestUser.ID, TestPasswordHash).
@@ -115,7 +115,7 @@ func TestCreate(t *testing.T) {
 			mock: func() {
 				dbMock.ExpectBegin()
 				dbMock.ExpectExec(`INSERT INTO "users"`).
-					WithArgs(TestUser.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUser.Email).
+					WithArgs(TestUser.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUser.Email, "").
 					WillReturnError(gorm.ErrDuplicatedKey)
 				dbMock.ExpectRollback()
 			},
@@ -129,7 +129,7 @@ func TestCreate(t *testing.T) {
 			mock: func() {
 				dbMock.ExpectBegin()
 				dbMock.ExpectExec(`INSERT INTO "users"`).
-					WithArgs(TestUserWithEmptyEmail.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUserWithEmptyEmail.Email).
+					WithArgs(TestUserWithEmptyEmail.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUserWithEmptyEmail.Email, "").
 					WillReturnError(gorm.ErrInvalidData)
 				dbMock.ExpectRollback()
 			},

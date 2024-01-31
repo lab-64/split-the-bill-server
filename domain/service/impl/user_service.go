@@ -2,6 +2,7 @@ package impl
 
 import (
 	"github.com/google/uuid"
+	"split-the-bill-server/domain"
 	. "split-the-bill-server/domain/model"
 	. "split-the-bill-server/domain/service"
 	"split-the-bill-server/domain/util"
@@ -86,8 +87,10 @@ func (u *UserService) Login(credentials CredentialsInputDTO) (UserCoreOutputDTO,
 	return ConvertToUserCoreDTO(&user), sc, err
 }
 
-func (u *UserService) Update(id uuid.UUID, user UserUpdateDTO) (UserCoreOutputDTO, error) {
-	// TODO: Add authorization
+func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user UserUpdateDTO) (UserCoreOutputDTO, error) {
+	if requesterID != id {
+		return UserCoreOutputDTO{}, domain.ErrNotAuthorized
+	}
 
 	userModel := CreateUser(id, user.Email, user.Username)
 

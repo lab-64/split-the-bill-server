@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"github.com/caitlinelfring/nist-password-validator/password"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
 	. "split-the-bill-server/presentation/dto"
@@ -170,7 +172,7 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
-	uid, err := uuid.Parse(id)
+	userID, err := uuid.Parse(id)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
@@ -178,8 +180,15 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	if err := c.BodyParser(&user); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
-	retUser, err := h.userService.Update(uid, user)
+
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
+	retUser, err := h.userService.Update(requesterID, userID, user)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgUserUpdate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserUpdate, err))
 	}
 

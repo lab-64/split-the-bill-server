@@ -17,5 +17,5 @@ type IUserService interface {
 
 	Create(user UserInputDTO) (UserCoreOutputDTO, error)
 
-	Update(id UUID, user UserUpdateDTO) (UserCoreOutputDTO, error)
+	Update(requesterID UUID, id UUID, user UserUpdateDTO) (UserCoreOutputDTO, error)
 }
