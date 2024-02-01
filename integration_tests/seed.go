@@ -163,24 +163,18 @@ var (
 
 	// INVITATIONS
 	Invitation1 = GroupInvitation{
-		Base:      Base{ID: uuid.New()},
-		Date:      time.Now(),
-		GroupID:   Group1.ID,
-		InviteeID: User2.ID,
+		Base:    Base{ID: uuid.New()},
+		GroupID: Group1.ID,
 	}
 
 	Invitation2 = GroupInvitation{
-		Base:      Base{ID: uuid.New()},
-		Date:      time.Now(),
-		GroupID:   Group2.ID,
-		InviteeID: User3.ID,
+		Base:    Base{ID: uuid.New()},
+		GroupID: Group2.ID,
 	}
 
 	Invitation3 = GroupInvitation{
-		Base:      Base{ID: uuid.New()},
-		Date:      time.Now(),
-		GroupID:   Group3.ID,
-		InviteeID: User1.ID,
+		Base:    Base{ID: uuid.New()},
+		GroupID: Group3.ID,
 	}
 )
 

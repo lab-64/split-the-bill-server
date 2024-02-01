@@ -3,7 +3,6 @@ package db_storages
 import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	. "split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database"
@@ -23,7 +22,7 @@ func (i InvitationStorage) AddGroupInvitation(invitation GroupInvitationModel) (
 	groupInvitation := CreateGroupInvitationEntity(invitation)
 
 	// store group invitation in db
-	res := i.DB.Where(&groupInvitation).Preload(clause.Associations).FirstOrCreate(&groupInvitation)
+	res := i.DB.Create(&groupInvitation)
 	if res.RowsAffected == 0 {
 		return GroupInvitationModel{}, storage.GroupInvitationAlreadyExistsError
 	}
@@ -31,70 +30,33 @@ func (i InvitationStorage) AddGroupInvitation(invitation GroupInvitationModel) (
 	return ConvertToGroupInvitationModel(groupInvitation, true), res.Error
 }
 
-func (i InvitationStorage) DeleteGroupInvitation(id uuid.UUID) error {
-	tx := i.DB.Delete(&GroupInvitation{}, id)
-	return tx.Error
-}
-
-func (i InvitationStorage) AcceptGroupInvitation(id uuid.UUID) error {
+func (i InvitationStorage) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
 	var groupInvitation GroupInvitation
 
 	//TODO: generalize error messages
-
+	// TODO: test behavior
 	// Check if the group invitation exists
-	if err := i.DB.First(&groupInvitation, "id = ?", id).Error; err != nil {
+	if err := i.DB.First(&groupInvitation, "id = ?", invitationID).Error; err != nil {
 		return err
 	}
 
-	// Update group members within a transaction
-	err := i.DB.Transaction(func(tx *gorm.DB) error {
-		// Append the invitee to the group members
-		group := Group{Base: Base{ID: groupInvitation.GroupID}}
-		user := User{Base: Base{ID: groupInvitation.InviteeID}}
+	// add the user to the group members
+	group := Group{Base: Base{ID: groupInvitation.GroupID}}
+	user := User{Base: Base{ID: userID}}
 
-		res := tx.Model(&group).Association("Members").Append(&user)
+	res := i.DB.Model(&group).Association("Members").Append(&user)
 
-		if res != nil {
-			return res
-		}
-
-		// Delete invitation
-		res = tx.Delete(&groupInvitation).Error
-		if res != nil {
-			return res
-		}
-
-		return nil
-	})
-
-	return err
+	return res
 }
 
 func (i InvitationStorage) GetGroupInvitationByID(id uuid.UUID) (GroupInvitationModel, error) {
 	var groupInvitation GroupInvitation
 	tx := i.DB.
-		Preload("For.Owner").
-		Preload("For.Members").
+		Preload("Group.Owner").
 		Limit(1).
 		Find(&groupInvitation, "id = ?", id)
 	if tx.RowsAffected == 0 {
 		return GroupInvitationModel{}, storage.NoSuchGroupInvitationError
 	}
 	return ConvertToGroupInvitationModel(groupInvitation, true), tx.Error
-}
-
-func (i InvitationStorage) GetGroupInvitationsByUserID(userID uuid.UUID) ([]GroupInvitationModel, error) {
-	var groupInvitations []GroupInvitation
-	tx := i.DB.
-		Preload("For.Owner").
-		Preload("For.Members").
-		Find(&groupInvitations, "Invitee_id = ?", userID)
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
-	var result []GroupInvitationModel
-	for _, groupInvitation := range groupInvitations {
-		result = append(result, ConvertToGroupInvitationModel(groupInvitation, true))
-	}
-	return result, nil
 }

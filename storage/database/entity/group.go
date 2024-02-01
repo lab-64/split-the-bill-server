@@ -26,7 +26,7 @@ func CreateGroupEntity(group GroupModel) Group {
 func ConvertToGroupModel(group Group, isDetailed bool) GroupModel {
 	members := make([]UserModel, len(group.Members))
 	bills := make([]BillModel, len(group.Bills))
-	owner := UserModel{}
+	owner := ConvertToUserModel(group.Owner, false)
 
 	if isDetailed {
 
@@ -37,7 +37,6 @@ func ConvertToGroupModel(group Group, isDetailed bool) GroupModel {
 		for i, bill := range group.Bills {
 			bills[i] = ConvertToBillModel(bill, false)
 		}
-		owner = ConvertToUserModel(group.Owner, false)
 	}
 
 	return GroupModel{

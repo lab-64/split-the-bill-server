@@ -50,6 +50,11 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupCreate, err))
 	}
 
+	// TODO: check where to call this
+	// create group invitation
+	invitation, err := h.invitationService.CreateGroupInvitations(group.ID)
+	group.InvitationID = invitation.InvitationID
+
 	return Success(c, fiber.StatusCreated, SuccessMsgGroupCreate, group)
 }
 

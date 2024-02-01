@@ -5,12 +5,13 @@ import (
 )
 
 type GroupModel struct {
-	ID      uuid.UUID
-	Name    string
-	Owner   UserModel
-	Members []UserModel
-	Bills   []BillModel
-	Balance map[uuid.UUID]float64
+	ID           uuid.UUID
+	Name         string
+	Owner        UserModel
+	Members      []UserModel
+	Bills        []BillModel
+	Balance      map[uuid.UUID]float64
+	InvitationID uuid.UUID
 }
 
 func (group GroupModel) CalculateBalance() map[uuid.UUID]float64 {
