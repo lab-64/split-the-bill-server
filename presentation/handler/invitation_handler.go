@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"log"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
 	. "split-the-bill-server/presentation/dto"
@@ -127,4 +128,69 @@ func (h InvitationHandler) HandleInvitation(c *fiber.Ctx) error {
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgInvitationHandled, err)
+}
+
+// AddFriend adds a friend to the user's friend list.
+//
+//	@Summary	Add Friend
+//	@Tags		Invitation
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.InvitationResponseInputDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Router		/api/invitation/add-user [post]
+func (h InvitationHandler) AddFriend(c *fiber.Ctx) error {
+	token := uuid.New().String()
+	log.Println(token)
+
+	// Construct the invitation link
+	invitationLink := fmt.Sprintf("http://localhost:8080/api/invitation/get-invitation/%s", token)
+	log.Println(invitationLink)
+
+	return c.SendString("Invitation sent! Share this link with your friend: " + invitationLink)
+}
+
+// GetInvitation returns the invitation with the given ID.
+//
+//	@Summary	Get Invitation
+//	@Tags		Invitation
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"Invitation ID"
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=GroupInvitationOutputDTO}
+//	@Router		/api/invitation/get-invitation/{id} [get]
+func (h InvitationHandler) GetInvitation(c *fiber.Ctx) error {
+	log.Println("Getting an invitation...")
+	id := c.Params("id")
+	if id == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
+	}
+	log.Println(uid)
+	return nil
+}
+
+func (h InvitationHandler) InviteFriend(c *fiber.Ctx) error {
+	log.Println("Inviting a friend...")
+	// Generate a unique token
+	token := uuid.New().String()
+	log.Println(token)
+
+	// Construct the invitation link
+	invitationLink := fmt.Sprintf("http://localhost:8080/accept-invitation?token=%s", token)
+	log.Println(invitationLink)
+
+	return c.SendString("Invitation sent! Share this link with your friend: " + invitationLink)
+}
+
+func (h InvitationHandler) AcceptInvitation(c *fiber.Ctx) error {
+	log.Println("Accepting an invitation...")
+	token := c.Query("token")
+	if token == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "token"))
+	}
+	return nil
 }
