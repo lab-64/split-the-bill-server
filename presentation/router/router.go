@@ -51,8 +51,6 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, i
 	// invitation routes
 	invitationRoute := api.Group("/invitation")
 	// routes
-	// TODO: delete route
-	invitationRoute.Post("/", i.Create)
 	invitationRoute.Get("/:id", i.GetByID)
 	invitationRoute.Post("/:id/accept", a.Authenticate, i.AcceptInvitation)
 

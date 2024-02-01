@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
-	. "split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/middleware"
 )
 
@@ -42,31 +41,6 @@ func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
 	}
 	return Success(c, fiber.StatusOK, SuccessMsgInvitationFound, invitation)
-}
-
-// TODO: delete
-// Create creates a new group invitation.
-//
-//	@Summary	Create Group Invitation
-//	@Tags		Invitation
-//	@Accept		json
-//	@Produce	json
-//	@Param		request	body		dto.GroupInvitationInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=GroupInvitationOutputDTO}
-//	@Router		/api/invitation [post]
-func (h InvitationHandler) Create(c *fiber.Ctx) error {
-	// TODO: validate inputs
-	// parse request
-	var request GroupInvitationInputDTO
-	if err := c.BodyParser(&request); err != nil {
-		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInvitationParse, err))
-	}
-	// create invitation for all invitees
-	invitations, err := h.invitationService.CreateGroupInvitations(request.GroupID)
-	if err != nil {
-		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationCreate, err))
-	}
-	return Success(c, fiber.StatusCreated, SuccessMsgInvitationCreate, invitations)
 }
 
 // AcceptInvitation accepts a group invitation.
