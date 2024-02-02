@@ -31,6 +31,7 @@ var (
 // Helper functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: use direct access to the database instead
 // login logs in a user with given credentials and returns the generated session cookie used to prove authentication.
 func login(email string, password string) (string, error) {
 	// login
