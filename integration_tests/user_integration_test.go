@@ -86,7 +86,7 @@ func TestCreateUser(t *testing.T) {
 		assert.Equalf(t, testcase.expectReturn, response.Data != nil, testcase.description) // check returned data
 		if testcase.expectReturn {
 			returnData := response.Data.(map[string]interface{})
-			assert.Equal(t, testcase.expectReturnedData.Email, returnData["email"]) // check returned id
+			assert.Equalf(t, testcase.expectReturnedData.Email, returnData["email"], testcase.description) // check returned id
 		}
 	}
 }
@@ -161,8 +161,8 @@ func TestGetUser(t *testing.T) {
 		}
 
 		// Verify, if test case is successfully passed
-		assert.Equal(t, testcase.expectedCode, resp.StatusCode)                             // check status code
-		assert.Equal(t, testcase.expectedMessage, response.Message)                         // check message
+		assert.Equalf(t, testcase.expectedCode, resp.StatusCode, testcase.description)      // check status code
+		assert.Equalf(t, testcase.expectedMessage, response.Message, testcase.description)  // check message
 		assert.Equalf(t, testcase.expectReturn, response.Data != nil, testcase.description) // check returned data
 		if testcase.expectReturn {
 
@@ -171,8 +171,8 @@ func TestGetUser(t *testing.T) {
 			var returnedUser dto.UserCoreOutputDTO
 			returnedUser.ID = uuid.MustParse(returnData["id"].(string))
 			returnedUser.Email = returnData["email"].(string)
-			assert.Equal(t, testcase.expectReturnedData.ID, returnedUser.ID)       // check returned id
-			assert.Equal(t, testcase.expectReturnedData.Email, returnedUser.Email) // check returned mail
+			assert.Equalf(t, testcase.expectReturnedData.ID, returnedUser.ID, testcase.description)       // check returned id
+			assert.Equalf(t, testcase.expectReturnedData.Email, returnedUser.Email, testcase.description) // check returned mail
 		}
 
 	}
@@ -277,20 +277,21 @@ func TestUpdateUser(t *testing.T) {
 			t.Fatalf("Error during setup while performing request: %s", err.Error())
 		}
 
-		assert.Nil(t, err)
-		assert.Equal(t, testcase.expectedCode, httpResponse.StatusCode)
-		assert.Equal(t, testcase.expectedMessage, responseData.Message)
+		assert.Nilf(t, err, testcase.description)
+		assert.Equalf(t, testcase.expectedCode, httpResponse.StatusCode, testcase.description)
+		assert.Equalf(t, testcase.expectedMessage, responseData.Message, testcase.description)
 		if testcase.expectReturn {
 			// validate response
-			assert.Equal(t, testcase.parameter, responseData.Data.ID) // parameter contains the id of the issuer
-			assert.Equal(t, testcase.inputUser.Email, responseData.Data.Email)
-			assert.Equal(t, testcase.inputUser.Username, responseData.Data.Username)
+			assert.Equalf(t, testcase.parameter, responseData.Data.ID, testcase.description) // parameter contains the id of the issuer
+			assert.Equalf(t, testcase.inputUser.Email, responseData.Data.Email, testcase.description)
+			assert.Equalf(t, testcase.inputUser.Username, responseData.Data.Username, testcase.description)
 			// get the stored user from the storage for comparison
-			storedUser, _ := getStoredUserEntity(testcase.parameter)
+			storedUser, setupErr := getStoredUserEntity(testcase.parameter)
+			assert.Nilf(t, setupErr, "Error during setup while getting stored user entity")
 			// validate updated user in storage
-			assert.Equal(t, testcase.parameter, storedUser.ID)
-			assert.Equal(t, testcase.inputUser.Email, storedUser.Email)
-			assert.Equal(t, testcase.inputUser.Username, storedUser.Username)
+			assert.Equalf(t, testcase.parameter, storedUser.ID, testcase.description)
+			assert.Equalf(t, testcase.inputUser.Email, storedUser.Email, testcase.description)
+			assert.Equalf(t, testcase.inputUser.Username, storedUser.Username, testcase.description)
 		}
 	}
 }

@@ -53,7 +53,6 @@ func getStoredUserEntity(id uuid.UUID) (User, error) {
 	res := db.Context.Limit(1).
 		Preload("Groups.Owner").
 		Preload("Groups.Members").
-		Preload("GroupInvitations").
 		Find(&user, "id = ?", id)
 	if res.Error != nil {
 		return User{}, res.Error

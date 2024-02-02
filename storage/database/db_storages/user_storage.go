@@ -30,7 +30,7 @@ func (u *UserStorage) GetAll() ([]UserModel, error) {
 	tx := u.DB.
 		Preload("Groups.Owner").
 		Preload("Groups.Members").
-		Preload("GroupInvitations").Find(&users)
+		Find(&users)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -44,7 +44,6 @@ func (u *UserStorage) GetByID(id uuid.UUID) (UserModel, error) {
 	tx := u.DB.Limit(1).
 		Preload("Groups.Owner").
 		Preload("Groups.Members").
-		Preload("GroupInvitations").
 		Find(&user, "id = ?", id)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
