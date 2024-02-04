@@ -42,7 +42,6 @@ func (a *Authenticator) Authenticate(c *fiber.Ctx) error {
 
 	// get auth cookie from storage
 	sessionCookie, err := a.cookieStorage.GetCookieFromToken(tokenUUID)
-
 	if err != nil {
 		return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
 	}

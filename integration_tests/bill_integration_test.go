@@ -21,12 +21,6 @@ type BillResponseDTO struct {
 
 func TestUpdateBill(t *testing.T) {
 
-	// Get Authentication Token
-	cookieToken, setupErr := login("felix@gmail.com", "test")
-	if setupErr != nil {
-		t.Fatalf("Error in test setup while logging in: %s", setupErr.Error())
-	}
-
 	// Testdata
 	updatedItem1 := dto.ItemInputDTO{
 		Name:         Item1.Name,
@@ -48,8 +42,6 @@ func TestUpdateBill(t *testing.T) {
 
 	inputJson, _ := json.Marshal(updatedBill)
 
-	// TODO: include cookie
-
 	route := "/api/bill/"
 	tests := []struct {
 		description        string // description of the testcase case
@@ -65,7 +57,7 @@ func TestUpdateBill(t *testing.T) {
 			description:     "Test successful bill update",
 			parameter:       Bill1.ID.String(),
 			inputJSON:       inputJson,
-			cookie:          &http.Cookie{Name: "session_cookie", Value: cookieToken},
+			cookie:          &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()},
 			expectedCode:    200,
 			expectedMessage: handler.SuccessMsgBillUpdate,
 			expectReturn:    true,

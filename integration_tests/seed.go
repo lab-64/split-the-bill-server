@@ -32,9 +32,15 @@ var (
 	}
 
 	// COOKIES
-	Cookie1 = AuthCookie{
+	CookieUser1 = AuthCookie{
 		Base:        Base{ID: uuid.New()},
 		UserID:      User1.ID,
+		ValidBefore: time.Now().Add(model.SessionCookieValidityPeriod),
+	}
+
+	CookieUser2 = AuthCookie{
+		Base:        Base{ID: uuid.New()},
+		UserID:      User2.ID,
 		ValidBefore: time.Now().Add(model.SessionCookieValidityPeriod),
 	}
 
@@ -214,7 +220,10 @@ func All() []Seed {
 		{
 			Name: "CreateAuthCookies",
 			Run: func(db *DB) error {
-				if err := db.Create(&Cookie1).Error; err != nil {
+				if err := db.Create(&CookieUser1).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&CookieUser2).Error; err != nil {
 					return err
 				}
 				return nil

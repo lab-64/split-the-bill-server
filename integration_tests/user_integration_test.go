@@ -3,7 +3,6 @@ package integration_tests
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +14,6 @@ import (
 	"split-the-bill-server/presentation/handler"
 	"split-the-bill-server/presentation/middleware"
 	"split-the-bill-server/storage"
-	"split-the-bill-server/storage/database/entity"
 	"testing"
 )
 
@@ -28,21 +26,16 @@ type UserResponseDTO struct {
 // The method, the route including the parameter, the input data and the mail of the user to be logged in must be provided.
 // If the request should be performed without authentication token, just provide an empty string as mail.
 // The function returns the response body as UserResponseDTO, the http response and an error.
-func performUserRequest(httpMethod string, route string, inputUserData interface{}, mailForLogin string) (UserResponseDTO, *http.Response, error) {
-
-	// Get Authentication Token
-	cookieToken, setupErr := login(mailForLogin, Password)
-	if setupErr != nil {
-		return UserResponseDTO{}, nil, setupErr
-	}
-	cookie := &http.Cookie{Name: "session_cookie", Value: cookieToken}
+func performUserRequest(httpMethod string, route string, inputUserData interface{}, cookie *http.Cookie) (UserResponseDTO, *http.Response, error) {
 
 	inputJSON, _ := json.Marshal(inputUserData)
 	// Create http request
 	req := httptest.NewRequest(httpMethod, route, bytes.NewReader(inputJSON))
 	req.Header.Set("Content-Type", "application/json")
-	// add cookie to request
-	req.AddCookie(cookie)
+	// add cookie to request if set
+	if cookie != nil {
+		req.AddCookie(cookie)
+	}
 
 	// Perform request
 	resp, err := app.Test(req, -1)
@@ -56,12 +49,12 @@ func performUserRequest(httpMethod string, route string, inputUserData interface
 	// Read response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return UserResponseDTO{}, resp, errors.New(fmt.Sprintf("error during reading response body - resp.Body: %s - error: %s", resp.Body, err.Error()))
+		return UserResponseDTO{}, resp, fmt.Errorf("error during reading response body - resp.Body: %s - error: %s", resp.Body, err.Error())
 	}
 	// Parse response body to UserResponseDTO
 	var response UserResponseDTO
 	if err = json.Unmarshal(body, &response); err != nil { // Parse []byte to go struct pointer
-		return UserResponseDTO{}, resp, errors.New(fmt.Sprintf("error during parsing response - body: %s - error: %s", string(body), err.Error()))
+		return UserResponseDTO{}, resp, fmt.Errorf("error during parsing response - body: %s - error: %s", string(body), err.Error())
 	}
 	return response, resp, nil
 }
@@ -74,8 +67,9 @@ func TestCreateUser(t *testing.T) {
 
 	route := "/api/user"
 	tests := []struct {
-		inputData          dto.UserInputDTO      // input data for the request
 		description        string                // description of the testcase case
+		inputData          dto.UserInputDTO      // input data for the request
+		requestCookie      *http.Cookie          // cookie for the request
 		expectedCode       int                   // expected HTTP status code
 		expectedMessage    string                // expected message in response body
 		expectReturn       bool                  // expected return value
@@ -87,6 +81,7 @@ func TestCreateUser(t *testing.T) {
 				Email:    "test3@mail.com",
 				Password: "alek1337",
 			},
+			requestCookie:   nil,
 			expectedCode:    201,
 			expectedMessage: handler.SuccessMsgUserCreate,
 			expectReturn:    true,
@@ -100,6 +95,7 @@ func TestCreateUser(t *testing.T) {
 				Email:    "test3@mail.com",
 				Password: "alek1337",
 			},
+			requestCookie:   nil,
 			expectedCode:    500,
 			expectedMessage: fmt.Sprintf(handler.ErrMsgUserCreate, storage.InvalidUserInputError),
 			expectReturn:    false,
@@ -108,7 +104,7 @@ func TestCreateUser(t *testing.T) {
 
 	// Iterate through testcase single testcase cases
 	for _, testcase := range tests {
-		responseData, httpResponse, err := performUserRequest(http.MethodPost, route, testcase.inputData, "")
+		responseData, httpResponse, err := performUserRequest(http.MethodPost, route, testcase.inputData, testcase.requestCookie)
 		if err != nil {
 			t.Fatalf("Error during setup while performing request: %s", err.Error())
 		}
@@ -137,7 +133,7 @@ func TestGetUser(t *testing.T) {
 	tests := []struct {
 		description        string                // description of the testcase case
 		parameter          string                // parameter of the testcase
-		loggedInUser       entity.User           // user that is logged in
+		requestCookie      *http.Cookie          // cookie for the request
 		expectedCode       int                   // expected HTTP status code
 		expectedMessage    string                // expected message in response body
 		expectReturn       bool                  // expected return value
@@ -146,7 +142,7 @@ func TestGetUser(t *testing.T) {
 		{
 			description:     "Test successful user query",
 			parameter:       User1.ID.String(),
-			loggedInUser:    User1,
+			requestCookie:   &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()},
 			expectedCode:    200,
 			expectedMessage: handler.SuccessMsgUserFound,
 			expectReturn:    true,
@@ -155,29 +151,19 @@ func TestGetUser(t *testing.T) {
 				Email: User1.Email,
 			},
 		},
-		// TODO: maybe add a test case for missing cookie
 		{
-			description:     "Test auth cookie is invalid",
+			description:     "Test auth cookie is missing",
 			parameter:       User1.ID.String(),
-			loggedInUser:    entity.User{},
+			requestCookie:   nil,
 			expectedCode:    401,
-			expectedMessage: middleware.ErrMsgInvalidCookie,
+			expectedMessage: middleware.ErrMsgNoCookie,
 			expectReturn:    false,
 		},
-		// TODO: Can different persons query the user?
-		/*		{
-				description:     "Test user is unauthorized",
-				parameter:       User1.ID.String(),
-				loggedInUser:    User2,
-				expectedCode:    401,
-				expectedMessage: fmt.Sprintf(middleware.ErrMsgAuthentication, storage.NoSuchCookieError),
-				expectReturn:    false,
-			},*/
 	}
 
 	// Iterate through testcase single testcase cases
 	for _, testcase := range tests {
-		responseData, httpResponse, err := performUserRequest(http.MethodGet, route+testcase.parameter, nil, testcase.loggedInUser.Email)
+		responseData, httpResponse, err := performUserRequest(http.MethodGet, route+testcase.parameter, nil, testcase.requestCookie)
 		if err != nil {
 			t.Fatalf("Error during setup while performing request: %s", err.Error())
 		}
@@ -202,22 +188,22 @@ func TestUpdateUser(t *testing.T) {
 	route := "/api/user/"
 	tests := []struct {
 		description        string
-		loggedInUser       entity.User
 		parameter          uuid.UUID
 		inputUser          dto.UserUpdateDTO
+		requestCookie      *http.Cookie
 		expectedCode       int
 		expectedMessage    string
 		expectReturn       bool
 		expectReturnedData dto.UserCoreOutputDTO
 	}{
 		{
-			description:  "Test successful user update",
-			loggedInUser: User1,
-			parameter:    User1.ID,
+			description: "Test successful user update",
+			parameter:   User1.ID,
 			inputUser: dto.UserUpdateDTO{
 				Email:    "new-mail@mail.com",
 				Username: "Franz",
 			},
+			requestCookie:   &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()},
 			expectedCode:    200,
 			expectedMessage: handler.SuccessMsgUserUpdate,
 			expectReturn:    true,
@@ -229,25 +215,25 @@ func TestUpdateUser(t *testing.T) {
 		},
 		{
 			description:     "Test unsuccessful behavior: user is unauthorized to update foreign user",
-			loggedInUser:    User2,
 			parameter:       User1.ID,
 			inputUser:       dto.UserUpdateDTO{},
+			requestCookie:   &http.Cookie{Name: sessionCookie, Value: CookieUser2.ID.String()},
 			expectedCode:    401,
 			expectedMessage: fmt.Sprintf(handler.ErrMsgUserUpdate, domain.ErrNotAuthorized),
 			expectReturn:    false,
 		},
 		{
 			description:     "Test unsuccessful behavior: user is not logged in",
-			loggedInUser:    entity.User{},
 			parameter:       User1.ID,
 			inputUser:       dto.UserUpdateDTO{},
+			requestCookie:   nil,
 			expectedCode:    401,
-			expectedMessage: middleware.ErrMsgInvalidCookie,
+			expectedMessage: middleware.ErrMsgNoCookie,
 			expectReturn:    false,
 		},
 	}
 	for _, testcase := range tests {
-		responseData, httpResponse, err := performUserRequest(http.MethodPut, route+testcase.parameter.String(), testcase.inputUser, testcase.loggedInUser.Email)
+		responseData, httpResponse, err := performUserRequest(http.MethodPut, route+testcase.parameter.String(), testcase.inputUser, testcase.requestCookie)
 		if err != nil {
 			t.Fatalf("Error during setup while performing request: %s", err.Error())
 		}
