@@ -52,7 +52,7 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 
 	// TODO: check where to call this
 	// create group invitation
-	invitation, err := h.invitationService.CreateGroupInvitations(group.ID)
+	invitation, _ := h.invitationService.CreateGroupInvitations(group.ID)
 	group.InvitationID = invitation.InvitationID
 
 	return Success(c, fiber.StatusCreated, SuccessMsgGroupCreate, group)
