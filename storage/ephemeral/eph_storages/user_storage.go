@@ -148,3 +148,8 @@ func (u *UserStorage) handleGroupInvitation(user model.UserModel, invitationID u
 	}
 	return nil
 }
+
+func (u *UserStorage) Update(user model.UserModel) (model.UserModel, error) {
+	//TODO implement me
+	panic("implement me")
+}

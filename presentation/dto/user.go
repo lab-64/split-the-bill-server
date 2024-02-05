@@ -2,51 +2,62 @@ package dto
 
 import (
 	"github.com/google/uuid"
-	. "split-the-bill-server/domain/model"
+	"split-the-bill-server/domain/model"
 )
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Input Section
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type UserInputDTO struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
+type UserUpdateDTO struct {
+	Username string `json:"username"`
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Output Section
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 type UserCoreOutputDTO struct {
-	ID    uuid.UUID `json:"id"`
-	Email string    `json:"email"`
+	ID       uuid.UUID `json:"id"`
+	Email    string    `json:"email"`
+	Username string    `json:"username"`
 }
 
-type UserDetailedOutputDTO struct {
-	ID          uuid.UUID            `json:"id"`
-	Email       string               `json:"email"`
-	Groups      []GroupCoreOutputDTO `json:"groups"`
-	Invitations []uuid.UUID          `json:"invitationIDs"`
+func ConvertToUserCoreDTO(u *model.UserModel) UserCoreOutputDTO {
+	return UserCoreOutputDTO{
+		ID:       u.ID,
+		Email:    u.Email,
+		Username: u.Username,
+	}
 }
 
-func ToUserModel(r UserInputDTO) UserModel {
-	return CreateUserModel(r.Email)
-}
-
-func ToUserCoreDTOs(users []UserModel) []UserCoreOutputDTO {
+func ConvertToUserCoreDTOs(users []model.UserModel) []UserCoreOutputDTO {
 	usersDTO := make([]UserCoreOutputDTO, len(users))
 
 	for i, user := range users {
-		usersDTO[i] = ToUserCoreDTO(&user)
+		usersDTO[i] = ConvertToUserCoreDTO(&user)
 	}
 	return usersDTO
 }
 
-func ToUserCoreDTO(u *UserModel) UserCoreOutputDTO {
-	return UserCoreOutputDTO{
-		ID:    u.ID,
-		Email: u.Email,
-	}
+type UserDetailedOutputDTO struct {
+	ID            uuid.UUID            `json:"id"`
+	Email         string               `json:"email"`
+	Username      string               `json:"username"`
+	Groups        []GroupCoreOutputDTO `json:"groups"`
+	InvitationIDs []uuid.UUID          `json:"invitationIDs"`
 }
 
-func ToUserDetailedDTO(u *UserModel) UserDetailedOutputDTO {
+func ConvertToUserDetailedDTO(u *model.UserModel) UserDetailedOutputDTO {
 	groupsDTO := make([]GroupCoreOutputDTO, len(u.Groups))
 
 	for i, group := range u.Groups {
-		groupsDTO[i] = ToGroupCoreDTO(group)
+		groupsDTO[i] = ConvertToGroupCoreDTO(group)
 	}
 
 	invitations := make([]uuid.UUID, len(u.PendingGroupInvitations))
@@ -56,9 +67,10 @@ func ToUserDetailedDTO(u *UserModel) UserDetailedOutputDTO {
 	}
 
 	return UserDetailedOutputDTO{
-		ID:          u.ID,
-		Email:       u.Email,
-		Groups:      groupsDTO,
-		Invitations: invitations,
+		ID:            u.ID,
+		Email:         u.Email,
+		Username:      u.Username,
+		Groups:        groupsDTO,
+		InvitationIDs: invitations,
 	}
 }

@@ -10,6 +10,10 @@ import (
 	"testing"
 )
 
+func Equals(u UserModel, other UserModel) bool {
+	return u.ID == other.ID && u.Email == other.Email
+}
+
 func addUsers(uut storage.IUserStorage, users []UserModel, t *testing.T, finished chan<- struct{}) {
 	for _, user := range users {
 		pw, err := util.HashPassword("ehhh")
@@ -24,10 +28,10 @@ func getUsers(uut storage.IUserStorage, users []UserModel, t *testing.T, finishe
 	for _, user := range users {
 		res, err := uut.GetByID(user.ID)
 		require.NoError(t, err)
-		require.True(t, user.Equals(res))
+		require.True(t, Equals(user, res))
 		res2, err := uut.GetByEmail(user.Email)
 		require.NoError(t, err)
-		require.True(t, user.Equals(res2))
+		require.True(t, Equals(user, res2))
 	}
 	close(finished)
 }
@@ -93,7 +97,7 @@ func UserStorageEdgeCaseTest(uut storage.IUserStorage, t *testing.T) {
 	require.NoError(t, err)
 	res, err := uut.GetByEmail("a")
 	require.NoError(t, err)
-	require.True(t, users[0].Equals(res))
+	require.True(t, Equals(users[0], res))
 	pw, err = util.HashPassword("ehhh")
 	require.NoError(t, err)
 	_, err = uut.Create(users[1], pw)
@@ -102,5 +106,5 @@ func UserStorageEdgeCaseTest(uut storage.IUserStorage, t *testing.T) {
 	require.NoError(t, err)
 	res, err = uut.GetByEmail("a")
 	require.NoError(t, err)
-	require.True(t, users[0].Equals(res))
+	require.True(t, Equals(users[0], res))
 }

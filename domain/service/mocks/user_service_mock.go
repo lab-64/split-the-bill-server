@@ -13,6 +13,7 @@ var (
 	MockUserGetByID func(id uuid.UUID) (dto.UserDetailedOutputDTO, error)
 	MockUserLogin   func(credentials dto.CredentialsInputDTO) (dto.UserCoreOutputDTO, model.AuthCookieModel, error)
 	MockUserCreate  func(user dto.UserInputDTO) (dto.UserCoreOutputDTO, error)
+	MockUserUpdate  func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdateDTO) (dto.UserCoreOutputDTO, error)
 )
 
 func NewUserServiceMock() service.IUserService {
@@ -40,4 +41,8 @@ func (u UserServiceMock) Login(credentials dto.CredentialsInputDTO) (dto.UserCor
 
 func (u UserServiceMock) Create(user dto.UserInputDTO) (dto.UserCoreOutputDTO, error) {
 	return MockUserCreate(user)
+}
+
+func (u UserServiceMock) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdateDTO) (dto.UserCoreOutputDTO, error) {
+	return MockUserUpdate(requesterID, id, user)
 }

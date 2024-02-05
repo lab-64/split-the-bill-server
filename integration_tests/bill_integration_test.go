@@ -41,9 +41,9 @@ func TestUpdateBill(t *testing.T) {
 	}
 
 	updatedBill := dto.BillInputDTO{
-		Name:  "Updated Bill",
-		Owner: User1.ID,
-		Items: []dto.ItemInputDTO{updatedItem1, updatedItem2},
+		Name:    "Updated Bill",
+		OwnerID: User1.ID,
+		Items:   []dto.ItemInputDTO{updatedItem1, updatedItem2},
 	}
 
 	inputJson, _ := json.Marshal(updatedBill)

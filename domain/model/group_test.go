@@ -16,7 +16,6 @@ var (
 		ID:    uuid.New(),
 		Email: "test2@mail.com",
 	}
-
 	TestUser3 = UserModel{
 		ID:    uuid.New(),
 		Email: "test3@mail.com",

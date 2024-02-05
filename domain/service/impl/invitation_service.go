@@ -1,7 +1,7 @@
 package impl
 
 import (
-	. "github.com/google/uuid"
+	"github.com/google/uuid"
 	. "split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation/dto"
 	"split-the-bill-server/storage"
@@ -23,28 +23,28 @@ func (i InvitationService) CreateGroupInvitations(request GroupInvitationInputDT
 
 	// handle group invitations for all invitees
 	for _, invitee := range invites {
-		groupInvitation := ToGroupInvitationModel(request.GroupID, invitee)
+		groupInvitation := CreateGroupInvitationModel(uuid.New(), request.GroupID, invitee)
 		groupInvitation, err := i.invitationStorage.AddGroupInvitation(groupInvitation)
 
 		if err != nil {
 			return nil, err
 		}
 
-		result = append(result, ToGroupInvitationDTO(groupInvitation))
+		result = append(result, ConvertToGroupInvitationDTO(groupInvitation))
 	}
 
 	return result, nil
 }
 
-func (i InvitationService) GetGroupInvitationByID(invitationID UUID) (GroupInvitationOutputDTO, error) {
+func (i InvitationService) GetGroupInvitationByID(invitationID uuid.UUID) (GroupInvitationOutputDTO, error) {
 	group, err := i.invitationStorage.GetGroupInvitationByID(invitationID)
 	if err != nil {
 		return GroupInvitationOutputDTO{}, err
 	}
-	return ToGroupInvitationDTO(group), nil
+	return ConvertToGroupInvitationDTO(group), nil
 }
 
-func (i InvitationService) GetGroupInvitationsByUser(userID UUID) ([]GroupInvitationOutputDTO, error) {
+func (i InvitationService) GetGroupInvitationsByUser(userID uuid.UUID) ([]GroupInvitationOutputDTO, error) {
 	groupInvitations, err := i.invitationStorage.GetGroupInvitationsByUserID(userID)
 	if err != nil {
 		return nil, err
@@ -52,12 +52,12 @@ func (i InvitationService) GetGroupInvitationsByUser(userID UUID) ([]GroupInvita
 	// convert group invitations to data transfer objects
 	var result []GroupInvitationOutputDTO
 	for _, groupInvitation := range groupInvitations {
-		result = append(result, ToGroupInvitationDTO(groupInvitation))
+		result = append(result, ConvertToGroupInvitationDTO(groupInvitation))
 	}
 	return result, nil
 }
 
-func (i InvitationService) HandleGroupInvitation(invitationID UUID, isAccept bool) error {
+func (i InvitationService) HandleGroupInvitation(invitationID uuid.UUID, isAccept bool) error {
 	//TODO: authorization
 
 	if !isAccept {

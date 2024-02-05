@@ -6,6 +6,7 @@ import (
 	"split-the-bill-server/domain/service"
 	"split-the-bill-server/domain/service/mocks"
 	"split-the-bill-server/domain/util"
+	"split-the-bill-server/presentation/middleware"
 	"testing"
 )
 
@@ -14,6 +15,11 @@ var (
 	userHandler UserHandler
 	app         *fiber.App
 )
+
+func Authenticate(c *fiber.Ctx) error {
+	c.Locals(middleware.UserKey, TestUser.ID)
+	return c.Next()
+}
 
 func TestMain(m *testing.M) {
 	// setup user handler
@@ -27,8 +33,9 @@ func TestMain(m *testing.M) {
 
 	// setup fiber
 	app = fiber.New()
-	app.Get("/user/:id", userHandler.GetByID)
+	app.Get("/api/user/:id", userHandler.GetByID)
 	app.Post("/api/user/register", userHandler.Register)
+	app.Put("/api/user/:id", Authenticate, userHandler.Update)
 
 	// Run tests
 	exitCode := m.Run()

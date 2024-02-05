@@ -98,7 +98,7 @@ func TestCreate(t *testing.T) {
 			mock: func() {
 				dbMock.ExpectBegin()
 				dbMock.ExpectExec(`INSERT INTO "users"`).
-					WithArgs(TestUser.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUser.Email).
+					WithArgs(TestUser.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUser.Email, "").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				dbMock.ExpectExec(`INSERT INTO "credentials"`).
 					WithArgs(TestUser.ID, TestPasswordHash).
@@ -115,7 +115,7 @@ func TestCreate(t *testing.T) {
 			mock: func() {
 				dbMock.ExpectBegin()
 				dbMock.ExpectExec(`INSERT INTO "users"`).
-					WithArgs(TestUser.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUser.Email).
+					WithArgs(TestUser.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUser.Email, "").
 					WillReturnError(gorm.ErrDuplicatedKey)
 				dbMock.ExpectRollback()
 			},
@@ -129,7 +129,7 @@ func TestCreate(t *testing.T) {
 			mock: func() {
 				dbMock.ExpectBegin()
 				dbMock.ExpectExec(`INSERT INTO "users"`).
-					WithArgs(TestUserWithEmptyEmail.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUserWithEmptyEmail.Email).
+					WithArgs(TestUserWithEmptyEmail.ID, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), TestUserWithEmptyEmail.Email, "").
 					WillReturnError(gorm.ErrInvalidData)
 				dbMock.ExpectRollback()
 			},
@@ -151,6 +151,52 @@ func TestCreate(t *testing.T) {
 			// Validate returned data if err == nil
 			if err == nil {
 				assert.Equalf(t, testcase.want.ID, ret.ID, "Get() = %v, want %v", ret.ID, testcase.want.ID)
+			}
+
+			// Ensure all expectations were met
+			if err = dbMock.ExpectationsWereMet(); err != nil {
+				t.Errorf("Unfulfilled expectations: %s", err)
+			}
+		})
+	}
+}
+
+func TestUpdate(t *testing.T) {
+
+	tests := []struct {
+		name        string
+		user        model.UserModel
+		mock        func()
+		expectedErr error
+		want        model.UserModel
+	}{
+		{
+			name: "Success",
+			user: TestUser,
+			mock: func() {
+				dbMock.ExpectBegin()
+				dbMock.ExpectExec(`UPDATE "users"`).
+					WithArgs(sqlmock.AnyArg(), TestUser.ID).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				dbMock.ExpectCommit()
+				dbMock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(TestUser.ID).WillReturnRows(sqlmock.NewRows([]string{"ID", "Email"}).AddRow(TestUser.ID, TestUser.Email))
+			},
+			expectedErr: nil,
+			want:        TestUser,
+		},
+	}
+
+	for _, testcase := range tests {
+		t.Run(testcase.name, func(t *testing.T) {
+			testcase.mock()
+			ret, err := userStorage.Update(testcase.user)
+
+			// Validate error
+			assert.Equal(t, testcase.expectedErr, err)
+
+			// Validate returned data if err == nil
+			if err == nil {
+				assert.Equal(t, testcase.want.ID, ret.ID)
 			}
 
 			// Ensure all expectations were met

@@ -15,35 +15,35 @@ var (
 		ID:           uuid.New(),
 		Name:         "Test Item 1",
 		Price:        10,
-		Contributors: []uuid.UUID{TestUser.ID},
+		Contributors: []model.UserModel{TestUser},
 	}
 
 	TestItem1Updated = model.ItemModel{
 		ID:           TestItem1.ID,
 		Name:         "Test Item 1 Updated",
 		Price:        12,
-		Contributors: []uuid.UUID{TestUser.ID},
+		Contributors: []model.UserModel{TestUser},
 	}
 
 	TestItem2 = model.ItemModel{
 		ID:           uuid.New(),
 		Name:         "Test Item 2",
 		Price:        18.5,
-		Contributors: []uuid.UUID{TestUser.ID, TestUser2.ID},
+		Contributors: []model.UserModel{TestUser, TestUser2},
 	}
 
 	TestBill = model.BillModel{
-		ID:      uuid.New(),
-		Name:    "Test Bill",
-		OwnerID: TestUser.ID,
-		Items:   []model.ItemModel{TestItem1, TestItem2},
+		ID:    uuid.New(),
+		Name:  "Test Bill",
+		Owner: TestUser,
+		Items: []model.ItemModel{TestItem1, TestItem2},
 	}
 
 	TestBillUpdated = model.BillModel{
-		ID:      TestBill.ID,
-		Name:    "Test Bill Updated",
-		OwnerID: TestUser.ID,
-		Items:   []model.ItemModel{TestItem1Updated, TestItem2},
+		ID:    TestBill.ID,
+		Name:  "Test Bill Updated",
+		Owner: TestUser,
+		Items: []model.ItemModel{TestItem1Updated, TestItem2},
 	}
 )
 
@@ -60,19 +60,19 @@ func TestBillService_Update(t *testing.T) {
 	itemUpdated := dto.ItemInputDTO{
 		Name:         TestItem1Updated.Name,
 		Price:        TestItem1Updated.Price,
-		Contributors: TestItem1Updated.Contributors,
+		Contributors: []uuid.UUID{TestUser.ID},
 	}
 	item2 := dto.ItemInputDTO{
 		Name:         TestItem2.Name,
 		Price:        TestItem2.Price,
-		Contributors: TestItem2.Contributors,
+		Contributors: []uuid.UUID{TestUser.ID, TestUser2.ID},
 	}
 
 	// updated fields
 	billUpdated := dto.BillInputDTO{
-		Owner: TestBillUpdated.OwnerID,
-		Name:  TestBillUpdated.Name,
-		Items: []dto.ItemInputDTO{itemUpdated, item2},
+		OwnerID: TestBillUpdated.Owner.ID,
+		Name:    TestBillUpdated.Name,
+		Items:   []dto.ItemInputDTO{itemUpdated, item2},
 	}
 
 	ret, err := billService.Update(TestUser.ID, TestBill.ID, billUpdated)
@@ -84,6 +84,8 @@ func TestBillService_Update(t *testing.T) {
 		assert.Equal(t, TestBillUpdated.Items[i].ID, item.ID)
 		assert.Equal(t, TestBillUpdated.Items[i].Name, item.Name)
 		assert.Equal(t, TestBillUpdated.Items[i].Price, item.Price)
-		assert.Equal(t, TestBillUpdated.Items[i].Contributors, item.Contributors)
+		for j, contributor := range item.Contributors {
+			assert.Equal(t, TestBillUpdated.Items[i].Contributors[j].ID, contributor.ID)
+		}
 	}
 }

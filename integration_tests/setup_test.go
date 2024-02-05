@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
@@ -26,6 +27,10 @@ var (
 	app *fiber.App
 )
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Helper functions
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // login logs in a user with given credentials and returns the generated session cookie used to prove authentication.
 func login(email string, password string) (string, error) {
 	// login
@@ -42,6 +47,23 @@ func login(email string, password string) (string, error) {
 	}
 	return "No cookie found!", err
 }
+
+func getStoredUserEntity(id uuid.UUID) (User, error) {
+	var user User
+	res := db.Context.Limit(1).
+		Preload("Groups.Owner").
+		Preload("Groups.Members").
+		Preload("GroupInvitations").
+		Find(&user, "id = ?", id)
+	if res.Error != nil {
+		return User{}, res.Error
+	}
+	return user, nil
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Test environment setup functions
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // TestMain initializes the test environment. It is called before the tests are executed.
 func TestMain(m *testing.M) {

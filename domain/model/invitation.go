@@ -13,12 +13,3 @@ type GroupInvitationModel struct {
 	Group   GroupModel
 	Invitee UserModel
 }
-
-func CreateGroupInvitation(groupID uuid.UUID, inviteeID uuid.UUID) GroupInvitationModel {
-	return GroupInvitationModel{
-		ID:      uuid.New(),
-		Date:    time.Now(),
-		Group:   GroupModel{ID: groupID},
-		Invitee: UserModel{ID: inviteeID},
-	}
-}

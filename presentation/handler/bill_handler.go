@@ -166,7 +166,7 @@ func (h BillHandler) GetItemByID(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgItemNotFound, err))
 	}
 
-	return Success(c, fiber.StatusOK, SuccesMsgItemFound, item)
+	return Success(c, fiber.StatusOK, SuccessMsgItemFound, item)
 }
 
 // ChangeItem 	changes item.

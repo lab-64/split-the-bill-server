@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"github.com/caitlinelfring/nist-password-validator/password"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
 	. "split-the-bill-server/presentation/dto"
@@ -153,4 +155,42 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 
 	c.Cookie(&cookie)
 	return Success(c, fiber.StatusOK, SuccessMsgUserLogin, user)
+}
+
+// Update 		func update user
+//
+//	@Summary	Update User
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path		string				true	"User ID"
+//	@Param		request	body		dto.UserUpdateDTO	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Router		/api/user/{id} [put]
+func (h UserHandler) Update(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
+	}
+	var user UserUpdateDTO
+	if err := c.BodyParser(&user); err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
+	}
+
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
+	retUser, err := h.userService.Update(requesterID, userID, user)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgUserUpdate, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserUpdate, err))
+	}
+
+	return Success(c, fiber.StatusOK, SuccessMsgUserUpdate, retUser)
 }

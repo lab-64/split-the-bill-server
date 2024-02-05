@@ -19,7 +19,7 @@ func NewGroupStorage(DB *Database) storage.IGroupStorage {
 }
 
 func (g *GroupStorage) AddGroup(group GroupModel) (GroupModel, error) {
-	groupItem := ToGroupEntity(group)
+	groupItem := CreateGroupEntity(group)
 
 	// .First(...) in the end enables preload on create (kind of workaround)
 	// https://github.com/go-gorm/gen/issues/618
@@ -32,11 +32,11 @@ func (g *GroupStorage) AddGroup(group GroupModel) (GroupModel, error) {
 	if res.RowsAffected == 0 {
 		return GroupModel{}, storage.GroupAlreadyExistsError
 	}
-	return ToGroupModel(&groupItem), res.Error
+	return ConvertToGroupModel(groupItem, true), res.Error
 }
 
 func (g *GroupStorage) UpdateGroup(group GroupModel) (GroupModel, error) {
-	groupEntity := ToGroupEntity(group)
+	groupEntity := CreateGroupEntity(group)
 
 	res := g.DB.
 		Preload(clause.Associations).
@@ -53,7 +53,7 @@ func (g *GroupStorage) UpdateGroup(group GroupModel) (GroupModel, error) {
 		return GroupModel{}, storage.NoSuchGroupError
 	}
 
-	return ToGroupModel(&groupEntity), nil
+	return ConvertToGroupModel(groupEntity, true), nil
 }
 
 func (g *GroupStorage) GetGroupByID(id uuid.UUID) (GroupModel, error) {
@@ -71,7 +71,7 @@ func (g *GroupStorage) GetGroupByID(id uuid.UUID) (GroupModel, error) {
 	if tx.RowsAffected == 0 {
 		return GroupModel{}, storage.NoSuchGroupError
 	}
-	return ToGroupModel(&group), nil
+	return ConvertToGroupModel(group, true), nil
 }
 
 func (g *GroupStorage) GetGroupsByUserID(userID uuid.UUID) ([]GroupModel, error) {

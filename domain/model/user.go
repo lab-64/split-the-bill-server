@@ -7,18 +7,16 @@ import (
 type UserModel struct {
 	ID                      uuid.UUID
 	Email                   string
+	Username                string
 	PendingGroupInvitations []GroupInvitationModel
 	Groups                  []GroupModel
 	Items                   []ItemModel
 }
 
-func CreateUserModel(email string) UserModel {
+func CreateUser(id uuid.UUID, email string, username string) UserModel {
 	return UserModel{
-		ID:    uuid.New(),
-		Email: email,
+		ID:       id,
+		Email:    email,
+		Username: username,
 	}
-}
-
-func (u UserModel) Equals(other UserModel) bool {
-	return u.ID == other.ID && u.Email == other.Email
 }

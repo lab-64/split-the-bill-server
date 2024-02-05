@@ -811,6 +811,44 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserUpdateDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "consumes": [
                     "application/json"
@@ -871,8 +909,8 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "ownerID": {
-                    "type": "string"
+                "owner": {
+                    "$ref": "#/definitions/dto.UserCoreOutputDTO"
                 }
             }
         },
@@ -1045,10 +1083,10 @@ const docTemplate = `{
                 "billId": {
                     "type": "string"
                 },
-                "contributorIDs": {
+                "contributors": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dto.UserCoreOutputDTO"
                     }
                 },
                 "id": {
@@ -1069,6 +1107,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -1093,6 +1134,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },
@@ -1103,6 +1147,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserUpdateDTO": {
+            "type": "object",
+            "properties": {
+                "username": {
                     "type": "string"
                 }
             }

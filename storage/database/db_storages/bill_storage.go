@@ -19,7 +19,7 @@ func NewBillStorage(DB *database.Database) storage.IBillStorage {
 }
 
 func (b *BillStorage) Create(bill BillModel) (BillModel, error) {
-	item := ToBillEntity(bill)
+	item := CreateBillEntity(bill)
 
 	// store bill
 	res := b.DB.Create(&item)
@@ -37,11 +37,11 @@ func (b *BillStorage) Create(bill BillModel) (BillModel, error) {
 		return BillModel{}, storage.BillAlreadyExistsError
 	}
 
-	return ToBillModel(item), res.Error
+	return ConvertToBillModel(item, true), res.Error
 }
 
 func (b *BillStorage) UpdateBill(bill BillModel) (BillModel, error) {
-	billEntity := ToBillEntity(bill)
+	billEntity := CreateBillEntity(bill)
 
 	err := b.DB.Transaction(func(tx *gorm.DB) error {
 		// update base bill fields
@@ -70,12 +70,12 @@ func (b *BillStorage) UpdateBill(bill BillModel) (BillModel, error) {
 		return nil
 	})
 
-	return ToBillModel(billEntity), err
+	return ConvertToBillModel(billEntity, true), err
 }
 
 func (b *BillStorage) GetByID(id uuid.UUID) (BillModel, error) {
 	var bill Bill
-	tx := b.DB.Limit(1).Preload("Items.Contributors").Find(&bill, "id = ?", id)
+	tx := b.DB.Limit(1).Preload("Items.Contributors").Preload("Owner").Find(&bill, "id = ?", id)
 	// TODO: return general error
 	if tx.Error != nil {
 		return BillModel{}, storage.NoSuchBillError
@@ -83,12 +83,12 @@ func (b *BillStorage) GetByID(id uuid.UUID) (BillModel, error) {
 	if tx.RowsAffected == 0 {
 		return BillModel{}, storage.NoSuchBillError
 	}
-	billModel := ToBillModel(bill)
+	billModel := ConvertToBillModel(bill, true)
 	return billModel, nil
 }
 
 func (b *BillStorage) CreateItem(item ItemModel) (ItemModel, error) {
-	itemEntity := ToItemEntity(item)
+	itemEntity := CreateItemEntity(item)
 
 	// TODO: if userId belongs to deleted user do not create
 	// store item
@@ -102,7 +102,7 @@ func (b *BillStorage) CreateItem(item ItemModel) (ItemModel, error) {
 		return ItemModel{}, storage.ItemAlreadyExistsError
 	}
 
-	return ToItemModel(itemEntity), nil
+	return ConvertToItemModel(itemEntity, true), nil
 }
 
 func (b *BillStorage) GetItemByID(id uuid.UUID) (ItemModel, error) {
@@ -111,11 +111,11 @@ func (b *BillStorage) GetItemByID(id uuid.UUID) (ItemModel, error) {
 	if tx.RowsAffected == 0 {
 		return ItemModel{}, storage.NoSuchItemError
 	}
-	return ToItemModel(item), nil
+	return ConvertToItemModel(item, true), nil
 }
 
 func (b *BillStorage) UpdateItem(item ItemModel) (ItemModel, error) {
-	itemEntity := ToItemEntity(item)
+	itemEntity := CreateItemEntity(item)
 
 	// run as a transaction to ensure consistency. item should be completely updated or not at all
 	err := b.DB.Transaction(func(tx *gorm.DB) error {
@@ -147,5 +147,5 @@ func (b *BillStorage) UpdateItem(item ItemModel) (ItemModel, error) {
 		return nil
 	})
 
-	return ToItemModel(itemEntity), err
+	return ConvertToItemModel(itemEntity, true), err
 }

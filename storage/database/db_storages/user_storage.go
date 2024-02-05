@@ -55,7 +55,7 @@ func (u *UserStorage) GetByID(id uuid.UUID) (UserModel, error) {
 	if tx.RowsAffected == 0 {
 		return UserModel{}, storage.NoSuchUserError
 	}
-	return ToUserModel(user), nil
+	return ConvertToUserModel(user, true), nil
 }
 
 func (u *UserStorage) GetByEmail(email string) (UserModel, error) {
@@ -71,11 +71,11 @@ func (u *UserStorage) GetByEmail(email string) (UserModel, error) {
 	if tx.RowsAffected == 0 {
 		return UserModel{}, storage.NoSuchUserError
 	}
-	return ToUserModel(user), nil
+	return ConvertToUserModel(user, true), nil
 }
 
 func (u *UserStorage) Create(user UserModel, passwordHash []byte) (UserModel, error) {
-	item := ToUserEntity(user)
+	item := CreateUserEntity(user)
 
 	// run as a transaction to ensure consistency. user shouldn't be created if saving credentials failed and vice versa
 	err := u.DB.Transaction(func(tx *gorm.DB) error {
@@ -98,7 +98,15 @@ func (u *UserStorage) Create(user UserModel, passwordHash []byte) (UserModel, er
 		return nil
 	})
 
-	return ToUserModel(item), err
+	return ConvertToUserModel(item, true), err
+}
+
+func (u *UserStorage) Update(user UserModel) (UserModel, error) {
+	userEntity := User{}
+
+	res := u.DB.Model(&User{}).Where("id = ?", user.ID).Updates(User{Username: user.Username}).First(&userEntity)
+	// TODO: error handling
+	return ConvertToUserModel(userEntity, false), res.Error
 }
 
 func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {

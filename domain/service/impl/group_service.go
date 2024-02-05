@@ -1,7 +1,7 @@
 package impl
 
 import (
-	. "github.com/google/uuid"
+	"github.com/google/uuid"
 	. "split-the-bill-server/domain"
 	. "split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation/dto"
@@ -20,7 +20,7 @@ func NewGroupService(groupStorage *storage.IGroupStorage, userStorage *storage.I
 func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupDetailedOutputDTO, error) {
 
 	// create group with the only member being the owner
-	group := ToGroupModel(groupDTO)
+	group := CreateGroupModel(uuid.New(), groupDTO, []uuid.UUID{groupDTO.OwnerID})
 
 	// store group in db
 	group, err := g.groupStorage.AddGroup(group)
@@ -28,10 +28,10 @@ func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupDetailedOutputDTO, e
 		return GroupDetailedOutputDTO{}, err
 	}
 
-	return ToGroupDetailedDTO(group), nil
+	return ConvertToGroupDetailedDTO(group), nil
 }
 
-func (g *GroupService) Update(userID UUID, groupID UUID, groupDTO GroupInputDTO) (GroupDetailedOutputDTO, error) {
+func (g *GroupService) Update(userID uuid.UUID, groupID uuid.UUID, groupDTO GroupInputDTO) (GroupDetailedOutputDTO, error) {
 	group, err := g.groupStorage.GetGroupByID(groupID)
 
 	if err != nil {
@@ -52,10 +52,10 @@ func (g *GroupService) Update(userID UUID, groupID UUID, groupDTO GroupInputDTO)
 		return GroupDetailedOutputDTO{}, err
 	}
 
-	return ToGroupDetailedDTO(group), err
+	return ConvertToGroupDetailedDTO(group), err
 }
 
-func (g *GroupService) GetByID(id UUID) (GroupDetailedOutputDTO, error) {
+func (g *GroupService) GetByID(id uuid.UUID) (GroupDetailedOutputDTO, error) {
 	group, err := g.groupStorage.GetGroupByID(id)
 	if err != nil {
 		return GroupDetailedOutputDTO{}, err
@@ -63,10 +63,10 @@ func (g *GroupService) GetByID(id UUID) (GroupDetailedOutputDTO, error) {
 
 	balance := group.CalculateBalance()
 	group.Balance = balance
-	return ToGroupDetailedDTO(group), nil
+	return ConvertToGroupDetailedDTO(group), nil
 }
 
-func (g *GroupService) GetAllByUser(userID UUID) ([]GroupDetailedOutputDTO, error) {
+func (g *GroupService) GetAllByUser(userID uuid.UUID) ([]GroupDetailedOutputDTO, error) {
 	groups, err := g.groupStorage.GetGroupsByUserID(userID)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (g *GroupService) GetAllByUser(userID UUID) ([]GroupDetailedOutputDTO, erro
 	for _, group := range groups {
 		balance := group.CalculateBalance()
 		group.Balance = balance
-		groupsDTO = append(groupsDTO, ToGroupDetailedDTO(group))
+		groupsDTO = append(groupsDTO, ConvertToGroupDetailedDTO(group))
 	}
 
 	return groupsDTO, nil

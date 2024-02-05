@@ -2,40 +2,50 @@ package dto
 
 import (
 	"errors"
-	. "github.com/google/uuid"
+	"github.com/google/uuid"
 	. "split-the-bill-server/domain/model"
 )
 
 type GroupInputDTO struct {
-	OwnerID UUID   `json:"ownerID"`
-	Name    string `json:"name"`
+	OwnerID uuid.UUID `json:"ownerID"`
+	Name    string    `json:"name"`
 }
 
 type GroupCoreOutputDTO struct {
 	Owner   UserCoreOutputDTO   `json:"owner"`
-	ID      UUID                `json:"id"`
+	ID      uuid.UUID           `json:"id"`
 	Name    string              `json:"name"`
 	Members []UserCoreOutputDTO `json:"members"`
 }
 
 type GroupDetailedOutputDTO struct {
 	Owner   UserCoreOutputDTO       `json:"owner"`
-	ID      UUID                    `json:"id"`
+	ID      uuid.UUID               `json:"id"`
 	Name    string                  `json:"name"`
 	Members []UserCoreOutputDTO     `json:"members"`
 	Bills   []BillDetailedOutputDTO `json:"bills"`
-	Balance map[UUID]float64        `json:"balance,omitempty"` // include balance only if balance is set
+	Balance map[uuid.UUID]float64   `json:"balance,omitempty"` // include balance only if balance is set
 }
 
-func ToGroupModel(g GroupInputDTO) GroupModel {
-	return CreateGroupModel(g.OwnerID, g.Name, []UUID{g.OwnerID})
+func CreateGroupModel(id uuid.UUID, group GroupInputDTO, members []uuid.UUID) GroupModel {
+
+	// store memberIDs in empty UserModel
+	memberModel := make([]UserModel, len(members))
+	for i, member := range members {
+		memberModel[i] = UserModel{ID: member}
+	}
+	return GroupModel{
+		ID:      id,
+		Owner:   UserModel{ID: group.OwnerID}, // store ownerID in empty UserModel
+		Name:    group.Name,
+		Members: memberModel,
+	}
 }
 
-func ToGroupCoreDTO(g GroupModel) GroupCoreOutputDTO {
+func ConvertToGroupCoreDTO(g GroupModel) GroupCoreOutputDTO {
 
-	owner := ToUserCoreDTO(&g.Owner)
-	members := ToUserCoreDTOs(g.Members)
-
+	owner := ConvertToUserCoreDTO(&g.Owner)
+	members := ConvertToUserCoreDTOs(g.Members)
 	return GroupCoreOutputDTO{
 		Owner:   owner,
 		ID:      g.ID,
@@ -44,11 +54,11 @@ func ToGroupCoreDTO(g GroupModel) GroupCoreOutputDTO {
 	}
 }
 
-func ToGroupDetailedDTO(g GroupModel) GroupDetailedOutputDTO {
+func ConvertToGroupDetailedDTO(g GroupModel) GroupDetailedOutputDTO {
 
-	billsDTO := ToBillDetailedDTOs(g.Bills)
-	owner := ToUserCoreDTO(&g.Owner)
-	members := ToUserCoreDTOs(g.Members)
+	billsDTO := ConvertToBillDetailedDTOs(g.Bills)
+	owner := ConvertToUserCoreDTO(&g.Owner)
+	members := ConvertToUserCoreDTOs(g.Members)
 	return GroupDetailedOutputDTO{
 		Owner:   owner,
 		ID:      g.ID,
