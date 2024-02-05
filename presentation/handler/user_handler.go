@@ -249,6 +249,7 @@ func (h UserHandler) UploadImage(c *fiber.Ctx) error {
 		return err
 	}
 	log.Println("File saved to: " + filePath)
+	return Success(c, fiber.StatusOK, "SuccessMsgUserImageUpload", filePath)
 
 	// Read the image file
 	imageData, err := os.ReadFile(filePath)

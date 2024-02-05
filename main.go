@@ -34,6 +34,8 @@ func main() {
 
 	// configure webserver
 	app := fiber.New()
+	// serve static files to the public
+	app.Static("/uploads", "./uploads")
 
 	// setup storage
 	userStorage, groupStorage, cookieStorage, billStorage, invitationStorage := setupStorage()
