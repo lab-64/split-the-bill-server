@@ -92,7 +92,7 @@ func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user UserUpdat
 		return UserCoreOutputDTO{}, domain.ErrNotAuthorized
 	}
 
-	userModel := CreateUser(id, user.Email, user.Username)
+	userModel := CreateUser(id, "", user.Username)
 
 	userModel, err := u.userStorage.Update(userModel)
 	if err != nil {

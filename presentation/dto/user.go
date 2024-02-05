@@ -15,9 +15,7 @@ type UserInputDTO struct {
 }
 
 type UserUpdateDTO struct {
-	ID       uuid.UUID `json:"id"`
-	Email    string    `json:"email"`
-	Username string    `json:"username"`
+	Username string `json:"username"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
