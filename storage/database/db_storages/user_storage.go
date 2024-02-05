@@ -102,9 +102,9 @@ func (u *UserStorage) Create(user UserModel, passwordHash []byte) (UserModel, er
 }
 
 func (u *UserStorage) Update(user UserModel) (UserModel, error) {
-	userEntity := CreateUserEntity(user)
+	userEntity := User{}
 
-	res := u.DB.Model(&User{}).Where("id = ?", user.ID).Updates(&userEntity).First(&userEntity)
+	res := u.DB.Model(&User{}).Where("id = ?", user.ID).Updates(User{Username: user.Username}).First(&userEntity)
 	// TODO: error handling
 	return ConvertToUserModel(userEntity, false), res.Error
 }

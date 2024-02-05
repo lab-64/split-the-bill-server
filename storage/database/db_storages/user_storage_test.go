@@ -176,9 +176,10 @@ func TestUpdate(t *testing.T) {
 			mock: func() {
 				dbMock.ExpectBegin()
 				dbMock.ExpectExec(`UPDATE "users"`).
-					WithArgs(sqlmock.AnyArg(), TestUser.Email, TestUser.ID).
+					WithArgs(sqlmock.AnyArg(), TestUser.ID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				dbMock.ExpectCommit()
+				dbMock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(TestUser.ID).WillReturnRows(sqlmock.NewRows([]string{"ID", "Email"}).AddRow(TestUser.ID, TestUser.Email))
 			},
 			expectedErr: nil,
 			want:        TestUser,

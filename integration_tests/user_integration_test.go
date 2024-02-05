@@ -239,7 +239,6 @@ func TestUpdateUser(t *testing.T) {
 			loggedInUser: User1,
 			parameter:    User1.ID,
 			inputUser: dto.UserUpdateDTO{
-				Email:    "new-mail@mail.com",
 				Username: "Franz",
 			},
 			expectedCode:    200,
@@ -283,13 +282,12 @@ func TestUpdateUser(t *testing.T) {
 		if testcase.expectReturn {
 			// validate response
 			assert.Equal(t, testcase.parameter, responseData.Data.ID) // parameter contains the id of the issuer
-			assert.Equal(t, testcase.inputUser.Email, responseData.Data.Email)
 			assert.Equal(t, testcase.inputUser.Username, responseData.Data.Username)
 			// get the stored user from the storage for comparison
 			storedUser, _ := getStoredUserEntity(testcase.parameter)
 			// validate updated user in storage
 			assert.Equal(t, testcase.parameter, storedUser.ID)
-			assert.Equal(t, testcase.inputUser.Email, storedUser.Email)
+			assert.Equal(t, testcase.loggedInUser.Email, storedUser.Email) // email should not be changed
 			assert.Equal(t, testcase.inputUser.Username, storedUser.Username)
 		}
 	}
