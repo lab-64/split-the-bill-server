@@ -14,16 +14,20 @@ type GroupModel struct {
 	InvitationID uuid.UUID
 }
 
-func (group GroupModel) CalculateBalance() map[uuid.UUID]float64 {
+func (group *GroupModel) CalculateBalance() map[uuid.UUID]float64 {
 	balance := make(map[uuid.UUID]float64)
 	// init balance for all members
 	for _, member := range group.Members {
 		balance[member.ID] = 0
 	}
-	for _, bill := range group.Bills {
-		for k, v := range bill.CalculateBalance() {
+	for i, bill := range group.Bills {
+		billBalance := bill.CalculateBalance()
+		// update group balance
+		for k, v := range billBalance {
 			balance[k] += v
 		}
+		// set balance for each bill
+		group.Bills[i].Balance = billBalance
 	}
 	return balance
 }
