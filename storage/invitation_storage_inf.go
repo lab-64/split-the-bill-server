@@ -9,11 +9,7 @@ type IInvitationStorage interface {
 	// AddGroupInvitation adds the given group invitation to the storage.
 	AddGroupInvitation(invitation GroupInvitationModel) (GroupInvitationModel, error)
 	// AcceptGroupInvitation adds the associated user to a group and deletes the invitation.
-	AcceptGroupInvitation(id UUID) error
-	// DeleteGroupInvitation deletes the group invitation with the given ID from the storage, if it exists.
-	DeleteGroupInvitation(id UUID) error
+	AcceptGroupInvitation(invitationID UUID, userID UUID) error
 	// GetGroupInvitationByID returns the group invitation with the given ID, or a NoSuchGroupInvitationError if no such group invitation exists.
 	GetGroupInvitationByID(id UUID) (GroupInvitationModel, error)
-	// GetGroupInvitationsByUserID returns all group invitations for the given user.
-	GetGroupInvitationsByUserID(userID UUID) ([]GroupInvitationModel, error)
 }

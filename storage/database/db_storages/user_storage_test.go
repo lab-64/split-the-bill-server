@@ -41,8 +41,6 @@ func TestGetByID(t *testing.T) {
 			mock: func() {
 				userRows := sqlmock.NewRows([]string{"ID", "Email"}).AddRow(TestUser.ID, TestUser.Email)
 				dbMock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(TestUser.ID).WillReturnRows(userRows)
-				groupInvitationRows := sqlmock.NewRows([]string{"ID", "InviteeID"}).AddRow(uuid.New(), TestUser.ID) // Include field where user is stored
-				dbMock.ExpectQuery(`SELECT (.+) FROM "group_invitations"`).WithArgs(TestUser.ID).WillReturnRows(groupInvitationRows)
 				groupMemberRows := sqlmock.NewRows([]string{"ID", "OwnerUID"}).AddRow(uuid.New(), TestUser.ID)
 				dbMock.ExpectQuery(`SELECT (.+) FROM "group_members"`).WithArgs(TestUser.ID).WillReturnRows(groupMemberRows)
 			},

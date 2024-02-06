@@ -19,7 +19,7 @@ func TestMain(m *testing.M) {
 	cookieStorage := mocks.NewCookieStorageMock()
 	userService = NewUserService(&userStorage, &cookieStorage)
 	groupStorage := mocks.NewGroupStorageMock()
-	groupService = NewGroupService(&groupStorage, &userStorage)
+	groupService = NewGroupService(&groupStorage)
 	billStorage := mocks.NewBillStorageMock()
 	billService = NewBillService(&billStorage, &groupStorage)
 

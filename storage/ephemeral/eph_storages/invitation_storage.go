@@ -30,7 +30,7 @@ func (i InvitationStorage) GetGroupInvitationsByUserID(userID uuid.UUID) ([]mode
 	panic("implement me")
 }
 
-func (i InvitationStorage) AcceptGroupInvitation(id uuid.UUID) error {
+func (i InvitationStorage) AcceptGroupInvitation(id uuid.UUID, userId uuid.UUID) error {
 	//TODO implement me
 	panic("implement me")
 }

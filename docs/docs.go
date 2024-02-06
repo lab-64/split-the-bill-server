@@ -470,97 +470,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/invitation": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Invitation"
-                ],
-                "summary": "Create Group Invitation",
-                "parameters": [
-                    {
-                        "description": "Request Body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.GroupInvitationInputDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.GroupInvitationOutputDTO"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/api/invitation/user/{id}": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Invitation"
-                ],
-                "summary": "Get All Group Invitations From User",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/dto.GroupInvitationOutputDTO"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/api/invitation/{id}": {
             "get": {
                 "consumes": [
@@ -604,7 +513,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/invitation/{id}/response": {
+        "/api/invitation/{id}/accept": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -615,7 +524,7 @@ const docTemplate = `{
                 "tags": [
                     "Invitation"
                 ],
-                "summary": "Accept or decline Group Invitation",
+                "summary": "Accept Group Invitation",
                 "parameters": [
                     {
                         "type": "string",
@@ -623,15 +532,6 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "Request Body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.InvitationResponseInputDTO"
-                        }
                     }
                 ],
                 "responses": {
@@ -996,6 +896,10 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "invitationID": {
+                    "description": "include invitationID only if invitationID is set",
+                    "type": "string"
+                },
                 "members": {
                     "type": "array",
                     "items": {
@@ -1021,23 +925,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.GroupInvitationInputDTO": {
-            "type": "object",
-            "properties": {
-                "groupID": {
-                    "type": "string"
-                },
-                "inviteeIDs": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "issuerID": {
-                    "type": "string"
-                }
-            }
-        },
         "dto.GroupInvitationOutputDTO": {
             "type": "object",
             "properties": {
@@ -1046,14 +933,6 @@ const docTemplate = `{
                 },
                 "invitationID": {
                     "type": "string"
-                }
-            }
-        },
-        "dto.InvitationResponseInputDTO": {
-            "type": "object",
-            "properties": {
-                "isAccept": {
-                    "type": "boolean"
                 }
             }
         },

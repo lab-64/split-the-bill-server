@@ -23,182 +23,20 @@ type UserResponseDTO struct {
 	Data    dto.UserCoreOutputDTO `json:"data"`
 }
 
-func TestCreateUser(t *testing.T) {
+// performUserRequest performs a http request for any user endpoint.
+// The method, the route including the parameter, the input data and the mail of the user to be logged in must be provided.
+// If the request should be performed without authentication token, just provide an empty string as mail.
+// The function returns the response body as UserResponseDTO, the http response and an error.
+func performUserRequest(httpMethod string, route string, inputUserData interface{}, cookie *http.Cookie) (UserResponseDTO, *http.Response, error) {
 
-	route := "/api/user"
-	tests := []struct {
-		inputJSON          string
-		description        string                // description of the testcase case
-		expectedCode       int                   // expected HTTP status code
-		expectedMessage    string                // expected message in response body
-		expectReturn       bool                  // expected return value
-		expectReturnedData dto.UserCoreOutputDTO // expected return
-	}{
-		{
-			description:     "Test successful user creation",
-			inputJSON:       `{"email": "test3@mail.com", "password": "alek1337"}`,
-			expectedCode:    201,
-			expectedMessage: handler.SuccessMsgUserCreate,
-			expectReturn:    true,
-			expectReturnedData: dto.UserCoreOutputDTO{
-				ID:    uuid.New(),
-				Email: "test3@mail.com",
-			},
-		},
-		{
-			description:     "Test user already exists",
-			inputJSON:       `{"email": "test3@mail.com", "password": "alek1337"}`,
-			expectedCode:    500,
-			expectedMessage: fmt.Sprintf(handler.ErrMsgUserCreate, storage.InvalidUserInputError),
-			expectReturn:    false,
-		},
-	}
-
-	// Iterate through testcase single testcase cases
-	for _, testcase := range tests {
-		// Create http request
-		req := httptest.NewRequest("POST", route, bytes.NewBufferString(testcase.inputJSON))
-		req.Header.Set("Content-Type", "application/json")
-
-		// Perform request
-		resp, err := app.Test(req, -1)
-		if resp != nil {
-			defer resp.Body.Close()
-		}
-		if err != nil {
-			t.Fatal("Error in test setup during performing a request - ", err)
-		}
-
-		// Read response body
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatal("Error in test setup during reading response body - ", err)
-		}
-		// Parse response body to GeneralResponseDTO
-		var response dto.GeneralResponseDTO
-		if err = json.Unmarshal(body, &response); err != nil { // Parse []byte to go struct pointer
-			t.Fatal("Error in test setup during parsing response body - ", err)
-		}
-
-		// Verify, if test case is successfully passed
-		assert.Equalf(t, testcase.expectedCode, resp.StatusCode, testcase.description)      // check status code
-		assert.Equalf(t, testcase.expectedMessage, response.Message, testcase.description)  // check message
-		assert.Equalf(t, testcase.expectReturn, response.Data != nil, testcase.description) // check returned data
-		if testcase.expectReturn {
-			returnData := response.Data.(map[string]interface{})
-			assert.Equal(t, testcase.expectReturnedData.Email, returnData["email"]) // check returned id
-		}
-	}
-}
-
-func TestGetUser(t *testing.T) {
-
-	route := "/api/user/"
-	tests := []struct {
-		description        string                // description of the testcase case
-		parameter          string                // parameter of the testcase
-		cookie             *http.Cookie          // cookie of the testcase
-		expectedCode       int                   // expected HTTP status code
-		expectedMessage    string                // expected message in response body
-		expectReturn       bool                  // expected return value
-		expectReturnedData dto.UserCoreOutputDTO // expected return
-	}{
-		{
-			description:     "Test successful user query",
-			parameter:       User1.ID.String(),
-			cookie:          &http.Cookie{Name: "session_cookie", Value: Cookie1.ID.String()},
-			expectedCode:    200,
-			expectedMessage: handler.SuccessMsgUserFound,
-			expectReturn:    true,
-			expectReturnedData: dto.UserCoreOutputDTO{
-				ID:    User1.ID,
-				Email: User1.Email,
-			},
-		},
-		{
-			description:     "Test auth cookie is missing",
-			parameter:       User1.ID.String(),
-			cookie:          nil,
-			expectedCode:    401,
-			expectedMessage: middleware.ErrMsgNoCookie,
-			expectReturn:    false,
-		},
-		{
-			description:     "Test user is unauthorized",
-			parameter:       User1.ID.String(),
-			cookie:          &http.Cookie{Name: "session_cookie", Value: uuid.NewString()},
-			expectedCode:    401,
-			expectedMessage: fmt.Sprintf(middleware.ErrMsgAuthentication, storage.NoSuchCookieError),
-			expectReturn:    false,
-		},
-	}
-
-	// Iterate through testcase single testcase cases
-	for _, testcase := range tests {
-		// Create http request
-		req := httptest.NewRequest(http.MethodGet, route+testcase.parameter, nil)
-		if testcase.cookie != nil {
-			req.AddCookie(testcase.cookie)
-		}
-		// Perform request
-		resp, err := app.Test(req, -1)
-		if resp != nil {
-			defer resp.Body.Close()
-		}
-		if err != nil {
-			t.Fatal("Error in test setup during performing a request - ", err)
-		}
-
-		// Read response body
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatal("Error in test setup during reading response body - ", err)
-		}
-		// Parse response body to GeneralResponseDTO
-		var response dto.GeneralResponseDTO
-		if err = json.Unmarshal(body, &response); err != nil { // Parse []byte to go struct pointer
-			t.Fatal("Error in test setup during parsing response body - ", err)
-		}
-
-		// Verify, if test case is successfully passed
-		assert.Equal(t, testcase.expectedCode, resp.StatusCode)                             // check status code
-		assert.Equal(t, testcase.expectedMessage, response.Message)                         // check message
-		assert.Equalf(t, testcase.expectReturn, response.Data != nil, testcase.description) // check returned data
-		if testcase.expectReturn {
-
-			// convert returned data to dto.User
-			returnData := response.Data.(map[string]interface{})
-			var returnedUser dto.UserCoreOutputDTO
-			returnedUser.ID = uuid.MustParse(returnData["id"].(string))
-			returnedUser.Email = returnData["email"].(string)
-			assert.Equal(t, testcase.expectReturnedData.ID, returnedUser.ID)       // check returned id
-			assert.Equal(t, testcase.expectReturnedData.Email, returnedUser.Email) // check returned mail
-		}
-
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Start of UpdateUser test cases
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func performUpdateUserRequest(parameter uuid.UUID, testInputUser dto.UserUpdateDTO, username string) (UserResponseDTO, *http.Response, error) {
-	route := "/api/user/"
-
-	// Get Authentication Token
-	cookieToken, setupErr := login(username, Password)
-	if setupErr != nil {
-		return UserResponseDTO{}, nil, setupErr
-	}
-
-	inputJSON, _ := json.Marshal(testInputUser)
-	cookie := &http.Cookie{Name: "session_cookie", Value: cookieToken}
-
+	inputJSON, _ := json.Marshal(inputUserData)
 	// Create http request
-	req := httptest.NewRequest("PUT", route+parameter.String(), bytes.NewReader(inputJSON))
+	req := httptest.NewRequest(httpMethod, route, bytes.NewReader(inputJSON))
 	req.Header.Set("Content-Type", "application/json")
-	// add cookie to request
-	req.AddCookie(cookie)
+	// add cookie to request if set
+	if cookie != nil {
+		req.AddCookie(cookie)
+	}
 
 	// Perform request
 	resp, err := app.Test(req, -1)
@@ -212,35 +50,162 @@ func performUpdateUserRequest(parameter uuid.UUID, testInputUser dto.UserUpdateD
 	// Read response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return UserResponseDTO{}, resp, err
+		return UserResponseDTO{}, resp, fmt.Errorf("error during reading response body - resp.Body: %s - error: %s", resp.Body, err.Error())
 	}
-	// Parse response body to GeneralResponseDTO
+	// Parse response body to UserResponseDTO
 	var response UserResponseDTO
 	if err = json.Unmarshal(body, &response); err != nil { // Parse []byte to go struct pointer
-		return UserResponseDTO{}, resp, err
+		return UserResponseDTO{}, resp, fmt.Errorf("error during parsing response - body: %s - error: %s", string(body), err.Error())
 	}
 	return response, resp, nil
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Start of CreateUser test cases
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func TestCreateUser(t *testing.T) {
+
+	route := "/api/user"
+	tests := []struct {
+		description        string                // description of the testcase case
+		inputData          dto.UserInputDTO      // input data for the request
+		requestCookie      *http.Cookie          // cookie for the request
+		expectedCode       int                   // expected HTTP status code
+		expectedMessage    string                // expected message in response body
+		expectReturn       bool                  // expected return value
+		expectReturnedData dto.UserCoreOutputDTO // expected return
+	}{
+		{
+			description: "Test successful user creation",
+			inputData: dto.UserInputDTO{
+				Email:    "test3@mail.com",
+				Password: "alek1337",
+			},
+			requestCookie:   nil,
+			expectedCode:    201,
+			expectedMessage: handler.SuccessMsgUserCreate,
+			expectReturn:    true,
+			expectReturnedData: dto.UserCoreOutputDTO{
+				Email: "test3@mail.com",
+			},
+		},
+		{
+			description: "Test user already exists",
+			inputData: dto.UserInputDTO{
+				Email:    "test3@mail.com",
+				Password: "alek1337",
+			},
+			requestCookie:   nil,
+			expectedCode:    500,
+			expectedMessage: fmt.Sprintf(handler.ErrMsgUserCreate, storage.InvalidUserInputError),
+			expectReturn:    false,
+		},
+	}
+
+	// Iterate through testcase single testcase cases
+	for _, testcase := range tests {
+		responseData, httpResponse, err := performUserRequest(http.MethodPost, route, testcase.inputData, testcase.requestCookie)
+		if err != nil {
+			t.Fatalf("Error during setup while performing request: %s", err.Error())
+		}
+
+		// Verify, if test case is successfully passed
+		assert.Equalf(t, testcase.expectedCode, httpResponse.StatusCode, testcase.description)
+		assert.Equalf(t, testcase.expectedMessage, responseData.Message, testcase.description)
+		if testcase.expectReturn {
+			assert.Equalf(t, testcase.expectReturnedData.Email, responseData.Data.Email, testcase.description)
+			// get the stored user from the storage to check if user is correctly stored
+			storedUser, setupErr := getStoredUserEntity(responseData.Data.ID)
+			assert.Nilf(t, setupErr, "Error during setup while getting stored user entity in test: %s", testcase.description)
+			// validate updated user in storage
+			assert.Equalf(t, testcase.inputData.Email, storedUser.Email, testcase.description)
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Start of GetUser test cases
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func TestGetUser(t *testing.T) {
+
+	route := "/api/user/"
+	tests := []struct {
+		description        string                // description of the testcase case
+		parameter          string                // parameter of the testcase
+		requestCookie      *http.Cookie          // cookie for the request
+		expectedCode       int                   // expected HTTP status code
+		expectedMessage    string                // expected message in response body
+		expectReturn       bool                  // expected return value
+		expectReturnedData dto.UserCoreOutputDTO // expected return
+	}{
+		{
+			description:     "Test successful user query",
+			parameter:       User1.ID.String(),
+			requestCookie:   &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()},
+			expectedCode:    200,
+			expectedMessage: handler.SuccessMsgUserFound,
+			expectReturn:    true,
+			expectReturnedData: dto.UserCoreOutputDTO{
+				ID:    User1.ID,
+				Email: User1.Email,
+			},
+		},
+		{
+			description:     "Test auth cookie is missing",
+			parameter:       User1.ID.String(),
+			requestCookie:   nil,
+			expectedCode:    401,
+			expectedMessage: middleware.ErrMsgNoCookie,
+			expectReturn:    false,
+		},
+	}
+
+	// Iterate through testcase single testcase cases
+	for _, testcase := range tests {
+		responseData, httpResponse, err := performUserRequest(http.MethodGet, route+testcase.parameter, nil, testcase.requestCookie)
+		if err != nil {
+			t.Fatalf("Error during setup while performing request: %s", err.Error())
+		}
+
+		// Verify, if test case is successfully passed
+		assert.Equalf(t, testcase.expectedCode, httpResponse.StatusCode, testcase.description) // check status code
+		assert.Equalf(t, testcase.expectedMessage, responseData.Message, testcase.description) // check message
+		if testcase.expectReturn {
+			assert.Equalf(t, testcase.expectReturnedData.ID, responseData.Data.ID, testcase.description)       // check returned id
+			assert.Equalf(t, testcase.expectReturnedData.Email, responseData.Data.Email, testcase.description) // check returned mail
+		}
+
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Start of UpdateUser test cases
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 func TestUpdateUser(t *testing.T) {
 
+	route := "/api/user/"
 	tests := []struct {
 		description        string
-		loggedInUser       entity.User
+		requester          entity.User
 		parameter          uuid.UUID
 		inputUser          dto.UserUpdateDTO
+		requestCookie      *http.Cookie
 		expectedCode       int
 		expectedMessage    string
 		expectReturn       bool
 		expectReturnedData dto.UserCoreOutputDTO
 	}{
 		{
-			description:  "Test successful user update",
-			loggedInUser: User1,
-			parameter:    User1.ID,
+			description: "Test successful user update",
+			requester:   User1,
+			parameter:   User1.ID,
 			inputUser: dto.UserUpdateDTO{
 				Username: "Franz",
 			},
+			requestCookie:   &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()},
 			expectedCode:    200,
 			expectedMessage: handler.SuccessMsgUserUpdate,
 			expectReturn:    true,
@@ -252,42 +217,44 @@ func TestUpdateUser(t *testing.T) {
 		},
 		{
 			description:     "Test unsuccessful behavior: user is unauthorized to update foreign user",
-			loggedInUser:    User2,
+			requester:       User2,
 			parameter:       User1.ID,
 			inputUser:       dto.UserUpdateDTO{},
+			requestCookie:   &http.Cookie{Name: sessionCookie, Value: CookieUser2.ID.String()},
 			expectedCode:    401,
 			expectedMessage: fmt.Sprintf(handler.ErrMsgUserUpdate, domain.ErrNotAuthorized),
 			expectReturn:    false,
 		},
 		{
 			description:     "Test unsuccessful behavior: user is not logged in",
-			loggedInUser:    entity.User{},
+			requester:       entity.User{},
 			parameter:       User1.ID,
 			inputUser:       dto.UserUpdateDTO{},
+			requestCookie:   nil,
 			expectedCode:    401,
-			expectedMessage: middleware.ErrMsgInvalidCookie,
+			expectedMessage: middleware.ErrMsgNoCookie,
 			expectReturn:    false,
 		},
 	}
-
 	for _, testcase := range tests {
-		responseData, httpResponse, err := performUpdateUserRequest(testcase.parameter, testcase.inputUser, testcase.loggedInUser.Email)
+		responseData, httpResponse, err := performUserRequest(http.MethodPut, route+testcase.parameter.String(), testcase.inputUser, testcase.requestCookie)
 		if err != nil {
 			t.Fatalf("Error during setup while performing request: %s", err.Error())
 		}
 
-		assert.Nil(t, err)
-		assert.Equal(t, testcase.expectedCode, httpResponse.StatusCode)
-		assert.Equal(t, testcase.expectedMessage, responseData.Message)
+		assert.Equalf(t, testcase.expectedCode, httpResponse.StatusCode, testcase.description)
+		assert.Equalf(t, testcase.expectedMessage, responseData.Message, testcase.description)
 		if testcase.expectReturn {
 			// validate response
-			assert.Equal(t, testcase.parameter, responseData.Data.ID) // parameter contains the id of the issuer
-			assert.Equal(t, testcase.inputUser.Username, responseData.Data.Username)
-			// get the stored user from the storage for comparison
-			storedUser, _ := getStoredUserEntity(testcase.parameter)
+			assert.Equalf(t, testcase.parameter, responseData.Data.ID, testcase.description) // parameter contains the id of the issuer
+			assert.Equalf(t, testcase.requester.Email, responseData.Data.Email, testcase.description)
+			assert.Equalf(t, testcase.inputUser.Username, responseData.Data.Username, testcase.description)
+			// get the stored user from the storage to check if user is correctly stored
+			storedUser, setupErr := getStoredUserEntity(testcase.parameter)
+			assert.Nilf(t, setupErr, "Error during setup while getting stored user entity in test: %s", testcase.description)
 			// validate updated user in storage
 			assert.Equal(t, testcase.parameter, storedUser.ID)
-			assert.Equal(t, testcase.loggedInUser.Email, storedUser.Email) // email should not be changed
+			assert.Equal(t, testcase.requester.Email, storedUser.Email) // email should not be changed
 			assert.Equal(t, testcase.inputUser.Username, storedUser.Username)
 		}
 	}

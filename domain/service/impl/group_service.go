@@ -10,11 +10,10 @@ import (
 
 type GroupService struct {
 	groupStorage storage.IGroupStorage
-	userStorage  storage.IUserStorage
 }
 
-func NewGroupService(groupStorage *storage.IGroupStorage, userStorage *storage.IUserStorage) IGroupService {
-	return &GroupService{groupStorage: *groupStorage, userStorage: *userStorage}
+func NewGroupService(groupStorage *storage.IGroupStorage) IGroupService {
+	return &GroupService{groupStorage: *groupStorage}
 }
 
 func (g *GroupService) Create(groupDTO GroupInputDTO) (GroupDetailedOutputDTO, error) {

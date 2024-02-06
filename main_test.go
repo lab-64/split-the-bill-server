@@ -33,7 +33,7 @@ func TestLandingPage(t *testing.T) {
 
 	//services
 	userService := impl.NewUserService(&userStorage, &cookieStorage)
-	groupService := impl.NewGroupService(&groupStorage, &userStorage)
+	groupService := impl.NewGroupService(&groupStorage)
 	billService := impl.NewBillService(&billStorage, &groupStorage)
 	invitationService := impl.NewInvitationService(&invitationStorage, &groupStorage)
 
