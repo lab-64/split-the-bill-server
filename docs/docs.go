@@ -1095,12 +1095,6 @@ const docTemplate = `{
         "dto.UserUpdateDTO": {
             "type": "object",
             "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
                 "username": {
                     "type": "string"
                 }

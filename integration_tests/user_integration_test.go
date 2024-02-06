@@ -14,6 +14,7 @@ import (
 	"split-the-bill-server/presentation/handler"
 	"split-the-bill-server/presentation/middleware"
 	"split-the-bill-server/storage"
+	"split-the-bill-server/storage/database/entity"
 	"testing"
 )
 
@@ -188,6 +189,7 @@ func TestUpdateUser(t *testing.T) {
 	route := "/api/user/"
 	tests := []struct {
 		description        string
+		requester          entity.User
 		parameter          uuid.UUID
 		inputUser          dto.UserUpdateDTO
 		requestCookie      *http.Cookie
@@ -198,9 +200,9 @@ func TestUpdateUser(t *testing.T) {
 	}{
 		{
 			description: "Test successful user update",
+			requester:   User1,
 			parameter:   User1.ID,
 			inputUser: dto.UserUpdateDTO{
-				Email:    "new-mail@mail.com",
 				Username: "Franz",
 			},
 			requestCookie:   &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()},
@@ -215,6 +217,7 @@ func TestUpdateUser(t *testing.T) {
 		},
 		{
 			description:     "Test unsuccessful behavior: user is unauthorized to update foreign user",
+			requester:       User2,
 			parameter:       User1.ID,
 			inputUser:       dto.UserUpdateDTO{},
 			requestCookie:   &http.Cookie{Name: sessionCookie, Value: CookieUser2.ID.String()},
@@ -224,6 +227,7 @@ func TestUpdateUser(t *testing.T) {
 		},
 		{
 			description:     "Test unsuccessful behavior: user is not logged in",
+			requester:       entity.User{},
 			parameter:       User1.ID,
 			inputUser:       dto.UserUpdateDTO{},
 			requestCookie:   nil,
@@ -243,15 +247,15 @@ func TestUpdateUser(t *testing.T) {
 		if testcase.expectReturn {
 			// validate response
 			assert.Equalf(t, testcase.parameter, responseData.Data.ID, testcase.description) // parameter contains the id of the issuer
-			assert.Equalf(t, testcase.inputUser.Email, responseData.Data.Email, testcase.description)
+			assert.Equalf(t, testcase.requester.Email, responseData.Data.Email, testcase.description)
 			assert.Equalf(t, testcase.inputUser.Username, responseData.Data.Username, testcase.description)
 			// get the stored user from the storage to check if user is correctly stored
 			storedUser, setupErr := getStoredUserEntity(testcase.parameter)
 			assert.Nilf(t, setupErr, "Error during setup while getting stored user entity in test: %s", testcase.description)
 			// validate updated user in storage
-			assert.Equalf(t, testcase.parameter, storedUser.ID, testcase.description)
-			assert.Equalf(t, testcase.inputUser.Email, storedUser.Email, testcase.description)
-			assert.Equalf(t, testcase.inputUser.Username, storedUser.Username, testcase.description)
+			assert.Equal(t, testcase.parameter, storedUser.ID)
+			assert.Equal(t, testcase.requester.Email, storedUser.Email) // email should not be changed
+			assert.Equal(t, testcase.inputUser.Username, storedUser.Username)
 		}
 	}
 }

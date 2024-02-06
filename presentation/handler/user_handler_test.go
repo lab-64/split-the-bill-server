@@ -147,11 +147,10 @@ func TestUpdateSuccess(t *testing.T) {
 
 	// mock method
 	mocks.MockUserUpdate = func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdateDTO) (dto.UserCoreOutputDTO, error) {
-		return dto.UserCoreOutputDTO{ID: id, Email: user.Email, Username: user.Username}, nil
+		return dto.UserCoreOutputDTO{ID: id, Email: TestUser.Email, Username: user.Username}, nil
 	}
 
 	reqBody := dto.UserUpdateDTO{
-		Email:    TestUser.Email,
 		Username: "Updated Tester",
 	}
 	jsonBody, _ := json.Marshal(reqBody)
@@ -174,7 +173,6 @@ func TestUpdateWrongUser(t *testing.T) {
 	}
 
 	reqBody := dto.UserUpdateDTO{
-		Email:    TestUser.Email,
 		Username: TestUser.Username,
 	}
 	jsonBody, _ := json.Marshal(reqBody)
