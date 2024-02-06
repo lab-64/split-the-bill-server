@@ -37,7 +37,7 @@ func (b *BillStorage) Create(bill BillModel) (BillModel, error) {
 		return BillModel{}, storage.BillAlreadyExistsError
 	}
 
-	return ConvertToBillModel(item, true), res.Error
+	return ConvertToBillModel(item), res.Error
 }
 
 func (b *BillStorage) UpdateBill(bill BillModel) (BillModel, error) {
@@ -70,7 +70,7 @@ func (b *BillStorage) UpdateBill(bill BillModel) (BillModel, error) {
 		return nil
 	})
 
-	return ConvertToBillModel(billEntity, true), err
+	return ConvertToBillModel(billEntity), err
 }
 
 func (b *BillStorage) GetByID(id uuid.UUID) (BillModel, error) {
@@ -83,7 +83,7 @@ func (b *BillStorage) GetByID(id uuid.UUID) (BillModel, error) {
 	if tx.RowsAffected == 0 {
 		return BillModel{}, storage.NoSuchBillError
 	}
-	billModel := ConvertToBillModel(bill, true)
+	billModel := ConvertToBillModel(bill)
 	return billModel, nil
 }
 
@@ -102,7 +102,7 @@ func (b *BillStorage) CreateItem(item ItemModel) (ItemModel, error) {
 		return ItemModel{}, storage.ItemAlreadyExistsError
 	}
 
-	return ConvertToItemModel(itemEntity, true), nil
+	return ConvertToItemModel(itemEntity), nil
 }
 
 func (b *BillStorage) GetItemByID(id uuid.UUID) (ItemModel, error) {
@@ -111,7 +111,7 @@ func (b *BillStorage) GetItemByID(id uuid.UUID) (ItemModel, error) {
 	if tx.RowsAffected == 0 {
 		return ItemModel{}, storage.NoSuchItemError
 	}
-	return ConvertToItemModel(item, true), nil
+	return ConvertToItemModel(item), nil
 }
 
 func (b *BillStorage) UpdateItem(item ItemModel) (ItemModel, error) {
@@ -147,5 +147,5 @@ func (b *BillStorage) UpdateItem(item ItemModel) (ItemModel, error) {
 		return nil
 	})
 
-	return ConvertToItemModel(itemEntity, true), err
+	return ConvertToItemModel(itemEntity), err
 }

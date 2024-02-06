@@ -27,7 +27,7 @@ func (i InvitationStorage) AddGroupInvitation(invitation GroupInvitationModel) (
 		return GroupInvitationModel{}, storage.GroupInvitationAlreadyExistsError
 	}
 
-	return ConvertToGroupInvitationModel(groupInvitation, true), res.Error
+	return ConvertToGroupInvitationModel(groupInvitation), res.Error
 }
 
 func (i InvitationStorage) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
@@ -58,5 +58,5 @@ func (i InvitationStorage) GetGroupInvitationByID(id uuid.UUID) (GroupInvitation
 	if tx.RowsAffected == 0 {
 		return GroupInvitationModel{}, storage.NoSuchGroupInvitationError
 	}
-	return ConvertToGroupInvitationModel(groupInvitation, true), tx.Error
+	return ConvertToGroupInvitationModel(groupInvitation), tx.Error
 }

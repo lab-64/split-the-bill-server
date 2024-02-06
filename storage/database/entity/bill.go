@@ -34,23 +34,17 @@ func CreateBillEntity(bill model.BillModel) Bill {
 	}
 }
 
-func ConvertToBillModel(bill Bill, isDetailed bool) model.BillModel {
+func ConvertToBillModel(bill Bill) model.BillModel {
 	items := make([]model.ItemModel, len(bill.Items))
-	owner := model.UserModel{}
-
-	if isDetailed {
-
-		for i, item := range bill.Items {
-			items[i] = ConvertToItemModel(item, true)
-		}
-		owner = ConvertToUserModel(bill.Owner, false)
+	for i, item := range bill.Items {
+		items[i] = ConvertToItemModel(item)
 	}
 
 	return model.BillModel{
 		ID:      bill.ID,
 		Name:    bill.Name,
 		Date:    bill.Date,
-		Owner:   owner,
+		Owner:   ConvertToUserModel(bill.Owner),
 		GroupID: bill.GroupID,
 		Items:   items,
 	}

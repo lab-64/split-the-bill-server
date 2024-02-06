@@ -22,15 +22,11 @@ func CreateItemEntity(item model.ItemModel) Item {
 	return Item{Base: Base{ID: item.ID}, Name: item.Name, Price: item.Price, BillID: item.BillID, Contributors: contributors}
 }
 
-func ConvertToItemModel(item Item, isDetailed bool) model.ItemModel {
+func ConvertToItemModel(item Item) model.ItemModel {
 	contributors := make([]model.UserModel, len(item.Contributors))
-
-	if isDetailed {
-		for i, contributor := range item.Contributors {
-			contributors[i] = ConvertToUserModel(*contributor, false)
-		}
+	for i, contributor := range item.Contributors {
+		contributors[i] = ConvertToUserModel(*contributor)
 	}
-
 	return model.ItemModel{
 		ID:           item.ID,
 		Name:         item.Name,

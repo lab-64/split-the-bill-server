@@ -19,13 +19,10 @@ func CreateGroupInvitationEntity(groupInvitation GroupInvitationModel) GroupInvi
 	}
 }
 
-func ConvertToGroupInvitationModel(inv GroupInvitation, isDetailed bool) GroupInvitationModel {
-	group := GroupModel{}
-	if isDetailed {
-		group = ConvertToGroupModel(inv.Group, false)
-	}
+func ConvertToGroupInvitationModel(inv GroupInvitation) GroupInvitationModel {
+
 	return GroupInvitationModel{
 		ID:    inv.ID,
-		Group: group,
+		Group: ConvertToGroupModel(inv.Group),
 	}
 }

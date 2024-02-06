@@ -5,12 +5,9 @@ import (
 )
 
 type UserModel struct {
-	ID                      uuid.UUID
-	Email                   string
-	Username                string
-	PendingGroupInvitations []GroupInvitationModel
-	Groups                  []GroupModel
-	Items                   []ItemModel
+	ID       uuid.UUID
+	Email    string
+	Username string
 }
 
 func CreateUser(id uuid.UUID, email string, username string) UserModel {

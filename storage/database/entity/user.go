@@ -19,28 +19,18 @@ func CreateUserEntity(user model.UserModel) User {
 	}
 }
 
-func ConvertToUserModel(user User, isDetailed bool) model.UserModel {
-
-	groupModels := make([]model.GroupModel, len(user.Groups))
-
-	if isDetailed {
-		for i, group := range user.Groups {
-			groupModels[i] = ConvertToGroupModel(*group, false)
-		}
-	}
-
+func ConvertToUserModel(user User) model.UserModel {
 	return model.UserModel{
 		ID:       user.ID,
 		Email:    user.Email,
 		Username: user.Username,
-		Groups:   groupModels,
 	}
 }
 
 func ToUserModelSlice(users []User) []model.UserModel {
 	s := make([]model.UserModel, len(users))
 	for i, user := range users {
-		s[i] = ConvertToUserModel(user, true)
+		s[i] = ConvertToUserModel(user)
 	}
 	return s
 }
