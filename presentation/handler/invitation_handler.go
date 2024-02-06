@@ -24,7 +24,7 @@ func NewInvitationHandler(invitationService *service.IInvitationService) *Invita
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"Invitation ID"
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=GroupInvitationOutputDTO}
+//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.GroupInvitationOutputDTO}
 //	@Router		/api/invitation/{id} [get]
 func (h InvitationHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")

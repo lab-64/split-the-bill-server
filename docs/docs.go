@@ -470,51 +470,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/invitation": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Invitation"
-                ],
-                "summary": "Create Group Invitation",
-                "parameters": [
-                    {
-                        "description": "Request Body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.GroupInvitationInputDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.GroupInvitationOutputDTO"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/api/invitation/{id}": {
             "get": {
                 "consumes": [
@@ -966,23 +921,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "ownerID": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.GroupInvitationInputDTO": {
-            "type": "object",
-            "properties": {
-                "groupID": {
-                    "type": "string"
-                },
-                "inviteeIDs": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "issuerID": {
                     "type": "string"
                 }
             }

@@ -95,17 +95,6 @@ definitions:
       ownerID:
         type: string
     type: object
-  dto.GroupInvitationInputDTO:
-    properties:
-      groupID:
-        type: string
-      inviteeIDs:
-        items:
-          type: string
-        type: array
-      issuerID:
-        type: string
-    type: object
   dto.GroupInvitationOutputDTO:
     properties:
       group:
@@ -452,32 +441,6 @@ paths:
       summary: Update Group
       tags:
       - Group
-  /api/invitation:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Request Body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.GroupInvitationInputDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.GroupInvitationOutputDTO'
-              type: object
-      summary: Create Group Invitation
-      tags:
-      - Invitation
   /api/invitation/{id}:
     get:
       consumes:
