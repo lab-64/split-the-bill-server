@@ -49,3 +49,11 @@ func ConvertToBillModel(bill Bill) model.BillModel {
 		Items:   items,
 	}
 }
+
+func ToBillModelSlice(bills []Bill) []model.BillModel {
+	s := make([]model.BillModel, len(bills))
+	for i, bill := range bills {
+		s[i] = ConvertToBillModel(bill)
+	}
+	return s
+}

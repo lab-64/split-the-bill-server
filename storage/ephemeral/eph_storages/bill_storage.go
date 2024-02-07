@@ -41,6 +41,11 @@ func (b BillStorage) GetByID(id uuid.UUID) (model.BillModel, error) {
 	return *bill, nil
 }
 
+func (b BillStorage) GetAllByUserID(userID uuid.UUID) ([]model.BillModel, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (b BillStorage) CreateItem(item model.ItemModel) (model.ItemModel, error) {
 	//TODO implement me
 	panic("implement me")

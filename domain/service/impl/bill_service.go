@@ -65,6 +65,28 @@ func (b *BillService) GetByID(id uuid.UUID) (BillDetailedOutputDTO, error) {
 	return ConvertToBillDetailedDTO(bill), err
 }
 
+func (b *BillService) GetAllByUserID(userID uuid.UUID, requesterID uuid.UUID) ([]BillDetailedOutputDTO, error) {
+
+	// authorize
+	if userID != requesterID {
+		return nil, domain.ErrNotAuthorized
+	}
+	// get bills
+	bills, err := b.billStorage.GetAllByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	billDTOs := make([]BillDetailedOutputDTO, len(bills))
+	for i, bill := range bills {
+		balance := bill.CalculateBalance()
+		bill.Balance = balance
+		billDTOs[i] = ConvertToBillDetailedDTO(bill)
+	}
+
+	return billDTOs, err
+}
+
 func (b *BillService) AddItem(itemDTO ItemInputDTO) (ItemOutputDTO, error) {
 	item := CreateItemModel(uuid.Nil, itemDTO)
 

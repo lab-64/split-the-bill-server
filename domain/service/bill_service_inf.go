@@ -12,6 +12,8 @@ type IBillService interface {
 
 	GetByID(id UUID) (BillDetailedOutputDTO, error)
 
+	GetAllByUserID(userID UUID, requesterID UUID) ([]BillDetailedOutputDTO, error)
+
 	AddItem(item ItemInputDTO) (ItemOutputDTO, error)
 
 	ChangeItem(itemID UUID, item ItemInputDTO) (ItemOutputDTO, error)

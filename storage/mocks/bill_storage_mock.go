@@ -7,12 +7,13 @@ import (
 )
 
 var (
-	MockBillCreate      func(model.BillModel) (model.BillModel, error)
-	MockBillUpdate      func(model.BillModel) (model.BillModel, error)
-	MockBillGetByID     func(uuid.UUID) (model.BillModel, error)
-	MockBillCreateItem  func(model.ItemModel) (model.ItemModel, error)
-	MockBillGetItemByID func(uuid.UUID) (model.ItemModel, error)
-	MockBillUpdateItem  func(model.ItemModel) (model.ItemModel, error)
+	MockBillCreate         func(model.BillModel) (model.BillModel, error)
+	MockBillUpdate         func(model.BillModel) (model.BillModel, error)
+	MockBillGetByID        func(uuid.UUID) (model.BillModel, error)
+	MockBillCreateItem     func(model.ItemModel) (model.ItemModel, error)
+	MockBillGetItemByID    func(uuid.UUID) (model.ItemModel, error)
+	MockBillUpdateItem     func(model.ItemModel) (model.ItemModel, error)
+	MockBillGetAllByUserID func(uuid.UUID) ([]model.BillModel, error)
 )
 
 func NewBillStorageMock() storage.IBillStorage {
@@ -32,6 +33,10 @@ func (b BillStorageMock) UpdateBill(bill model.BillModel) (model.BillModel, erro
 
 func (b BillStorageMock) GetByID(id uuid.UUID) (model.BillModel, error) {
 	return MockBillGetByID(id)
+}
+
+func (b BillStorageMock) GetAllByUserID(userID uuid.UUID) ([]model.BillModel, error) {
+	return MockBillGetAllByUserID(userID)
 }
 
 func (b BillStorageMock) CreateItem(item model.ItemModel) (model.ItemModel, error) {

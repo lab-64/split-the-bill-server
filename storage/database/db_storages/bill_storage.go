@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	. "split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/database"
@@ -85,6 +86,23 @@ func (b *BillStorage) GetByID(id uuid.UUID) (BillModel, error) {
 	}
 	billModel := ConvertToBillModel(bill)
 	return billModel, nil
+}
+
+func (b *BillStorage) GetAllByUserID(userID uuid.UUID) ([]BillModel, error) {
+	var bills []Bill
+
+	tx := b.DB.
+		Preload(clause.Associations).
+		Preload("Items.Contributors").
+		Preload("Owner").
+		Where("owner_id = ?", userID).
+		Find(&bills)
+
+	if tx.Error != nil {
+		return nil, storage.NoSuchBillError
+	}
+
+	return ToBillModelSlice(bills), nil
 }
 
 func (b *BillStorage) CreateItem(item ItemModel) (ItemModel, error) {

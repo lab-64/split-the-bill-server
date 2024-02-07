@@ -12,6 +12,8 @@ type IBillStorage interface {
 
 	GetByID(id UUID) (BillModel, error)
 
+	GetAllByUserID(userID UUID) ([]BillModel, error)
+
 	// CreateItem creates an item for a bill
 	CreateItem(item ItemModel) (ItemModel, error)
 
