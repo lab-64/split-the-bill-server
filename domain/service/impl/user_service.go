@@ -3,10 +3,11 @@ package impl
 import (
 	"github.com/google/uuid"
 	"split-the-bill-server/domain"
-	. "split-the-bill-server/domain/model"
+	"split-the-bill-server/domain/converter"
+	"split-the-bill-server/domain/model"
 	. "split-the-bill-server/domain/service"
 	"split-the-bill-server/domain/util"
-	. "split-the-bill-server/presentation/dto"
+	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/storage"
 )
 
@@ -24,80 +25,80 @@ func (u *UserService) Delete(id uuid.UUID) error {
 	return err
 }
 
-func (u *UserService) GetAll() ([]UserDetailedOutputDTO, error) {
+func (u *UserService) GetAll() ([]dto.UserCoreOutput, error) {
 	users, err := u.userStorage.GetAll()
 	if err != nil {
-		return []UserDetailedOutputDTO{}, err
+		return []dto.UserCoreOutput{}, err
 	}
 
-	usersDTO := make([]UserDetailedOutputDTO, len(users))
+	usersDTO := make([]dto.UserCoreOutput, len(users))
 
 	for i, user := range users {
-		usersDTO[i] = ConvertToUserDetailedDTO(&user)
+		usersDTO[i] = converter.ToUserCoreDTO(&user)
 	}
 
 	return usersDTO, err
 }
 
-func (u *UserService) GetByID(id uuid.UUID) (UserDetailedOutputDTO, error) {
+func (u *UserService) GetByID(id uuid.UUID) (dto.UserCoreOutput, error) {
 	user, err := u.userStorage.GetByID(id)
 	if err != nil {
-		return UserDetailedOutputDTO{}, err
+		return dto.UserCoreOutput{}, err
 	}
 
-	return ConvertToUserDetailedDTO(&user), err
+	return converter.ToUserCoreDTO(&user), err
 }
 
-func (u *UserService) Create(userDTO UserInputDTO) (UserCoreOutputDTO, error) {
-	user := CreateUser(uuid.New(), userDTO.Email, "")
+func (u *UserService) Create(userDTO dto.UserInput) (dto.UserCoreOutput, error) {
+	user := model.CreateUser(uuid.New(), userDTO.Email, "")
 	passwordHash, err := util.HashPassword(userDTO.Password)
 	if err != nil {
-		return UserCoreOutputDTO{}, err
+		return dto.UserCoreOutput{}, err
 	}
 
 	user, err = u.userStorage.Create(user, passwordHash)
 	if err != nil {
-		return UserCoreOutputDTO{}, err
+		return dto.UserCoreOutput{}, err
 	}
 
-	return ConvertToUserCoreDTO(&user), err
+	return converter.ToUserCoreDTO(&user), err
 }
 
-func (u *UserService) Login(credentials CredentialsInputDTO) (UserCoreOutputDTO, AuthCookieModel, error) {
+func (u *UserService) Login(credentials dto.CredentialsInput) (dto.UserCoreOutput, model.AuthCookie, error) {
 	// Log-in user, get authentication cookie
 	user, err := u.userStorage.GetByEmail(credentials.Email)
 	if err != nil {
-		return UserCoreOutputDTO{}, AuthCookieModel{}, err
+		return dto.UserCoreOutput{}, model.AuthCookie{}, err
 	}
 
 	creds, err := u.userStorage.GetCredentials(user.ID)
 	if err != nil {
-		return UserCoreOutputDTO{}, AuthCookieModel{}, err
+		return dto.UserCoreOutput{}, model.AuthCookie{}, err
 	}
 
 	err = util.ComparePassword(creds, credentials.Password)
 	if err != nil {
-		return UserCoreOutputDTO{}, AuthCookieModel{}, err
+		return dto.UserCoreOutput{}, model.AuthCookie{}, err
 	}
 
-	sc := GenerateSessionCookie(user.ID)
+	sc := model.GenerateSessionCookie(user.ID)
 
 	u.cookieStorage.AddAuthenticationCookie(sc)
 
-	return ConvertToUserCoreDTO(&user), sc, err
+	return converter.ToUserCoreDTO(&user), sc, err
 }
 
-func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user UserUpdateDTO) (UserCoreOutputDTO, error) {
+func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error) {
 	if requesterID != id {
-		return UserCoreOutputDTO{}, domain.ErrNotAuthorized
+		return dto.UserCoreOutput{}, domain.ErrNotAuthorized
 	}
 
-	userModel := CreateUser(id, "", user.Username)
+	userModel := model.CreateUser(id, "", user.Username)
 
 	userModel, err := u.userStorage.Update(userModel)
 	if err != nil {
-		return UserCoreOutputDTO{}, err
+		return dto.UserCoreOutput{}, err
 	}
 
-	return ConvertToUserCoreDTO(&userModel), err
+	return converter.ToUserCoreDTO(&userModel), err
 }

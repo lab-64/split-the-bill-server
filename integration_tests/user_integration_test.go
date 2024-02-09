@@ -19,8 +19,8 @@ import (
 )
 
 type UserResponseDTO struct {
-	Message string                `json:"message"`
-	Data    dto.UserCoreOutputDTO `json:"data"`
+	Message string             `json:"message"`
+	Data    dto.UserCoreOutput `json:"data"`
 }
 
 // performUserRequest performs a http request for any user endpoint.
@@ -68,17 +68,17 @@ func TestCreateUser(t *testing.T) {
 
 	route := "/api/user"
 	tests := []struct {
-		description        string                // description of the testcase case
-		inputData          dto.UserInputDTO      // input data for the request
-		requestCookie      *http.Cookie          // cookie for the request
-		expectedCode       int                   // expected HTTP status code
-		expectedMessage    string                // expected message in response body
-		expectReturn       bool                  // expected return value
-		expectReturnedData dto.UserCoreOutputDTO // expected return
+		description        string             // description of the testcase case
+		inputData          dto.UserInput      // input data for the request
+		requestCookie      *http.Cookie       // cookie for the request
+		expectedCode       int                // expected HTTP status code
+		expectedMessage    string             // expected message in response body
+		expectReturn       bool               // expected return value
+		expectReturnedData dto.UserCoreOutput // expected return
 	}{
 		{
 			description: "Test successful user creation",
-			inputData: dto.UserInputDTO{
+			inputData: dto.UserInput{
 				Email:    "test3@mail.com",
 				Password: "alek1337",
 			},
@@ -86,13 +86,13 @@ func TestCreateUser(t *testing.T) {
 			expectedCode:    201,
 			expectedMessage: handler.SuccessMsgUserCreate,
 			expectReturn:    true,
-			expectReturnedData: dto.UserCoreOutputDTO{
+			expectReturnedData: dto.UserCoreOutput{
 				Email: "test3@mail.com",
 			},
 		},
 		{
 			description: "Test user already exists",
-			inputData: dto.UserInputDTO{
+			inputData: dto.UserInput{
 				Email:    "test3@mail.com",
 				Password: "alek1337",
 			},
@@ -132,13 +132,13 @@ func TestGetUser(t *testing.T) {
 
 	route := "/api/user/"
 	tests := []struct {
-		description        string                // description of the testcase case
-		parameter          string                // parameter of the testcase
-		requestCookie      *http.Cookie          // cookie for the request
-		expectedCode       int                   // expected HTTP status code
-		expectedMessage    string                // expected message in response body
-		expectReturn       bool                  // expected return value
-		expectReturnedData dto.UserCoreOutputDTO // expected return
+		description        string             // description of the testcase case
+		parameter          string             // parameter of the testcase
+		requestCookie      *http.Cookie       // cookie for the request
+		expectedCode       int                // expected HTTP status code
+		expectedMessage    string             // expected message in response body
+		expectReturn       bool               // expected return value
+		expectReturnedData dto.UserCoreOutput // expected return
 	}{
 		{
 			description:     "Test successful user query",
@@ -147,7 +147,7 @@ func TestGetUser(t *testing.T) {
 			expectedCode:    200,
 			expectedMessage: handler.SuccessMsgUserFound,
 			expectReturn:    true,
-			expectReturnedData: dto.UserCoreOutputDTO{
+			expectReturnedData: dto.UserCoreOutput{
 				ID:    User1.ID,
 				Email: User1.Email,
 			},
@@ -191,25 +191,25 @@ func TestUpdateUser(t *testing.T) {
 		description        string
 		requester          entity.User
 		parameter          uuid.UUID
-		inputUser          dto.UserUpdateDTO
+		inputUser          dto.UserUpdate
 		requestCookie      *http.Cookie
 		expectedCode       int
 		expectedMessage    string
 		expectReturn       bool
-		expectReturnedData dto.UserCoreOutputDTO
+		expectReturnedData dto.UserCoreOutput
 	}{
 		{
 			description: "Test successful user update",
 			requester:   User1,
 			parameter:   User1.ID,
-			inputUser: dto.UserUpdateDTO{
+			inputUser: dto.UserUpdate{
 				Username: "Franz",
 			},
 			requestCookie:   &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()},
 			expectedCode:    200,
 			expectedMessage: handler.SuccessMsgUserUpdate,
 			expectReturn:    true,
-			expectReturnedData: dto.UserCoreOutputDTO{
+			expectReturnedData: dto.UserCoreOutput{
 				ID:       User1.ID,
 				Email:    "new-mail@mail.com",
 				Username: "Franz",
@@ -219,7 +219,7 @@ func TestUpdateUser(t *testing.T) {
 			description:     "Test unsuccessful behavior: user is unauthorized to update foreign user",
 			requester:       User2,
 			parameter:       User1.ID,
-			inputUser:       dto.UserUpdateDTO{},
+			inputUser:       dto.UserUpdate{},
 			requestCookie:   &http.Cookie{Name: sessionCookie, Value: CookieUser2.ID.String()},
 			expectedCode:    401,
 			expectedMessage: fmt.Sprintf(handler.ErrMsgUserUpdate, domain.ErrNotAuthorized),
@@ -229,7 +229,7 @@ func TestUpdateUser(t *testing.T) {
 			description:     "Test unsuccessful behavior: user is not logged in",
 			requester:       entity.User{},
 			parameter:       User1.ID,
-			inputUser:       dto.UserUpdateDTO{},
+			inputUser:       dto.UserUpdate{},
 			requestCookie:   nil,
 			expectedCode:    401,
 			expectedMessage: middleware.ErrMsgNoCookie,

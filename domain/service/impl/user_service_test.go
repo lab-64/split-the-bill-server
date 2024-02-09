@@ -10,11 +10,11 @@ import (
 
 // Testdata
 var (
-	TestUser = model.UserModel{
+	TestUser = model.User{
 		ID:    uuid.New(),
 		Email: "test@mail.com",
 	}
-	TestUser2 = model.UserModel{
+	TestUser2 = model.User{
 		ID:    uuid.New(),
 		Email: "test2@mail.com",
 	}
@@ -23,7 +23,7 @@ var (
 func TestUserService_GetByID(t *testing.T) {
 
 	// mock method
-	mocks.MockUserGetByID = func(id uuid.UUID) (model.UserModel, error) {
+	mocks.MockUserGetByID = func(id uuid.UUID) (model.User, error) {
 		return TestUser, nil
 	}
 	ret, err := userService.GetByID(TestUser.ID)
@@ -36,8 +36,8 @@ func TestUserService_GetByID(t *testing.T) {
 func TestUserService_GetAll(t *testing.T) {
 
 	// mock method
-	mocks.MockUserGetAll = func() ([]model.UserModel, error) {
-		return []model.UserModel{TestUser, TestUser2}, nil
+	mocks.MockUserGetAll = func() ([]model.User, error) {
+		return []model.User{TestUser, TestUser2}, nil
 	}
 
 	ret, err := userService.GetAll()

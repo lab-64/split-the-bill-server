@@ -2,14 +2,14 @@ package storage
 
 import (
 	. "github.com/google/uuid"
-	. "split-the-bill-server/domain/model"
+	"split-the-bill-server/domain/model"
 )
 
 type ICookieStorage interface {
-	AddAuthenticationCookie(cookie AuthCookieModel)
+	AddAuthenticationCookie(cookie model.AuthCookie)
 
-	GetCookiesForUser(userID UUID) []AuthCookieModel
+	GetCookiesForUser(userID UUID) []model.AuthCookie
 
 	// GetCookieFromToken returns the authentication cookie for the given token, or a NoSuchCookieError if no such
-	GetCookieFromToken(token UUID) (AuthCookieModel, error)
+	GetCookieFromToken(token UUID) (model.AuthCookie, error)
 }

@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type GroupInvitationModel struct {
+type GroupInvitation struct {
 	ID    uuid.UUID
-	Group GroupModel
+	Group Group
 }

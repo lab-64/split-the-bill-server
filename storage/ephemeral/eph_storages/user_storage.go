@@ -31,10 +31,10 @@ func (u *UserStorage) Delete(id uuid.UUID) error {
 	return nil
 }
 
-func (u *UserStorage) GetAll() ([]model.UserModel, error) {
+func (u *UserStorage) GetAll() ([]model.User, error) {
 	r := u.e.Locker.Lock(eph.RUsers)
 	defer u.e.Locker.Unlock(r)
-	users := make([]model.UserModel, len(u.e.Users))
+	users := make([]model.User, len(u.e.Users))
 	i := 0
 	for _, user := range u.e.Users {
 		users[i] = user
@@ -43,7 +43,7 @@ func (u *UserStorage) GetAll() ([]model.UserModel, error) {
 	return users, nil
 }
 
-func (u *UserStorage) GetByID(id uuid.UUID) (model.UserModel, error) {
+func (u *UserStorage) GetByID(id uuid.UUID) (model.User, error) {
 	r := u.e.Locker.Lock(eph.RUsers)
 	defer u.e.Locker.Unlock(r)
 	user, ok := u.e.Users[id]
@@ -53,12 +53,12 @@ func (u *UserStorage) GetByID(id uuid.UUID) (model.UserModel, error) {
 	return user, nil
 }
 
-func (u *UserStorage) GetByEmail(email string) (model.UserModel, error) {
+func (u *UserStorage) GetByEmail(email string) (model.User, error) {
 	r := u.e.Locker.Lock(eph.RUsers, eph.RNameIndex)
 	defer u.e.Locker.Unlock(r)
 	id, ok := u.e.NameIndex[email]
 	if !ok {
-		return model.UserModel{}, storage.NoSuchUserError
+		return model.User{}, storage.NoSuchUserError
 	}
 	user, ok := u.e.Users[id]
 	if !ok {
@@ -68,17 +68,17 @@ func (u *UserStorage) GetByEmail(email string) (model.UserModel, error) {
 	return user, nil
 }
 
-func (u *UserStorage) Create(user model.UserModel, hash []byte) (model.UserModel, error) {
+func (u *UserStorage) Create(user model.User, hash []byte) (model.User, error) {
 	r := u.e.Locker.Lock(eph.RUsers, eph.RNameIndex, eph.RPasswords)
 	defer u.e.Locker.Unlock(r)
 
 	if _, ok := u.e.NameIndex[user.Email]; ok {
-		return model.UserModel{}, storage.UserAlreadyExistsError
+		return model.User{}, storage.UserAlreadyExistsError
 	}
 
 	_, ok := u.e.Users[user.ID]
 	if ok {
-		return model.UserModel{}, storage.UserAlreadyExistsError
+		return model.User{}, storage.UserAlreadyExistsError
 	}
 
 	u.e.Users[user.ID] = user
@@ -86,7 +86,7 @@ func (u *UserStorage) Create(user model.UserModel, hash []byte) (model.UserModel
 
 	_, exists := u.e.Passwords[user.ID]
 	if exists {
-		return model.UserModel{}, errors.New("fatal: user already has saved password")
+		return model.User{}, errors.New("fatal: user already has saved password")
 	}
 	u.e.Passwords[user.ID] = hash
 	return user, nil
@@ -102,7 +102,7 @@ func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
 	return hash, nil
 }
 
-func (u *UserStorage) Update(user model.UserModel) (model.UserModel, error) {
+func (u *UserStorage) Update(user model.User) (model.User, error) {
 	//TODO implement me
 	panic("implement me")
 }

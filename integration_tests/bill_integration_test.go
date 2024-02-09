@@ -15,29 +15,29 @@ import (
 )
 
 type BillResponseDTO struct {
-	Message string                    `json:"message"`
-	Data    dto.BillDetailedOutputDTO `json:"data"`
+	Message string                 `json:"message"`
+	Data    dto.BillDetailedOutput `json:"data"`
 }
 
 func TestUpdateBill(t *testing.T) {
 
 	// Testdata
-	updatedItem1 := dto.ItemInputDTO{
+	updatedItem1 := dto.ItemInput{
 		Name:         Item1.Name,
 		Price:        Item1.Price,
 		Contributors: []uuid.UUID{User1.ID, User2.ID},
 	}
 
-	updatedItem2 := dto.ItemInputDTO{
+	updatedItem2 := dto.ItemInput{
 		Name:         Item2.Name,
 		Price:        Item2.Price,
 		Contributors: []uuid.UUID{User1.ID},
 	}
 
-	updatedBill := dto.BillInputDTO{
+	updatedBill := dto.BillInput{
 		Name:    "Updated Bill",
 		OwnerID: User1.ID,
-		Items:   []dto.ItemInputDTO{updatedItem1, updatedItem2},
+		Items:   []dto.ItemInput{updatedItem1, updatedItem2},
 	}
 
 	inputJson, _ := json.Marshal(updatedBill)
@@ -93,7 +93,7 @@ func TestUpdateBill(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error while reading response body: %s", err.Error())
 		}
-		// Parse response body to GeneralResponseDTO
+		// Parse response body to GeneralResponse
 		var response BillResponseDTO
 		if err = json.Unmarshal(body, &response); err != nil { // Parse []byte to go struct pointer
 			t.Fatalf("Error while parsing response body: %s", err.Error())

@@ -2,17 +2,17 @@ package service
 
 import (
 	. "github.com/google/uuid"
-	. "split-the-bill-server/presentation/dto"
+	"split-the-bill-server/presentation/dto"
 )
 
 type IGroupService interface {
-	Create(groupDTO GroupInputDTO) (GroupDetailedOutputDTO, error)
+	Create(groupDTO dto.GroupInput) (dto.GroupDetailedOutput, error)
 
-	Update(userID UUID, groupID UUID, group GroupInputDTO) (GroupDetailedOutputDTO, error)
+	Update(userID UUID, groupID UUID, group dto.GroupInput) (dto.GroupDetailedOutput, error)
 
-	GetByID(id UUID) (GroupDetailedOutputDTO, error)
+	GetByID(id UUID) (dto.GroupDetailedOutput, error)
 
-	GetAll(userID UUID, invitationID UUID) ([]GroupDetailedOutputDTO, error)
+	GetAll(userID UUID, invitationID UUID) ([]dto.GroupDetailedOutput, error)
 
 	AcceptGroupInvitation(invitationID UUID, userID UUID) error
 }

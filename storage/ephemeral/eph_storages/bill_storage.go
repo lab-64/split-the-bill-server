@@ -15,23 +15,23 @@ func NewBillStorage(ephemeral *eph.Ephemeral) storage.IBillStorage {
 	return &BillStorage{e: ephemeral}
 }
 
-func (b BillStorage) UpdateBill(bill model.BillModel) (model.BillModel, error) {
+func (b BillStorage) UpdateBill(bill model.Bill) (model.Bill, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (b BillStorage) Create(bill model.BillModel) (model.BillModel, error) {
+func (b BillStorage) Create(bill model.Bill) (model.Bill, error) {
 	r := b.e.Locker.Lock(eph.RBills)
 	defer b.e.Locker.Unlock(r)
 	_, exists := b.e.Bills[bill.ID]
 	if exists {
-		return model.BillModel{}, storage.BillAlreadyExistsError
+		return model.Bill{}, storage.BillAlreadyExistsError
 	}
 	b.e.Bills[bill.ID] = &bill
 	return bill, nil
 }
 
-func (b BillStorage) GetByID(id uuid.UUID) (model.BillModel, error) {
+func (b BillStorage) GetByID(id uuid.UUID) (model.Bill, error) {
 	r := b.e.Locker.Lock(eph.RBills)
 	defer b.e.Locker.Unlock(r)
 	bill, exists := b.e.Bills[id]
@@ -41,17 +41,17 @@ func (b BillStorage) GetByID(id uuid.UUID) (model.BillModel, error) {
 	return *bill, nil
 }
 
-func (b BillStorage) CreateItem(item model.ItemModel) (model.ItemModel, error) {
+func (b BillStorage) CreateItem(item model.Item) (model.Item, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (b BillStorage) GetItemByID(id uuid.UUID) (model.ItemModel, error) {
+func (b BillStorage) GetItemByID(id uuid.UUID) (model.Item, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (b BillStorage) UpdateItem(item model.ItemModel) (model.ItemModel, error) {
+func (b BillStorage) UpdateItem(item model.Item) (model.Item, error) {
 	//TODO implement me
 	panic("implement me")
 }
