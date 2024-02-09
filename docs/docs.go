@@ -308,8 +308,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "User Id",
                         "name": "userId",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Invitation Id",
+                        "name": "invitationId",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -372,6 +377,37 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/group/invitation/{id}/accept": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Group"
+                ],
+                "summary": "Accept Group Invitation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invitation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponseDTO"
                         }
                     }
                 }
@@ -465,80 +501,6 @@ const docTemplate = `{
                                     }
                                 }
                             ]
-                        }
-                    }
-                }
-            }
-        },
-        "/api/invitation/{id}": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Invitation"
-                ],
-                "summary": "Get Group Invitation By ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Invitation ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.GroupInvitationOutputDTO"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/api/invitation/{id}/accept": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Invitation"
-                ],
-                "summary": "Accept Group Invitation",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Invitation ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
                         }
                     }
                 }
@@ -857,26 +819,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.GroupCoreOutputDTO": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "members": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.UserCoreOutputDTO"
-                    }
-                },
-                "name": {
-                    "type": "string"
-                },
-                "owner": {
-                    "$ref": "#/definitions/dto.UserCoreOutputDTO"
-                }
-            }
-        },
         "dto.GroupDetailedOutputDTO": {
             "type": "object",
             "properties": {
@@ -921,17 +863,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "ownerID": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.GroupInvitationOutputDTO": {
-            "type": "object",
-            "properties": {
-                "group": {
-                    "$ref": "#/definitions/dto.GroupCoreOutputDTO"
-                },
-                "invitationID": {
                     "type": "string"
                 }
             }

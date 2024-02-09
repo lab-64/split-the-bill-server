@@ -11,12 +11,11 @@ import (
 )
 
 type GroupHandler struct {
-	groupService      service.IGroupService
-	invitationService service.IInvitationService
+	groupService service.IGroupService
 }
 
-func NewGroupHandler(GroupService *service.IGroupService, InvitationService *service.IInvitationService) *GroupHandler {
-	return &GroupHandler{groupService: *GroupService, invitationService: *InvitationService}
+func NewGroupHandler(GroupService *service.IGroupService) *GroupHandler {
+	return &GroupHandler{groupService: *GroupService}
 }
 
 // Create creates a new group with the owner being the only member.
@@ -49,11 +48,6 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupCreate, err))
 	}
-
-	// TODO: check where to call this
-	// create group invitation
-	invitation, _ := h.invitationService.CreateGroupInvitations(group.ID)
-	group.InvitationID = invitation.InvitationID
 
 	return Success(c, fiber.StatusCreated, SuccessMsgGroupCreate, group)
 }
@@ -128,33 +122,73 @@ func (h GroupHandler) GetByID(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusOK, SuccessMsgGroupFound, group)
 }
 
-// GetAllByUser returns all groups filtered by user.
+// GetAll returns all groups with applied filter.
 //
 //	@Summary	Get Groups by User
 //	@Tags		Group
 //	@Accept		json
 //	@Produce	json
-//	@Param		userId	query		string	true	"User Id"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.GroupDetailedOutputDTO}
+//	@Param		userId			query		string	false	"User Id"
+//	@Param		invitationId	query		string	false	"Invitation Id"
+//	@Success	200				{object}	dto.GeneralResponseDTO{data=dto.GroupDetailedOutputDTO}
 //	@Router		/api/group [get]
-func (h GroupHandler) GetAllByUser(c *fiber.Ctx) error {
+func (h GroupHandler) GetAll(c *fiber.Ctx) error {
 	userID := c.Query("userId")
+	invitationID := c.Query("invitationId")
 
-	if userID == "" {
-		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "userId"))
+	userUUID := uuid.Nil
+	invitationUUID := uuid.Nil
+
+	if userID != "" {
+		uid, err := uuid.Parse(userID)
+		if err != nil {
+			return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, userID, err))
+		}
+		userUUID = uid
 	}
 
-	uid, err := uuid.Parse(userID)
-	if err != nil {
-		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, userID, err))
+	if invitationID != "" {
+		uid, err := uuid.Parse(invitationID)
+		if err != nil {
+			return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, userID, err))
+		}
+		invitationUUID = uid
 	}
 
-	groups, err := h.groupService.GetAllByUser(uid)
+	groups, err := h.groupService.GetAll(userUUID, invitationUUID)
 
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGetUserGroups, err))
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgGroupsFound, groups)
+}
 
+// AcceptInvitation accepts a group invitation.
+//
+//	@Summary	Accept Group Invitation
+//	@Tags		Group
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"Invitation ID"
+//	@Success	200	{object}	dto.GeneralResponseDTO
+//	@Router		/api/group/invitation/{id}/accept [post]
+func (h GroupHandler) AcceptInvitation(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	// parse invitationID from path
+	invitationID, err := uuid.Parse(id)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
+	}
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	// accept invitation
+	err = h.groupService.AcceptGroupInvitation(invitationID, requesterID)
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationParse, err))
+	}
+	return Success(c, fiber.StatusOK, SuccessMsgInvitationHandled, nil)
 }

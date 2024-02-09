@@ -15,6 +15,9 @@ type IGroupStorage interface {
 	// GetGroupByID returns the group with the given ID, or a NoSuchGroupError if no such group exists.
 	GetGroupByID(id UUID) (GroupModel, error)
 
-	// GetGroupsByUserID returns all groups for the user with the given ID.
-	GetGroupsByUserID(userID UUID) ([]GroupModel, error)
+	// GetGroups returns all groups for the user with the given user ID and/or invitation ID.
+	GetGroups(userID UUID, invitationID UUID) ([]GroupModel, error)
+
+	// AcceptGroupInvitation adds the associated user to a group
+	AcceptGroupInvitation(invitationID UUID, userID UUID) error
 }
