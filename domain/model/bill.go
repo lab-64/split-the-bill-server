@@ -15,7 +15,7 @@ type BillModel struct {
 	Balance map[uuid.UUID]float64
 }
 
-func (bill BillModel) CalculateBalance() map[uuid.UUID]float64 {
+func (bill *BillModel) CalculateBalance() map[uuid.UUID]float64 {
 	balance := make(map[uuid.UUID]float64)
 	for _, item := range bill.Items {
 		ppp := item.Price / float64(len(item.Contributors))
