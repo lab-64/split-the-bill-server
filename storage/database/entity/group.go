@@ -23,26 +23,20 @@ func CreateGroupEntity(group GroupModel) Group {
 	return Group{Base: Base{ID: group.ID}, OwnerUID: group.Owner.ID, Name: group.Name, Members: members}
 }
 
-func ConvertToGroupModel(group Group, isDetailed bool) GroupModel {
+func ConvertToGroupModel(group Group) GroupModel {
 	members := make([]UserModel, len(group.Members))
+	for i, member := range group.Members {
+		members[i] = ConvertToUserModel(*member)
+	}
 	bills := make([]BillModel, len(group.Bills))
-	owner := ConvertToUserModel(group.Owner, false)
-
-	if isDetailed {
-
-		for i, member := range group.Members {
-			members[i] = ConvertToUserModel(*member, false)
-		}
-
-		for i, bill := range group.Bills {
-			bills[i] = ConvertToBillModel(bill, false)
-		}
+	for i, bill := range group.Bills {
+		bills[i] = ConvertToBillModel(bill)
 	}
 
 	return GroupModel{
 		ID:      group.ID,
 		Name:    group.Name,
-		Owner:   owner,
+		Owner:   ConvertToUserModel(group.Owner),
 		Members: members,
 		Bills:   bills,
 	}
@@ -51,7 +45,7 @@ func ConvertToGroupModel(group Group, isDetailed bool) GroupModel {
 func ToGroupModelSlice(groups []Group) []GroupModel {
 	s := make([]GroupModel, len(groups))
 	for i, group := range groups {
-		s[i] = ConvertToGroupModel(group, true)
+		s[i] = ConvertToGroupModel(group)
 	}
 	return s
 }

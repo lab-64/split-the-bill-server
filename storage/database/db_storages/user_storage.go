@@ -28,8 +28,6 @@ func (u *UserStorage) GetAll() ([]UserModel, error) {
 	// find all users in the database
 	// TODO: GetAllUsers should not return an error, if no users are found
 	tx := u.DB.
-		Preload("Groups.Owner").
-		Preload("Groups.Members").
 		Find(&users)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -42,8 +40,6 @@ func (u *UserStorage) GetAll() ([]UserModel, error) {
 func (u *UserStorage) GetByID(id uuid.UUID) (UserModel, error) {
 	var user User
 	tx := u.DB.Limit(1).
-		Preload("Groups.Owner").
-		Preload("Groups.Members").
 		Find(&user, "id = ?", id)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
@@ -54,7 +50,7 @@ func (u *UserStorage) GetByID(id uuid.UUID) (UserModel, error) {
 	if tx.RowsAffected == 0 {
 		return UserModel{}, storage.NoSuchUserError
 	}
-	return ConvertToUserModel(user, true), nil
+	return ConvertToUserModel(user), nil
 }
 
 func (u *UserStorage) GetByEmail(email string) (UserModel, error) {
@@ -70,7 +66,7 @@ func (u *UserStorage) GetByEmail(email string) (UserModel, error) {
 	if tx.RowsAffected == 0 {
 		return UserModel{}, storage.NoSuchUserError
 	}
-	return ConvertToUserModel(user, true), nil
+	return ConvertToUserModel(user), nil
 }
 
 func (u *UserStorage) Create(user UserModel, passwordHash []byte) (UserModel, error) {
@@ -97,7 +93,7 @@ func (u *UserStorage) Create(user UserModel, passwordHash []byte) (UserModel, er
 		return nil
 	})
 
-	return ConvertToUserModel(item, true), err
+	return ConvertToUserModel(item), err
 }
 
 func (u *UserStorage) Update(user UserModel) (UserModel, error) {
@@ -105,7 +101,7 @@ func (u *UserStorage) Update(user UserModel) (UserModel, error) {
 
 	res := u.DB.Model(&User{}).Where("id = ?", user.ID).Updates(User{Username: user.Username}).First(&userEntity)
 	// TODO: error handling
-	return ConvertToUserModel(userEntity, false), res.Error
+	return ConvertToUserModel(userEntity), res.Error
 }
 
 func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {

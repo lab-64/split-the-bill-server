@@ -32,7 +32,7 @@ func (g *GroupStorage) AddGroup(group GroupModel) (GroupModel, error) {
 	if res.RowsAffected == 0 {
 		return GroupModel{}, storage.GroupAlreadyExistsError
 	}
-	return ConvertToGroupModel(groupItem, true), res.Error
+	return ConvertToGroupModel(groupItem), res.Error
 }
 
 func (g *GroupStorage) UpdateGroup(group GroupModel) (GroupModel, error) {
@@ -53,7 +53,7 @@ func (g *GroupStorage) UpdateGroup(group GroupModel) (GroupModel, error) {
 		return GroupModel{}, storage.NoSuchGroupError
 	}
 
-	return ConvertToGroupModel(groupEntity, true), nil
+	return ConvertToGroupModel(groupEntity), nil
 }
 
 func (g *GroupStorage) GetGroupByID(id uuid.UUID) (GroupModel, error) {
@@ -63,6 +63,7 @@ func (g *GroupStorage) GetGroupByID(id uuid.UUID) (GroupModel, error) {
 	tx := g.DB.
 		Preload(clause.Associations).
 		Preload("Bills.Items.Contributors").
+		Preload("Bills.Owner").
 		Limit(1).Find(&group, "id = ?", id)
 
 	if tx.Error != nil {
@@ -71,7 +72,7 @@ func (g *GroupStorage) GetGroupByID(id uuid.UUID) (GroupModel, error) {
 	if tx.RowsAffected == 0 {
 		return GroupModel{}, storage.NoSuchGroupError
 	}
-	return ConvertToGroupModel(group, true), nil
+	return ConvertToGroupModel(group), nil
 }
 
 func (g *GroupStorage) GetGroupsByUserID(userID uuid.UUID) ([]GroupModel, error) {
@@ -80,6 +81,7 @@ func (g *GroupStorage) GetGroupsByUserID(userID uuid.UUID) ([]GroupModel, error)
 	tx := g.DB.
 		Preload(clause.Associations).
 		Preload("Bills.Items.Contributors").
+		Preload("Bills.Owner").
 		Where("id IN (SELECT group_id FROM group_members WHERE user_id = ?)", userID).
 		Find(&groups)
 

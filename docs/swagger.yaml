@@ -143,16 +143,8 @@ definitions:
     properties:
       email:
         type: string
-      groups:
-        items:
-          $ref: '#/definitions/dto.GroupCoreOutputDTO'
-        type: array
       id:
         type: string
-      invitationIDs:
-        items:
-          type: string
-        type: array
       username:
         type: string
     type: object

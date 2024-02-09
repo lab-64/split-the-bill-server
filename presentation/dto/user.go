@@ -22,6 +22,7 @@ type UserUpdateDTO struct {
 // Output Section
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: maybe use only one single DTO for the user output
 type UserCoreOutputDTO struct {
 	ID       uuid.UUID `json:"id"`
 	Email    string    `json:"email"`
@@ -46,31 +47,16 @@ func ConvertToUserCoreDTOs(users []model.UserModel) []UserCoreOutputDTO {
 }
 
 type UserDetailedOutputDTO struct {
-	ID            uuid.UUID            `json:"id"`
-	Email         string               `json:"email"`
-	Username      string               `json:"username"`
-	Groups        []GroupCoreOutputDTO `json:"groups"`
-	InvitationIDs []uuid.UUID          `json:"invitationIDs"`
+	ID       uuid.UUID `json:"id"`
+	Email    string    `json:"email"`
+	Username string    `json:"username"`
 }
 
 func ConvertToUserDetailedDTO(u *model.UserModel) UserDetailedOutputDTO {
-	groupsDTO := make([]GroupCoreOutputDTO, len(u.Groups))
-
-	for i, group := range u.Groups {
-		groupsDTO[i] = ConvertToGroupCoreDTO(group)
-	}
-
-	invitations := make([]uuid.UUID, len(u.PendingGroupInvitations))
-
-	for i, inv := range u.PendingGroupInvitations {
-		invitations[i] = inv.ID
-	}
 
 	return UserDetailedOutputDTO{
-		ID:            u.ID,
-		Email:         u.Email,
-		Username:      u.Username,
-		Groups:        groupsDTO,
-		InvitationIDs: invitations,
+		ID:       u.ID,
+		Email:    u.Email,
+		Username: u.Username,
 	}
 }

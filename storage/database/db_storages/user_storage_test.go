@@ -35,14 +35,11 @@ func TestGetByID(t *testing.T) {
 		want        model.UserModel
 	}{
 		{
-			// TODO: Use seed user instead of test user
 			name:    "Success",
 			userUID: TestUser.ID,
 			mock: func() {
 				userRows := sqlmock.NewRows([]string{"ID", "Email"}).AddRow(TestUser.ID, TestUser.Email)
 				dbMock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(TestUser.ID).WillReturnRows(userRows)
-				groupMemberRows := sqlmock.NewRows([]string{"ID", "OwnerUID"}).AddRow(uuid.New(), TestUser.ID)
-				dbMock.ExpectQuery(`SELECT (.+) FROM "group_members"`).WithArgs(TestUser.ID).WillReturnRows(groupMemberRows)
 			},
 			wantErr:     false,
 			expectedErr: nil,

@@ -999,20 +999,8 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "groups": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.GroupCoreOutputDTO"
-                    }
-                },
                 "id": {
                     "type": "string"
-                },
-                "invitationIDs": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 },
                 "username": {
                     "type": "string"
