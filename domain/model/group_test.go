@@ -8,25 +8,25 @@ import (
 
 // Testdata
 var (
-	TestUser = UserModel{
+	TestUser = User{
 		ID:    uuid.New(),
 		Email: "test@mail.com",
 	}
-	TestUser2 = UserModel{
+	TestUser2 = User{
 		ID:    uuid.New(),
 		Email: "test2@mail.com",
 	}
-	TestUser3 = UserModel{
+	TestUser3 = User{
 		ID:    uuid.New(),
 		Email: "test3@mail.com",
 	}
 
-	TestGroup = GroupModel{
+	TestGroup = Group{
 		ID:      uuid.New(),
 		Name:    "Test Group",
 		Owner:   TestUser,
-		Members: []UserModel{TestUser, TestUser2, TestUser3},
-		Bills:   []BillModel{TestBill, TestBill2},
+		Members: []User{TestUser, TestUser2, TestUser3},
+		Bills:   []Bill{TestBill, TestBill2},
 	}
 )
 

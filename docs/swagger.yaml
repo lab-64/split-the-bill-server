@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  dto.BillDetailedOutputDTO:
+  dto.BillDetailedOutput:
     properties:
       balance:
         additionalProperties:
@@ -15,14 +15,14 @@ definitions:
         type: string
       items:
         items:
-          $ref: '#/definitions/dto.ItemOutputDTO'
+          $ref: '#/definitions/dto.ItemOutput'
         type: array
       name:
         type: string
       owner:
-        $ref: '#/definitions/dto.UserCoreOutputDTO'
+        $ref: '#/definitions/dto.UserCoreOutput'
     type: object
-  dto.BillInputDTO:
+  dto.BillInput:
     properties:
       date:
         type: string
@@ -30,27 +30,27 @@ definitions:
         type: string
       items:
         items:
-          $ref: '#/definitions/dto.ItemInputDTO'
+          $ref: '#/definitions/dto.ItemInput'
         type: array
       name:
         type: string
       ownerID:
         type: string
     type: object
-  dto.CredentialsInputDTO:
+  dto.CredentialsInput:
     properties:
       email:
         type: string
       password:
         type: string
     type: object
-  dto.GeneralResponseDTO:
+  dto.GeneralResponse:
     properties:
       data: {}
       message:
         type: string
     type: object
-  dto.GroupDetailedOutputDTO:
+  dto.GroupDetailedOutput:
     properties:
       balance:
         additionalProperties:
@@ -59,7 +59,7 @@ definitions:
         type: object
       bills:
         items:
-          $ref: '#/definitions/dto.BillDetailedOutputDTO'
+          $ref: '#/definitions/dto.BillDetailedOutput'
         type: array
       id:
         type: string
@@ -68,21 +68,21 @@ definitions:
         type: string
       members:
         items:
-          $ref: '#/definitions/dto.UserCoreOutputDTO'
+          $ref: '#/definitions/dto.UserCoreOutput'
         type: array
       name:
         type: string
       owner:
-        $ref: '#/definitions/dto.UserCoreOutputDTO'
+        $ref: '#/definitions/dto.UserCoreOutput'
     type: object
-  dto.GroupInputDTO:
+  dto.GroupInput:
     properties:
       name:
         type: string
       ownerID:
         type: string
     type: object
-  dto.ItemInputDTO:
+  dto.ItemInput:
     properties:
       billId:
         type: string
@@ -95,13 +95,13 @@ definitions:
       price:
         type: number
     type: object
-  dto.ItemOutputDTO:
+  dto.ItemOutput:
     properties:
       billId:
         type: string
       contributors:
         items:
-          $ref: '#/definitions/dto.UserCoreOutputDTO'
+          $ref: '#/definitions/dto.UserCoreOutput'
         type: array
       id:
         type: string
@@ -110,7 +110,7 @@ definitions:
       price:
         type: number
     type: object
-  dto.UserCoreOutputDTO:
+  dto.UserCoreOutput:
     properties:
       email:
         type: string
@@ -119,23 +119,14 @@ definitions:
       username:
         type: string
     type: object
-  dto.UserDetailedOutputDTO:
-    properties:
-      email:
-        type: string
-      id:
-        type: string
-      username:
-        type: string
-    type: object
-  dto.UserInputDTO:
+  dto.UserInput:
     properties:
       email:
         type: string
       password:
         type: string
     type: object
-  dto.UserUpdateDTO:
+  dto.UserUpdate:
     properties:
       username:
         type: string
@@ -156,7 +147,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.BillInputDTO'
+          $ref: '#/definitions/dto.BillInput'
       produces:
       - application/json
       responses:
@@ -164,10 +155,10 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.BillDetailedOutputDTO'
+                  $ref: '#/definitions/dto.BillDetailedOutput'
               type: object
       summary: Create Bill
       tags:
@@ -189,10 +180,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.BillDetailedOutputDTO'
+                  $ref: '#/definitions/dto.BillDetailedOutput'
               type: object
       summary: Get Bill by ID
       tags:
@@ -211,7 +202,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.BillInputDTO'
+          $ref: '#/definitions/dto.BillInput'
       produces:
       - application/json
       responses:
@@ -219,10 +210,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.BillDetailedOutputDTO'
+                  $ref: '#/definitions/dto.BillDetailedOutput'
               type: object
       summary: Update Bill
       tags:
@@ -237,7 +228,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.ItemInputDTO'
+          $ref: '#/definitions/dto.ItemInput'
       produces:
       - application/json
       responses:
@@ -245,10 +236,10 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.ItemOutputDTO'
+                  $ref: '#/definitions/dto.ItemOutput'
               type: object
       summary: Add Item to Bill
       tags:
@@ -270,10 +261,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.ItemOutputDTO'
+                  $ref: '#/definitions/dto.ItemOutput'
               type: object
       summary: Get Item by ID
       tags:
@@ -292,7 +283,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.ItemInputDTO'
+          $ref: '#/definitions/dto.ItemInput'
       produces:
       - application/json
       responses:
@@ -300,10 +291,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.ItemOutputDTO'
+                  $ref: '#/definitions/dto.ItemOutput'
               type: object
       summary: Change Item
       tags:
@@ -328,10 +319,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.GroupDetailedOutputDTO'
+                  $ref: '#/definitions/dto.GroupDetailedOutput'
               type: object
       summary: Get Groups by User
       tags:
@@ -345,7 +336,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.GroupInputDTO'
+          $ref: '#/definitions/dto.GroupInput'
       produces:
       - application/json
       responses:
@@ -353,10 +344,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.GroupDetailedOutputDTO'
+                  $ref: '#/definitions/dto.GroupDetailedOutput'
               type: object
       summary: Create Group
       tags:
@@ -378,10 +369,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.GroupDetailedOutputDTO'
+                  $ref: '#/definitions/dto.GroupDetailedOutput'
               type: object
       summary: Get Group by ID
       tags:
@@ -400,7 +391,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.GroupInputDTO'
+          $ref: '#/definitions/dto.GroupInput'
       produces:
       - application/json
       responses:
@@ -408,10 +399,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.GroupDetailedOutputDTO'
+                  $ref: '#/definitions/dto.GroupDetailedOutput'
               type: object
       summary: Update Group
       tags:
@@ -432,7 +423,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GeneralResponseDTO'
+            $ref: '#/definitions/dto.GeneralResponse'
       summary: Accept Group Invitation
       tags:
       - Group
@@ -447,11 +438,11 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/dto.UserDetailedOutputDTO'
+                    $ref: '#/definitions/dto.UserCoreOutput'
                   type: array
               type: object
       summary: Get all Users
@@ -466,7 +457,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.UserInputDTO'
+          $ref: '#/definitions/dto.UserInput'
       produces:
       - application/json
       responses:
@@ -474,10 +465,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.UserCoreOutputDTO'
+                  $ref: '#/definitions/dto.UserCoreOutput'
               type: object
       summary: Register User
       tags:
@@ -498,7 +489,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GeneralResponseDTO'
+            $ref: '#/definitions/dto.GeneralResponse'
       summary: Delete User
       tags:
       - User
@@ -518,10 +509,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.UserDetailedOutputDTO'
+                  $ref: '#/definitions/dto.UserCoreOutput'
               type: object
       summary: Get detailed User data by ID
       tags:
@@ -540,14 +531,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.UserUpdateDTO'
+          $ref: '#/definitions/dto.UserUpdate'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GeneralResponseDTO'
+            $ref: '#/definitions/dto.GeneralResponse'
       summary: Update User
       tags:
       - User
@@ -561,7 +552,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.CredentialsInputDTO'
+          $ref: '#/definitions/dto.CredentialsInput'
       produces:
       - application/json
       responses:
@@ -569,10 +560,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.UserCoreOutputDTO'
+                  $ref: '#/definitions/dto.UserCoreOutput'
               type: object
       summary: Login User
       tags:

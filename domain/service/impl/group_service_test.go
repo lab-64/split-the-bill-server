@@ -11,26 +11,26 @@ import (
 
 // Testdata
 var (
-	TestGroup = model.GroupModel{
+	TestGroup = model.Group{
 		ID:      uuid.New(),
 		Name:    "Test Group",
 		Owner:   TestUser,
-		Members: []model.UserModel{TestUser, TestUser2},
-		Bills:   []model.BillModel{TestBill},
+		Members: []model.User{TestUser, TestUser2},
+		Bills:   []model.Bill{TestBill},
 	}
 
-	TestGroup2 = model.GroupModel{
+	TestGroup2 = model.Group{
 		ID:      uuid.New(),
 		Name:    "Test Group 2",
 		Owner:   TestUser2,
-		Members: []model.UserModel{TestUser, TestUser2},
+		Members: []model.User{TestUser, TestUser2},
 	}
 )
 
 func TestGroupService_GetByID(t *testing.T) {
 
 	// mock method
-	mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.GroupModel, error) {
+	mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
 		return TestGroup, nil
 	}
 	ret, err := groupService.GetByID(TestGroup.ID)
@@ -45,8 +45,8 @@ func TestGroupService_GetByID(t *testing.T) {
 	assert.Equalf(t, 2, len(ret.Balance), "Returned balance should have 2 elements")
 
 	// mock method with error
-	mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.GroupModel, error) {
-		return model.GroupModel{}, storage.NoSuchGroupError
+	mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
+		return model.Group{}, storage.NoSuchGroupError
 	}
 	ret, err = groupService.GetByID(TestGroup.ID)
 	assert.NotNilf(t, err, "Error should not be nil")
@@ -56,8 +56,8 @@ func TestGroupService_GetByID(t *testing.T) {
 func TestGroupService_GetAll(t *testing.T) {
 
 	// mock method
-	mocks.MockGroupGetGroups = func(userID uuid.UUID) ([]model.GroupModel, error) {
-		return []model.GroupModel{TestGroup, TestGroup2}, nil
+	mocks.MockGroupGetGroups = func(userID uuid.UUID) ([]model.Group, error) {
+		return []model.Group{TestGroup, TestGroup2}, nil
 	}
 	ret, err := groupService.GetAll(TestUser.ID, uuid.Nil)
 	assert.NotNilf(t, ret, "Returned data should not be nil")
@@ -69,7 +69,7 @@ func TestGroupService_GetAll(t *testing.T) {
 	assert.NotNilf(t, ret[1].Balance, "Returned balance should not be nil")
 
 	// mock method with error
-	mocks.MockGroupGetGroups = func(userID uuid.UUID) ([]model.GroupModel, error) {
+	mocks.MockGroupGetGroups = func(userID uuid.UUID) ([]model.Group, error) {
 		return nil, storage.NoSuchUserError
 	}
 	ret, err = groupService.GetAll(TestUser.ID, uuid.Nil)

@@ -13,11 +13,11 @@ import (
 
 // Testdata
 var (
-	TestUser = model.UserModel{
+	TestUser = model.User{
 		ID:    uuid.New(),
 		Email: "test@mail.com",
 	}
-	TestUserWithEmptyEmail = model.UserModel{
+	TestUserWithEmptyEmail = model.User{
 		ID:    uuid.New(),
 		Email: "",
 	}
@@ -32,7 +32,7 @@ func TestGetByID(t *testing.T) {
 		mock        func()
 		wantErr     bool
 		expectedErr error
-		want        model.UserModel
+		want        model.User
 	}{
 		{
 			name:    "Success",
@@ -53,7 +53,7 @@ func TestGetByID(t *testing.T) {
 			},
 			wantErr:     true,
 			expectedErr: storage.NoSuchUserError,
-			want:        model.UserModel{},
+			want:        model.User{},
 		},
 	}
 	for _, testcase := range tests {
@@ -81,11 +81,11 @@ func TestCreate(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		user        model.UserModel
+		user        model.User
 		mock        func()
 		wantErr     bool
 		expectedErr error
-		want        model.UserModel
+		want        model.User
 	}{
 		{
 			name: "Success",
@@ -116,7 +116,7 @@ func TestCreate(t *testing.T) {
 			},
 			wantErr:     true,
 			expectedErr: storage.UserAlreadyExistsError,
-			want:        model.UserModel{},
+			want:        model.User{},
 		},
 		{
 			name: "Invalid User Input",
@@ -130,7 +130,7 @@ func TestCreate(t *testing.T) {
 			},
 			wantErr:     true,
 			expectedErr: storage.InvalidUserInputError,
-			want:        model.UserModel{},
+			want:        model.User{},
 		},
 	}
 
@@ -160,10 +160,10 @@ func TestUpdate(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		user        model.UserModel
+		user        model.User
 		mock        func()
 		expectedErr error
-		want        model.UserModel
+		want        model.User
 	}{
 		{
 			name: "Success",

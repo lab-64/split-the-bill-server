@@ -4,10 +4,11 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	. "split-the-bill-server/domain/model"
+	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/database"
-	. "split-the-bill-server/storage/database/entity"
+	"split-the-bill-server/storage/database/converter"
+	"split-the-bill-server/storage/database/entity"
 )
 
 type BillStorage struct {
@@ -18,8 +19,8 @@ func NewBillStorage(DB *database.Database) storage.IBillStorage {
 	return &BillStorage{DB: DB.Context}
 }
 
-func (b *BillStorage) Create(bill BillModel) (BillModel, error) {
-	item := CreateBillEntity(bill)
+func (b *BillStorage) Create(bill model.Bill) (model.Bill, error) {
+	item := converter.ToBillEntity(bill)
 
 	// store bill
 	res := b.DB.Create(&item)
@@ -27,21 +28,21 @@ func (b *BillStorage) Create(bill BillModel) (BillModel, error) {
 		// TODO: does not trigger. Find out how to check for different errors
 		// Adding a bill to an existing group but with a non-existing user as owner results in ErrForeignKeyViolated and therefore "NoSuchGroupError" is returned -> but in the fact user is missing
 		if errors.Is(res.Error, gorm.ErrForeignKeyViolated) {
-			return BillModel{}, storage.NoSuchGroupError
+			return model.Bill{}, storage.NoSuchGroupError
 		}
 		// TODO: return general error
-		return BillModel{}, storage.NoSuchGroupError
+		return model.Bill{}, storage.NoSuchGroupError
 	}
 	// TODO: remove rows affected if we implement a fine error handling
 	if res.RowsAffected == 0 {
-		return BillModel{}, storage.BillAlreadyExistsError
+		return model.Bill{}, storage.BillAlreadyExistsError
 	}
 
-	return ConvertToBillModel(item), res.Error
+	return converter.ToBillModel(item), res.Error
 }
 
-func (b *BillStorage) UpdateBill(bill BillModel) (BillModel, error) {
-	billEntity := CreateBillEntity(bill)
+func (b *BillStorage) UpdateBill(bill model.Bill) (model.Bill, error) {
+	billEntity := converter.ToBillEntity(bill)
 
 	err := b.DB.Transaction(func(tx *gorm.DB) error {
 		// update base bill fields
@@ -70,25 +71,25 @@ func (b *BillStorage) UpdateBill(bill BillModel) (BillModel, error) {
 		return nil
 	})
 
-	return ConvertToBillModel(billEntity), err
+	return converter.ToBillModel(billEntity), err
 }
 
-func (b *BillStorage) GetByID(id uuid.UUID) (BillModel, error) {
-	var bill Bill
+func (b *BillStorage) GetByID(id uuid.UUID) (model.Bill, error) {
+	var bill entity.Bill
 	tx := b.DB.Limit(1).Preload("Items.Contributors").Preload("Owner").Find(&bill, "id = ?", id)
 	// TODO: return general error
 	if tx.Error != nil {
-		return BillModel{}, storage.NoSuchBillError
+		return model.Bill{}, storage.NoSuchBillError
 	}
 	if tx.RowsAffected == 0 {
-		return BillModel{}, storage.NoSuchBillError
+		return model.Bill{}, storage.NoSuchBillError
 	}
-	billModel := ConvertToBillModel(bill)
+	billModel := converter.ToBillModel(bill)
 	return billModel, nil
 }
 
-func (b *BillStorage) CreateItem(item ItemModel) (ItemModel, error) {
-	itemEntity := CreateItemEntity(item)
+func (b *BillStorage) CreateItem(item model.Item) (model.Item, error) {
+	itemEntity := converter.ToItemEntity(item)
 
 	// TODO: if userId belongs to deleted user do not create
 	// store item
@@ -96,26 +97,26 @@ func (b *BillStorage) CreateItem(item ItemModel) (ItemModel, error) {
 
 	// TODO: check if other errors can occur
 	if res.Error != nil {
-		return ItemModel{}, storage.NoSuchUserError
+		return model.Item{}, storage.NoSuchUserError
 	}
 	if res.RowsAffected == 0 {
-		return ItemModel{}, storage.ItemAlreadyExistsError
+		return model.Item{}, storage.ItemAlreadyExistsError
 	}
 
-	return ConvertToItemModel(itemEntity), nil
+	return converter.ToItemModel(itemEntity), nil
 }
 
-func (b *BillStorage) GetItemByID(id uuid.UUID) (ItemModel, error) {
-	var item Item
+func (b *BillStorage) GetItemByID(id uuid.UUID) (model.Item, error) {
+	var item entity.Item
 	tx := b.DB.Preload("Contributors").Limit(1).Find(&item, "id = ?", id)
 	if tx.RowsAffected == 0 {
-		return ItemModel{}, storage.NoSuchItemError
+		return model.Item{}, storage.NoSuchItemError
 	}
-	return ConvertToItemModel(item), nil
+	return converter.ToItemModel(item), nil
 }
 
-func (b *BillStorage) UpdateItem(item ItemModel) (ItemModel, error) {
-	itemEntity := CreateItemEntity(item)
+func (b *BillStorage) UpdateItem(item model.Item) (model.Item, error) {
+	itemEntity := converter.ToItemEntity(item)
 
 	// run as a transaction to ensure consistency. item should be completely updated or not at all
 	err := b.DB.Transaction(func(tx *gorm.DB) error {
@@ -147,5 +148,5 @@ func (b *BillStorage) UpdateItem(item ItemModel) (ItemModel, error) {
 		return nil
 	})
 
-	return ConvertToItemModel(itemEntity), err
+	return converter.ToItemModel(itemEntity), err
 }

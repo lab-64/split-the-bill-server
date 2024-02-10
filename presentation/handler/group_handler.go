@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
-	. "split-the-bill-server/presentation/dto"
+	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/middleware"
 )
 
@@ -24,14 +24,14 @@ func NewGroupHandler(GroupService *service.IGroupService) *GroupHandler {
 //	@Tags		Group
 //	@Accept		json
 //	@Produce	json
-//	@Param		request	body		dto.GroupInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.GroupDetailedOutputDTO}
+//	@Param		request	body		dto.GroupInput	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponse{data=dto.GroupDetailedOutput}
 //	@Router		/api/group [post]
 func (h GroupHandler) Create(c *fiber.Ctx) error {
 
 	// TODO: authenticate user
 	// parse group from request body
-	var request GroupInputDTO
+	var request dto.GroupInput
 	if err := c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupParse, err))
 	}
@@ -58,9 +58,9 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 //	@Tags		Group
 //	@Accept		json
 //	@Produce	json
-//	@Param		id		path		string				true	"Group ID"
-//	@Param		request	body		dto.GroupInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.GroupDetailedOutputDTO}
+//	@Param		id		path		string			true	"Group ID"
+//	@Param		request	body		dto.GroupInput	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponse{data=dto.GroupDetailedOutput}
 //
 //	@Router		/api/group/{id} [put]
 func (g GroupHandler) Update(c *fiber.Ctx) error {
@@ -76,7 +76,7 @@ func (g GroupHandler) Update(c *fiber.Ctx) error {
 	}
 
 	// parse request
-	var request GroupInputDTO
+	var request dto.GroupInput
 	if err := c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupParse, err))
 	}
@@ -99,7 +99,7 @@ func (g GroupHandler) Update(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"Group Id"
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.GroupDetailedOutputDTO}
+//	@Success	200	{object}	dto.GeneralResponse{data=dto.GroupDetailedOutput}
 //	@Router		/api/group/{id} [get]
 //
 // TODO: maybe delete, or add authentication and allow only query of own groups
@@ -130,7 +130,7 @@ func (h GroupHandler) GetByID(c *fiber.Ctx) error {
 //	@Produce	json
 //	@Param		userId			query		string	false	"User Id"
 //	@Param		invitationId	query		string	false	"Invitation Id"
-//	@Success	200				{object}	dto.GeneralResponseDTO{data=dto.GroupDetailedOutputDTO}
+//	@Success	200				{object}	dto.GeneralResponse{data=dto.GroupDetailedOutput}
 //	@Router		/api/group [get]
 func (h GroupHandler) GetAll(c *fiber.Ctx) error {
 	userID := c.Query("userId")
@@ -171,7 +171,7 @@ func (h GroupHandler) GetAll(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"Invitation ID"
-//	@Success	200	{object}	dto.GeneralResponseDTO
+//	@Success	200	{object}	dto.GeneralResponse
 //	@Router		/api/group/invitation/{id}/accept [post]
 func (h GroupHandler) AcceptInvitation(c *fiber.Ctx) error {
 	id := c.Params("id")

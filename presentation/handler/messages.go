@@ -62,11 +62,8 @@ const (
 	SuccessMsgUserUpdate = "User updated"
 
 	// Invitation - ERROR
-	ErrMsgInvitationParse  = "Could not parse invitation: %v"
-	ErrMsgInvitationCreate = "Could not create invitation: %v"
+	ErrMsgInvitationParse = "Could not parse invitation: %v"
 
 	// Invitation - SUCCESS
-	SuccessMsgInvitationCreate  = "Invitation created"
-	SuccessMsgInvitationFound   = "Invitation found"
 	SuccessMsgInvitationHandled = "Invitation handled"
 )

@@ -4,10 +4,11 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	. "split-the-bill-server/domain/model"
+	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database"
-	. "split-the-bill-server/storage/database/entity"
+	"split-the-bill-server/storage/database/converter"
+	"split-the-bill-server/storage/database/entity"
 )
 
 type GroupStorage struct {
@@ -18,8 +19,8 @@ func NewGroupStorage(DB *Database) storage.IGroupStorage {
 	return &GroupStorage{DB: DB.Context}
 }
 
-func (g *GroupStorage) AddGroup(group GroupModel) (GroupModel, error) {
-	groupItem := CreateGroupEntity(group)
+func (g *GroupStorage) AddGroup(group model.Group) (model.Group, error) {
+	groupItem := converter.ToGroupEntity(group)
 
 	// .First(...) in the end enables preload on create (kind of workaround)
 	// https://github.com/go-gorm/gen/issues/618
@@ -30,13 +31,13 @@ func (g *GroupStorage) AddGroup(group GroupModel) (GroupModel, error) {
 
 	// RowsAffected == 0 -> group already exists
 	if res.RowsAffected == 0 {
-		return GroupModel{}, storage.GroupAlreadyExistsError
+		return model.Group{}, storage.GroupAlreadyExistsError
 	}
-	return ConvertToGroupModel(groupItem), res.Error
+	return converter.ToGroupModel(groupItem), res.Error
 }
 
-func (g *GroupStorage) UpdateGroup(group GroupModel) (GroupModel, error) {
-	groupEntity := CreateGroupEntity(group)
+func (g *GroupStorage) UpdateGroup(group model.Group) (model.Group, error) {
+	groupEntity := converter.ToGroupEntity(group)
 
 	res := g.DB.
 		Preload(clause.Associations).
@@ -46,18 +47,18 @@ func (g *GroupStorage) UpdateGroup(group GroupModel) (GroupModel, error) {
 
 	// TODO: add finer error handling
 	if res.Error != nil {
-		return GroupModel{}, res.Error
+		return model.Group{}, res.Error
 	}
 
 	if res.RowsAffected == 0 {
-		return GroupModel{}, storage.NoSuchGroupError
+		return model.Group{}, storage.NoSuchGroupError
 	}
 
-	return ConvertToGroupModel(groupEntity), nil
+	return converter.ToGroupModel(groupEntity), nil
 }
 
-func (g *GroupStorage) GetGroupByID(id uuid.UUID) (GroupModel, error) {
-	var group Group
+func (g *GroupStorage) GetGroupByID(id uuid.UUID) (model.Group, error) {
+	var group entity.Group
 
 	// load group with related user and members from db
 	tx := g.DB.
@@ -67,16 +68,16 @@ func (g *GroupStorage) GetGroupByID(id uuid.UUID) (GroupModel, error) {
 		Limit(1).Find(&group, "id = ?", id)
 
 	if tx.Error != nil {
-		return GroupModel{}, tx.Error
+		return model.Group{}, tx.Error
 	}
 	if tx.RowsAffected == 0 {
-		return GroupModel{}, storage.NoSuchGroupError
+		return model.Group{}, storage.NoSuchGroupError
 	}
-	return ConvertToGroupModel(group), nil
+	return converter.ToGroupModel(group), nil
 }
 
-func (g *GroupStorage) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]GroupModel, error) {
-	var groups []Group
+func (g *GroupStorage) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]model.Group, error) {
+	var groups []entity.Group
 
 	tx := g.DB.
 		Preload(clause.Associations).
@@ -97,11 +98,11 @@ func (g *GroupStorage) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]Gr
 		return nil, tx.Error
 	}
 
-	return ToGroupModelSlice(groups), nil
+	return converter.ToGroupModels(groups), nil
 }
 
 func (g *GroupStorage) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
-	var groupInvitation GroupInvitation
+	var groupInvitation entity.GroupInvitation
 
 	//TODO: generalize error messages
 	// TODO: test behavior
@@ -111,8 +112,13 @@ func (g *GroupStorage) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid
 	}
 
 	// add the user to the group members
-	group := Group{Base: Base{ID: groupInvitation.GroupID}}
-	user := User{Base: Base{ID: userID}}
+	group := entity.Group{
+		Base: entity.Base{ID: groupInvitation.GroupID},
+	}
+
+	user := entity.User{
+		Base: entity.Base{ID: userID},
+	}
 
 	res := g.DB.Model(&group).Association("Members").Append(&user)
 

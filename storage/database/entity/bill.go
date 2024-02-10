@@ -2,7 +2,6 @@ package entity
 
 import (
 	"github.com/google/uuid"
-	"split-the-bill-server/domain/model"
 	"time"
 )
 
@@ -14,38 +13,4 @@ type Bill struct {
 	Date    time.Time
 	Items   []Item    `gorm:"foreignKey:BillID"` // has many items
 	GroupID uuid.UUID `gorm:"type:uuid"`         // group has many bills
-}
-
-func CreateBillEntity(bill model.BillModel) Bill {
-
-	// convert items
-	var items []Item
-	for _, item := range bill.Items {
-		items = append(items, CreateItemEntity(item))
-	}
-
-	return Bill{
-		Base:    Base{ID: bill.ID},
-		Name:    bill.Name,
-		Date:    bill.Date,
-		GroupID: bill.GroupID,
-		OwnerID: bill.Owner.ID,
-		Items:   items,
-	}
-}
-
-func ConvertToBillModel(bill Bill) model.BillModel {
-	items := make([]model.ItemModel, len(bill.Items))
-	for i, item := range bill.Items {
-		items[i] = ConvertToItemModel(item)
-	}
-
-	return model.BillModel{
-		ID:      bill.ID,
-		Name:    bill.Name,
-		Date:    bill.Date,
-		Owner:   ConvertToUserModel(bill.Owner),
-		GroupID: bill.GroupID,
-		Items:   items,
-	}
 }

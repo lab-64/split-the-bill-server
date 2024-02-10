@@ -9,7 +9,7 @@ import (
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
-	. "split-the-bill-server/presentation/dto"
+	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/middleware"
 )
 
@@ -28,7 +28,7 @@ func NewUserHandler(userService *service.IUserService, v *password.Validator) *U
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=[]dto.UserDetailedOutputDTO}
+//	@Success	200	{object}	dto.GeneralResponse{data=[]dto.UserCoreOutput}
 //	@Router		/api/user [get]
 func (h UserHandler) GetAll(c *fiber.Ctx) error {
 	users, err := h.userService.GetAll()
@@ -45,7 +45,7 @@ func (h UserHandler) GetAll(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"User ID"
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.UserDetailedOutputDTO}
+//	@Success	200	{object}	dto.GeneralResponse{data=dto.UserCoreOutput}
 //	@Router		/api/user/{id} [get]
 func (h UserHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -71,7 +71,7 @@ func (h UserHandler) GetByID(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"User ID"
-//	@Success	200	{object}	dto.GeneralResponseDTO
+//	@Success	200	{object}	dto.GeneralResponse
 //	@Router		/api/user/{id} [delete]
 func (h UserHandler) Delete(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -89,17 +89,17 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusOK, SuccessMsgUserDelete, nil)
 }
 
-// Register 	parses a dto.UserInputDTO from the request body, compares and validates both passwords and creates a new user.
+// Register 	parses a dto.UserInput from the request body, compares and validates both passwords and creates a new user.
 //
 //	@Summary	Register User
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Param		request	body		dto.UserInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserCoreOutputDTO}
+//	@Param		request	body		dto.UserInput	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponse{data=dto.UserCoreOutput}
 //	@Router		/api/user [post]
 func (h UserHandler) Register(c *fiber.Ctx) error {
-	var request UserInputDTO
+	var request dto.UserInput
 	if err := c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
@@ -122,13 +122,13 @@ func (h UserHandler) Register(c *fiber.Ctx) error {
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Param		request	body		dto.CredentialsInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserCoreOutputDTO}
+//	@Param		request	body		dto.CredentialsInput	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponse{data=dto.UserCoreOutput}
 //	@Router		/api/user/login [post]
 //
 // Login uses the given login credentials for login and returns an authentication token for the user.
 func (h UserHandler) Login(c *fiber.Ctx) error {
-	var userCredentials CredentialsInputDTO
+	var userCredentials dto.CredentialsInput
 	if err := c.BodyParser(&userCredentials); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserCredentialsParse, err))
 	}
@@ -163,9 +163,9 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Param		id		path		string				true	"User ID"
-//	@Param		request	body		dto.UserUpdateDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Param		id		path		string			true	"User ID"
+//	@Param		request	body		dto.UserUpdate	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponse
 //	@Router		/api/user/{id} [put]
 func (h UserHandler) Update(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -176,7 +176,7 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
-	var user UserUpdateDTO
+	var user dto.UserUpdate
 	if err := c.BodyParser(&user); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}

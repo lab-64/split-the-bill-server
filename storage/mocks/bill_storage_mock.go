@@ -7,12 +7,12 @@ import (
 )
 
 var (
-	MockBillCreate      func(model.BillModel) (model.BillModel, error)
-	MockBillUpdate      func(model.BillModel) (model.BillModel, error)
-	MockBillGetByID     func(uuid.UUID) (model.BillModel, error)
-	MockBillCreateItem  func(model.ItemModel) (model.ItemModel, error)
-	MockBillGetItemByID func(uuid.UUID) (model.ItemModel, error)
-	MockBillUpdateItem  func(model.ItemModel) (model.ItemModel, error)
+	MockBillCreate      func(model.Bill) (model.Bill, error)
+	MockBillUpdate      func(model.Bill) (model.Bill, error)
+	MockBillGetByID     func(uuid.UUID) (model.Bill, error)
+	MockBillCreateItem  func(model.Item) (model.Item, error)
+	MockBillGetItemByID func(uuid.UUID) (model.Item, error)
+	MockBillUpdateItem  func(model.Item) (model.Item, error)
 )
 
 func NewBillStorageMock() storage.IBillStorage {
@@ -22,26 +22,26 @@ func NewBillStorageMock() storage.IBillStorage {
 type BillStorageMock struct {
 }
 
-func (b BillStorageMock) Create(bill model.BillModel) (model.BillModel, error) {
+func (b BillStorageMock) Create(bill model.Bill) (model.Bill, error) {
 	return MockBillCreate(bill)
 }
 
-func (b BillStorageMock) UpdateBill(bill model.BillModel) (model.BillModel, error) {
+func (b BillStorageMock) UpdateBill(bill model.Bill) (model.Bill, error) {
 	return MockBillUpdate(bill)
 }
 
-func (b BillStorageMock) GetByID(id uuid.UUID) (model.BillModel, error) {
+func (b BillStorageMock) GetByID(id uuid.UUID) (model.Bill, error) {
 	return MockBillGetByID(id)
 }
 
-func (b BillStorageMock) CreateItem(item model.ItemModel) (model.ItemModel, error) {
+func (b BillStorageMock) CreateItem(item model.Item) (model.Item, error) {
 	return MockBillCreateItem(item)
 }
 
-func (b BillStorageMock) GetItemByID(id uuid.UUID) (model.ItemModel, error) {
+func (b BillStorageMock) GetItemByID(id uuid.UUID) (model.Item, error) {
 	return MockBillGetItemByID(id)
 }
 
-func (b BillStorageMock) UpdateItem(item model.ItemModel) (model.ItemModel, error) {
+func (b BillStorageMock) UpdateItem(item model.Item) (model.Item, error) {
 	return MockBillUpdateItem(item)
 }

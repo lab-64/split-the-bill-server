@@ -11,68 +11,68 @@ import (
 
 // Testdata
 var (
-	TestItem1 = model.ItemModel{
+	TestItem1 = model.Item{
 		ID:           uuid.New(),
 		Name:         "Test Item 1",
 		Price:        10,
-		Contributors: []model.UserModel{TestUser},
+		Contributors: []model.User{TestUser},
 	}
 
-	TestItem1Updated = model.ItemModel{
+	TestItem1Updated = model.Item{
 		ID:           TestItem1.ID,
 		Name:         "Test Item 1 Updated",
 		Price:        12,
-		Contributors: []model.UserModel{TestUser},
+		Contributors: []model.User{TestUser},
 	}
 
-	TestItem2 = model.ItemModel{
+	TestItem2 = model.Item{
 		ID:           uuid.New(),
 		Name:         "Test Item 2",
 		Price:        18.5,
-		Contributors: []model.UserModel{TestUser, TestUser2},
+		Contributors: []model.User{TestUser, TestUser2},
 	}
 
-	TestBill = model.BillModel{
+	TestBill = model.Bill{
 		ID:    uuid.New(),
 		Name:  "Test Bill",
 		Owner: TestUser,
-		Items: []model.ItemModel{TestItem1, TestItem2},
+		Items: []model.Item{TestItem1, TestItem2},
 	}
 
-	TestBillUpdated = model.BillModel{
+	TestBillUpdated = model.Bill{
 		ID:    TestBill.ID,
 		Name:  "Test Bill Updated",
 		Owner: TestUser,
-		Items: []model.ItemModel{TestItem1Updated, TestItem2},
+		Items: []model.Item{TestItem1Updated, TestItem2},
 	}
 )
 
 func TestBillService_Update(t *testing.T) {
 
 	// mock method
-	mocks.MockBillUpdate = func(bill model.BillModel) (model.BillModel, error) {
+	mocks.MockBillUpdate = func(bill model.Bill) (model.Bill, error) {
 		return TestBillUpdated, nil
 	}
-	mocks.MockBillGetByID = func(id uuid.UUID) (model.BillModel, error) {
+	mocks.MockBillGetByID = func(id uuid.UUID) (model.Bill, error) {
 		return TestBill, nil
 	}
 
-	itemUpdated := dto.ItemInputDTO{
+	itemUpdated := dto.ItemInput{
 		Name:         TestItem1Updated.Name,
 		Price:        TestItem1Updated.Price,
 		Contributors: []uuid.UUID{TestUser.ID},
 	}
-	item2 := dto.ItemInputDTO{
+	item2 := dto.ItemInput{
 		Name:         TestItem2.Name,
 		Price:        TestItem2.Price,
 		Contributors: []uuid.UUID{TestUser.ID, TestUser2.ID},
 	}
 
 	// updated fields
-	billUpdated := dto.BillInputDTO{
+	billUpdated := dto.BillInput{
 		OwnerID: TestBillUpdated.Owner.ID,
 		Name:    TestBillUpdated.Name,
-		Items:   []dto.ItemInputDTO{itemUpdated, item2},
+		Items:   []dto.ItemInput{itemUpdated, item2},
 	}
 
 	ret, err := billService.Update(TestUser.ID, TestBill.ID, billUpdated)

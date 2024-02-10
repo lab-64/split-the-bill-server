@@ -17,11 +17,11 @@ import (
 
 // Testdata
 var (
-	TestUser = model.UserModel{
+	TestUser = model.User{
 		ID:    uuid.New(),
 		Email: "test@mail.com",
 	}
-	TestUserCookie = model.AuthCookieModel{
+	TestUserCookie = model.AuthCookie{
 		UserID:      TestUser.ID,
 		Token:       uuid.New(),
 		ValidBefore: time.Now().Add(model.SessionCookieValidityPeriod),
@@ -31,7 +31,7 @@ var (
 func TestAuthenticate_Success(t *testing.T) {
 
 	// mock get cookie from storage
-	storagemocks.MockCookieGetCookieFromToken = func(token uuid.UUID) (model.AuthCookieModel, error) {
+	storagemocks.MockCookieGetCookieFromToken = func(token uuid.UUID) (model.AuthCookie, error) {
 		return TestUserCookie, nil
 	}
 
@@ -70,7 +70,7 @@ func TestAuthenticate_NoCookie(t *testing.T) {
 	if err != nil {
 		t.Fatal("Error in test setup during reading response body - ", err)
 	}
-	var response dto.GeneralResponseDTO
+	var response dto.GeneralResponse
 	err = json.Unmarshal(body, &response)
 
 	assert.NoError(t, err)
@@ -100,7 +100,7 @@ func TestAuthenticate_InvalidCookie(t *testing.T) {
 	if err != nil {
 		t.Fatal("Error in test setup during reading response body - ", err)
 	}
-	var response dto.GeneralResponseDTO
+	var response dto.GeneralResponse
 	err = json.Unmarshal(body, &response)
 
 	assert.NoError(t, err)
@@ -111,8 +111,8 @@ func TestAuthenticate_InvalidCookie(t *testing.T) {
 func TestAuthenticate_DeclineCookie(t *testing.T) {
 
 	// mock get cookie from storage
-	storagemocks.MockCookieGetCookieFromToken = func(token uuid.UUID) (model.AuthCookieModel, error) {
-		return model.AuthCookieModel{}, storage.NoSuchCookieError
+	storagemocks.MockCookieGetCookieFromToken = func(token uuid.UUID) (model.AuthCookie, error) {
+		return model.AuthCookie{}, storage.NoSuchCookieError
 	}
 
 	// setup request
@@ -136,7 +136,7 @@ func TestAuthenticate_DeclineCookie(t *testing.T) {
 	if err != nil {
 		t.Fatal("Error in test setup during reading response body - ", err)
 	}
-	var response dto.GeneralResponseDTO
+	var response dto.GeneralResponse
 	err = json.Unmarshal(body, &response)
 
 	assert.NoError(t, err)
@@ -148,8 +148,8 @@ func TestAuthenticate_DeclineCookie(t *testing.T) {
 func TestAuthenticate_ExpiredCookie(t *testing.T) {
 
 	// mock get cookie from storage
-	storagemocks.MockCookieGetCookieFromToken = func(token uuid.UUID) (model.AuthCookieModel, error) {
-		return model.AuthCookieModel{
+	storagemocks.MockCookieGetCookieFromToken = func(token uuid.UUID) (model.AuthCookie, error) {
+		return model.AuthCookie{
 			UserID:      TestUser.ID,
 			Token:       token,
 			ValidBefore: time.Now().Add(-time.Hour),
@@ -177,7 +177,7 @@ func TestAuthenticate_ExpiredCookie(t *testing.T) {
 	if err != nil {
 		t.Fatal("Error in test setup during reading response body - ", err)
 	}
-	var response dto.GeneralResponseDTO
+	var response dto.GeneralResponse
 	err = json.Unmarshal(body, &response)
 
 	assert.NoError(t, err)

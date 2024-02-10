@@ -27,7 +27,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.BillInputDTO"
+                            "$ref": "#/definitions/dto.BillInput"
                         }
                     }
                 ],
@@ -37,13 +37,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.BillDetailedOutputDTO"
+                                            "$ref": "#/definitions/dto.BillDetailedOutput"
                                         }
                                     }
                                 }
@@ -72,7 +72,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ItemInputDTO"
+                            "$ref": "#/definitions/dto.ItemInput"
                         }
                     }
                 ],
@@ -82,13 +82,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.ItemOutputDTO"
+                                            "$ref": "#/definitions/dto.ItemOutput"
                                         }
                                     }
                                 }
@@ -125,13 +125,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.ItemOutputDTO"
+                                            "$ref": "#/definitions/dto.ItemOutput"
                                         }
                                     }
                                 }
@@ -165,7 +165,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ItemInputDTO"
+                            "$ref": "#/definitions/dto.ItemInput"
                         }
                     }
                 ],
@@ -175,13 +175,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.ItemOutputDTO"
+                                            "$ref": "#/definitions/dto.ItemOutput"
                                         }
                                     }
                                 }
@@ -218,13 +218,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.BillDetailedOutputDTO"
+                                            "$ref": "#/definitions/dto.BillDetailedOutput"
                                         }
                                     }
                                 }
@@ -258,7 +258,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.BillInputDTO"
+                            "$ref": "#/definitions/dto.BillInput"
                         }
                     }
                 ],
@@ -268,13 +268,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.BillDetailedOutputDTO"
+                                            "$ref": "#/definitions/dto.BillDetailedOutput"
                                         }
                                     }
                                 }
@@ -316,13 +316,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.GroupDetailedOutputDTO"
+                                            "$ref": "#/definitions/dto.GroupDetailedOutput"
                                         }
                                     }
                                 }
@@ -349,7 +349,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.GroupInputDTO"
+                            "$ref": "#/definitions/dto.GroupInput"
                         }
                     }
                 ],
@@ -359,13 +359,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.GroupDetailedOutputDTO"
+                                            "$ref": "#/definitions/dto.GroupDetailedOutput"
                                         }
                                     }
                                 }
@@ -400,7 +400,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                            "$ref": "#/definitions/dto.GeneralResponse"
                         }
                     }
                 }
@@ -433,13 +433,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.GroupDetailedOutputDTO"
+                                            "$ref": "#/definitions/dto.GroupDetailedOutput"
                                         }
                                     }
                                 }
@@ -473,7 +473,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.GroupInputDTO"
+                            "$ref": "#/definitions/dto.GroupInput"
                         }
                     }
                 ],
@@ -483,13 +483,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.GroupDetailedOutputDTO"
+                                            "$ref": "#/definitions/dto.GroupDetailedOutput"
                                         }
                                     }
                                 }
@@ -517,7 +517,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
@@ -525,7 +525,7 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/dto.UserDetailedOutputDTO"
+                                                "$ref": "#/definitions/dto.UserCoreOutput"
                                             }
                                         }
                                     }
@@ -553,7 +553,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.UserInputDTO"
+                            "$ref": "#/definitions/dto.UserInput"
                         }
                     }
                 ],
@@ -563,13 +563,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.UserCoreOutputDTO"
+                                            "$ref": "#/definitions/dto.UserCoreOutput"
                                         }
                                     }
                                 }
@@ -598,7 +598,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CredentialsInputDTO"
+                            "$ref": "#/definitions/dto.CredentialsInput"
                         }
                     }
                 ],
@@ -608,13 +608,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.UserCoreOutputDTO"
+                                            "$ref": "#/definitions/dto.UserCoreOutput"
                                         }
                                     }
                                 }
@@ -651,13 +651,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
+                                    "$ref": "#/definitions/dto.GeneralResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.UserDetailedOutputDTO"
+                                            "$ref": "#/definitions/dto.UserCoreOutput"
                                         }
                                     }
                                 }
@@ -691,7 +691,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.UserUpdateDTO"
+                            "$ref": "#/definitions/dto.UserUpdate"
                         }
                     }
                 ],
@@ -699,7 +699,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                            "$ref": "#/definitions/dto.GeneralResponse"
                         }
                     }
                 }
@@ -728,7 +728,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                            "$ref": "#/definitions/dto.GeneralResponse"
                         }
                     }
                 }
@@ -736,7 +736,7 @@
         }
     },
     "definitions": {
-        "dto.BillDetailedOutputDTO": {
+        "dto.BillDetailedOutput": {
             "type": "object",
             "properties": {
                 "balance": {
@@ -758,18 +758,18 @@
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.ItemOutputDTO"
+                        "$ref": "#/definitions/dto.ItemOutput"
                     }
                 },
                 "name": {
                     "type": "string"
                 },
                 "owner": {
-                    "$ref": "#/definitions/dto.UserCoreOutputDTO"
+                    "$ref": "#/definitions/dto.UserCoreOutput"
                 }
             }
         },
-        "dto.BillInputDTO": {
+        "dto.BillInput": {
             "type": "object",
             "properties": {
                 "date": {
@@ -781,7 +781,7 @@
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.ItemInputDTO"
+                        "$ref": "#/definitions/dto.ItemInput"
                     }
                 },
                 "name": {
@@ -792,7 +792,7 @@
                 }
             }
         },
-        "dto.CredentialsInputDTO": {
+        "dto.CredentialsInput": {
             "type": "object",
             "properties": {
                 "email": {
@@ -803,7 +803,7 @@
                 }
             }
         },
-        "dto.GeneralResponseDTO": {
+        "dto.GeneralResponse": {
             "type": "object",
             "properties": {
                 "data": {},
@@ -812,7 +812,7 @@
                 }
             }
         },
-        "dto.GroupDetailedOutputDTO": {
+        "dto.GroupDetailedOutput": {
             "type": "object",
             "properties": {
                 "balance": {
@@ -825,7 +825,7 @@
                 "bills": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.BillDetailedOutputDTO"
+                        "$ref": "#/definitions/dto.BillDetailedOutput"
                     }
                 },
                 "id": {
@@ -838,18 +838,18 @@
                 "members": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.UserCoreOutputDTO"
+                        "$ref": "#/definitions/dto.UserCoreOutput"
                     }
                 },
                 "name": {
                     "type": "string"
                 },
                 "owner": {
-                    "$ref": "#/definitions/dto.UserCoreOutputDTO"
+                    "$ref": "#/definitions/dto.UserCoreOutput"
                 }
             }
         },
-        "dto.GroupInputDTO": {
+        "dto.GroupInput": {
             "type": "object",
             "properties": {
                 "name": {
@@ -860,7 +860,7 @@
                 }
             }
         },
-        "dto.ItemInputDTO": {
+        "dto.ItemInput": {
             "type": "object",
             "properties": {
                 "billId": {
@@ -880,7 +880,7 @@
                 }
             }
         },
-        "dto.ItemOutputDTO": {
+        "dto.ItemOutput": {
             "type": "object",
             "properties": {
                 "billId": {
@@ -889,7 +889,7 @@
                 "contributors": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.UserCoreOutputDTO"
+                        "$ref": "#/definitions/dto.UserCoreOutput"
                     }
                 },
                 "id": {
@@ -903,7 +903,7 @@
                 }
             }
         },
-        "dto.UserCoreOutputDTO": {
+        "dto.UserCoreOutput": {
             "type": "object",
             "properties": {
                 "email": {
@@ -917,21 +917,7 @@
                 }
             }
         },
-        "dto.UserDetailedOutputDTO": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UserInputDTO": {
+        "dto.UserInput": {
             "type": "object",
             "properties": {
                 "email": {
@@ -942,7 +928,7 @@
                 }
             }
         },
-        "dto.UserUpdateDTO": {
+        "dto.UserUpdate": {
             "type": "object",
             "properties": {
                 "username": {

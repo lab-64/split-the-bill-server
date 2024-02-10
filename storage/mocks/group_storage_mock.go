@@ -7,10 +7,10 @@ import (
 )
 
 var (
-	MockGroupAddGroup     func(model.GroupModel) (model.GroupModel, error)
-	MockGroupUpdateGroup  func(model.GroupModel) (model.GroupModel, error)
-	MockGroupGetGroupByID func(uuid.UUID) (model.GroupModel, error)
-	MockGroupGetGroups    func(uuid.UUID) ([]model.GroupModel, error)
+	MockGroupAddGroup     func(model.Group) (model.Group, error)
+	MockGroupUpdateGroup  func(model.Group) (model.Group, error)
+	MockGroupGetGroupByID func(uuid.UUID) (model.Group, error)
+	MockGroupGetGroups    func(uuid.UUID) ([]model.Group, error)
 )
 
 func NewGroupStorageMock() storage.IGroupStorage {
@@ -20,19 +20,19 @@ func NewGroupStorageMock() storage.IGroupStorage {
 type GroupStorageMock struct {
 }
 
-func (g GroupStorageMock) AddGroup(group model.GroupModel) (model.GroupModel, error) {
+func (g GroupStorageMock) AddGroup(group model.Group) (model.Group, error) {
 	return MockGroupAddGroup(group)
 }
 
-func (g GroupStorageMock) UpdateGroup(group model.GroupModel) (model.GroupModel, error) {
+func (g GroupStorageMock) UpdateGroup(group model.Group) (model.Group, error) {
 	return MockGroupUpdateGroup(group)
 }
 
-func (g GroupStorageMock) GetGroupByID(id uuid.UUID) (model.GroupModel, error) {
+func (g GroupStorageMock) GetGroupByID(id uuid.UUID) (model.Group, error) {
 	return MockGroupGetGroupByID(id)
 }
 
-func (g GroupStorageMock) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]model.GroupModel, error) {
+func (g GroupStorageMock) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]model.Group, error) {
 	return MockGroupGetGroups(userID)
 }
 
