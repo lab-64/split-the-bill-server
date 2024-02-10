@@ -3,6 +3,7 @@ package impl
 import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/mocks"
@@ -12,67 +13,153 @@ import (
 // Testdata
 var (
 	TestGroup = model.Group{
-		ID:      uuid.New(),
-		Name:    "Test Group",
-		Owner:   TestUser,
-		Members: []model.User{TestUser, TestUser2},
-		Bills:   []model.Bill{TestBill},
+		ID:           uuid.New(),
+		Name:         "Test Group",
+		Owner:        TestUser,
+		Members:      []model.User{TestUser, TestUser2},
+		Bills:        []model.Bill{TestBill},
+		InvitationID: uuid.New(),
 	}
 
 	TestGroup2 = model.Group{
-		ID:      uuid.New(),
-		Name:    "Test Group 2",
-		Owner:   TestUser2,
-		Members: []model.User{TestUser, TestUser2},
+		ID:           uuid.New(),
+		Name:         "Test Group 2",
+		Owner:        TestUser2,
+		Members:      []model.User{TestUser, TestUser2},
+		InvitationID: uuid.New(),
 	}
 )
 
 func TestGroupService_GetByID(t *testing.T) {
 
-	// mock method
-	mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
-		return TestGroup, nil
+	tests := []struct {
+		name             string
+		mock             func()
+		requesterID      uuid.UUID
+		groupID          uuid.UUID
+		expectedGroup    model.Group
+		expectedBillSize int
+		expectedError    error
+	}{
+		{
+			name: "Success",
+			mock: func() {
+				mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
+					return TestGroup, nil
+				}
+			},
+			requesterID:      TestUser.ID,
+			groupID:          TestGroup.ID,
+			expectedGroup:    TestGroup,
+			expectedBillSize: 2,
+			expectedError:    nil,
+		},
+		{
+			name: "Not authorized",
+			mock: func() {
+				mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
+					return TestGroup, nil
+				}
+			},
+			requesterID:   uuid.New(),
+			groupID:       TestGroup.ID,
+			expectedError: domain.ErrNotAuthorized,
+		},
+		{
+			name: "No such group",
+			mock: func() {
+				mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
+					return model.Group{}, storage.NoSuchGroupError
+				}
+			},
+			requesterID:   TestUser.ID,
+			groupID:       uuid.New(),
+			expectedError: storage.NoSuchGroupError,
+		},
 	}
-	ret, err := groupService.GetByID(TestGroup.ID)
-	assert.NotNilf(t, ret, "Returned data should not be nil")
-	assert.Nilf(t, err, "Error should be nil")
-	assert.Equalf(t, TestGroup.ID, ret.ID, "Returned ID should be equal to the given ID")
-	assert.EqualValuesf(t, TestGroup.Name, ret.Name, "Returned name should be equal to the given name")
-	assert.EqualValuesf(t, TestGroup.Owner.ID, ret.Owner.ID, "Returned owner should be equal to the given owner")
-	assert.Equalf(t, 2, len(ret.Members), "Returned members should have 2 elements")
-	assert.Equalf(t, 1, len(ret.Bills), "Returned bills should have 1 element")
-	assert.NotNilf(t, ret.Balance, "Returned balance should not be nil")
-	assert.Equalf(t, 2, len(ret.Balance), "Returned balance should have 2 elements")
 
-	// mock method with error
-	mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
-		return model.Group{}, storage.NoSuchGroupError
+	for _, testcase := range tests {
+		t.Run(testcase.name, func(t *testing.T) {
+			testcase.mock()
+			ret, err := groupService.GetByID(testcase.requesterID, testcase.groupID)
+			assert.Equalf(t, testcase.expectedError, err, "Returned error should be equal to the expected error")
+			if err == nil {
+				assert.Equalf(t, testcase.expectedGroup.ID, ret.ID, "Returned ID should be equal to the given ID")
+				assert.Equalf(t, testcase.expectedGroup.Name, ret.Name, "Returned name should be equal to the given name")
+				assert.Equalf(t, testcase.expectedGroup.Owner.ID, ret.Owner.ID, "Returned owner ID should be equal to the given owner ID")
+				assert.Equalf(t, len(testcase.expectedGroup.Members), len(ret.Members), "Returned members should have the same length as the expected members")
+				assert.Equalf(t, len(testcase.expectedGroup.Bills), len(ret.Bills), "Returned bills should have the same length as the expected bills")
+				assert.NotNilf(t, ret.Balance, "Returned balance should not be nil")
+				assert.Equalf(t, testcase.expectedBillSize, len(ret.Balance), "Returned balance should have the same length as the expected balance")
+			}
+		})
 	}
-	ret, err = groupService.GetByID(TestGroup.ID)
-	assert.NotNilf(t, err, "Error should not be nil")
-	assert.Errorf(t, err, storage.NoSuchGroupError.Error(), "Error should be NoSuchGroupError")
 }
 
 func TestGroupService_GetAll(t *testing.T) {
 
-	// mock method
-	mocks.MockGroupGetGroups = func(userID uuid.UUID) ([]model.Group, error) {
-		return []model.Group{TestGroup, TestGroup2}, nil
+	tests := []struct {
+		name           string
+		mock           func()
+		requesterID    uuid.UUID
+		userID         uuid.UUID
+		invitationID   uuid.UUID
+		expectedError  error
+		expectedGroups []model.Group
+	}{
+		{
+			name: "Success get from userID",
+			mock: func() {
+				mocks.MockGroupGetGroups = func(userID uuid.UUID) ([]model.Group, error) {
+					return []model.Group{TestGroup, TestGroup2}, nil
+				}
+			},
+			requesterID:    TestUser.ID,
+			userID:         TestUser.ID,
+			invitationID:   uuid.Nil,
+			expectedError:  nil,
+			expectedGroups: []model.Group{TestGroup, TestGroup2},
+		},
+		{
+			name: "Success get from invitationID",
+			mock: func() {
+				mocks.MockGroupGetGroups = func(invitationID uuid.UUID) ([]model.Group, error) {
+					return []model.Group{TestGroup}, nil
+				}
+			},
+			requesterID:    TestUser.ID,
+			userID:         uuid.Nil,
+			invitationID:   TestGroup.InvitationID,
+			expectedError:  nil,
+			expectedGroups: []model.Group{TestGroup},
+		},
+		{
+			name: "Not authorized",
+			mock: func() {
+				mocks.MockGroupGetGroups = func(userID uuid.UUID) ([]model.Group, error) {
+					return []model.Group{TestGroup, TestGroup2}, nil
+				}
+			},
+			requesterID:   TestUser.ID,
+			userID:        TestUser2.ID,
+			invitationID:  uuid.Nil,
+			expectedError: domain.ErrNotAuthorized,
+		},
 	}
-	ret, err := groupService.GetAll(TestUser.ID, uuid.Nil)
-	assert.NotNilf(t, ret, "Returned data should not be nil")
-	assert.Nilf(t, err, "Error should be nil")
-	assert.Equalf(t, 2, len(ret), "Returned data should have 2 elements")
-	assert.EqualValuesf(t, TestGroup.Name, ret[0].Name, "Returned name should be equal to the given name")
-	assert.EqualValuesf(t, TestGroup2.Name, ret[1].Name, "Returned name should be equal to the given name")
-	assert.NotNilf(t, ret[0].Balance, "Returned balance should not be nil")
-	assert.NotNilf(t, ret[1].Balance, "Returned balance should not be nil")
 
-	// mock method with error
-	mocks.MockGroupGetGroups = func(userID uuid.UUID) ([]model.Group, error) {
-		return nil, storage.NoSuchUserError
+	for _, testcase := range tests {
+		t.Run(testcase.name, func(t *testing.T) {
+			testcase.mock()
+			ret, err := groupService.GetAll(testcase.requesterID, testcase.userID, testcase.invitationID)
+			assert.Equalf(t, testcase.expectedError, err, "Returned error should be equal to the expected error")
+			if err == nil {
+				assert.Equalf(t, len(testcase.expectedGroups), len(ret), "Returned data should have the same length as the expected data")
+				for i, group := range ret {
+					assert.Equalf(t, testcase.expectedGroups[i].ID, group.ID, "Returned ID should be equal to the given ID")
+					assert.Equalf(t, testcase.expectedGroups[i].Name, group.Name, "Returned name should be equal to the given name")
+					assert.NotNilf(t, group.Balance, "Returned balance should not be nil")
+				}
+			}
+		})
 	}
-	ret, err = groupService.GetAll(TestUser.ID, uuid.Nil)
-	assert.NotNilf(t, err, "Error should not be nil")
-	assert.Equalf(t, len(ret), 0, "Returned data should have 0 elements")
 }

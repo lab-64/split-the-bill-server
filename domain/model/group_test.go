@@ -30,11 +30,18 @@ var (
 	}
 )
 
-func TestGroupBalanceCalculation(t *testing.T) {
+func TestGroup_CalculateBalance(t *testing.T) {
 
 	balance := TestGroup.CalculateBalance()
 	assert.Equal(t, 3, len(balance))
 	assert.Equal(t, -20.75, balance[TestUser.ID])
 	assert.Equal(t, 20.75, balance[TestUser2.ID])
 	assert.Equal(t, 0.0, balance[TestUser3.ID])
+}
+
+func TestGroup_IsMember(t *testing.T) {
+	assert.True(t, TestGroup.IsMember(TestUser.ID))
+	assert.True(t, TestGroup.IsMember(TestUser2.ID))
+	assert.True(t, TestGroup.IsMember(TestUser3.ID))
+	assert.False(t, TestGroup.IsMember(uuid.New()))
 }

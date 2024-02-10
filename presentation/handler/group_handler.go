@@ -81,10 +81,10 @@ func (g GroupHandler) Update(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupParse, err))
 	}
 
-	userID := c.Locals(middleware.UserKey).(uuid.UUID)
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
 
 	// update item
-	item, err := g.groupService.Update(userID, uid, request)
+	item, err := g.groupService.Update(requesterID, uid, request)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupUpdate, err))
 	}
@@ -113,7 +113,10 @@ func (h GroupHandler) GetByID(c *fiber.Ctx) error {
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
-	group, err := h.groupService.GetByID(gid)
+
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
+	group, err := h.groupService.GetByID(requesterID, gid)
 
 	if err != nil {
 		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgGroupNotFound, err))
@@ -155,7 +158,9 @@ func (h GroupHandler) GetAll(c *fiber.Ctx) error {
 		invitationUUID = uid
 	}
 
-	groups, err := h.groupService.GetAll(userUUID, invitationUUID)
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
+	groups, err := h.groupService.GetAll(requesterID, userUUID, invitationUUID)
 
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGetUserGroups, err))

@@ -1,18 +1,26 @@
 package service
 
 import (
-	. "github.com/google/uuid"
+	"github.com/google/uuid"
 	"split-the-bill-server/presentation/dto"
 )
 
 type IGroupService interface {
+	// Create creates a new group with the given data.
 	Create(groupDTO dto.GroupInput) (dto.GroupDetailedOutput, error)
 
-	Update(userID UUID, groupID UUID, group dto.GroupInput) (dto.GroupDetailedOutput, error)
+	// Update updates the group with the given id with the new group data.
+	// *Authorization required: requester == group.Owner
+	Update(requesterID uuid.UUID, groupID uuid.UUID, group dto.GroupInput) (dto.GroupDetailedOutput, error)
 
-	GetByID(id UUID) (dto.GroupDetailedOutput, error)
+	// GetByID returns the group with the given id.
+	// *Authorization required: requester in group.Members
+	GetByID(requesterID uuid.UUID, id uuid.UUID) (dto.GroupDetailedOutput, error)
 
-	GetAll(userID UUID, invitationID UUID) ([]dto.GroupDetailedOutput, error)
+	// GetAll returns all groups in which the user is a member or for which the invitation applies.
+	// *Authorization required: requesterID == id (for param: userID)
+	GetAll(requesterID uuid.UUID, userID uuid.UUID, invitationID uuid.UUID) ([]dto.GroupDetailedOutput, error)
 
-	AcceptGroupInvitation(invitationID UUID, userID UUID) error
+	// AcceptGroupInvitation accepts the invitation and adds user to the group.
+	AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error
 }
