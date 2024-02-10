@@ -38,9 +38,9 @@ func (h UserHandler) GetAll(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusOK, SuccessMsgUsersFound, users)
 }
 
-// GetByID 		func get the detailed user data from a user id
+// GetByID 		func get the user data from a user id
 //
-//	@Summary	Get detailed User data by ID
+//	@Summary	Get User by ID
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
@@ -82,7 +82,11 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
-	err = h.userService.Delete(uid)
+
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
+	err = h.userService.Delete(requesterID, uid)
 	if err != nil {
 		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserDelete, err))
 	}

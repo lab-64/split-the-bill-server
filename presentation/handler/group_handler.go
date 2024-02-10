@@ -124,12 +124,12 @@ func (h GroupHandler) GetByID(c *fiber.Ctx) error {
 
 // GetAll returns all groups with applied filter.
 //
-//	@Summary	Get Groups by User
+//	@Summary	Get Groups by User/Invitation
 //	@Tags		Group
 //	@Accept		json
 //	@Produce	json
-//	@Param		userId			query		string	false	"User Id"
-//	@Param		invitationId	query		string	false	"Invitation Id"
+//	@Param		userId			query		string	false	"User ID"
+//	@Param		invitationId	query		string	false	"Invitation ID"
 //	@Success	200				{object}	dto.GeneralResponse{data=dto.GroupDetailedOutput}
 //	@Router		/api/group [get]
 func (h GroupHandler) GetAll(c *fiber.Ctx) error {

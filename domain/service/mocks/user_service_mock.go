@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	MockUserDelete  func(id uuid.UUID) error
+	MockUserDelete  func(requesterID uuid.UUID, id uuid.UUID) error
 	MockUserGetAll  func() ([]dto.UserCoreOutput, error)
 	MockUserGetByID func(id uuid.UUID) (dto.UserCoreOutput, error)
 	MockUserLogin   func(credentials dto.CredentialsInput) (dto.UserCoreOutput, model.AuthCookie, error)
@@ -23,8 +23,8 @@ func NewUserServiceMock() service.IUserService {
 type UserServiceMock struct {
 }
 
-func (u UserServiceMock) Delete(id uuid.UUID) error {
-	return MockUserDelete(id)
+func (u UserServiceMock) Delete(requesterID uuid.UUID, id uuid.UUID) error {
+	return MockUserDelete(requesterID, id)
 }
 
 func (u UserServiceMock) GetAll() ([]dto.UserCoreOutput, error) {

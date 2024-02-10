@@ -304,11 +304,11 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: User Id
+      - description: User ID
         in: query
         name: userId
         type: string
-      - description: Invitation Id
+      - description: Invitation ID
         in: query
         name: invitationId
         type: string
@@ -324,7 +324,7 @@ paths:
                 data:
                   $ref: '#/definitions/dto.GroupDetailedOutput'
               type: object
-      summary: Get Groups by User
+      summary: Get Groups by User/Invitation
       tags:
       - Group
     post:
@@ -514,7 +514,7 @@ paths:
                 data:
                   $ref: '#/definitions/dto.UserCoreOutput'
               type: object
-      summary: Get detailed User data by ID
+      summary: Get User by ID
       tags:
       - User
     put:
