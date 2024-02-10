@@ -7,11 +7,12 @@ import (
 
 type Group struct {
 	Base
-	Name     string    `gorm:"not null"`
-	OwnerUID uuid.UUID `gorm:"type:uuid"`
-	Owner    User      `gorm:"foreignKey:OwnerUID"`
-	Members  []*User   `gorm:"many2many:group_members"`
-	Bills    []Bill    `gorm:"foreignKey:GroupID"` // has many bills
+	Name            string          `gorm:"not null"`
+	OwnerUID        uuid.UUID       `gorm:"type:uuid"`
+	Owner           User            `gorm:"foreignKey:OwnerUID"`
+	Members         []*User         `gorm:"many2many:group_members"`
+	Bills           []Bill          `gorm:"foreignKey:GroupID"` // has many bills
+	GroupInvitation GroupInvitation `gorm:"foreignKey:GroupID"` // has one invitation
 }
 
 func CreateGroupEntity(group GroupModel) Group {
@@ -20,7 +21,13 @@ func CreateGroupEntity(group GroupModel) Group {
 	for _, member := range group.Members {
 		members = append(members, &User{Base: Base{ID: member.ID}})
 	}
-	return Group{Base: Base{ID: group.ID}, OwnerUID: group.Owner.ID, Name: group.Name, Members: members}
+	return Group{
+		Base:            Base{ID: group.ID},
+		OwnerUID:        group.Owner.ID,
+		Name:            group.Name,
+		Members:         members,
+		GroupInvitation: GroupInvitation{Base: Base{ID: group.InvitationID}},
+	}
 }
 
 func ConvertToGroupModel(group Group) GroupModel {
@@ -34,11 +41,12 @@ func ConvertToGroupModel(group Group) GroupModel {
 	}
 
 	return GroupModel{
-		ID:      group.ID,
-		Name:    group.Name,
-		Owner:   ConvertToUserModel(group.Owner),
-		Members: members,
-		Bills:   bills,
+		ID:           group.ID,
+		Name:         group.Name,
+		Owner:        ConvertToUserModel(group.Owner),
+		Members:      members,
+		Bills:        bills,
+		InvitationID: group.GroupInvitation.ID,
 	}
 }
 

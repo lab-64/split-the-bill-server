@@ -53,13 +53,13 @@ func TestGroupService_GetByID(t *testing.T) {
 	assert.Errorf(t, err, storage.NoSuchGroupError.Error(), "Error should be NoSuchGroupError")
 }
 
-func TestGroupService_GetAllByUser(t *testing.T) {
+func TestGroupService_GetAll(t *testing.T) {
 
 	// mock method
-	mocks.MockGroupGetGroupsByUserID = func(userID uuid.UUID) ([]model.GroupModel, error) {
+	mocks.MockGroupGetGroups = func(userID uuid.UUID) ([]model.GroupModel, error) {
 		return []model.GroupModel{TestGroup, TestGroup2}, nil
 	}
-	ret, err := groupService.GetAllByUser(TestUser.ID)
+	ret, err := groupService.GetAll(TestUser.ID, uuid.Nil)
 	assert.NotNilf(t, ret, "Returned data should not be nil")
 	assert.Nilf(t, err, "Error should be nil")
 	assert.Equalf(t, 2, len(ret), "Returned data should have 2 elements")
@@ -69,10 +69,10 @@ func TestGroupService_GetAllByUser(t *testing.T) {
 	assert.NotNilf(t, ret[1].Balance, "Returned balance should not be nil")
 
 	// mock method with error
-	mocks.MockGroupGetGroupsByUserID = func(userID uuid.UUID) ([]model.GroupModel, error) {
+	mocks.MockGroupGetGroups = func(userID uuid.UUID) ([]model.GroupModel, error) {
 		return nil, storage.NoSuchUserError
 	}
-	ret, err = groupService.GetAllByUser(TestUser.ID)
+	ret, err = groupService.GetAll(TestUser.ID, uuid.Nil)
 	assert.NotNilf(t, err, "Error should not be nil")
 	assert.Equalf(t, len(ret), 0, "Returned data should have 0 elements")
 }

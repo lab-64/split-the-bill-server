@@ -75,19 +75,46 @@ func (g *GroupStorage) GetGroupByID(id uuid.UUID) (GroupModel, error) {
 	return ConvertToGroupModel(group), nil
 }
 
-func (g *GroupStorage) GetGroupsByUserID(userID uuid.UUID) ([]GroupModel, error) {
+func (g *GroupStorage) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]GroupModel, error) {
 	var groups []Group
 
 	tx := g.DB.
 		Preload(clause.Associations).
 		Preload("Bills.Items.Contributors").
-		Preload("Bills.Owner").
-		Where("id IN (SELECT group_id FROM group_members WHERE user_id = ?)", userID).
-		Find(&groups)
+		Preload("Bills.Owner")
+
+	if userID != uuid.Nil {
+		tx = tx.Where("id IN (SELECT group_id FROM group_members WHERE user_id = ?)", userID)
+	}
+
+	if invitationID != uuid.Nil {
+		tx = tx.Where("id IN (SELECT group_id FROM group_invitations WHERE id = ?)", invitationID)
+	}
+
+	tx.Find(&groups)
 
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
 
 	return ToGroupModelSlice(groups), nil
+}
+
+func (g *GroupStorage) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
+	var groupInvitation GroupInvitation
+
+	//TODO: generalize error messages
+	// TODO: test behavior
+	// Check if the group invitation exists
+	if err := g.DB.First(&groupInvitation, "id = ?", invitationID).Error; err != nil {
+		return err
+	}
+
+	// add the user to the group members
+	group := Group{Base: Base{ID: groupInvitation.GroupID}}
+	user := User{Base: Base{ID: userID}}
+
+	res := g.DB.Model(&group).Association("Members").Append(&user)
+
+	return res
 }

@@ -65,8 +65,8 @@ func (g *GroupService) GetByID(id uuid.UUID) (GroupDetailedOutputDTO, error) {
 	return ConvertToGroupDetailedDTO(group), nil
 }
 
-func (g *GroupService) GetAllByUser(userID uuid.UUID) ([]GroupDetailedOutputDTO, error) {
-	groups, err := g.groupStorage.GetGroupsByUserID(userID)
+func (g *GroupService) GetAll(userID uuid.UUID, invitationID uuid.UUID) ([]GroupDetailedOutputDTO, error) {
+	groups, err := g.groupStorage.GetGroups(userID, invitationID)
 	if err != nil {
 		return nil, err
 	}
@@ -79,4 +79,9 @@ func (g *GroupService) GetAllByUser(userID uuid.UUID) ([]GroupDetailedOutputDTO,
 	}
 
 	return groupsDTO, nil
+}
+
+func (g *GroupService) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
+	err := g.groupStorage.AcceptGroupInvitation(invitationID, userID)
+	return err
 }

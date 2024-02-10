@@ -36,22 +36,11 @@ func CreateGroupModel(id uuid.UUID, group GroupInputDTO, members []uuid.UUID) Gr
 		memberModel[i] = UserModel{ID: member}
 	}
 	return GroupModel{
-		ID:      id,
-		Owner:   UserModel{ID: group.OwnerID}, // store ownerID in empty UserModel
-		Name:    group.Name,
-		Members: memberModel,
-	}
-}
-
-func ConvertToGroupCoreDTO(g GroupModel) GroupCoreOutputDTO {
-
-	owner := ConvertToUserCoreDTO(&g.Owner)
-	members := ConvertToUserCoreDTOs(g.Members)
-	return GroupCoreOutputDTO{
-		Owner:   owner,
-		ID:      g.ID,
-		Name:    g.Name,
-		Members: members,
+		ID:           id,
+		Owner:        UserModel{ID: group.OwnerID}, // store ownerID in empty UserModel
+		Name:         group.Name,
+		Members:      memberModel,
+		InvitationID: uuid.New(),
 	}
 }
 
@@ -61,12 +50,13 @@ func ConvertToGroupDetailedDTO(g GroupModel) GroupDetailedOutputDTO {
 	owner := ConvertToUserCoreDTO(&g.Owner)
 	members := ConvertToUserCoreDTOs(g.Members)
 	return GroupDetailedOutputDTO{
-		Owner:   owner,
-		ID:      g.ID,
-		Name:    g.Name,
-		Members: members,
-		Bills:   billsDTO,
-		Balance: g.Balance,
+		Owner:        owner,
+		ID:           g.ID,
+		Name:         g.Name,
+		Members:      members,
+		Bills:        billsDTO,
+		Balance:      g.Balance,
+		InvitationID: g.InvitationID,
 	}
 }
 

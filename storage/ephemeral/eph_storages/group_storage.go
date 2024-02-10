@@ -57,7 +57,12 @@ func (g *GroupStorage) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) e
 	return nil
 }
 
-func (g *GroupStorage) GetGroupsByUserID(userID uuid.UUID) ([]model.GroupModel, error) {
+func (g *GroupStorage) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]model.GroupModel, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *GroupStorage) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
 	//TODO implement me
 	panic("implement me")
 }

@@ -50,19 +50,6 @@ definitions:
       message:
         type: string
     type: object
-  dto.GroupCoreOutputDTO:
-    properties:
-      id:
-        type: string
-      members:
-        items:
-          $ref: '#/definitions/dto.UserCoreOutputDTO'
-        type: array
-      name:
-        type: string
-      owner:
-        $ref: '#/definitions/dto.UserCoreOutputDTO'
-    type: object
   dto.GroupDetailedOutputDTO:
     properties:
       balance:
@@ -93,13 +80,6 @@ definitions:
       name:
         type: string
       ownerID:
-        type: string
-    type: object
-  dto.GroupInvitationOutputDTO:
-    properties:
-      group:
-        $ref: '#/definitions/dto.GroupCoreOutputDTO'
-      invitationID:
         type: string
     type: object
   dto.ItemInputDTO:
@@ -336,7 +316,10 @@ paths:
       - description: User Id
         in: query
         name: userId
-        required: true
+        type: string
+      - description: Invitation Id
+        in: query
+        name: invitationId
         type: string
       produces:
       - application/json
@@ -433,32 +416,7 @@ paths:
       summary: Update Group
       tags:
       - Group
-  /api/invitation/{id}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: Invitation ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.GroupInvitationOutputDTO'
-              type: object
-      summary: Get Group Invitation By ID
-      tags:
-      - Invitation
-  /api/invitation/{id}/accept:
+  /api/group/invitation/{id}/accept:
     post:
       consumes:
       - application/json
@@ -477,7 +435,7 @@ paths:
             $ref: '#/definitions/dto.GeneralResponseDTO'
       summary: Accept Group Invitation
       tags:
-      - Invitation
+      - Group
   /api/user:
     get:
       consumes:
