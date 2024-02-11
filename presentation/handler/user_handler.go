@@ -93,7 +93,7 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusOK, SuccessMsgUserDelete, nil)
 }
 
-// Register 	parses a dto.UserInput from the request body, compares and validates both passwords and creates a new user.
+// Register 	func register user
 //
 //	@Summary	Register User
 //	@Tags		User
@@ -107,8 +107,12 @@ func (h UserHandler) Register(c *fiber.Ctx) error {
 	if err := c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
+	err := request.ValidateInputs()
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
+	}
 
-	if err := h.passwordValidator.ValidatePassword(request.Password); err != nil {
+	if err = h.passwordValidator.ValidatePassword(request.Password); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBadPassword, err))
 	}
 
