@@ -25,7 +25,7 @@ func TestGroupInput_ValidateInput(t *testing.T) {
 			input: GroupInput{
 				Name: "Test Group",
 			},
-			expectedErr: ErrOwnerIDRequired,
+			expectedErr: ErrGroupOwnerIDRequired,
 		},
 		{
 			name: "Name is empty",

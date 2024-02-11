@@ -37,6 +37,8 @@ func TestUpdateBill(t *testing.T) {
 	updatedBill := dto.BillInput{
 		Name:    "Updated Bill",
 		OwnerID: User1.ID,
+		Date:    Bill1.Date,
+		GroupID: Group1.ID,
 		Items:   []dto.ItemInput{updatedItem1, updatedItem2},
 	}
 

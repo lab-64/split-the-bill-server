@@ -30,7 +30,7 @@ type GroupDetailedOutput struct {
 
 func (g GroupInput) ValidateInput() error {
 	if g.OwnerID == uuid.Nil {
-		return ErrOwnerIDRequired
+		return ErrGroupOwnerIDRequired
 
 	}
 	if g.Name == "" {
@@ -40,4 +40,4 @@ func (g GroupInput) ValidateInput() error {
 }
 
 var ErrGroupNameRequired = errors.New("name is required")
-var ErrOwnerIDRequired = errors.New("ownerID is required")
+var ErrGroupOwnerIDRequired = errors.New("ownerID is required")

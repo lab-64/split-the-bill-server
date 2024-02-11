@@ -72,7 +72,7 @@ func TestGroupHandler_Create(t *testing.T) {
 			},
 			mock:            func() {},
 			expectedStatus:  http.StatusBadRequest,
-			expectedMessage: fmt.Sprintf(ErrMsgInputsInvalid, dto.ErrOwnerIDRequired),
+			expectedMessage: fmt.Sprintf(ErrMsgInputsInvalid, dto.ErrGroupOwnerIDRequired),
 		},
 	}
 
