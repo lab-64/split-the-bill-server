@@ -69,19 +69,19 @@ func (u *UserService) Create(userDTO dto.UserInput) (dto.UserCoreOutput, error) 
 	return converter.ToUserCoreDTO(&user), err
 }
 
-func (u *UserService) Login(credentials dto.CredentialsInput) (dto.UserCoreOutput, model.AuthCookie, error) {
+func (u *UserService) Login(userInput dto.UserInput) (dto.UserCoreOutput, model.AuthCookie, error) {
 	// Log-in user, get authentication cookie
-	user, err := u.userStorage.GetByEmail(credentials.Email)
+	user, err := u.userStorage.GetByEmail(userInput.Email)
 	if err != nil {
 		return dto.UserCoreOutput{}, model.AuthCookie{}, err
 	}
 
-	creds, err := u.userStorage.GetCredentials(user.ID)
+	credentials, err := u.userStorage.GetCredentials(user.ID)
 	if err != nil {
 		return dto.UserCoreOutput{}, model.AuthCookie{}, err
 	}
 
-	err = util.ComparePassword(creds, credentials.Password)
+	err = util.ComparePassword(credentials, userInput.Password)
 	if err != nil {
 		return dto.UserCoreOutput{}, model.AuthCookie{}, err
 	}

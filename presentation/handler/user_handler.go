@@ -31,10 +31,12 @@ func NewUserHandler(userService *service.IUserService, v *password.Validator) *U
 //	@Success	200	{object}	dto.GeneralResponse{data=[]dto.UserCoreOutput}
 //	@Router		/api/user [get]
 func (h UserHandler) GetAll(c *fiber.Ctx) error {
+	// get all users
 	users, err := h.userService.GetAll()
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUsersNotFound, err))
 	}
+
 	return Success(c, fiber.StatusOK, SuccessMsgUsersFound, users)
 }
 
@@ -48,6 +50,7 @@ func (h UserHandler) GetAll(c *fiber.Ctx) error {
 //	@Success	200	{object}	dto.GeneralResponse{data=dto.UserCoreOutput}
 //	@Router		/api/user/{id} [get]
 func (h UserHandler) GetByID(c *fiber.Ctx) error {
+	// parse parameter
 	id := c.Params("id")
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
@@ -56,6 +59,7 @@ func (h UserHandler) GetByID(c *fiber.Ctx) error {
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
+	// get user
 	user, err := h.userService.GetByID(uid)
 	if err != nil {
 		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
@@ -74,6 +78,7 @@ func (h UserHandler) GetByID(c *fiber.Ctx) error {
 //	@Success	200	{object}	dto.GeneralResponse
 //	@Router		/api/user/{id} [delete]
 func (h UserHandler) Delete(c *fiber.Ctx) error {
+	// parse parameter
 	id := c.Params("id")
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
@@ -82,14 +87,14 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
-
 	// get authenticated requesterID from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
+	// delete user
 	err = h.userService.Delete(requesterID, uid)
 	if err != nil {
 		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserDelete, err))
 	}
+
 	return Success(c, fiber.StatusOK, SuccessMsgUserDelete, nil)
 }
 
@@ -103,19 +108,20 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 //	@Success	200		{object}	dto.GeneralResponse{data=dto.UserCoreOutput}
 //	@Router		/api/user [post]
 func (h UserHandler) Register(c *fiber.Ctx) error {
+	// parse user from request
 	var request dto.UserInput
 	if err := c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
+	// validate inputs
 	err := request.ValidateInputs()
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
 	}
-
 	if err = h.passwordValidator.ValidatePassword(request.Password); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBadPassword, err))
 	}
-
+	// create user
 	user, err := h.userService.Create(request)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserCreate, err))
@@ -124,34 +130,32 @@ func (h UserHandler) Register(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusCreated, SuccessMsgUserCreate, user)
 }
 
-// Login 		func login user
+// Login 		uses the given login credentials for login and returns an authentication token for the user.
 //
 //	@Summary	Login User
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Param		request	body		dto.CredentialsInput	true	"Request Body"
+//	@Param		request	body		dto.UserInput	true	"Request Body"
 //	@Success	200		{object}	dto.GeneralResponse{data=dto.UserCoreOutput}
 //	@Router		/api/user/login [post]
-//
-// Login uses the given login credentials for login and returns an authentication token for the user.
 func (h UserHandler) Login(c *fiber.Ctx) error {
-	var userCredentials dto.CredentialsInput
+	// parse user from request
+	var userCredentials dto.UserInput
 	if err := c.BodyParser(&userCredentials); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserCredentialsParse, err))
 	}
-	// Checks if all input fields are filled out
+	// validate inputs
 	err := userCredentials.ValidateInputs()
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
 	}
-
+	// login user
 	user, sc, err := h.userService.Login(userCredentials)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserLogin, err))
 	}
-
-	// Create response cookie
+	// create response cookie
 	// TODO: add Secure flag after development (cookie will only be sent over HTTPS)
 	cookie := fiber.Cookie{
 		Name:     middleware.SessionCookieName,
@@ -160,8 +164,8 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 		HTTPOnly: true,
 		//Secure:   true,
 	}
-
 	c.Cookie(&cookie)
+
 	return Success(c, fiber.StatusOK, SuccessMsgUserLogin, user)
 }
 
@@ -176,6 +180,7 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 //	@Success	200		{object}	dto.GeneralResponse
 //	@Router		/api/user/{id} [put]
 func (h UserHandler) Update(c *fiber.Ctx) error {
+	// parse parameter
 	id := c.Params("id")
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
@@ -184,14 +189,14 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
+	// parse user from request
 	var user dto.UserUpdate
-	if err := c.BodyParser(&user); err != nil {
+	if err = c.BodyParser(&user); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
-
 	// get authenticated requesterID from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
+	// update user
 	retUser, err := h.userService.Update(requesterID, userID, user)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotAuthorized) {
