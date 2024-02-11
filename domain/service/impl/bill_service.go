@@ -20,12 +20,21 @@ func NewBillService(billStorage *storage.IBillStorage, groupStorage *storage.IGr
 	return &BillService{billStorage: *billStorage, groupStorage: *groupStorage}
 }
 
-func (b *BillService) Create(billDTO dto.BillInput) (dto.BillDetailedOutput, error) {
+func (b *BillService) Create(requesterID uuid.UUID, billDTO dto.BillInput) (dto.BillDetailedOutput, error) {
+	// Validate groupID
+	group, err := b.groupStorage.GetGroupByID(billDTO.GroupID)
+	if err != nil {
+		return dto.BillDetailedOutput{}, err
+	}
+	// Authorization
+	if !group.IsMember(requesterID) {
+		return dto.BillDetailedOutput{}, domain.ErrNotAuthorized
+	}
 
 	// create bill model including items
 	bill := model.CreateBill(uuid.New(), billDTO, time.Now())
 	// store bill in billStorage
-	bill, err := b.billStorage.Create(bill)
+	bill, err = b.billStorage.Create(bill)
 	if err != nil {
 		return dto.BillDetailedOutput{}, err
 	}
@@ -33,15 +42,15 @@ func (b *BillService) Create(billDTO dto.BillInput) (dto.BillDetailedOutput, err
 	return converter.ToBillDetailedDTO(bill), err
 }
 
-func (b *BillService) Update(userID uuid.UUID, billID uuid.UUID, billDTO dto.BillInput) (dto.BillDetailedOutput, error) {
+func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dto.BillInput) (dto.BillDetailedOutput, error) {
+	// Get bill
 	bill, err := b.billStorage.GetByID(billID)
-
 	if err != nil {
 		return dto.BillDetailedOutput{}, err
 	}
 
-	// Authorize
-	if userID != bill.Owner.ID {
+	// Authorization
+	if requesterID != bill.Owner.ID {
 		return dto.BillDetailedOutput{}, domain.ErrNotAuthorized
 	}
 
@@ -56,10 +65,20 @@ func (b *BillService) Update(userID uuid.UUID, billID uuid.UUID, billDTO dto.Bil
 	return converter.ToBillDetailedDTO(bill), err
 
 }
-func (b *BillService) GetByID(id uuid.UUID) (dto.BillDetailedOutput, error) {
+func (b *BillService) GetByID(requesterID uuid.UUID, id uuid.UUID) (dto.BillDetailedOutput, error) {
 	bill, err := b.billStorage.GetByID(id)
 	if err != nil {
 		return dto.BillDetailedOutput{}, err
+	}
+
+	// Get group
+	group, err := b.groupStorage.GetGroupByID(bill.GroupID)
+	if err != nil {
+		return dto.BillDetailedOutput{}, err
+	}
+	// Authorization
+	if !group.IsMember(requesterID) {
+		return dto.BillDetailedOutput{}, domain.ErrNotAuthorized
 	}
 
 	balance := bill.CalculateBalance()
@@ -68,10 +87,20 @@ func (b *BillService) GetByID(id uuid.UUID) (dto.BillDetailedOutput, error) {
 	return converter.ToBillDetailedDTO(bill), err
 }
 
-func (b *BillService) AddItem(itemDTO dto.ItemInput) (dto.ItemOutput, error) {
+func (b *BillService) AddItem(requesterID uuid.UUID, itemDTO dto.ItemInput) (dto.ItemOutput, error) {
+	// Validate billID
+	bill, err := b.billStorage.GetByID(itemDTO.BillID)
+	if err != nil {
+		return dto.ItemOutput{}, err
+	}
+	// Authorization
+	if requesterID != bill.Owner.ID {
+		return dto.ItemOutput{}, domain.ErrNotAuthorized
+	}
+
 	item := model.CreateItem(uuid.Nil, itemDTO)
 
-	item, err := b.billStorage.CreateItem(item)
+	item, err = b.billStorage.CreateItem(item)
 	if err != nil {
 		return dto.ItemOutput{}, err
 	}
@@ -79,10 +108,20 @@ func (b *BillService) AddItem(itemDTO dto.ItemInput) (dto.ItemOutput, error) {
 	return converter.ToItemDTO(item), err
 }
 
-func (b *BillService) ChangeItem(itemID uuid.UUID, itemDTO dto.ItemInput) (dto.ItemOutput, error) {
+func (b *BillService) ChangeItem(requesterID uuid.UUID, itemID uuid.UUID, itemDTO dto.ItemInput) (dto.ItemOutput, error) {
+	// Validate billID
+	bill, err := b.billStorage.GetByID(itemDTO.BillID)
+	if err != nil {
+		return dto.ItemOutput{}, err
+	}
+	// Authorization
+	if requesterID != bill.Owner.ID {
+		return dto.ItemOutput{}, domain.ErrNotAuthorized
+	}
+
 	item := model.CreateItem(itemID, itemDTO)
 
-	item, err := b.billStorage.UpdateItem(item)
+	item, err = b.billStorage.UpdateItem(item)
 	if err != nil {
 		return dto.ItemOutput{}, err
 	}
@@ -90,10 +129,26 @@ func (b *BillService) ChangeItem(itemID uuid.UUID, itemDTO dto.ItemInput) (dto.I
 	return converter.ToItemDTO(item), err
 }
 
-func (b *BillService) GetItemByID(id uuid.UUID) (dto.ItemOutput, error) {
+func (b *BillService) GetItemByID(requesterID uuid.UUID, id uuid.UUID) (dto.ItemOutput, error) {
+	// Get item
 	item, err := b.billStorage.GetItemByID(id)
 	if err != nil {
 		return dto.ItemOutput{}, err
 	}
+	// Get bill
+	bill, err := b.billStorage.GetByID(item.BillID)
+	if err != nil {
+		return dto.ItemOutput{}, err
+	}
+	// Get group
+	group, err := b.groupStorage.GetGroupByID(bill.GroupID)
+	if err != nil {
+		return dto.ItemOutput{}, err
+	}
+	// Authorization
+	if !group.IsMember(requesterID) {
+		return dto.ItemOutput{}, domain.ErrNotAuthorized
+	}
+
 	return converter.ToItemDTO(item), err
 }
