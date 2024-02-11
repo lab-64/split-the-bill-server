@@ -28,8 +28,6 @@ func NewGroupHandler(GroupService *service.IGroupService) *GroupHandler {
 //	@Success	200		{object}	dto.GeneralResponse{data=dto.GroupDetailedOutput}
 //	@Router		/api/group [post]
 func (h GroupHandler) Create(c *fiber.Ctx) error {
-
-	// TODO: authenticate user
 	// parse group from request body
 	var request dto.GroupInput
 	if err := c.BodyParser(&request); err != nil {
@@ -43,8 +41,10 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
 	}
 
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
 	// create group
-	group, err := h.groupService.Create(request)
+	group, err := h.groupService.Create(requesterID, request)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupCreate, err))
 	}
@@ -81,10 +81,10 @@ func (g GroupHandler) Update(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupParse, err))
 	}
 
-	userID := c.Locals(middleware.UserKey).(uuid.UUID)
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
 
 	// update item
-	item, err := g.groupService.Update(userID, uid, request)
+	item, err := g.groupService.Update(requesterID, uid, request)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupUpdate, err))
 	}
@@ -101,8 +101,6 @@ func (g GroupHandler) Update(c *fiber.Ctx) error {
 //	@Param		id	path		string	true	"Group Id"
 //	@Success	200	{object}	dto.GeneralResponse{data=dto.GroupDetailedOutput}
 //	@Router		/api/group/{id} [get]
-//
-// TODO: maybe delete, or add authentication and allow only query of own groups
 func (h GroupHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -113,7 +111,10 @@ func (h GroupHandler) GetByID(c *fiber.Ctx) error {
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
-	group, err := h.groupService.GetByID(gid)
+
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
+	group, err := h.groupService.GetByID(requesterID, gid)
 
 	if err != nil {
 		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgGroupNotFound, err))
@@ -124,12 +125,12 @@ func (h GroupHandler) GetByID(c *fiber.Ctx) error {
 
 // GetAll returns all groups with applied filter.
 //
-//	@Summary	Get Groups by User
+//	@Summary	Get Groups by User/Invitation
 //	@Tags		Group
 //	@Accept		json
 //	@Produce	json
-//	@Param		userId			query		string	false	"User Id"
-//	@Param		invitationId	query		string	false	"Invitation Id"
+//	@Param		userId			query		string	false	"User ID"
+//	@Param		invitationId	query		string	false	"Invitation ID"
 //	@Success	200				{object}	dto.GeneralResponse{data=dto.GroupDetailedOutput}
 //	@Router		/api/group [get]
 func (h GroupHandler) GetAll(c *fiber.Ctx) error {
@@ -155,7 +156,9 @@ func (h GroupHandler) GetAll(c *fiber.Ctx) error {
 		invitationUUID = uid
 	}
 
-	groups, err := h.groupService.GetAll(userUUID, invitationUUID)
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
+	groups, err := h.groupService.GetAll(requesterID, userUUID, invitationUUID)
 
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGetUserGroups, err))

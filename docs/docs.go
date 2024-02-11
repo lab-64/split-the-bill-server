@@ -302,17 +302,17 @@ const docTemplate = `{
                 "tags": [
                     "Group"
                 ],
-                "summary": "Get Groups by User",
+                "summary": "Get Groups by User/Invitation",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User Id",
+                        "description": "User ID",
                         "name": "userId",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Invitation Id",
+                        "description": "Invitation ID",
                         "name": "invitationId",
                         "in": "query"
                     }
@@ -642,7 +642,7 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Get detailed User data by ID",
+                "summary": "Get User by ID",
                 "parameters": [
                     {
                         "type": "string",

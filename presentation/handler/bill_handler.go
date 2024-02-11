@@ -39,7 +39,9 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
 
-	bill, err := h.billService.GetByID(uid)
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
+	bill, err := h.billService.GetByID(requesterID, uid)
 	if err != nil {
 		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgBillNotFound, err))
 	}
@@ -67,8 +69,10 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
 	}
 
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
 	// create bill
-	bill, err := h.billService.Create(request)
+	bill, err := h.billService.Create(requesterID, request)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillCreate, err))
 	}
@@ -105,10 +109,10 @@ func (g BillHandler) Update(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
 	}
 
-	userID := c.Locals(middleware.UserKey).(uuid.UUID)
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
 
 	// update item
-	item, err := g.billService.Update(userID, uid, request)
+	item, err := g.billService.Update(requesterID, uid, request)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillUpdate, err))
 	}
@@ -132,8 +136,10 @@ func (h BillHandler) AddItem(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
 	}
 
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
 	// create item
-	item, err := h.billService.AddItem(request)
+	item, err := h.billService.AddItem(requesterID, request)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemCreate, err))
 	}
@@ -161,7 +167,9 @@ func (h BillHandler) GetItemByID(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
 
-	item, err := h.billService.GetItemByID(uid)
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
+	item, err := h.billService.GetItemByID(requesterID, uid)
 	if err != nil {
 		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgItemNotFound, err))
 	}
@@ -194,12 +202,14 @@ func (h BillHandler) ChangeItem(c *fiber.Ctx) error {
 
 	// parse request
 	var request dto.ItemInput
-	if err := c.BodyParser(&request); err != nil {
+	if err = c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
 	}
 
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
 	// update item
-	item, err := h.billService.ChangeItem(uid, request)
+	item, err := h.billService.ChangeItem(requesterID, uid, request)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemUpdate, err))
 	}

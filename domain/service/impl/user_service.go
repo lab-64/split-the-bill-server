@@ -20,7 +20,12 @@ func NewUserService(userStorage *storage.IUserStorage, cookieStorage *storage.IC
 	return &UserService{userStorage: *userStorage, cookieStorage: *cookieStorage}
 }
 
-func (u *UserService) Delete(id uuid.UUID) error {
+func (u *UserService) Delete(requesterID uuid.UUID, id uuid.UUID) error {
+	// Authorization
+	if requesterID != id {
+		return domain.ErrNotAuthorized
+	}
+
 	err := u.userStorage.Delete(id)
 	return err
 }
@@ -89,10 +94,11 @@ func (u *UserService) Login(credentials dto.CredentialsInput) (dto.UserCoreOutpu
 }
 
 func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error) {
+	// Authorization
 	if requesterID != id {
 		return dto.UserCoreOutput{}, domain.ErrNotAuthorized
 	}
-
+	// do not update email
 	userModel := model.CreateUser(id, "", user.Username)
 
 	userModel, err := u.userStorage.Update(userModel)

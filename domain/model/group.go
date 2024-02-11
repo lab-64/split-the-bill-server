@@ -48,3 +48,14 @@ func (group *Group) CalculateBalance() map[uuid.UUID]float64 {
 	}
 	return balance
 }
+
+func (group *Group) IsMember(memberID uuid.UUID) bool {
+	isMember := false
+	for _, member := range group.Members {
+		if memberID == member.ID {
+			isMember = true
+			return isMember
+		}
+	}
+	return isMember
+}
