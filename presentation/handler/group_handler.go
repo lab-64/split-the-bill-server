@@ -28,8 +28,6 @@ func NewGroupHandler(GroupService *service.IGroupService) *GroupHandler {
 //	@Success	200		{object}	dto.GeneralResponse{data=dto.GroupDetailedOutput}
 //	@Router		/api/group [post]
 func (h GroupHandler) Create(c *fiber.Ctx) error {
-
-	// TODO: authenticate user
 	// parse group from request body
 	var request dto.GroupInput
 	if err := c.BodyParser(&request); err != nil {
@@ -43,8 +41,10 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
 	}
 
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
 	// create group
-	group, err := h.groupService.Create(request)
+	group, err := h.groupService.Create(requesterID, request)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupCreate, err))
 	}
@@ -101,8 +101,6 @@ func (g GroupHandler) Update(c *fiber.Ctx) error {
 //	@Param		id	path		string	true	"Group Id"
 //	@Success	200	{object}	dto.GeneralResponse{data=dto.GroupDetailedOutput}
 //	@Router		/api/group/{id} [get]
-//
-// TODO: maybe delete, or add authentication and allow only query of own groups
 func (h GroupHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {

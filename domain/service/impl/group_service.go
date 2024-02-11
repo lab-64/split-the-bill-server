@@ -18,7 +18,11 @@ func NewGroupService(groupStorage *storage.IGroupStorage) IGroupService {
 	return &GroupService{groupStorage: *groupStorage}
 }
 
-func (g *GroupService) Create(groupDTO dto.GroupInput) (dto.GroupDetailedOutput, error) {
+func (g *GroupService) Create(requesterID uuid.UUID, groupDTO dto.GroupInput) (dto.GroupDetailedOutput, error) {
+	// Authorization
+	if requesterID != groupDTO.OwnerID {
+		return dto.GroupDetailedOutput{}, ErrNotAuthorized
+	}
 
 	// create group with the only member being the owner
 	group := model.CreateGroup(uuid.New(), groupDTO, []uuid.UUID{groupDTO.OwnerID})

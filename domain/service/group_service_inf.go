@@ -7,7 +7,8 @@ import (
 
 type IGroupService interface {
 	// Create creates a new group with the given data.
-	Create(groupDTO dto.GroupInput) (dto.GroupDetailedOutput, error)
+	// *Authorization required: requesterID == OwnerID
+	Create(requesterID uuid.UUID, groupDTO dto.GroupInput) (dto.GroupDetailedOutput, error)
 
 	// Update updates the group with the given id with the new group data.
 	// *Authorization required: requester == group.Owner
