@@ -37,13 +37,6 @@ definitions:
       ownerID:
         type: string
     type: object
-  dto.CredentialsInput:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    type: object
   dto.GeneralResponse:
     properties:
       data: {}
@@ -552,7 +545,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.CredentialsInput'
+          $ref: '#/definitions/dto.UserInput'
       produces:
       - application/json
       responses:

@@ -11,7 +11,7 @@ var (
 	MockUserDelete  func(requesterID uuid.UUID, id uuid.UUID) error
 	MockUserGetAll  func() ([]dto.UserCoreOutput, error)
 	MockUserGetByID func(id uuid.UUID) (dto.UserCoreOutput, error)
-	MockUserLogin   func(credentials dto.CredentialsInput) (dto.UserCoreOutput, model.AuthCookie, error)
+	MockUserLogin   func(credentials dto.UserInput) (dto.UserCoreOutput, model.AuthCookie, error)
 	MockUserCreate  func(user dto.UserInput) (dto.UserCoreOutput, error)
 	MockUserUpdate  func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error)
 )
@@ -35,7 +35,7 @@ func (u UserServiceMock) GetByID(id uuid.UUID) (dto.UserCoreOutput, error) {
 	return MockUserGetByID(id)
 }
 
-func (u UserServiceMock) Login(credentials dto.CredentialsInput) (dto.UserCoreOutput, model.AuthCookie, error) {
+func (u UserServiceMock) Login(credentials dto.UserInput) (dto.UserCoreOutput, model.AuthCookie, error) {
 	return MockUserLogin(credentials)
 }
 

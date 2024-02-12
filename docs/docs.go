@@ -605,7 +605,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CredentialsInput"
+                            "$ref": "#/definitions/dto.UserInput"
                         }
                     }
                 ],
@@ -795,17 +795,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "ownerID": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.CredentialsInput": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 }
             }
