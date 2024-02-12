@@ -1,21 +1,25 @@
 package service
 
 import (
-	. "github.com/google/uuid"
-	. "split-the-bill-server/domain/model"
-	. "split-the-bill-server/presentation/dto"
+	"github.com/google/uuid"
+	"split-the-bill-server/domain/model"
+	"split-the-bill-server/presentation/dto"
 )
 
 type IUserService interface {
-	Delete(id UUID) error
+	// Delete deleted the user with the given id.
+	// *Authorization required: requesterID == id
+	Delete(requesterID uuid.UUID, id uuid.UUID) error
 
-	GetAll() ([]UserDetailedOutputDTO, error)
+	GetAll() ([]dto.UserCoreOutput, error)
 
-	GetByID(id UUID) (UserDetailedOutputDTO, error)
+	GetByID(id uuid.UUID) (dto.UserCoreOutput, error)
 
-	Login(credentials CredentialsInputDTO) (UserCoreOutputDTO, AuthCookieModel, error)
+	Login(credentials dto.CredentialsInput) (dto.UserCoreOutput, model.AuthCookie, error)
 
-	Create(user UserInputDTO) (UserCoreOutputDTO, error)
+	Create(user dto.UserInput) (dto.UserCoreOutput, error)
 
-	Update(requesterID UUID, id UUID, user UserUpdateDTO) (UserCoreOutputDTO, error)
+	// Update updates the user with the given id with the new user data.
+	// *Authorization required: requesterID == id
+	Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error)
 }

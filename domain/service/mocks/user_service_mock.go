@@ -8,12 +8,12 @@ import (
 )
 
 var (
-	MockUserDelete  func(id uuid.UUID) error
-	MockUserGetAll  func() ([]dto.UserDetailedOutputDTO, error)
-	MockUserGetByID func(id uuid.UUID) (dto.UserDetailedOutputDTO, error)
-	MockUserLogin   func(credentials dto.CredentialsInputDTO) (dto.UserCoreOutputDTO, model.AuthCookieModel, error)
-	MockUserCreate  func(user dto.UserInputDTO) (dto.UserCoreOutputDTO, error)
-	MockUserUpdate  func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdateDTO) (dto.UserCoreOutputDTO, error)
+	MockUserDelete  func(requesterID uuid.UUID, id uuid.UUID) error
+	MockUserGetAll  func() ([]dto.UserCoreOutput, error)
+	MockUserGetByID func(id uuid.UUID) (dto.UserCoreOutput, error)
+	MockUserLogin   func(credentials dto.CredentialsInput) (dto.UserCoreOutput, model.AuthCookie, error)
+	MockUserCreate  func(user dto.UserInput) (dto.UserCoreOutput, error)
+	MockUserUpdate  func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error)
 )
 
 func NewUserServiceMock() service.IUserService {
@@ -23,26 +23,26 @@ func NewUserServiceMock() service.IUserService {
 type UserServiceMock struct {
 }
 
-func (u UserServiceMock) Delete(id uuid.UUID) error {
-	return MockUserDelete(id)
+func (u UserServiceMock) Delete(requesterID uuid.UUID, id uuid.UUID) error {
+	return MockUserDelete(requesterID, id)
 }
 
-func (u UserServiceMock) GetAll() ([]dto.UserDetailedOutputDTO, error) {
+func (u UserServiceMock) GetAll() ([]dto.UserCoreOutput, error) {
 	return MockUserGetAll()
 }
 
-func (u UserServiceMock) GetByID(id uuid.UUID) (dto.UserDetailedOutputDTO, error) {
+func (u UserServiceMock) GetByID(id uuid.UUID) (dto.UserCoreOutput, error) {
 	return MockUserGetByID(id)
 }
 
-func (u UserServiceMock) Login(credentials dto.CredentialsInputDTO) (dto.UserCoreOutputDTO, model.AuthCookieModel, error) {
+func (u UserServiceMock) Login(credentials dto.CredentialsInput) (dto.UserCoreOutput, model.AuthCookie, error) {
 	return MockUserLogin(credentials)
 }
 
-func (u UserServiceMock) Create(user dto.UserInputDTO) (dto.UserCoreOutputDTO, error) {
+func (u UserServiceMock) Create(user dto.UserInput) (dto.UserCoreOutput, error) {
 	return MockUserCreate(user)
 }
 
-func (u UserServiceMock) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdateDTO) (dto.UserCoreOutputDTO, error) {
+func (u UserServiceMock) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error) {
 	return MockUserUpdate(requesterID, id, user)
 }

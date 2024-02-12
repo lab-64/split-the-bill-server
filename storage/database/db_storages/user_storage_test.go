@@ -13,11 +13,11 @@ import (
 
 // Testdata
 var (
-	TestUser = model.UserModel{
+	TestUser = model.User{
 		ID:    uuid.New(),
 		Email: "test@mail.com",
 	}
-	TestUserWithEmptyEmail = model.UserModel{
+	TestUserWithEmptyEmail = model.User{
 		ID:    uuid.New(),
 		Email: "",
 	}
@@ -32,19 +32,14 @@ func TestGetByID(t *testing.T) {
 		mock        func()
 		wantErr     bool
 		expectedErr error
-		want        model.UserModel
+		want        model.User
 	}{
 		{
-			// TODO: Use seed user instead of test user
 			name:    "Success",
 			userUID: TestUser.ID,
 			mock: func() {
 				userRows := sqlmock.NewRows([]string{"ID", "Email"}).AddRow(TestUser.ID, TestUser.Email)
 				dbMock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(TestUser.ID).WillReturnRows(userRows)
-				groupInvitationRows := sqlmock.NewRows([]string{"ID", "InviteeID"}).AddRow(uuid.New(), TestUser.ID) // Include field where user is stored
-				dbMock.ExpectQuery(`SELECT (.+) FROM "group_invitations"`).WithArgs(TestUser.ID).WillReturnRows(groupInvitationRows)
-				groupMemberRows := sqlmock.NewRows([]string{"ID", "OwnerUID"}).AddRow(uuid.New(), TestUser.ID)
-				dbMock.ExpectQuery(`SELECT (.+) FROM "group_members"`).WithArgs(TestUser.ID).WillReturnRows(groupMemberRows)
 			},
 			wantErr:     false,
 			expectedErr: nil,
@@ -58,7 +53,7 @@ func TestGetByID(t *testing.T) {
 			},
 			wantErr:     true,
 			expectedErr: storage.NoSuchUserError,
-			want:        model.UserModel{},
+			want:        model.User{},
 		},
 	}
 	for _, testcase := range tests {
@@ -86,11 +81,11 @@ func TestCreate(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		user        model.UserModel
+		user        model.User
 		mock        func()
 		wantErr     bool
 		expectedErr error
-		want        model.UserModel
+		want        model.User
 	}{
 		{
 			name: "Success",
@@ -121,7 +116,7 @@ func TestCreate(t *testing.T) {
 			},
 			wantErr:     true,
 			expectedErr: storage.UserAlreadyExistsError,
-			want:        model.UserModel{},
+			want:        model.User{},
 		},
 		{
 			name: "Invalid User Input",
@@ -135,7 +130,7 @@ func TestCreate(t *testing.T) {
 			},
 			wantErr:     true,
 			expectedErr: storage.InvalidUserInputError,
-			want:        model.UserModel{},
+			want:        model.User{},
 		},
 	}
 
@@ -165,10 +160,10 @@ func TestUpdate(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		user        model.UserModel
+		user        model.User
 		mock        func()
 		expectedErr error
-		want        model.UserModel
+		want        model.User
 	}{
 		{
 			name: "Success",
@@ -176,9 +171,10 @@ func TestUpdate(t *testing.T) {
 			mock: func() {
 				dbMock.ExpectBegin()
 				dbMock.ExpectExec(`UPDATE "users"`).
-					WithArgs(sqlmock.AnyArg(), TestUser.Email, TestUser.ID).
+					WithArgs(sqlmock.AnyArg(), TestUser.ID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				dbMock.ExpectCommit()
+				dbMock.ExpectQuery(`SELECT (.+) FROM "users"`).WithArgs(TestUser.ID).WillReturnRows(sqlmock.NewRows([]string{"ID", "Email"}).AddRow(TestUser.ID, TestUser.Email))
 			},
 			expectedErr: nil,
 			want:        TestUser,

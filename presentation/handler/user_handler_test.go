@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"split-the-bill-server/domain"
+	"split-the-bill-server/domain/converter"
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/domain/service/mocks"
 	"split-the-bill-server/presentation/dto"
@@ -18,13 +19,13 @@ import (
 
 // Testdata
 var (
-	TestUser     = model.UserModel{ID: uuid.New(), Email: "test@mail.com", Username: "tester"}
+	TestUser     = model.User{ID: uuid.New(), Email: "test@mail.com", Username: "tester"}
 	TestPassword = "test1337"
 )
 
 type UserResponseDTO struct {
-	Message string                `json:"message"`
-	Data    dto.UserCoreOutputDTO `json:"data"`
+	Message string             `json:"message"`
+	Data    dto.UserCoreOutput `json:"data"`
 }
 
 func performRequest(httpMethod string, url string, body []byte) (*http.Response, UserResponseDTO, error) {
@@ -54,8 +55,8 @@ func performRequest(httpMethod string, url string, body []byte) (*http.Response,
 func TestGetByIDSuccess(t *testing.T) {
 
 	// mock method
-	mocks.MockUserGetByID = func(id uuid.UUID) (dto.UserDetailedOutputDTO, error) {
-		return dto.ConvertToUserDetailedDTO(&TestUser), nil
+	mocks.MockUserGetByID = func(id uuid.UUID) (dto.UserCoreOutput, error) {
+		return converter.ToUserCoreDTO(&TestUser), nil
 	}
 
 	// setup request
@@ -73,11 +74,11 @@ func TestGetByIDSuccess(t *testing.T) {
 	if err != nil {
 		t.Fatal("Error in test setup during reading response body - ", err)
 	}
-	var response dto.GeneralResponseDTO
+	var response dto.GeneralResponse
 	err = json.Unmarshal(body, &response)
 
 	// convert returned data to dto.User
-	var returnedUser dto.UserDetailedOutputDTO
+	var returnedUser dto.UserCoreOutput
 	returnData := response.Data.(map[string]interface{})
 	returnedUser.ID = uuid.MustParse(returnData["id"].(string))
 	returnedUser.Email = returnData["email"].(string)
@@ -98,12 +99,12 @@ func TestGetByIDSuccess(t *testing.T) {
 func TestRegisterSuccess(t *testing.T) {
 
 	// mock method
-	mocks.MockUserCreate = func(user dto.UserInputDTO) (dto.UserCoreOutputDTO, error) {
-		return dto.ConvertToUserCoreDTO(&TestUser), nil
+	mocks.MockUserCreate = func(user dto.UserInput) (dto.UserCoreOutput, error) {
+		return converter.ToUserCoreDTO(&TestUser), nil
 	}
 
 	// setup request
-	reqBody := dto.UserInputDTO{
+	reqBody := dto.UserInput{
 		Email:    TestUser.Email,
 		Password: TestPassword,
 	}
@@ -122,11 +123,11 @@ func TestRegisterSuccess(t *testing.T) {
 	if err != nil {
 		t.Fatal("Error in test setup during reading response body - ", err)
 	}
-	var response dto.GeneralResponseDTO
+	var response dto.GeneralResponse
 	err = json.Unmarshal(body, &response)
 
 	// convert returned data to dto.User
-	var returnedUser dto.UserCoreOutputDTO
+	var returnedUser dto.UserCoreOutput
 	returnData := response.Data.(map[string]interface{})
 	returnedUser.ID = uuid.MustParse(returnData["id"].(string))
 	returnedUser.Email = returnData["email"].(string)
@@ -146,12 +147,11 @@ func TestRegisterSuccess(t *testing.T) {
 func TestUpdateSuccess(t *testing.T) {
 
 	// mock method
-	mocks.MockUserUpdate = func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdateDTO) (dto.UserCoreOutputDTO, error) {
-		return dto.UserCoreOutputDTO{ID: id, Email: user.Email, Username: user.Username}, nil
+	mocks.MockUserUpdate = func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error) {
+		return dto.UserCoreOutput{ID: id, Email: TestUser.Email, Username: user.Username}, nil
 	}
 
-	reqBody := dto.UserUpdateDTO{
-		Email:    TestUser.Email,
+	reqBody := dto.UserUpdate{
 		Username: "Updated Tester",
 	}
 	jsonBody, _ := json.Marshal(reqBody)
@@ -169,12 +169,11 @@ func TestUpdateSuccess(t *testing.T) {
 func TestUpdateWrongUser(t *testing.T) {
 
 	// mock method
-	mocks.MockUserUpdate = func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdateDTO) (dto.UserCoreOutputDTO, error) {
-		return dto.UserCoreOutputDTO{}, domain.ErrNotAuthorized
+	mocks.MockUserUpdate = func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error) {
+		return dto.UserCoreOutput{}, domain.ErrNotAuthorized
 	}
 
-	reqBody := dto.UserUpdateDTO{
-		Email:    TestUser.Email,
+	reqBody := dto.UserUpdate{
 		Username: TestUser.Username,
 	}
 	jsonBody, _ := json.Marshal(reqBody)

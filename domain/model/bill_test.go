@@ -8,39 +8,39 @@ import (
 
 // Testdata
 var (
-	TestBill = BillModel{
+	TestBill = Bill{
 		ID:    uuid.New(),
 		Name:  "Test Bill",
 		Owner: TestUser,
-		Items: []ItemModel{TestItem1, TestItem2},
+		Items: []Item{TestItem1, TestItem2},
 	}
 
-	TestItem1 = ItemModel{
+	TestItem1 = Item{
 		ID:           uuid.New(),
 		Name:         "Test Item 1",
 		Price:        10,
-		Contributors: []UserModel{TestUser},
+		Contributors: []User{TestUser},
 	}
 
-	TestItem2 = ItemModel{
+	TestItem2 = Item{
 		ID:           uuid.New(),
 		Name:         "Test Item 2",
 		Price:        18.5,
-		Contributors: []UserModel{TestUser, TestUser2},
+		Contributors: []User{TestUser, TestUser2},
 	}
 
-	TestBill2 = BillModel{
+	TestBill2 = Bill{
 		ID:    uuid.New(),
 		Name:  "Test Bill 2",
 		Owner: TestUser2,
-		Items: []ItemModel{TestItem3},
+		Items: []Item{TestItem3},
 	}
 
-	TestItem3 = ItemModel{
+	TestItem3 = Item{
 		ID:           uuid.New(),
 		Name:         "Test Item 3",
 		Price:        30,
-		Contributors: []UserModel{TestUser},
+		Contributors: []User{TestUser},
 	}
 )
 

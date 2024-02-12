@@ -10,11 +10,11 @@ import (
 	"testing"
 )
 
-func Equals(u UserModel, other UserModel) bool {
+func Equals(u User, other User) bool {
 	return u.ID == other.ID && u.Email == other.Email
 }
 
-func addUsers(uut storage.IUserStorage, users []UserModel, t *testing.T, finished chan<- struct{}) {
+func addUsers(uut storage.IUserStorage, users []User, t *testing.T, finished chan<- struct{}) {
 	for _, user := range users {
 		pw, err := util.HashPassword("ehhh")
 		require.NoError(t, err)
@@ -24,7 +24,7 @@ func addUsers(uut storage.IUserStorage, users []UserModel, t *testing.T, finishe
 	close(finished)
 }
 
-func getUsers(uut storage.IUserStorage, users []UserModel, t *testing.T, finished chan<- struct{}) {
+func getUsers(uut storage.IUserStorage, users []User, t *testing.T, finished chan<- struct{}) {
 	for _, user := range users {
 		res, err := uut.GetByID(user.ID)
 		require.NoError(t, err)
@@ -36,7 +36,7 @@ func getUsers(uut storage.IUserStorage, users []UserModel, t *testing.T, finishe
 	close(finished)
 }
 
-func deleteUsersAndAssert(uut storage.IUserStorage, users []UserModel, t *testing.T, finished chan<- struct{}) {
+func deleteUsersAndAssert(uut storage.IUserStorage, users []User, t *testing.T, finished chan<- struct{}) {
 	for _, user := range users {
 		err := uut.Delete(user.ID)
 		require.NoError(t, err)

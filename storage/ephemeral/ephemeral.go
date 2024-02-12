@@ -8,12 +8,12 @@ import (
 // TODO: Can change types_test to pointer of types_test -> updating types_test will be displayed in all related structs but it will still not update changes in PendingGroupInvitations
 type Ephemeral struct {
 	Locker    *Locker
-	Users     map[uuid.UUID]model.UserModel
+	Users     map[uuid.UUID]model.User
 	NameIndex map[string]uuid.UUID
 	Passwords map[uuid.UUID][]byte
-	Cookies   map[uuid.UUID][]model.AuthCookieModel
-	Groups    map[uuid.UUID]*model.GroupModel
-	Bills     map[uuid.UUID]*model.BillModel
+	Cookies   map[uuid.UUID][]model.AuthCookie
+	Groups    map[uuid.UUID]*model.Group
+	Bills     map[uuid.UUID]*model.Bill
 }
 
 type Resource uint
@@ -34,11 +34,11 @@ const _ = 1 / (64 / NumResources) // compile time check that there are no more t
 func NewEphemeral() (*Ephemeral, error) {
 	return &Ephemeral{
 		Locker:    NewLocker(),
-		Users:     make(map[uuid.UUID]model.UserModel),
+		Users:     make(map[uuid.UUID]model.User),
 		NameIndex: make(map[string]uuid.UUID),
 		Passwords: make(map[uuid.UUID][]byte),
-		Cookies:   make(map[uuid.UUID][]model.AuthCookieModel),
-		Groups:    make(map[uuid.UUID]*model.GroupModel),
-		Bills:     make(map[uuid.UUID]*model.BillModel),
+		Cookies:   make(map[uuid.UUID][]model.AuthCookie),
+		Groups:    make(map[uuid.UUID]*model.Group),
+		Bills:     make(map[uuid.UUID]*model.Bill),
 	}, nil
 }

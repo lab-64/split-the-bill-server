@@ -15,40 +15,32 @@ import (
 )
 
 type BillResponseDTO struct {
-	Message string                    `json:"message"`
-	Data    dto.BillDetailedOutputDTO `json:"data"`
+	Message string                 `json:"message"`
+	Data    dto.BillDetailedOutput `json:"data"`
 }
 
 func TestUpdateBill(t *testing.T) {
 
-	// Get Authentication Token
-	cookieToken, setupErr := login("felix@gmail.com", "test")
-	if setupErr != nil {
-		t.Fatalf("Error in test setup while logging in: %s", setupErr.Error())
-	}
-
 	// Testdata
-	updatedItem1 := dto.ItemInputDTO{
+	updatedItem1 := dto.ItemInput{
 		Name:         Item1.Name,
 		Price:        Item1.Price,
 		Contributors: []uuid.UUID{User1.ID, User2.ID},
 	}
 
-	updatedItem2 := dto.ItemInputDTO{
+	updatedItem2 := dto.ItemInput{
 		Name:         Item2.Name,
 		Price:        Item2.Price,
 		Contributors: []uuid.UUID{User1.ID},
 	}
 
-	updatedBill := dto.BillInputDTO{
+	updatedBill := dto.BillInput{
 		Name:    "Updated Bill",
 		OwnerID: User1.ID,
-		Items:   []dto.ItemInputDTO{updatedItem1, updatedItem2},
+		Items:   []dto.ItemInput{updatedItem1, updatedItem2},
 	}
 
 	inputJson, _ := json.Marshal(updatedBill)
-
-	// TODO: include cookie
 
 	route := "/api/bill/"
 	tests := []struct {
@@ -65,7 +57,7 @@ func TestUpdateBill(t *testing.T) {
 			description:     "Test successful bill update",
 			parameter:       Bill1.ID.String(),
 			inputJSON:       inputJson,
-			cookie:          &http.Cookie{Name: "session_cookie", Value: cookieToken},
+			cookie:          &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()},
 			expectedCode:    200,
 			expectedMessage: handler.SuccessMsgBillUpdate,
 			expectReturn:    true,
@@ -101,7 +93,7 @@ func TestUpdateBill(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error while reading response body: %s", err.Error())
 		}
-		// Parse response body to GeneralResponseDTO
+		// Parse response body to GeneralResponse
 		var response BillResponseDTO
 		if err = json.Unmarshal(body, &response); err != nil { // Parse []byte to go struct pointer
 			t.Fatalf("Error while parsing response body: %s", err.Error())
