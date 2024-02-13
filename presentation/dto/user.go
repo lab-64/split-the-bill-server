@@ -10,7 +10,7 @@ type UserInput struct {
 }
 
 type UserUpdate struct {
-	Username string `json:"username"`
+	Username string `json:"username" form:"username"`
 }
 
 type UserCoreOutput struct {

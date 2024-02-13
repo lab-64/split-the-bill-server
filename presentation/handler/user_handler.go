@@ -203,15 +203,16 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusOK, SuccessMsgUserUpdate, retUser)
 }
 
-// UploadImage 		func upload user image
+// UploadImage handles the upload of an image file for a user.
 //
 //	@Summary	Upload User Image
 //	@Tags		User
-//	@Accept		multipart/form-data
-//	@Produce	json
-//	@Param		id		path		string	true	"User ID"
-//	@Param		image	formData	file	true	"User Image"
-//	@Success	200		{object}	dto.GeneralResponseDTO
+//	@Accept		json
+//	@Produce	multipart/form-data
+//	@Param		id		path		string			true	"User ID"
+//	@Param		request	formData	dto.UserUpdate	true	"Request Body"
+//	@Param		image	formData	file			false	"User Image"
+//	@Success	200		{object}	dto.GeneralResponse
 //	@Router		/api/user/upload/{id} [post]
 func (h UserHandler) UploadImage(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -222,21 +223,28 @@ func (h UserHandler) UploadImage(c *fiber.Ctx) error {
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
+	// get json request
+	var user dto.UserUpdate
+	if err := c.BodyParser(&user); err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
+	}
+	log.Println(user)
+
 	// get file
 	file, err := c.FormFile("image")
 	if err != nil {
-		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserImageUpload, err))
+		return Success(c, fiber.StatusOK, "SuccessMsgUserImageUpload", "No file uploaded")
 	}
 	// convert file to byte array
 	// Read the file content
 	content, err := file.Open()
 	if err != nil {
-		return err
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, err))
 	}
 	defer content.Close()
 	data, err := io.ReadAll(content)
 	if err != nil {
-		return err
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, err))
 	}
 
 	storagePath := "./uploads/" + id

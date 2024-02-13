@@ -634,10 +634,10 @@ const docTemplate = `{
         "/api/user/upload/{id}": {
             "post": {
                 "consumes": [
-                    "multipart/form-data"
+                    "application/json"
                 ],
                 "produces": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "tags": [
                     "User"
@@ -652,18 +652,22 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "name": "username",
+                        "in": "formData"
+                    },
+                    {
                         "type": "file",
                         "description": "User Image",
                         "name": "image",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponseDTO"
+                            "$ref": "#/definitions/dto.GeneralResponse"
                         }
                     }
                 }
