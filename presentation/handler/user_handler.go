@@ -85,14 +85,17 @@ func (h UserHandler) Delete(c *fiber.Ctx) error {
 	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
 	// get authenticated requesterID from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
 	// delete user
 	err = h.userService.Delete(requesterID, uid)
 	if err != nil {
-		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserDelete, err))
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgUserDelete, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserDelete, err))
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgUserDelete, nil)

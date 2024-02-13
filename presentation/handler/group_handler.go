@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
 	"split-the-bill-server/presentation/dto"
@@ -43,6 +45,9 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 	// create group
 	group, err := h.groupService.Create(requesterID, request)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGroupCreate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupCreate, err))
 	}
 
@@ -85,6 +90,9 @@ func (g GroupHandler) Update(c *fiber.Ctx) error {
 	// update group
 	group, err := g.groupService.Update(requesterID, uid, request)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGroupUpdate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupUpdate, err))
 	}
 
@@ -115,7 +123,10 @@ func (h GroupHandler) GetByID(c *fiber.Ctx) error {
 	// get group
 	group, err := h.groupService.GetByID(requesterID, gid)
 	if err != nil {
-		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgGroupNotFound, err))
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGroupNotFound, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupNotFound, err))
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgGroupFound, group)
@@ -156,6 +167,9 @@ func (h GroupHandler) GetAll(c *fiber.Ctx) error {
 	// get groups
 	groups, err := h.groupService.GetAll(requesterID, userUUID, invitationUUID)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGetUserGroups, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGetUserGroups, err))
 	}
 
@@ -186,7 +200,10 @@ func (h GroupHandler) AcceptInvitation(c *fiber.Ctx) error {
 	// accept invitation
 	err = h.groupService.AcceptGroupInvitation(invitationID, requesterID)
 	if err != nil {
-		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationParse, err))
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgInvitationHandle, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgInvitationHandled, nil)
