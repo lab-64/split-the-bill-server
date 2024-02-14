@@ -35,11 +35,13 @@ const (
 	ErrMsgItemCreate   = "Could not create item: %v"
 	ErrMsgItemUpdate   = "Could not update item: %v"
 	ErrMsgItemNotFound = "Item not found: %v"
+	ErrMsgItemDelete   = "Could not delete item: %v"
 
 	// Item - SUCCESS
 	SuccessMsgItemCreate = "Item created"
 	SuccessMsgItemUpdate = "Item updated"
 	SuccessMsgItemFound  = "Item found"
+	SuccessMsgItemDelete = "Item deleted"
 
 	// User - ERROR
 	ErrMsgUserParse            = "Could not parse user: %v"

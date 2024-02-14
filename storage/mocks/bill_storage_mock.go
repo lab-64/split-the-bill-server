@@ -13,6 +13,7 @@ var (
 	MockBillCreateItem  func(model.Item) (model.Item, error)
 	MockBillGetItemByID func(uuid.UUID) (model.Item, error)
 	MockBillUpdateItem  func(model.Item) (model.Item, error)
+	MockBillDeleteItem  func(uuid.UUID) error
 )
 
 func NewBillStorageMock() storage.IBillStorage {
@@ -44,4 +45,8 @@ func (b BillStorageMock) GetItemByID(id uuid.UUID) (model.Item, error) {
 
 func (b BillStorageMock) UpdateItem(item model.Item) (model.Item, error) {
 	return MockBillUpdateItem(item)
+}
+
+func (b BillStorageMock) DeleteItem(id uuid.UUID) error {
+	return MockBillDeleteItem(id)
 }

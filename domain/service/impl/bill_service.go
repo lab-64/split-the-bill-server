@@ -48,7 +48,6 @@ func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dt
 	if err != nil {
 		return dto.BillDetailedOutput{}, err
 	}
-
 	// Authorization
 	if requesterID != bill.Owner.ID {
 		return dto.BillDetailedOutput{}, domain.ErrNotAuthorized
@@ -56,7 +55,6 @@ func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dt
 
 	updatedBill := model.CreateBill(billID, billDTO, billDTO.Date)
 	updatedBill.ID = bill.ID
-
 	bill, err = b.billStorage.UpdateBill(updatedBill)
 	if err != nil {
 		return dto.BillDetailedOutput{}, err
@@ -151,4 +149,23 @@ func (b *BillService) GetItemByID(requesterID uuid.UUID, id uuid.UUID) (dto.Item
 	}
 
 	return converter.ToItemDTO(item), err
+}
+
+func (b *BillService) DeleteItem(requesterID uuid.UUID, itemID uuid.UUID) error {
+	// Get item
+	item, err := b.billStorage.GetItemByID(itemID)
+	if err != nil {
+		return err
+	}
+	// Get bill
+	bill, err := b.billStorage.GetByID(item.BillID)
+	if err != nil {
+		return err
+	}
+	// Authorization
+	if requesterID != bill.Owner.ID {
+		return domain.ErrNotAuthorized
+	}
+	// Delete item
+	return b.billStorage.DeleteItem(itemID)
 }

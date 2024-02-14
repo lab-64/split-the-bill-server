@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
 	"split-the-bill-server/presentation/dto"
@@ -218,4 +220,37 @@ func (h BillHandler) ChangeItem(c *fiber.Ctx) error {
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgItemUpdate, item)
+}
+
+// DeleteItem 	deletes item.
+//
+//	@Summary	Delete Item
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"Item ID"
+//	@Success	200	{object}	dto.GeneralResponse
+//	@Router		/api/bill/item/{id} [delete]
+func (h BillHandler) DeleteItem(c *fiber.Ctx) error {
+	// parse parameter
+	id := c.Params("id")
+	if id == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+	}
+	// get authenticated requester from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	// delete item
+	err = h.billService.DeleteItem(requesterID, uid)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgItemDelete, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemNotFound, err))
+	}
+
+	return Success(c, fiber.StatusOK, SuccessMsgItemDelete, nil)
 }
