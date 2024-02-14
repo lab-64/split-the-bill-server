@@ -102,8 +102,22 @@ func (g *GroupStorage) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]mo
 }
 
 func (g *GroupStorage) DeleteGroup(id uuid.UUID) error {
-	res := g.DB.Delete(&entity.Group{}, "id = ?", id)
-	if res.Error != nil {
+
+	group := entity.Group{
+		Base: entity.Base{ID: id},
+	}
+	err := g.DB.Transaction(func(tx *gorm.DB) error {
+		// Delete the group
+		res := g.DB.Delete(&group)
+		if res.Error != nil {
+			return res.Error
+		}
+		// Delete all of a group's has one, has many, and many2many associations
+		res = g.DB.Select(clause.Associations).Delete(&group)
+		return res.Error
+	})
+
+	if err != nil {
 		return storage.NoSuchGroupError
 	}
 	return nil
