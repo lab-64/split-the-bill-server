@@ -50,7 +50,6 @@ const (
 	ErrMsgUsersNotFound        = "Users not found: %v"
 	ErrMsgUserLogin            = "Could not log in: %v"
 	ErrMsgUserCredentialsParse = "Could not parse credentials: %v"
-	ErrMsgInvitationHandle     = "Could not handle invitation: %v"
 	ErrMsgBadPassword          = "Bad Password: %v"
 
 	// User - SUCCESS
@@ -62,7 +61,8 @@ const (
 	SuccessMsgUserUpdate = "User updated"
 
 	// Invitation - ERROR
-	ErrMsgInvitationParse = "Could not parse invitation: %v"
+	ErrMsgInvitationHandle = "Could not handle invitation: %v"
+	ErrMsgInvitationParse  = "Could not parse invitation: %v"
 
 	// Invitation - SUCCESS
 	SuccessMsgInvitationHandled = "Invitation handled"

@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
 	"split-the-bill-server/presentation/dto"
@@ -43,7 +45,10 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 	// get bill
 	bill, err := h.billService.GetByID(requesterID, uid)
 	if err != nil {
-		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgBillNotFound, err))
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgBillNotFound, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillNotFound, err))
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgBillFound, bill)
@@ -74,6 +79,9 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 	// create bill
 	bill, err := h.billService.Create(requesterID, request)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgBillCreate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillCreate, err))
 	}
 
@@ -114,6 +122,9 @@ func (g BillHandler) Update(c *fiber.Ctx) error {
 	// update item
 	item, err := g.billService.Update(requesterID, uid, request)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgBillUpdate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillUpdate, err))
 	}
 
@@ -144,6 +155,9 @@ func (h BillHandler) AddItem(c *fiber.Ctx) error {
 	// create item
 	item, err := h.billService.AddItem(requesterID, request)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgItemCreate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemCreate, err))
 	}
 
@@ -174,7 +188,10 @@ func (h BillHandler) GetItemByID(c *fiber.Ctx) error {
 	// get item
 	item, err := h.billService.GetItemByID(requesterID, uid)
 	if err != nil {
-		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgItemNotFound, err))
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgItemNotFound, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemNotFound, err))
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgItemFound, item)
@@ -214,6 +231,9 @@ func (h BillHandler) ChangeItem(c *fiber.Ctx) error {
 	// update item
 	item, err := h.billService.ChangeItem(requesterID, uid, request)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgItemUpdate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemUpdate, err))
 	}
 
