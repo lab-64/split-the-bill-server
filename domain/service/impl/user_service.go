@@ -55,7 +55,7 @@ func (u *UserService) GetByID(id uuid.UUID) (dto.UserCoreOutput, error) {
 }
 
 func (u *UserService) Create(userDTO dto.UserInput) (dto.UserCoreOutput, error) {
-	user := model.CreateUser(uuid.New(), userDTO.Email, "")
+	user := model.CreateUser(uuid.New(), userDTO.Email, "", "")
 	passwordHash, err := util.HashPassword(userDTO.Password)
 	if err != nil {
 		return dto.UserCoreOutput{}, err
@@ -93,14 +93,22 @@ func (u *UserService) Login(credentials dto.CredentialsInput) (dto.UserCoreOutpu
 	return converter.ToUserCoreDTO(&user), sc, err
 }
 
-func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error) {
+func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, file []byte) (dto.UserCoreOutput, error) {
 	// Authorization
 	if requesterID != id {
 		return dto.UserCoreOutput{}, domain.ErrNotAuthorized
 	}
-	// do not update email
-	userModel := model.CreateUser(id, "", user.Username)
-
+	// store profile image if file is included
+	filePath := ""
+	if file != nil {
+		var err error
+		filePath, err = util.StoreFile(file, id)
+		if err != nil {
+			return dto.UserCoreOutput{}, err
+		}
+	}
+	// update user
+	userModel := model.CreateUser(id, "", user.Username, filePath) // do not update email
 	userModel, err := u.userStorage.Update(userModel)
 	if err != nil {
 		return dto.UserCoreOutput{}, err

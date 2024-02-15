@@ -165,17 +165,19 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusOK, SuccessMsgUserLogin, user)
 }
 
-// Update 		func update user
+// Update 		func update user's username and profile image
 //
 //	@Summary	Update User
 //	@Tags		User
 //	@Accept		json
-//	@Produce	json
+//	@Produce	multipart/form-data
 //	@Param		id		path		string			true	"User ID"
-//	@Param		request	body		dto.UserUpdate	true	"Request Body"
+//	@Param		request	formData	dto.UserUpdate	true	"Request Body"
+//	@Param		image	formData	file			false	"User Image"
 //	@Success	200		{object}	dto.GeneralResponse
 //	@Router		/api/user/{id} [put]
 func (h UserHandler) Update(c *fiber.Ctx) error {
+	// parse parameter
 	id := c.Params("id")
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
@@ -184,15 +186,32 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
+	// parse request body
 	var user dto.UserUpdate
-	if err := c.BodyParser(&user); err != nil {
+	if err = c.BodyParser(&user); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
-
+	// try to parse file
+	var data []byte
+	file, err := c.FormFile("image")
+	// err == nil -> image is included
+	if err == nil {
+		// read the file content
+		content, fileErr := file.Open()
+		if fileErr != nil {
+			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, fileErr))
+		}
+		defer content.Close()
+		// convert file to byte array
+		data, fileErr = io.ReadAll(content)
+		if fileErr != nil {
+			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, fileErr))
+		}
+	}
 	// get authenticated requesterID from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
-	retUser, err := h.userService.Update(requesterID, userID, user)
+	// update user
+	retUser, err := h.userService.Update(requesterID, userID, user, data)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotAuthorized) {
 			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgUserUpdate, err))

@@ -21,5 +21,5 @@ type IUserService interface {
 
 	// Update updates the user with the given id with the new user data.
 	// *Authorization required: requesterID == id
-	Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error)
+	Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, profileImg []byte) (dto.UserCoreOutput, error)
 }
