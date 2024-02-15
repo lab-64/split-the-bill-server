@@ -26,15 +26,7 @@ func TestGroupStorage_DeleteGroup(t *testing.T) {
 			groupID: TestGroup.ID,
 			mock: func() {
 				dbMock.ExpectBegin()
-				dbMock.ExpectBegin()
-				dbMock.ExpectExec(`UPDATE "groups" SET "deleted_at"`).WithArgs(sqlmock.AnyArg(), TestGroup.ID).WillReturnResult(sqlmock.NewResult(0, 0))
-				dbMock.ExpectCommit()
-				dbMock.ExpectBegin()
-				dbMock.ExpectExec(`DELETE FROM "group_members"`).WithArgs(TestGroup.ID).WillReturnResult(sqlmock.NewResult(0, 0))
-				dbMock.ExpectExec(`UPDATE "bills" SET "deleted_at"`).WithArgs(sqlmock.AnyArg(), TestGroup.ID).WillReturnResult(sqlmock.NewResult(0, 0))
-				dbMock.ExpectExec(`UPDATE "group_invitations" SET "deleted_at"`).WithArgs(sqlmock.AnyArg(), TestGroup.ID).WillReturnResult(sqlmock.NewResult(0, 0))
-				dbMock.ExpectExec(`UPDATE "groups" SET "deleted_at"`).WithArgs(sqlmock.AnyArg(), TestGroup.ID).WillReturnResult(sqlmock.NewResult(0, 0))
-				dbMock.ExpectCommit()
+				dbMock.ExpectExec(`DELETE FROM "groups"`).WithArgs(TestGroup.ID).WillReturnResult(sqlmock.NewResult(0, 0))
 				dbMock.ExpectCommit()
 			},
 			expectedErr: nil,
