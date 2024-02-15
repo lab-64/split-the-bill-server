@@ -24,8 +24,7 @@ type UserResponseDTO struct {
 }
 
 // performUserRequest performs a http request for any user endpoint.
-// The method, the route including the parameter, the input data and the mail of the user to be logged in must be provided.
-// If the request should be performed without authentication token, just provide an empty string as mail.
+// The method, the route including the parameter, the input data and the session cookie has to be provided.
 // The function returns the response body as UserResponseDTO, the http response and an error.
 func performUserRequest(httpMethod string, route string, inputUserData interface{}, cookie *http.Cookie) (UserResponseDTO, *http.Response, error) {
 
