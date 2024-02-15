@@ -7,10 +7,12 @@ import (
 )
 
 var (
-	MockGroupAddGroup     func(model.Group) (model.Group, error)
-	MockGroupUpdateGroup  func(model.Group) (model.Group, error)
-	MockGroupGetGroupByID func(uuid.UUID) (model.Group, error)
-	MockGroupGetGroups    func(uuid.UUID) ([]model.Group, error)
+	MockGroupAddGroup              func(model.Group) (model.Group, error)
+	MockGroupUpdateGroup           func(model.Group) (model.Group, error)
+	MockGroupGetGroupByID          func(uuid.UUID) (model.Group, error)
+	MockGroupGetGroups             func(uuid.UUID, uuid.UUID) ([]model.Group, error)
+	MockGroupDeleteGroup           func(uuid.UUID) error
+	MockGroupAcceptGroupInvitation func(uuid.UUID, uuid.UUID) error
 )
 
 func NewGroupStorageMock() storage.IGroupStorage {
@@ -33,10 +35,13 @@ func (g GroupStorageMock) GetGroupByID(id uuid.UUID) (model.Group, error) {
 }
 
 func (g GroupStorageMock) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]model.Group, error) {
-	return MockGroupGetGroups(userID)
+	return MockGroupGetGroups(userID, invitationID)
+}
+
+func (g GroupStorageMock) DeleteGroup(id uuid.UUID) error {
+	return MockGroupDeleteGroup(id)
 }
 
 func (g GroupStorageMock) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
-	//TODO implement me
-	panic("implement me")
+	return MockGroupAcceptGroupInvitation(invitationID, userID)
 }

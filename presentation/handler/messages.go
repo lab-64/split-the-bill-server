@@ -12,12 +12,14 @@ const (
 	ErrMsgGroupUpdate   = "Could not update group: %v"
 	ErrMsgGroupNotFound = "Group not found: %v"
 	ErrMsgGetUserGroups = "Could not load user groups: %v"
+	ErrMsgGroupDelete   = "Could not delete group: %v"
 
 	// Group - SUCCESS
 	SuccessMsgGroupFound  = "Group found"
 	SuccessMsgGroupsFound = "Groups found"
 	SuccessMsgGroupCreate = "Group created"
 	SuccessMsgGroupUpdate = "Group updated"
+	SuccessMsgGroupDelete = "Group deleted"
 
 	// Bill - ERROR
 	ErrMsgBillParse    = "Could not parse bill: %v"

@@ -110,7 +110,7 @@ func TestGroupService_GetAll(t *testing.T) {
 		{
 			name: "Success get from userID",
 			mock: func() {
-				mocks.MockGroupGetGroups = func(userID uuid.UUID) ([]model.Group, error) {
+				mocks.MockGroupGetGroups = func(userID uuid.UUID, invitationID uuid.UUID) ([]model.Group, error) {
 					return []model.Group{TestGroup, TestGroup2}, nil
 				}
 			},
@@ -123,7 +123,7 @@ func TestGroupService_GetAll(t *testing.T) {
 		{
 			name: "Success get from invitationID",
 			mock: func() {
-				mocks.MockGroupGetGroups = func(invitationID uuid.UUID) ([]model.Group, error) {
+				mocks.MockGroupGetGroups = func(userID uuid.UUID, invitationID uuid.UUID) ([]model.Group, error) {
 					return []model.Group{TestGroup}, nil
 				}
 			},
@@ -136,7 +136,7 @@ func TestGroupService_GetAll(t *testing.T) {
 		{
 			name: "Not authorized",
 			mock: func() {
-				mocks.MockGroupGetGroups = func(userID uuid.UUID) ([]model.Group, error) {
+				mocks.MockGroupGetGroups = func(userID uuid.UUID, invitationID uuid.UUID) ([]model.Group, error) {
 					return []model.Group{TestGroup, TestGroup2}, nil
 				}
 			},

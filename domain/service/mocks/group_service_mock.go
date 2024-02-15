@@ -12,6 +12,7 @@ var (
 	MockGroupGetByID               func(requesterID uuid.UUID, id uuid.UUID) (dto.GroupDetailedOutput, error)
 	MockGroupGetAll                func(requesterID uuid.UUID, userID uuid.UUID, invitationID uuid.UUID) ([]dto.GroupDetailedOutput, error)
 	MockGroupAcceptGroupInvitation func(invitationID uuid.UUID, userID uuid.UUID) error
+	MockGroupDelete                func(requesterID uuid.UUID, id uuid.UUID) error
 )
 
 func NewGroupServiceMock() service.IGroupService {
@@ -35,6 +36,10 @@ func (g GroupServiceMock) GetByID(requesterID uuid.UUID, id uuid.UUID) (dto.Grou
 
 func (g GroupServiceMock) GetAll(requesterID uuid.UUID, userID uuid.UUID, invitationID uuid.UUID) ([]dto.GroupDetailedOutput, error) {
 	return MockGroupGetAll(requesterID, userID, invitationID)
+}
+
+func (g GroupServiceMock) Delete(requesterID uuid.UUID, id uuid.UUID) error {
+	return MockGroupDelete(requesterID, id)
 }
 
 func (g GroupServiceMock) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {

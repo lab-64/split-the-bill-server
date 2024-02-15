@@ -101,6 +101,15 @@ func (g *GroupStorage) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]mo
 	return converter.ToGroupModels(groups), nil
 }
 
+func (g *GroupStorage) DeleteGroup(id uuid.UUID) error {
+	// Delete group, all associations will be deleted as well because of the foreign key constraints
+	res := g.DB.Delete(&entity.Group{Base: entity.Base{ID: id}})
+	if res.Error != nil {
+		return storage.NoSuchGroupError
+	}
+	return nil
+}
+
 func (g *GroupStorage) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
 	var groupInvitation entity.GroupInvitation
 

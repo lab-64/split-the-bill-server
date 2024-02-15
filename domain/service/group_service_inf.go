@@ -22,6 +22,10 @@ type IGroupService interface {
 	// *Authorization required: requesterID == id (for param: userID)
 	GetAll(requesterID uuid.UUID, userID uuid.UUID, invitationID uuid.UUID) ([]dto.GroupDetailedOutput, error)
 
+	// Delete deletes the group with the given id.
+	// *Authorization required: requester == group.Owner
+	Delete(requesterID uuid.UUID, id uuid.UUID) error
+
 	// AcceptGroupInvitation accepts the invitation and adds user to the group.
 	AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error
 }

@@ -18,6 +18,9 @@ type IGroupStorage interface {
 	// GetGroups returns all groups for the user with the given user ID and/or invitation ID.
 	GetGroups(userID UUID, invitationID UUID) ([]model.Group, error)
 
+	// DeleteGroup deletes the group with the given ID, or a NoSuchGroupError if no such group exists.
+	DeleteGroup(id UUID) error
+
 	// AcceptGroupInvitation adds the associated user to a group
 	AcceptGroupInvitation(invitationID UUID, userID UUID) error
 }
