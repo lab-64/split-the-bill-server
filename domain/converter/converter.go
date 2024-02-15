@@ -81,9 +81,10 @@ func ToGroupDetailedDTO(g model.Group) dto.GroupDetailedOutput {
 
 func ToUserCoreDTO(u *model.User) dto.UserCoreOutput {
 	return dto.UserCoreOutput{
-		ID:       u.ID,
-		Email:    u.Email,
-		Username: u.Username,
+		ID:             u.ID,
+		Email:          u.Email,
+		Username:       u.Username,
+		ProfileImgPath: u.ProfileImgPath,
 	}
 }
 

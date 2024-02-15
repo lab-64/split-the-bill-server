@@ -14,7 +14,8 @@ type UserUpdate struct {
 }
 
 type UserCoreOutput struct {
-	ID       uuid.UUID `json:"id"`
-	Email    string    `json:"email"`
-	Username string    `json:"username"`
+	ID             uuid.UUID `json:"id"`
+	Email          string    `json:"email"`
+	Username       string    `json:"username"`
+	ProfileImgPath string    `json:"profileImgPath"`
 }
