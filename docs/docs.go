@@ -631,48 +631,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/user/upload/{id}": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "multipart/form-data"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Upload User Image",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "name": "username",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "file",
-                        "description": "User Image",
-                        "name": "image",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/user/{id}": {
             "get": {
                 "consumes": [
@@ -961,6 +919,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "profileImgPath": {
                     "type": "string"
                 },
                 "username": {

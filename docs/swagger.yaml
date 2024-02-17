@@ -116,6 +116,8 @@ definitions:
         type: string
       id:
         type: string
+      profileImgPath:
+        type: string
       username:
         type: string
     type: object
@@ -562,33 +564,6 @@ paths:
                   $ref: '#/definitions/dto.UserCoreOutput'
               type: object
       summary: Login User
-      tags:
-      - User
-  /api/user/upload/{id}:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - in: formData
-        name: username
-        type: string
-      - description: User Image
-        in: formData
-        name: image
-        type: file
-      produces:
-      - multipart/form-data
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.GeneralResponse'
-      summary: Upload User Image
       tags:
       - User
 swagger: "2.0"
