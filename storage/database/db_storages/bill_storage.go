@@ -150,3 +150,11 @@ func (b *BillStorage) UpdateItem(item model.Item) (model.Item, error) {
 
 	return converter.ToItemModel(itemEntity), err
 }
+
+func (b *BillStorage) DeleteItem(id uuid.UUID) error {
+	res := b.DB.Delete(&entity.Item{}, "id = ?", id)
+	if res.Error != nil {
+		return storage.NoSuchBillError
+	}
+	return nil
+}

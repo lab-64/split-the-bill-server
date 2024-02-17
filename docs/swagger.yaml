@@ -37,13 +37,6 @@ definitions:
       ownerID:
         type: string
     type: object
-  dto.CredentialsInput:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    type: object
   dto.GeneralResponse:
     properties:
       data: {}
@@ -242,6 +235,25 @@ paths:
       tags:
       - Bill
   /api/bill/item/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Delete Item
+      tags:
+      - Bill
     get:
       consumes:
       - application/json
@@ -350,6 +362,25 @@ paths:
       tags:
       - Group
   /api/group/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Delete Group
+      tags:
+      - Group
     get:
       consumes:
       - application/json
@@ -550,7 +581,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.CredentialsInput'
+          $ref: '#/definitions/dto.UserInput'
       produces:
       - application/json
       responses:

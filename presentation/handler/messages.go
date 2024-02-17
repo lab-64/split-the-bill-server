@@ -12,12 +12,14 @@ const (
 	ErrMsgGroupUpdate   = "Could not update group: %v"
 	ErrMsgGroupNotFound = "Group not found: %v"
 	ErrMsgGetUserGroups = "Could not load user groups: %v"
+	ErrMsgGroupDelete   = "Could not delete group: %v"
 
 	// Group - SUCCESS
 	SuccessMsgGroupFound  = "Group found"
 	SuccessMsgGroupsFound = "Groups found"
 	SuccessMsgGroupCreate = "Group created"
 	SuccessMsgGroupUpdate = "Group updated"
+	SuccessMsgGroupDelete = "Group deleted"
 
 	// Bill - ERROR
 	ErrMsgBillParse    = "Could not parse bill: %v"
@@ -35,11 +37,13 @@ const (
 	ErrMsgItemCreate   = "Could not create item: %v"
 	ErrMsgItemUpdate   = "Could not update item: %v"
 	ErrMsgItemNotFound = "Item not found: %v"
+	ErrMsgItemDelete   = "Could not delete item: %v"
 
 	// Item - SUCCESS
 	SuccessMsgItemCreate = "Item created"
 	SuccessMsgItemUpdate = "Item updated"
 	SuccessMsgItemFound  = "Item found"
+	SuccessMsgItemDelete = "Item deleted"
 
 	// User - ERROR
 	ErrMsgUserParse            = "Could not parse user: %v"
@@ -50,7 +54,6 @@ const (
 	ErrMsgUsersNotFound        = "Users not found: %v"
 	ErrMsgUserLogin            = "Could not log in: %v"
 	ErrMsgUserCredentialsParse = "Could not parse credentials: %v"
-	ErrMsgInvitationHandle     = "Could not handle invitation: %v"
 	ErrMsgBadPassword          = "Bad Password: %v"
 
 	// User - SUCCESS
@@ -62,7 +65,8 @@ const (
 	SuccessMsgUserUpdate = "User updated"
 
 	// Invitation - ERROR
-	ErrMsgInvitationParse = "Could not parse invitation: %v"
+	ErrMsgInvitationHandle = "Could not handle invitation: %v"
+	ErrMsgInvitationParse  = "Could not parse invitation: %v"
 
 	// Invitation - SUCCESS
 	SuccessMsgInvitationHandled = "Invitation handled"

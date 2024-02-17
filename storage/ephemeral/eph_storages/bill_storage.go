@@ -55,3 +55,8 @@ func (b BillStorage) UpdateItem(item model.Item) (model.Item, error) {
 	//TODO implement me
 	panic("implement me")
 }
+
+func (b BillStorage) DeleteItem(id uuid.UUID) error {
+	//TODO implement me
+	panic("implement me")
+}

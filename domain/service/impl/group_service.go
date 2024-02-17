@@ -95,6 +95,20 @@ func (g *GroupService) GetAll(requesterID uuid.UUID, userID uuid.UUID, invitatio
 	return groupsDTO, nil
 }
 
+func (g *GroupService) Delete(requesterID uuid.UUID, id uuid.UUID) error {
+	// get group
+	group, err := g.groupStorage.GetGroupByID(id)
+	if err != nil {
+		return err
+	}
+	// Authorization
+	if requesterID != group.Owner.ID {
+		return ErrNotAuthorized
+	}
+	// delete group
+	return g.groupStorage.DeleteGroup(id)
+}
+
 func (g *GroupService) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
 	err := g.groupStorage.AcceptGroupInvitation(invitationID, userID)
 	return err

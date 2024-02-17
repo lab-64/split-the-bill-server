@@ -66,3 +66,8 @@ func (g *GroupStorage) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid
 	//TODO implement me
 	panic("implement me")
 }
+
+func (g *GroupStorage) DeleteGroup(id uuid.UUID) error {
+	//TODO implement me
+	panic("implement me")
+}

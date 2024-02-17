@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
 	"split-the-bill-server/presentation/dto"
@@ -33,19 +35,19 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 	if err := c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupParse, err))
 	}
-
-	// validate group inputs
-	// TODO: if name is empty, generate default name
+	// validate inputs
 	err := request.ValidateInput()
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
 	}
-
+	// get requesterID from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
 	// create group
 	group, err := h.groupService.Create(requesterID, request)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGroupCreate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupCreate, err))
 	}
 
@@ -64,32 +66,37 @@ func (h GroupHandler) Create(c *fiber.Ctx) error {
 //
 //	@Router		/api/group/{id} [put]
 func (g GroupHandler) Update(c *fiber.Ctx) error {
-	// parse parameters
+	// parse parameter
 	id := c.Params("id")
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
-
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
-
 	// parse request
 	var request dto.GroupInput
-	if err := c.BodyParser(&request); err != nil {
+	if err = c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgGroupParse, err))
 	}
-
-	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
-	// update item
-	item, err := g.groupService.Update(requesterID, uid, request)
+	// validate inputs
+	err = request.ValidateInput()
 	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
+	}
+	// get requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	// update group
+	group, err := g.groupService.Update(requesterID, uid, request)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGroupUpdate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupUpdate, err))
 	}
 
-	return Success(c, fiber.StatusOK, SuccessMsgGroupUpdate, item)
+	return Success(c, fiber.StatusOK, SuccessMsgGroupUpdate, group)
 }
 
 // GetByID returns the group with the given ID.
@@ -102,22 +109,24 @@ func (g GroupHandler) Update(c *fiber.Ctx) error {
 //	@Success	200	{object}	dto.GeneralResponse{data=dto.GroupDetailedOutput}
 //	@Router		/api/group/{id} [get]
 func (h GroupHandler) GetByID(c *fiber.Ctx) error {
+	// parse parameter
 	id := c.Params("id")
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 	gid, err := uuid.Parse(id)
-
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
-
+	// get requesterID from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
+	// get group
 	group, err := h.groupService.GetByID(requesterID, gid)
-
 	if err != nil {
-		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgGroupNotFound, err))
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGroupNotFound, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupNotFound, err))
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgGroupFound, group)
@@ -134,12 +143,11 @@ func (h GroupHandler) GetByID(c *fiber.Ctx) error {
 //	@Success	200				{object}	dto.GeneralResponse{data=dto.GroupDetailedOutput}
 //	@Router		/api/group [get]
 func (h GroupHandler) GetAll(c *fiber.Ctx) error {
+	// parse query parameters
 	userID := c.Query("userId")
 	invitationID := c.Query("invitationId")
-
 	userUUID := uuid.Nil
 	invitationUUID := uuid.Nil
-
 	if userID != "" {
 		uid, err := uuid.Parse(userID)
 		if err != nil {
@@ -147,7 +155,6 @@ func (h GroupHandler) GetAll(c *fiber.Ctx) error {
 		}
 		userUUID = uid
 	}
-
 	if invitationID != "" {
 		uid, err := uuid.Parse(invitationID)
 		if err != nil {
@@ -155,16 +162,50 @@ func (h GroupHandler) GetAll(c *fiber.Ctx) error {
 		}
 		invitationUUID = uid
 	}
-
+	// get requesterID from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
+	// get groups
 	groups, err := h.groupService.GetAll(requesterID, userUUID, invitationUUID)
-
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGetUserGroups, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGetUserGroups, err))
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgGroupsFound, groups)
+}
+
+// Delete deletes the group with the given id.
+//
+//	@Summary	Delete Group
+//	@Tags		Group
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"Group ID"
+//	@Success	200	{object}	dto.GeneralResponse
+//	@Router		/api/group/{id} [delete]
+func (h GroupHandler) Delete(c *fiber.Ctx) error {
+	// parse parameter
+	id := c.Params("id")
+	if id == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+	}
+	// get requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	// delete group
+	err = h.groupService.Delete(requesterID, uid)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGroupDelete, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupDelete, err))
+	}
+	return Success(c, fiber.StatusOK, SuccessMsgGroupDelete, nil)
 }
 
 // AcceptInvitation accepts a group invitation.
@@ -177,11 +218,11 @@ func (h GroupHandler) GetAll(c *fiber.Ctx) error {
 //	@Success	200	{object}	dto.GeneralResponse
 //	@Router		/api/group/invitation/{id}/accept [post]
 func (h GroupHandler) AcceptInvitation(c *fiber.Ctx) error {
+	// parse parameter
 	id := c.Params("id")
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
-	// parse invitationID from path
 	invitationID, err := uuid.Parse(id)
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
@@ -191,7 +232,11 @@ func (h GroupHandler) AcceptInvitation(c *fiber.Ctx) error {
 	// accept invitation
 	err = h.groupService.AcceptGroupInvitation(invitationID, requesterID)
 	if err != nil {
-		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationParse, err))
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgInvitationHandle, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgInvitationHandle, err))
 	}
+
 	return Success(c, fiber.StatusOK, SuccessMsgInvitationHandled, nil)
 }

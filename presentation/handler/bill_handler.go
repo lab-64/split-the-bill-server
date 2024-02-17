@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
 	"split-the-bill-server/presentation/dto"
@@ -29,21 +31,24 @@ func NewBillHandler(billService *service.IBillService, groupService *service.IGr
 //	@Success	200	{object}	dto.GeneralResponse{data=dto.BillDetailedOutput}
 //	@Router		/api/bill/{id} [get]
 func (h BillHandler) GetByID(c *fiber.Ctx) error {
+	// parse parameter
 	id := c.Params("id")
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
-
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
-
+	// get authenticated requester from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
+	// get bill
 	bill, err := h.billService.GetByID(requesterID, uid)
 	if err != nil {
-		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgBillNotFound, err))
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgBillNotFound, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillNotFound, err))
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgBillFound, bill)
@@ -58,22 +63,25 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 //	@Param		request	body		dto.BillInput	true	"Request Body"
 //	@Success	201		{object}	dto.GeneralResponse{data=dto.BillDetailedOutput}
 //	@Router		/api/bill [post]
-//
-// TODO: How to handle bills without a group? Maybe add a default group which features only the owner? => how to mark such a group?
 func (h BillHandler) Create(c *fiber.Ctx) error {
-
+	// parse bill from request
 	var request dto.BillInput
-	// parse nested bill from request body
 	err := c.BodyParser(&request)
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
 	}
-
+	// validate inputs
+	if err = request.ValidateInputs(); err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
+	}
+	// get authenticated requester from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
 	// create bill
 	bill, err := h.billService.Create(requesterID, request)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgBillCreate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillCreate, err))
 	}
 
@@ -89,31 +97,34 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 //	@Param		id		path		string			true	"Bill ID"
 //	@Param		request	body		dto.BillInput	true	"Request Body"
 //	@Success	200		{object}	dto.GeneralResponse{data=dto.BillDetailedOutput}
-//
 //	@Router		/api/bill/{id} [put]
 func (g BillHandler) Update(c *fiber.Ctx) error {
-	// parse parameters
+	// parse parameter
 	id := c.Params("id")
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
-
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
-
 	// parse request
 	var request dto.BillInput
-	if err := c.BodyParser(&request); err != nil {
+	if err = c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
 	}
-
+	// validate inputs
+	if err = request.ValidateInputs(); err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
+	}
+	// get authenticated requester from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
 	// update item
 	item, err := g.billService.Update(requesterID, uid, request)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgBillUpdate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillUpdate, err))
 	}
 
@@ -135,12 +146,18 @@ func (h BillHandler) AddItem(c *fiber.Ctx) error {
 	if err := c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
 	}
-
+	// validate inputs
+	if err := request.ValidateInputs(); err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
+	}
+	// get authenticated requester from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
 	// create item
 	item, err := h.billService.AddItem(requesterID, request)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgItemCreate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemCreate, err))
 	}
 
@@ -157,21 +174,24 @@ func (h BillHandler) AddItem(c *fiber.Ctx) error {
 //	@Success	200	{object}	dto.GeneralResponse{data=dto.ItemOutput}
 //	@Router		/api/bill/item/{id} [get]
 func (h BillHandler) GetItemByID(c *fiber.Ctx) error {
+	// parse parameter
 	id := c.Params("id")
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
-
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
-
+	// get authenticated requester from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
+	// get item
 	item, err := h.billService.GetItemByID(requesterID, uid)
 	if err != nil {
-		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgItemNotFound, err))
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgItemNotFound, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemNotFound, err))
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgItemFound, item)
@@ -186,7 +206,6 @@ func (h BillHandler) GetItemByID(c *fiber.Ctx) error {
 //	@Param		id		path		string			true	"Item ID"
 //	@Param		request	body		dto.ItemInput	true	"Request Body"
 //	@Success	200		{object}	dto.GeneralResponse{data=dto.ItemOutput}
-//
 //	@Router		/api/bill/item/{id} [put]
 func (h BillHandler) ChangeItem(c *fiber.Ctx) error {
 	// parse parameters
@@ -194,25 +213,62 @@ func (h BillHandler) ChangeItem(c *fiber.Ctx) error {
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
-
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
-
 	// parse request
 	var request dto.ItemInput
 	if err = c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgItemParse, err))
 	}
-
+	// validate inputs
+	if err = request.ValidateInputs(); err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
+	}
+	// get authenticated requester from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
 	// update item
 	item, err := h.billService.ChangeItem(requesterID, uid, request)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgItemUpdate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemUpdate, err))
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgItemUpdate, item)
+}
+
+// DeleteItem 	deletes item.
+//
+//	@Summary	Delete Item
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"Item ID"
+//	@Success	200	{object}	dto.GeneralResponse
+//	@Router		/api/bill/item/{id} [delete]
+func (h BillHandler) DeleteItem(c *fiber.Ctx) error {
+	// parse parameter
+	id := c.Params("id")
+	if id == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+	}
+	// get authenticated requester from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	// delete item
+	err = h.billService.DeleteItem(requesterID, uid)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgItemDelete, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgItemNotFound, err))
+	}
+
+	return Success(c, fiber.StatusOK, SuccessMsgItemDelete, nil)
 }

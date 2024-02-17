@@ -15,7 +15,7 @@ type IUserService interface {
 
 	GetByID(id uuid.UUID) (dto.UserCoreOutput, error)
 
-	Login(credentials dto.CredentialsInput) (dto.UserCoreOutput, model.AuthCookie, error)
+	Login(userInput dto.UserInput) (dto.UserCoreOutput, model.AuthCookie, error)
 
 	Create(user dto.UserInput) (dto.UserCoreOutput, error)
 

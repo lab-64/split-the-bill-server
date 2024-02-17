@@ -20,4 +20,7 @@ type IBillStorage interface {
 
 	// UpdateItem updates the stored item with the given item
 	UpdateItem(item model.Item) (model.Item, error)
+
+	// DeleteItem deletes the item with the given id
+	DeleteItem(id UUID) error
 }

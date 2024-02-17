@@ -1,9 +1,14 @@
 package dto
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"time"
 )
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Input/Output DTOs
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type BillInput struct {
 	OwnerID uuid.UUID   `json:"ownerID"`
@@ -22,3 +27,28 @@ type BillDetailedOutput struct {
 	Owner   UserCoreOutput        `json:"owner"`
 	Balance map[uuid.UUID]float64 `json:"balance,omitempty"` // include balance only if balance is set
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Validators
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (b BillInput) ValidateInputs() error {
+	if b.OwnerID == uuid.Nil {
+		return ErrBillOwnerIDRequired
+	}
+	if b.Name == "" {
+		return ErrBillNameRequired
+	}
+	if b.Date.IsZero() {
+		return ErrBillDateRequired
+	}
+	if b.GroupID == uuid.Nil {
+		return ErrBillGroupIDRequired
+	}
+	return nil
+}
+
+var ErrBillOwnerIDRequired = errors.New("ownerID is required")
+var ErrBillNameRequired = errors.New("name is required")
+var ErrBillDateRequired = errors.New("date is required")
+var ErrBillGroupIDRequired = errors.New("groupID is required")

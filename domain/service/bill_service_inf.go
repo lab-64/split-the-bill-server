@@ -29,4 +29,8 @@ type IBillService interface {
 	// GetItemByID returns the item with the given id.
 	// *Authorization required: requester in group.Members
 	GetItemByID(requesterID uuid.UUID, id uuid.UUID) (dto.ItemOutput, error)
+
+	// DeleteItem deletes the item with the given id.
+	// *Authorization required: requester == bill.Owner
+	DeleteItem(requesterID uuid.UUID, id uuid.UUID) error
 }

@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"errors"
 	"github.com/google/uuid"
 )
 
@@ -11,6 +12,10 @@ var AllowedImageTypes = map[string]string{
 	"image/jpg":  "jpg",
 }
 var AllowedImageTypesString = "jpg, png, gif, jpeg"
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Input/Output DTOs
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type UserInput struct {
 	Email    string `json:"email"`
@@ -27,3 +32,20 @@ type UserCoreOutput struct {
 	Username       string    `json:"username"`
 	ProfileImgPath string    `json:"profileImgPath"`
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Validators
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (u UserInput) ValidateInputs() error {
+	if u.Email == "" {
+		return ErrEmailRequired
+	}
+	if u.Password == "" {
+		return ErrPasswordRequired
+	}
+	return nil
+}
+
+var ErrEmailRequired = errors.New("email is required")
+var ErrPasswordRequired = errors.New("password is required")
