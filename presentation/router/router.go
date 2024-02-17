@@ -6,6 +6,9 @@ import (
 	"split-the-bill-server/presentation/middleware"
 )
 
+var UploadPath = "/image/"
+var StorePath = "./uploads/profileImages"
+
 // SetupRoutes creates webserver routes and connect them to the related handlers.
 func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a middleware.Authenticator) {
 
@@ -15,8 +18,8 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 	})
 
 	// serve static files to authenticated user
-	app.Use("/uploads", a.Authenticate)
-	app.Static("/uploads", "./uploads")
+	app.Use(UploadPath, a.Authenticate)
+	app.Static(UploadPath, "./uploads/profileImages") // hide the real storage path
 
 	// grouping
 	api := app.Group("/api")

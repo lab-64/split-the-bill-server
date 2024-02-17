@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"split-the-bill-server/domain"
@@ -206,6 +207,11 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 		data, fileErr = io.ReadAll(content)
 		if fileErr != nil {
 			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, fileErr))
+		}
+		// check for image type
+		contentType := http.DetectContentType(data)
+		if _, ok := dto.AllowedImageTypes[contentType]; !ok {
+			return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserUpdate, fmt.Sprintf("Uploaded image has wrong type. Allowed types: %s", dto.AllowedImageTypesString)))
 		}
 	}
 	// get authenticated requesterID from context

@@ -3,6 +3,8 @@ package converter
 import (
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/presentation/dto"
+	"split-the-bill-server/presentation/router"
+	"strings"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,11 +82,17 @@ func ToGroupDetailedDTO(g model.Group) dto.GroupDetailedOutput {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func ToUserCoreDTO(u *model.User) dto.UserCoreOutput {
+	// cut filename from stored image path
+	_, filename, contain := strings.Cut(u.ProfileImgPath, "/profileImages/")
+	imgPath := ""
+	if contain {
+		imgPath = router.UploadPath + filename
+	}
 	return dto.UserCoreOutput{
 		ID:             u.ID,
 		Email:          u.Email,
 		Username:       u.Username,
-		ProfileImgPath: u.ProfileImgPath,
+		ProfileImgPath: imgPath,
 	}
 }
 

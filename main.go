@@ -26,9 +26,14 @@ import (
 // @host		localhost:8080
 // @BasePath	/
 func main() {
-
+	// load environment variables
 	err := godotenv.Load(".env")
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	// create storage directory for uploaded images
+	if err = os.MkdirAll(router.StorePath, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
 
