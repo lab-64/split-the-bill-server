@@ -147,7 +147,7 @@ func TestRegisterSuccess(t *testing.T) {
 func TestUpdateSuccess(t *testing.T) {
 
 	// mock method
-	mocks.MockUserUpdate = func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error) {
+	mocks.MockUserUpdate = func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, file []byte) (dto.UserCoreOutput, error) {
 		return dto.UserCoreOutput{ID: id, Email: TestUser.Email, Username: user.Username}, nil
 	}
 
@@ -169,7 +169,7 @@ func TestUpdateSuccess(t *testing.T) {
 func TestUpdateWrongUser(t *testing.T) {
 
 	// mock method
-	mocks.MockUserUpdate = func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error) {
+	mocks.MockUserUpdate = func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, file []byte) (dto.UserCoreOutput, error) {
 		return dto.UserCoreOutput{}, domain.ErrNotAuthorized
 	}
 

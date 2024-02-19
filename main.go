@@ -33,7 +33,7 @@ func main() {
 	}
 
 	// create storage directory for uploaded images
-	if err = os.MkdirAll(router.StorePath, os.ModePerm); err != nil {
+	if err = os.MkdirAll("./uploads/profileImages", os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
 

@@ -5,14 +5,13 @@ import (
 	"github.com/google/uuid"
 	"os"
 	"path/filepath"
-	"split-the-bill-server/presentation/router"
 )
 
 func StoreFile(file []byte, userID uuid.UUID) (string, error) {
 	// create file name
 	fileName := userID.String() + ".gif"
 	// save file
-	filePath := filepath.Join(router.StorePath, fileName)
+	filePath := filepath.Join("./uploads/profileImages", fileName)
 	err := os.WriteFile(filePath, file, 0644)
 	if err != nil {
 		return "", ErrStoreFile
