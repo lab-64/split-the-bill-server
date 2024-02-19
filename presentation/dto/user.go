@@ -57,4 +57,4 @@ func (u UserUpdate) ValidateInputs(contentType string) error {
 
 var ErrEmailRequired = errors.New("email is required")
 var ErrPasswordRequired = errors.New("password is required")
-var ErrWrongImageType = errors.New(fmt.Sprintf("uploaded image has wrong type. Allowed types: %s", allowedImageTypesString))
+var ErrWrongImageType = fmt.Errorf("uploaded image has wrong type. Allowed types: %s", allowedImageTypesString)
