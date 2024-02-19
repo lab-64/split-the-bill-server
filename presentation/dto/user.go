@@ -2,16 +2,17 @@ package dto
 
 import (
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 )
 
-var AllowedImageTypes = map[string]string{
+var allowedImageTypes = map[string]string{
 	"image/jpeg": "jpeg",
 	"image/png":  "png",
 	"image/gif":  "gif",
 	"image/jpg":  "jpg",
 }
-var AllowedImageTypesString = "jpg, png, gif, jpeg"
+var allowedImageTypesString = "jpg, png, gif, jpeg"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Input/Output DTOs
@@ -47,5 +48,13 @@ func (u UserInput) ValidateInputs() error {
 	return nil
 }
 
+func (u UserUpdate) ValidateInputs(contentType string) error {
+	if _, ok := allowedImageTypes[contentType]; !ok {
+		return ErrWrongImageType
+	}
+	return nil
+}
+
 var ErrEmailRequired = errors.New("email is required")
 var ErrPasswordRequired = errors.New("password is required")
+var ErrWrongImageType = errors.New(fmt.Sprintf("uploaded image has wrong type. Allowed types: %s", allowedImageTypesString))

@@ -218,8 +218,8 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 		}
 		// check for image type
 		contentType := http.DetectContentType(data)
-		if _, ok := dto.AllowedImageTypes[contentType]; !ok {
-			return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserUpdate, fmt.Sprintf("Uploaded image has wrong type. Allowed types: %s", dto.AllowedImageTypesString)))
+		if err = user.ValidateInputs(contentType); err != nil {
+			return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserUpdate, err))
 		}
 	}
 	// get authenticated requesterID from context

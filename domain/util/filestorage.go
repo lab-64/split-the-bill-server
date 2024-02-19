@@ -10,7 +10,7 @@ import (
 
 func StoreFile(file []byte, userID uuid.UUID) (string, error) {
 	// create file name
-	fileName := userID.String() + ".png"
+	fileName := userID.String() + ".gif"
 	// save file
 	filePath := filepath.Join(router.StorePath, fileName)
 	err := os.WriteFile(filePath, file, 0644)

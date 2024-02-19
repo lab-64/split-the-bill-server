@@ -52,3 +52,36 @@ func TestUserInput_ValidateInputs(t *testing.T) {
 	}
 
 }
+
+func TestUserUpdate_ValidateInputs(t *testing.T) {
+	tests := []struct {
+		name        string
+		input       UserUpdate
+		contentType string
+		expectedErr error
+	}{
+		{
+			name: "Success",
+			input: UserUpdate{
+				Username: "test",
+			},
+			contentType: "image/jpeg",
+			expectedErr: nil,
+		},
+		{
+			name: "Wrong image type",
+			input: UserUpdate{
+				Username: "test",
+			},
+			contentType: "text/plain",
+			expectedErr: ErrWrongImageType,
+		},
+	}
+
+	for _, testcase := range tests {
+		t.Run(testcase.name, func(t *testing.T) {
+			err := testcase.input.ValidateInputs(testcase.contentType)
+			assert.Equalf(t, testcase.expectedErr, err, "Wrong error")
+		})
+	}
+}
