@@ -85,6 +85,20 @@ func (b *BillService) GetByID(requesterID uuid.UUID, id uuid.UUID) (dto.BillDeta
 	return converter.ToBillDetailedDTO(bill), err
 }
 
+func (b *BillService) Delete(requesterID uuid.UUID, id uuid.UUID) error {
+	// Get bill
+	bill, err := b.billStorage.GetByID(id)
+	if err != nil {
+		return err
+	}
+	// Authorization
+	if requesterID != bill.Owner.ID {
+		return domain.ErrNotAuthorized
+	}
+	// Delete bill
+	return b.billStorage.DeleteBill(id)
+}
+
 func (b *BillService) AddItem(requesterID uuid.UUID, itemDTO dto.ItemInput) (dto.ItemOutput, error) {
 	// Validate billID
 	bill, err := b.billStorage.GetByID(itemDTO.BillID)
