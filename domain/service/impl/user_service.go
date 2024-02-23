@@ -88,9 +88,12 @@ func (u *UserService) Login(userInput dto.UserInput) (dto.UserCoreOutput, model.
 
 	sc := model.GenerateSessionCookie(user.ID)
 
-	u.cookieStorage.AddAuthenticationCookie(sc)
+	cookie, err := u.cookieStorage.AddAuthenticationCookie(sc)
+	if err != nil {
+		return dto.UserCoreOutput{}, sc, err
+	}
 
-	return converter.ToUserCoreDTO(&user), sc, err
+	return converter.ToUserCoreDTO(&user), cookie, err
 }
 
 func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error) {

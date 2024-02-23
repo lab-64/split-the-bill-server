@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	MockCookieAddAuthenticationCookie func(cookie model.AuthCookie)
+	MockCookieAddAuthenticationCookie func(cookie model.AuthCookie) (model.AuthCookie, error)
 	MockCookieGetCookiesForUser       func(userID uuid.UUID) []model.AuthCookie
 	MockCookieGetCookieFromToken      func(token uuid.UUID) (model.AuthCookie, error)
 )
@@ -19,8 +19,8 @@ func NewCookieStorageMock() storage.ICookieStorage {
 type CookieStorageMock struct {
 }
 
-func (c CookieStorageMock) AddAuthenticationCookie(cookie model.AuthCookie) {
-	MockCookieAddAuthenticationCookie(cookie)
+func (c CookieStorageMock) AddAuthenticationCookie(cookie model.AuthCookie) (model.AuthCookie, error) {
+	return MockCookieAddAuthenticationCookie(cookie)
 }
 
 func (c CookieStorageMock) GetCookiesForUser(userID uuid.UUID) []model.AuthCookie {

@@ -6,7 +6,7 @@ import (
 )
 
 type ICookieStorage interface {
-	AddAuthenticationCookie(cookie model.AuthCookie)
+	AddAuthenticationCookie(cookie model.AuthCookie) (model.AuthCookie, error)
 
 	GetCookiesForUser(userID UUID) []model.AuthCookie
 
