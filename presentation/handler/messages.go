@@ -55,6 +55,7 @@ const (
 	ErrMsgUserLogin            = "Could not log in: %v"
 	ErrMsgUserCredentialsParse = "Could not parse credentials: %v"
 	ErrMsgBadPassword          = "Bad Password: %v"
+	ErrMsgUserLogout           = "Could not log out: %v"
 
 	// User - SUCCESS
 	SuccessMsgUserLogin  = "User logged in"
@@ -63,6 +64,7 @@ const (
 	SuccessMsgUserCreate = "User created"
 	SuccessMsgUserDelete = "User deleted"
 	SuccessMsgUserUpdate = "User updated"
+	SuccessMsgUserLogout = "User logged out"
 
 	// Invitation - ERROR
 	ErrMsgInvitationHandle = "Could not handle invitation: %v"

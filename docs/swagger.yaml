@@ -599,4 +599,18 @@ paths:
       summary: Login User
       tags:
       - User
+  /api/user/logout:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Logout User
+      tags:
+      - User
 swagger: "2.0"

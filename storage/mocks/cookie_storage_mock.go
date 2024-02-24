@@ -10,6 +10,7 @@ var (
 	MockCookieAddAuthenticationCookie func(cookie model.AuthCookie) (model.AuthCookie, error)
 	MockCookieGetCookiesForUser       func(userID uuid.UUID) []model.AuthCookie
 	MockCookieGetCookieFromToken      func(token uuid.UUID) (model.AuthCookie, error)
+	MockCookieDelete                  func(token uuid.UUID) error
 )
 
 func NewCookieStorageMock() storage.ICookieStorage {
@@ -29,4 +30,8 @@ func (c CookieStorageMock) GetCookiesForUser(userID uuid.UUID) []model.AuthCooki
 
 func (c CookieStorageMock) GetCookieFromToken(token uuid.UUID) (model.AuthCookie, error) {
 	return MockCookieGetCookieFromToken(token)
+}
+
+func (c CookieStorageMock) Delete(token uuid.UUID) error {
+	return MockCookieDelete(token)
 }

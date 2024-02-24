@@ -45,3 +45,8 @@ func (c *CookieStorage) GetCookieFromToken(token uuid.UUID) (model.AuthCookie, e
 	}
 	return model.AuthCookie{}, storage.NoSuchCookieError
 }
+
+func (c *CookieStorage) Delete(token uuid.UUID) error {
+	//TODO implement me
+	panic("implement me")
+}

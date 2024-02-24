@@ -96,6 +96,20 @@ func (u *UserService) Login(userInput dto.UserInput) (dto.UserCoreOutput, model.
 	return converter.ToUserCoreDTO(&user), cookie, err
 }
 
+func (u *UserService) Logout(requesterID uuid.UUID, token uuid.UUID) error {
+	// get cookie
+	cookie, err := u.cookieStorage.GetCookieFromToken(token)
+	if err != nil {
+		return err
+	}
+	// Authorization
+	if requesterID != cookie.UserID {
+		return domain.ErrNotAuthorized
+	}
+	err = u.cookieStorage.Delete(token)
+	return err
+}
+
 func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error) {
 	// Authorization
 	if requesterID != id {

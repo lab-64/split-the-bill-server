@@ -31,6 +31,15 @@ func (c *CookieStorage) AddAuthenticationCookie(cookie model.AuthCookie) (model.
 	return converter.ToAuthCookieModel(&storedCookie), nil
 }
 
+func (c *CookieStorage) Delete(token uuid.UUID) error {
+	// delete cookie
+	res := c.DB.Delete(&entity.AuthCookie{}, token)
+	if res.Error != nil {
+		return storage.NoSuchCookieError
+	}
+	return nil
+}
+
 func (c *CookieStorage) GetCookiesForUser(userID uuid.UUID) []model.AuthCookie {
 	var cookies []entity.AuthCookie
 	// get all cookies for given user
