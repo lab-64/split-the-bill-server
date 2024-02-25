@@ -28,11 +28,9 @@ type IBillService interface {
 	AddItem(requesterID uuid.UUID, item dto.ItemInput) (dto.ItemOutput, error)
 
 	// ChangeItem updates the item with the given id with the new item data.
-	// *Authorization required: requester == bill.Owner
+	// *Authorization required: requester == bill.Owner || requester in group.Members.
+	// If requester is not the owner and only a group member he can only change the item contributor lst.
 	ChangeItem(requesterID uuid.UUID, itemID uuid.UUID, item dto.ItemInput) (dto.ItemOutput, error)
-
-	// TODO: add ChangeItemContribution or allow every group member to update item
-	//ChangeItemContribution
 
 	// GetItemByID returns the item with the given id.
 	// *Authorization required: requester in group.Members

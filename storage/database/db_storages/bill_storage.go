@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/database"
@@ -119,15 +120,32 @@ func (b *BillStorage) GetItemByID(id uuid.UUID) (model.Item, error) {
 	return converter.ToItemModel(item), nil
 }
 
+// TODO: modify update method to only update the contributors list and not the whole item
 func (b *BillStorage) UpdateItem(item model.Item) (model.Item, error) {
 	itemEntity := converter.ToItemEntity(item)
 
 	// run as a transaction to ensure consistency. item should be completely updated or not at all
 	err := b.DB.Transaction(func(tx *gorm.DB) error {
+
+		// update contributors associations
+		res := tx.
+			Omit("Contributors.*"). // do not update user fields
+			Model(&itemEntity).
+			Association("Contributors").
+			Replace(itemEntity.Contributors)
+
+		// TODO: add finer error handling
+		if res != nil {
+			return storage.NoSuchUserError
+		}
+
 		// update base item fields
 		ret := tx.
+			Omit(clause.Associations). // do not update associations
+			Preload("Contributors").
 			Model(&itemEntity).
-			Updates(&itemEntity)
+			Updates(&itemEntity).
+			First(&itemEntity)
 
 		if ret.RowsAffected == 0 {
 			return storage.NoSuchItemError
@@ -136,17 +154,6 @@ func (b *BillStorage) UpdateItem(item model.Item) (model.Item, error) {
 		// TODO: add finer error handling
 		if ret.Error != nil {
 			return ret.Error
-		}
-
-		// update contributors associations
-		res := tx.
-			Model(&itemEntity).
-			Association("Contributors").
-			Replace(itemEntity.Contributors)
-
-		// TODO: add finer error handling
-		if res != nil {
-			return storage.NoSuchUserError
 		}
 
 		return nil

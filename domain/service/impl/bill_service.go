@@ -152,20 +152,41 @@ func (b *BillService) AddItem(requesterID uuid.UUID, itemDTO dto.ItemInput) (dto
 }
 
 func (b *BillService) ChangeItem(requesterID uuid.UUID, itemID uuid.UUID, itemDTO dto.ItemInput) (dto.ItemOutput, error) {
-	// Validate billID
+	// Validate itemID
+	item, err := b.billStorage.GetItemByID(itemID)
+	if err != nil {
+		return dto.ItemOutput{}, err
+	}
+	// Get bill
 	bill, err := b.billStorage.GetByID(itemDTO.BillID)
+	if err != nil {
+		return dto.ItemOutput{}, err
+	}
+	// Get group from bill
+	group, err := b.groupStorage.GetGroupByID(bill.GroupID)
 	if err != nil {
 		return dto.ItemOutput{}, err
 	}
 	// TODO: allow all group members to change the contribution lst
 	// Authorization
-	if requesterID != bill.Owner.ID {
+	if requesterID != bill.Owner.ID && !group.IsMember(requesterID) {
 		return dto.ItemOutput{}, domain.ErrNotAuthorized
 	}
-
-	item := model.CreateItem(itemID, itemDTO)
-
-	item, err = b.billStorage.UpdateItem(item)
+	// TODO: check if contributors are members of the group
+	var updatedItem model.Item
+	// if requester is the owner, the whole updatedItem can be updated
+	if requesterID == bill.Owner.ID {
+		updatedItem = model.CreateItem(itemID, itemDTO)
+	} else if group.IsMember(requesterID) { // if requester is only a member of the group, only the contributors list can be updated
+		updatedItem = model.CreateItem(itemID, dto.ItemInput{
+			BillID:       item.BillID,
+			Name:         item.Name,
+			Price:        item.Price,
+			Contributors: itemDTO.Contributors,
+		})
+	}
+	// Update item
+	item, err = b.billStorage.UpdateItem(updatedItem)
 	if err != nil {
 		return dto.ItemOutput{}, err
 	}
