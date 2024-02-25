@@ -31,8 +31,16 @@ func (b *BillService) Create(requesterID uuid.UUID, billDTO dto.BillInput) (dto.
 		return dto.BillDetailedOutput{}, domain.ErrNotAuthorized
 	}
 
+	// add all group members to unseen list except the owner
+	groupMembers := group.Members
+	unseenFrom := make([]uuid.UUID, 0)
+	for _, member := range groupMembers {
+		if member.ID != group.Owner.ID {
+			unseenFrom = append(unseenFrom, member.ID)
+		}
+	}
 	// create bill model including items
-	bill := model.CreateBill(uuid.New(), billDTO, time.Now())
+	bill := model.CreateBill(uuid.New(), billDTO, time.Now(), unseenFrom)
 	// store bill in billStorage
 	bill, err = b.billStorage.Create(bill)
 	if err != nil {
@@ -52,8 +60,8 @@ func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dt
 	if requesterID != bill.Owner.ID {
 		return dto.BillDetailedOutput{}, domain.ErrNotAuthorized
 	}
-
-	updatedBill := model.CreateBill(billID, billDTO, billDTO.Date)
+	// TODO: change unseen list if bill gets updated?
+	updatedBill := model.CreateBill(billID, billDTO, billDTO.Date, bill.UnseenFromUserID)
 	updatedBill.ID = bill.ID
 	bill, err = b.billStorage.UpdateBill(updatedBill)
 	if err != nil {
@@ -112,6 +120,7 @@ func (b *BillService) ChangeItem(requesterID uuid.UUID, itemID uuid.UUID, itemDT
 	if err != nil {
 		return dto.ItemOutput{}, err
 	}
+	// TODO: allow all group members to change the contribution lst
 	// Authorization
 	if requesterID != bill.Owner.ID {
 		return dto.ItemOutput{}, domain.ErrNotAuthorized

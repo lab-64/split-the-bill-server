@@ -125,3 +125,81 @@ func TestBillService_Update(t *testing.T) {
 		})
 	}
 }
+
+func TestBillService_Create(t *testing.T) {
+	tests := []struct {
+		name         string
+		mock         func()
+		requesterID  uuid.UUID
+		billDTO      dto.BillInput
+		expectedErr  error
+		expectedBill model.Bill
+	}{
+		{
+			name: "Success",
+			mock: func() {
+				mocks.MockBillCreate = func(bill model.Bill) (model.Bill, error) {
+					return bill, nil
+				}
+				mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
+					return TestGroup, nil
+				}
+				mocks.MockUserGetByID = func(id uuid.UUID) (model.User, error) {
+					return TestUser, nil
+				}
+			},
+			requesterID: TestUser.ID,
+			billDTO: dto.BillInput{
+				OwnerID: TestBill.Owner.ID,
+				Name:    TestBill.Name,
+				Items: []dto.ItemInput{
+					{
+						Name:         TestItem1.Name,
+						Price:        TestItem1.Price,
+						Contributors: []uuid.UUID{TestUser.ID},
+					},
+					{
+						Name:         TestItem2.Name,
+						Price:        TestItem2.Price,
+						Contributors: []uuid.UUID{TestUser.ID, TestUser2.ID},
+					},
+				},
+			},
+			expectedErr:  nil,
+			expectedBill: TestBill,
+		},
+		{
+			name: "Unauthorized",
+			mock: func() {
+				mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
+					return TestGroup, nil
+				}
+				mocks.MockUserGetByID = func(id uuid.UUID) (model.User, error) {
+					return TestUser, nil
+				}
+			},
+			requesterID: uuid.New(),
+			billDTO:     dto.BillInput{},
+			expectedErr: domain.ErrNotAuthorized,
+		},
+	}
+
+	for _, testcase := range tests {
+		t.Run(testcase.name, func(t *testing.T) {
+			testcase.mock()
+			ret, err := billService.Create(testcase.requesterID, testcase.billDTO)
+			assert.Equalf(t, testcase.expectedErr, err, "Wrong error")
+			if err == nil {
+				assert.Equalf(t, testcase.expectedBill.Name, ret.Name, "Wrong Bill Name")
+				assert.Equalf(t, len(testcase.expectedBill.Items), len(ret.Items), "Wrong number of items")
+				for i, item := range ret.Items {
+					assert.Equalf(t, testcase.expectedBill.Items[i].Name, item.Name, "Wrong Item Name")
+					assert.Equalf(t, testcase.expectedBill.Items[i].Price, item.Price, "Wrong Item Price")
+					for j, contributor := range item.Contributors {
+						assert.Equalf(t, testcase.expectedBill.Items[i].Contributors[j].ID, contributor.ID, "Wrong ContributorID")
+					}
+				}
+			}
+		})
+	}
+}
