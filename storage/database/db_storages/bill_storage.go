@@ -88,6 +88,23 @@ func (b *BillStorage) GetByID(id uuid.UUID) (model.Bill, error) {
 	return billModel, nil
 }
 
+func (b *BillStorage) GetAllByUserID(userID uuid.UUID) ([]BillModel, error) {
+	var bills []entity.Bill
+
+	tx := b.DB.
+		Preload(clause.Associations).
+		Preload("Items.Contributors").
+		Preload("Owner").
+		Where("owner_id = ?", userID).
+		Find(&bills)
+
+	if tx.Error != nil {
+		return nil, storage.NoSuchBillError
+	}
+
+	return converter.ToBillEntity(bills), nil
+}
+
 func (b *BillStorage) CreateItem(item model.Item) (model.Item, error) {
 	itemEntity := converter.ToItemEntity(item)
 

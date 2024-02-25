@@ -18,6 +18,10 @@ type IBillService interface {
 	// *Authorization required: requester in group.Members
 	GetByID(requesterID uuid.UUID, id uuid.UUID) (dto.BillDetailedOutput, error)
 
+	// GetAllbyUserID returns all unseen bills from the user if unseen is true, else all bills in which the user is the owner will gets returned.
+	// *Authorization required: requester == userID
+	GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID, unseen bool) ([]dto.BillDetailedOutput, error)
+
 	// AddItem adds a new item to the bill.
 	// *Authorization required: requester == bill.Owner
 	AddItem(requesterID uuid.UUID, item dto.ItemInput) (dto.ItemOutput, error)

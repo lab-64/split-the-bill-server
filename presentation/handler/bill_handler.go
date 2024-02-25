@@ -131,6 +131,35 @@ func (g BillHandler) Update(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusOK, SuccessMsgBillUpdate, item)
 }
 
+// GetAllByUser 	gets all bills by user id.
+//
+//	@Summary	Get All Bills by User ID
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		userId	query		string	true	"User ID"
+//	@Success	200		{object}	dto.GeneralResponseDTO{data=[]dto.BillDetailedOutputDTO}
+//	@Router		/api/bill [get]
+func (h BillHandler) GetAllByUser(c *fiber.Ctx) error {
+	userID := c.Query("userId")
+	if userID == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "userId"))
+	}
+	uid, err := uuid.Parse(userID)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+	}
+
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
+	bills, err := h.billService.GetAllByUserID(uid, requesterID)
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillGetAll, err))
+	}
+
+	return Success(c, fiber.StatusOK, SuccessMsgBillGetAll, bills)
+}
+
 // AddItem 		adds item to a bill.
 //
 //	@Summary	Add Item to Bill

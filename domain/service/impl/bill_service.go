@@ -178,3 +178,23 @@ func (b *BillService) DeleteItem(requesterID uuid.UUID, itemID uuid.UUID) error 
 	// Delete item
 	return b.billStorage.DeleteItem(itemID)
 }
+
+func (b *BillService) GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID) ([]BillDetailedOutputDTO, error) {
+	// Authorization
+	if userID != requesterID {
+		return nil, domain.ErrNotAuthorized
+	}
+	// Get bills
+	bills, err := b.billStorage.GetAllByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+	billDTOs := make([]dto.BillDetailedOutput, len(bills))
+	for i, bill := range bills {
+		balance := bill.CalculateBalance()
+		bill.Balance = balance
+		billDTOs[i] = converter.ToBillDetailedDTO(bill)
+	}
+
+	return billDTOs, err
+}
