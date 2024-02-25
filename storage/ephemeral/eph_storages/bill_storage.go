@@ -51,7 +51,7 @@ func (b BillStorage) GetItemByID(id uuid.UUID) (model.Item, error) {
 	panic("implement me")
 }
 
-func (b BillStorage) GetAllByUserID(userID uuid.UUID) ([]model.BillModel, error) {
+func (b BillStorage) GetAllByUserID(userID uuid.UUID) ([]model.Bill, error) {
 	//TODO implement me
 	panic("implement me")
 }

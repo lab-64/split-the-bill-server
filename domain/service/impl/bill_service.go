@@ -93,6 +93,41 @@ func (b *BillService) GetByID(requesterID uuid.UUID, id uuid.UUID) (dto.BillDeta
 	return converter.ToBillDetailedDTO(bill), err
 }
 
+func (b *BillService) GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID, isUnseen bool, isOwner bool) ([]dto.BillDetailedOutput, error) {
+	// Authorization
+	if userID != requesterID {
+		return nil, domain.ErrNotAuthorized
+	}
+	// get groups from user
+	groups, err := b.groupStorage.GetGroups(userID, uuid.Nil)
+	if err != nil {
+		return nil, err
+	}
+	// run through all bills and return only the ones that match the filter
+	var billDTOs []dto.BillDetailedOutput
+	for _, group := range groups {
+		for _, bill := range group.Bills {
+			// apply isUnseen and isOwner filter
+			if (isUnseen && bill.IsUnseen(userID)) || (isOwner && bill.Owner.ID == userID) {
+				// set balance
+				billPointer := &bill
+				billPointer.Balance = billPointer.CalculateBalance()
+				// store bill in return array
+				billDTOs = append(billDTOs, converter.ToBillDetailedDTO(bill))
+			}
+			// if no filter is set, return all bills
+			if !isUnseen && !isOwner {
+				// set balance
+				billPointer := &bill
+				billPointer.Balance = billPointer.CalculateBalance()
+				// store bill in return array
+				billDTOs = append(billDTOs, converter.ToBillDetailedDTO(bill))
+			}
+		}
+	}
+	return billDTOs, err
+}
+
 func (b *BillService) AddItem(requesterID uuid.UUID, itemDTO dto.ItemInput) (dto.ItemOutput, error) {
 	// Validate billID
 	bill, err := b.billStorage.GetByID(itemDTO.BillID)
@@ -177,24 +212,4 @@ func (b *BillService) DeleteItem(requesterID uuid.UUID, itemID uuid.UUID) error 
 	}
 	// Delete item
 	return b.billStorage.DeleteItem(itemID)
-}
-
-func (b *BillService) GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID) ([]BillDetailedOutputDTO, error) {
-	// Authorization
-	if userID != requesterID {
-		return nil, domain.ErrNotAuthorized
-	}
-	// Get bills
-	bills, err := b.billStorage.GetAllByUserID(userID)
-	if err != nil {
-		return nil, err
-	}
-	billDTOs := make([]dto.BillDetailedOutput, len(bills))
-	for i, bill := range bills {
-		balance := bill.CalculateBalance()
-		bill.Balance = balance
-		billDTOs[i] = converter.ToBillDetailedDTO(bill)
-	}
-
-	return billDTOs, err
 }

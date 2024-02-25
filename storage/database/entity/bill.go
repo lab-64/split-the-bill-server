@@ -15,11 +15,3 @@ type Bill struct {
 	GroupID    uuid.UUID `gorm:"type:uuid"`                                                       // group has many bills
 	UnseenFrom []User    `gorm:"many2many:unseen_bills"`                                          // many to many unseen bills
 }
-
-func ToBillModelSlice(bills []Bill) []model.BillModel {
-	s := make([]model.BillModel, len(bills))
-	for i, bill := range bills {
-		s[i] = ConvertToBillModel(bill)
-	}
-	return s
-}

@@ -26,7 +26,7 @@ const docTemplate = `{
                 "tags": [
                     "Bill"
                 ],
-                "summary": "Get All Bills by User ID",
+                "summary": "Get All Bills by User",
                 "parameters": [
                     {
                         "type": "string",
@@ -34,28 +34,25 @@ const docTemplate = `{
                         "name": "userId",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is Unseen",
+                        "name": "isUnseen",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is Owner",
+                        "name": "isOwner",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/dto.GeneralResponseDTO"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/dto.BillDetailedOutputDTO"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/dto.GeneralResponse"
                         }
                     }
                 }

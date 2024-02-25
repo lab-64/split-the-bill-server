@@ -140,21 +140,22 @@ paths:
         name: userId
         required: true
         type: string
+      - description: Is Unseen
+        in: query
+        name: isUnseen
+        type: boolean
+      - description: Is Owner
+        in: query
+        name: isOwner
+        type: boolean
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/dto.BillDetailedOutputDTO'
-                  type: array
-              type: object
-      summary: Get All Bills by User ID
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Get All Bills by User
       tags:
       - Bill
     post:

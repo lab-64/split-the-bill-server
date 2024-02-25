@@ -98,7 +98,7 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 //	@Param		request	body		dto.BillInput	true	"Request Body"
 //	@Success	200		{object}	dto.GeneralResponse{data=dto.BillDetailedOutput}
 //	@Router		/api/bill/{id} [put]
-func (g BillHandler) Update(c *fiber.Ctx) error {
+func (h BillHandler) Update(c *fiber.Ctx) error {
 	// parse parameter
 	id := c.Params("id")
 	if id == "" {
@@ -120,7 +120,7 @@ func (g BillHandler) Update(c *fiber.Ctx) error {
 	// get authenticated requester from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
 	// update item
-	item, err := g.billService.Update(requesterID, uid, request)
+	item, err := h.billService.Update(requesterID, uid, request)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotAuthorized) {
 			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgBillUpdate, err))
@@ -131,16 +131,19 @@ func (g BillHandler) Update(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusOK, SuccessMsgBillUpdate, item)
 }
 
-// GetAllByUser 	gets all bills by user id.
+// GetAllByUser 	gets all bills by user.
 //
-//	@Summary	Get All Bills by User ID
+//	@Summary	Get All Bills by User
 //	@Tags		Bill
 //	@Accept		json
 //	@Produce	json
-//	@Param		userId	query		string	true	"User ID"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=[]dto.BillDetailedOutputDTO}
+//	@Param		userId		query		string	true	"User ID"
+//	@Param		isUnseen	query		bool	false	"Is Unseen"
+//	@Param		isOwner		query		bool	false	"Is Owner"
+//	@Success	200			{object}	dto.GeneralResponse
 //	@Router		/api/bill [get]
 func (h BillHandler) GetAllByUser(c *fiber.Ctx) error {
+	// parse query parameters
 	userID := c.Query("userId")
 	if userID == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "userId"))
@@ -149,10 +152,18 @@ func (h BillHandler) GetAllByUser(c *fiber.Ctx) error {
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
-
+	isUnseen := false
+	if c.Query("isUnseen") == "true" {
+		isUnseen = true
+	}
+	isOwner := false
+	if c.Query("isOwner") == "true" {
+		isOwner = true
+	}
+	// get authenticated requester from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
-
-	bills, err := h.billService.GetAllByUserID(uid, requesterID)
+	// get bills according to filter
+	bills, err := h.billService.GetAllByUserID(requesterID, uid, isUnseen, isOwner)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillGetAll, err))
 	}
