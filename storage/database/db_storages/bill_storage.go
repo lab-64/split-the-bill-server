@@ -93,11 +93,15 @@ func (b *BillStorage) CreateItem(item model.Item) (model.Item, error) {
 
 	// TODO: if userId belongs to deleted user do not create
 	// store item
-	res := b.DB.Create(&itemEntity)
+	res := b.DB.
+		Omit("Contributors.*"). // do not update user fields
+		Preload("Contributors").
+		Create(&itemEntity).
+		First(&itemEntity, "id = ?", itemEntity.ID)
 
 	// TODO: check if other errors can occur
 	if res.Error != nil {
-		return model.Item{}, storage.NoSuchUserError
+		return model.Item{}, storage.NoSuchBillError
 	}
 	if res.RowsAffected == 0 {
 		return model.Item{}, storage.ItemAlreadyExistsError

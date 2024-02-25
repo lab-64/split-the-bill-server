@@ -79,6 +79,7 @@ func (g *GroupStorage) GetGroupByID(id uuid.UUID) (model.Group, error) {
 func (g *GroupStorage) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]model.Group, error) {
 	var groups []entity.Group
 
+	// TODO: include Members
 	tx := g.DB.
 		Preload(clause.Associations).
 		Preload("Bills.Items.Contributors").

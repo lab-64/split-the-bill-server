@@ -139,7 +139,9 @@ func (b *BillService) AddItem(requesterID uuid.UUID, itemDTO dto.ItemInput) (dto
 		return dto.ItemOutput{}, domain.ErrNotAuthorized
 	}
 
-	item := model.CreateItem(uuid.Nil, itemDTO)
+	// TODO: check if contributors are members of the group
+
+	item := model.CreateItem(uuid.New(), itemDTO)
 
 	item, err = b.billStorage.CreateItem(item)
 	if err != nil {
