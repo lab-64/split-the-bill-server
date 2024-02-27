@@ -3,6 +3,7 @@ package db_storages
 import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 	"split-the-bill-server/domain/model"
 	"testing"
 )
@@ -45,7 +46,9 @@ func TestBillStorage_UpdateBill(t *testing.T) {
 	for _, testcase := range tests {
 		t.Run(testcase.name, func(t *testing.T) {
 			testcase.mock()
-			_, err := billStorage.UpdateBill(testcase.bill)
+			bill, err := billStorage.UpdateBill(testcase.bill)
+			assert.NoErrorf(t, err, "Wrong err")
+			assert.Equalf(t, testcase.expectedReturn.Name, bill.Name, "Wrong bill name")
 
 			// Ensure all expectations were met
 			if err = dbMock.ExpectationsWereMet(); err != nil {
