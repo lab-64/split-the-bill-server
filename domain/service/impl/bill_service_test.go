@@ -220,6 +220,9 @@ func TestBillService_AddItem(t *testing.T) {
 				mocks.MockBillGetByID = func(id uuid.UUID) (model.Bill, error) {
 					return TestBill, nil
 				}
+				mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
+					return TestGroup, nil
+				}
 				mocks.MockBillCreateItem = func(item model.Item) (model.Item, error) {
 					return item, nil
 				}
@@ -239,6 +242,9 @@ func TestBillService_AddItem(t *testing.T) {
 			mock: func() {
 				mocks.MockBillGetByID = func(id uuid.UUID) (model.Bill, error) {
 					return TestBill, nil
+				}
+				mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
+					return TestGroup, nil
 				}
 			},
 			requesterID: TestUser2.ID,
@@ -262,6 +268,23 @@ func TestBillService_AddItem(t *testing.T) {
 				BillID: TestBill.ID,
 			},
 			expectedErr: storage.NoSuchBillError,
+		},
+		{
+			name: "Contributor is no group member",
+			mock: func() {
+				mocks.MockBillGetByID = func(id uuid.UUID) (model.Bill, error) {
+					return TestBill, nil
+				}
+				mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
+					return TestGroup, nil
+				}
+			},
+			requesterID: TestUser.ID,
+			itemDTO: dto.ItemInput{
+				BillID:       TestBill.ID,
+				Contributors: []uuid.UUID{uuid.New()},
+			},
+			expectedErr: domain.ErrNotAGroupMember,
 		},
 	}
 

@@ -129,8 +129,13 @@ func (b *BillService) GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID, is
 }
 
 func (b *BillService) AddItem(requesterID uuid.UUID, itemDTO dto.ItemInput) (dto.ItemOutput, error) {
-	// Validate billID
+	// get bill
 	bill, err := b.billStorage.GetByID(itemDTO.BillID)
+	if err != nil {
+		return dto.ItemOutput{}, err
+	}
+	// get group
+	group, err := b.groupStorage.GetGroupByID(bill.GroupID)
 	if err != nil {
 		return dto.ItemOutput{}, err
 	}
@@ -138,11 +143,14 @@ func (b *BillService) AddItem(requesterID uuid.UUID, itemDTO dto.ItemInput) (dto
 	if requesterID != bill.Owner.ID {
 		return dto.ItemOutput{}, domain.ErrNotAuthorized
 	}
-
-	// TODO: check if contributors are members of the group
-
+	// validate contributor list: check if contributors are members of the group
+	for _, contributorID := range itemDTO.Contributors {
+		if !group.IsMember(contributorID) {
+			return dto.ItemOutput{}, domain.ErrNotAGroupMember
+		}
+	}
+	// store item
 	item := model.CreateItem(uuid.New(), itemDTO)
-
 	item, err = b.billStorage.CreateItem(item)
 	if err != nil {
 		return dto.ItemOutput{}, err
@@ -167,12 +175,16 @@ func (b *BillService) ChangeItem(requesterID uuid.UUID, itemID uuid.UUID, itemDT
 	if err != nil {
 		return dto.ItemOutput{}, err
 	}
-	// TODO: allow all group members to change the contribution lst
 	// Authorization
 	if requesterID != bill.Owner.ID && !group.IsMember(requesterID) {
 		return dto.ItemOutput{}, domain.ErrNotAuthorized
 	}
-	// TODO: check if contributors are members of the group
+	// validate contributor list: check if contributors are members of the group
+	for _, contributorID := range itemDTO.Contributors {
+		if !group.IsMember(contributorID) {
+			return dto.ItemOutput{}, domain.ErrNotAGroupMember
+		}
+	}
 	var updatedItem model.Item
 	// if requester is the owner, the whole updatedItem can be updated
 	if requesterID == bill.Owner.ID {
