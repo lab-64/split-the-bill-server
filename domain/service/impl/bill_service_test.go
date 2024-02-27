@@ -63,12 +63,16 @@ func TestBillService_Update(t *testing.T) {
 		{
 			name: "Success",
 			mock: func() {
-				mocks.MockBillUpdate = func(bill model.Bill) (model.Bill, error) {
-					return TestBillUpdated, nil
-				}
 				mocks.MockBillGetByID = func(id uuid.UUID) (model.Bill, error) {
 					return TestBill, nil
 				}
+				mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
+					return TestGroup, nil
+				}
+				mocks.MockBillUpdate = func(bill model.Bill) (model.Bill, error) {
+					return TestBillUpdated, nil
+				}
+
 			},
 			requesterID: TestUser.ID,
 			billID:      TestBill.ID,
@@ -96,6 +100,9 @@ func TestBillService_Update(t *testing.T) {
 			mock: func() {
 				mocks.MockBillGetByID = func(id uuid.UUID) (model.Bill, error) {
 					return TestBill, nil
+				}
+				mocks.MockGroupGetGroupByID = func(id uuid.UUID) (model.Group, error) {
+					return TestGroup, nil
 				}
 			},
 			requesterID:   uuid.New(),

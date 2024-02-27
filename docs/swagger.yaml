@@ -28,6 +28,8 @@ definitions:
         type: string
       groupID:
         type: string
+      isViewed:
+        type: boolean
       items:
         items:
           $ref: '#/definitions/dto.ItemInput'

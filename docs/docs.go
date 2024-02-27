@@ -884,6 +884,9 @@ const docTemplate = `{
                 "groupID": {
                     "type": "string"
                 },
+                "isViewed": {
+                    "type": "boolean"
+                },
                 "items": {
                     "type": "array",
                     "items": {

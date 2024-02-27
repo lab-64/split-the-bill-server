@@ -50,18 +50,29 @@ func (b *BillService) Create(requesterID uuid.UUID, billDTO dto.BillInput) (dto.
 	return converter.ToBillDetailedDTO(bill), err
 }
 
+// TODO: allow members to update bill as well
 func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dto.BillInput) (dto.BillDetailedOutput, error) {
 	// Get bill
 	bill, err := b.billStorage.GetByID(billID)
 	if err != nil {
 		return dto.BillDetailedOutput{}, err
 	}
+	// Get group
+	group, err := b.groupStorage.GetGroupByID(bill.GroupID)
+	if err != nil {
+		return dto.BillDetailedOutput{}, err
+	}
 	// Authorization
-	if requesterID != bill.Owner.ID {
+	if !group.IsMember(requesterID) {
 		return dto.BillDetailedOutput{}, domain.ErrNotAuthorized
 	}
-	// TODO: change unseen list if bill gets updated?
-	updatedBill := model.CreateBill(billID, billDTO, billDTO.Date, bill.UnseenFromUserID)
+	// delete user from unseen list if bill is viewed
+	if billDTO.Viewed {
+		bill.UnseenFromUserID = removeEntryFromSlice(bill.UnseenFromUserID, requesterID)
+	}
+	// TODO: do not allow to change owner, group and items
+	// update bill
+	updatedBill := model.CreateBill(bill.ID, billDTO, billDTO.Date, bill.UnseenFromUserID)
 	updatedBill.ID = bill.ID
 	bill, err = b.billStorage.UpdateBill(updatedBill)
 	if err != nil {
@@ -69,8 +80,8 @@ func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dt
 	}
 
 	return converter.ToBillDetailedDTO(bill), err
-
 }
+
 func (b *BillService) GetByID(requesterID uuid.UUID, id uuid.UUID) (dto.BillDetailedOutput, error) {
 	bill, err := b.billStorage.GetByID(id)
 	if err != nil {
@@ -247,4 +258,14 @@ func (b *BillService) DeleteItem(requesterID uuid.UUID, itemID uuid.UUID) error 
 	}
 	// Delete item
 	return b.billStorage.DeleteItem(itemID)
+}
+
+// removeEntryFromSlice removes the first occurrence of entry from slice
+func removeEntryFromSlice(slice []uuid.UUID, entry uuid.UUID) []uuid.UUID {
+	for i, e := range slice {
+		if e == entry {
+			return append(slice[:i], slice[i+1:]...)
+		}
+	}
+	return slice
 }

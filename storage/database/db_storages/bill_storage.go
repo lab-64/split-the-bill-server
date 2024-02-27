@@ -48,6 +48,7 @@ func (b *BillStorage) UpdateBill(bill model.Bill) (model.Bill, error) {
 	err := b.DB.Transaction(func(tx *gorm.DB) error {
 		// update base bill fields
 		ret := b.DB.
+			Omit(clause.Associations).
 			Model(&billEntity).
 			Updates(&billEntity)
 
@@ -59,14 +60,14 @@ func (b *BillStorage) UpdateBill(bill model.Bill) (model.Bill, error) {
 			return ret.Error
 		}
 
-		// update items
-		res := tx.
-			Model(&billEntity).
-			Association("Items").
-			Replace(billEntity.Items)
+		// update unseenFrom associations
+		err := tx.Model(&billEntity).
+			Omit(clause.Associations).
+			Association("UnseenFrom").
+			Replace(billEntity.UnseenFrom)
 
-		if res != nil {
-			return res
+		if err != nil {
+			return err
 		}
 
 		return nil
@@ -77,7 +78,11 @@ func (b *BillStorage) UpdateBill(bill model.Bill) (model.Bill, error) {
 
 func (b *BillStorage) GetByID(id uuid.UUID) (model.Bill, error) {
 	var bill entity.Bill
-	tx := b.DB.Limit(1).Preload("Items.Contributors").Preload("Owner").Find(&bill, "id = ?", id)
+	tx := b.DB.Limit(1).
+		Preload("Items.Contributors").
+		Preload("Owner").
+		Preload("UnseenFrom").
+		Find(&bill, "id = ?", id)
 	// TODO: return general error
 	if tx.Error != nil {
 		return model.Bill{}, storage.NoSuchBillError
