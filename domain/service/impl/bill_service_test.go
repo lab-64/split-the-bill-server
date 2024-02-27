@@ -6,6 +6,7 @@ import (
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/presentation/dto"
+	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/mocks"
 	"testing"
 )
@@ -198,6 +199,82 @@ func TestBillService_Create(t *testing.T) {
 					for j, contributor := range item.Contributors {
 						assert.Equalf(t, testcase.expectedBill.Items[i].Contributors[j].ID, contributor.ID, "Wrong ContributorID")
 					}
+				}
+			}
+		})
+	}
+}
+
+func TestBillService_AddItem(t *testing.T) {
+	tests := []struct {
+		name           string
+		mock           func()
+		requesterID    uuid.UUID
+		itemDTO        dto.ItemInput
+		expectedErr    error
+		expectedReturn model.Item
+	}{
+		{
+			name: "Success",
+			mock: func() {
+				mocks.MockBillGetByID = func(id uuid.UUID) (model.Bill, error) {
+					return TestBill, nil
+				}
+				mocks.MockBillCreateItem = func(item model.Item) (model.Item, error) {
+					return item, nil
+				}
+			},
+			requesterID: TestUser.ID,
+			itemDTO: dto.ItemInput{
+				Name:         TestItem1.Name,
+				Price:        TestItem1.Price,
+				BillID:       TestBill.ID,
+				Contributors: []uuid.UUID{TestUser.ID},
+			},
+			expectedErr:    nil,
+			expectedReturn: TestItem1,
+		},
+		{
+			name: "Unauthorized",
+			mock: func() {
+				mocks.MockBillGetByID = func(id uuid.UUID) (model.Bill, error) {
+					return TestBill, nil
+				}
+			},
+			requesterID: TestUser2.ID,
+			itemDTO: dto.ItemInput{
+				Name:         TestItem1.Name,
+				Price:        TestItem1.Price,
+				BillID:       TestBill.ID,
+				Contributors: []uuid.UUID{TestUser.ID},
+			},
+			expectedErr: domain.ErrNotAuthorized,
+		},
+		{
+			name: "Invalid BillID",
+			mock: func() {
+				mocks.MockBillGetByID = func(id uuid.UUID) (model.Bill, error) {
+					return model.Bill{}, storage.NoSuchBillError
+				}
+			},
+			requesterID: TestUser.ID,
+			itemDTO: dto.ItemInput{
+				BillID: TestBill.ID,
+			},
+			expectedErr: storage.NoSuchBillError,
+		},
+	}
+
+	for _, testcase := range tests {
+		t.Run(testcase.name, func(t *testing.T) {
+			testcase.mock()
+			ret, err := billService.AddItem(testcase.requesterID, testcase.itemDTO)
+			assert.Equalf(t, testcase.expectedErr, err, "Wrong error")
+			if err == nil {
+				assert.Equalf(t, testcase.expectedReturn.Name, ret.Name, "Wrong Item Name")
+				assert.Equalf(t, testcase.expectedReturn.Price, ret.Price, "Wrong Item Price")
+				for i, contributor := range ret.Contributors {
+					assert.Equalf(t, testcase.expectedReturn.Contributors[i].ID, contributor.ID, "Wrong ContributorID")
 				}
 			}
 		})
