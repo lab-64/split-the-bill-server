@@ -157,17 +157,19 @@ func ToItemModel(item entity.Item) model.Item {
 
 func ToUserEntity(user model.User) entity.User {
 	return entity.User{
-		Base:     entity.Base{ID: user.ID},
-		Email:    user.Email,
-		Username: user.Username,
+		Base:           entity.Base{ID: user.ID},
+		Email:          user.Email,
+		Username:       user.Username,
+		ProfileImgPath: user.ProfileImgPath,
 	}
 }
 
 func ToUserModel(user entity.User) model.User {
 	return model.User{
-		ID:       user.ID,
-		Email:    user.Email,
-		Username: user.Username,
+		ID:             user.ID,
+		Email:          user.Email,
+		Username:       user.Username,
+		ProfileImgPath: user.ProfileImgPath,
 	}
 }
 

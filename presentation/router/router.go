@@ -14,6 +14,10 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 		return c.SendString("Hello, World!")
 	})
 
+	// serve static files to authenticated user
+	app.Use("/image/", a.Authenticate)
+	app.Static("/image/", "./uploads/profileImages") // hide the real storage path
+
 	// grouping
 	api := app.Group("/api")
 

@@ -558,19 +558,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/dto.GeneralResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.GroupDeletionOutput"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/dto.GeneralResponse"
                         }
                     }
                 }
@@ -748,7 +736,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "produces": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "tags": [
                     "User"
@@ -763,13 +751,15 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Request Body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UserUpdate"
-                        }
+                        "type": "string",
+                        "name": "username",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "User Image",
+                        "name": "image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -878,17 +868,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.GroupDeletionOutput": {
-            "type": "object",
-            "properties": {
-                "transactions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/util.Transaction"
-                    }
-                }
-            }
-        },
         "dto.GroupDetailedOutput": {
             "type": "object",
             "properties": {
@@ -989,6 +968,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "profileImgPath": {
+                    "type": "string"
+                },
                 "username": {
                     "type": "string"
                 }
@@ -1001,28 +983,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UserUpdate": {
-            "type": "object",
-            "properties": {
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "util.Transaction": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "creditorID": {
-                    "type": "string"
-                },
-                "debtorID": {
                     "type": "string"
                 }
             }

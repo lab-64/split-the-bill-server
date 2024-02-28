@@ -17,5 +17,8 @@
 tmp/
 *.log
 
+# Storage binary
+uploads*
+
 # Executable Application
 split-the-bill-server
