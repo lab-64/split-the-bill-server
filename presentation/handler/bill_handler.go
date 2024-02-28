@@ -60,12 +60,12 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 //	@Tags		Bill
 //	@Accept		json
 //	@Produce	json
-//	@Param		request	body		dto.BillInput	true	"Request Body"
+//	@Param		request	body		dto.BillCreate	true	"Request Body"
 //	@Success	201		{object}	dto.GeneralResponse{data=dto.BillDetailedOutput}
 //	@Router		/api/bill [post]
 func (h BillHandler) Create(c *fiber.Ctx) error {
 	// parse bill from request
-	var request dto.BillInput
+	var request dto.BillCreate
 	err := c.BodyParser(&request)
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
@@ -95,7 +95,7 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		id		path		string			true	"Bill ID"
-//	@Param		request	body		dto.BillInput	true	"Request Body"
+//	@Param		request	body		dto.BillUpdate	true	"Request Body"
 //	@Success	200		{object}	dto.GeneralResponse{data=dto.BillDetailedOutput}
 //	@Router		/api/bill/{id} [put]
 func (h BillHandler) Update(c *fiber.Ctx) error {
@@ -109,13 +109,9 @@ func (h BillHandler) Update(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
 	// parse request
-	var request dto.BillInput
+	var request dto.BillUpdate
 	if err = c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
-	}
-	// validate inputs
-	if err = request.ValidateInputs(); err != nil {
-		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
 	}
 	// get authenticated requester from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)

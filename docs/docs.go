@@ -75,7 +75,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.BillInput"
+                            "$ref": "#/definitions/dto.BillCreate"
                         }
                     }
                 ],
@@ -335,7 +335,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.BillInput"
+                            "$ref": "#/definitions/dto.BillUpdate"
                         }
                     }
                 ],
@@ -842,6 +842,29 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.BillCreate": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "groupID": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ItemInput"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ownerID": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.BillDetailedOutput": {
             "type": "object",
             "properties": {
@@ -875,28 +898,16 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.BillInput": {
+        "dto.BillUpdate": {
             "type": "object",
             "properties": {
                 "date": {
                     "type": "string"
                 },
-                "groupID": {
-                    "type": "string"
-                },
                 "isViewed": {
                     "type": "boolean"
                 },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.ItemInput"
-                    }
-                },
                 "name": {
-                    "type": "string"
-                },
-                "ownerID": {
                     "type": "string"
                 }
             }

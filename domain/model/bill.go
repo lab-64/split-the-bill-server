@@ -2,7 +2,6 @@ package model
 
 import (
 	"github.com/google/uuid"
-	"split-the-bill-server/presentation/dto"
 	"time"
 )
 
@@ -17,18 +16,18 @@ type Bill struct {
 	UnseenFromUserID []uuid.UUID
 }
 
-func CreateBill(id uuid.UUID, b dto.BillInput, date time.Time, unseenFrom []uuid.UUID) Bill {
+func CreateBill(id uuid.UUID, ownerID uuid.UUID, name string, date time.Time, groupID uuid.UUID, items []Item, unseenFrom []uuid.UUID) Bill {
 	// convert each item
-	var items []Item
-	for _, item := range b.Items {
-		items = append(items, CreateItem(uuid.New(), item))
-	}
+	/*	var items []Item
+		for _, item := range b.Items {
+			items = append(items, CreateItem(uuid.New(), item))
+		}*/
 	return Bill{
 		ID:               id,
-		Owner:            User{ID: b.OwnerID},
-		Name:             b.Name,
+		Owner:            User{ID: ownerID},
+		Name:             name,
 		Date:             date,
-		GroupID:          b.GroupID,
+		GroupID:          groupID,
 		Items:            items,
 		UnseenFromUserID: unseenFrom,
 	}

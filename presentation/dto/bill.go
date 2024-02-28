@@ -10,13 +10,18 @@ import (
 // Input/Output DTOs
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type BillInput struct {
+type BillCreate struct {
 	OwnerID uuid.UUID   `json:"ownerID"`
 	Name    string      `json:"name"`
 	Date    time.Time   `json:"date"`
 	GroupID uuid.UUID   `json:"groupID"`
 	Items   []ItemInput `json:"items"`
-	Viewed  bool        `json:"isViewed,omitempty"`
+}
+
+type BillUpdate struct {
+	Name   string    `json:"name"`
+	Date   time.Time `json:"date"`
+	Viewed bool      `json:"isViewed,omitempty"`
 }
 
 type BillDetailedOutput struct {
@@ -33,7 +38,7 @@ type BillDetailedOutput struct {
 // Validators
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (b BillInput) ValidateInputs() error {
+func (b BillCreate) ValidateInputs() error {
 	if b.OwnerID == uuid.Nil {
 		return ErrBillOwnerIDRequired
 	}

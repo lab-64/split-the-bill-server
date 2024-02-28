@@ -8,11 +8,11 @@ import (
 type IBillService interface {
 	// Create creates a new bill and returns a detailed description of the created bill.
 	// *Authorization required: requester in group.Members
-	Create(requesterID uuid.UUID, bill dto.BillInput) (dto.BillDetailedOutput, error)
+	Create(requesterID uuid.UUID, bill dto.BillCreate) (dto.BillDetailedOutput, error)
 
 	// Update updates the bill with the given id with the new bill data.
 	// *Authorization required: requester in group.Member
-	Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dto.BillInput) (dto.BillDetailedOutput, error)
+	Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dto.BillUpdate) (dto.BillDetailedOutput, error)
 
 	// GetByID returns the bill with the given id.
 	// *Authorization required: requester in group.Members
