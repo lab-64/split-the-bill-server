@@ -43,6 +43,13 @@ definitions:
       message:
         type: string
     type: object
+  dto.GroupDeletionOutput:
+    properties:
+      transactions:
+        items:
+          $ref: '#/definitions/util.Transaction'
+        type: array
+    type: object
   dto.GroupDetailedOutput:
     properties:
       balance:
@@ -119,6 +126,15 @@ definitions:
       email:
         type: string
       password:
+        type: string
+    type: object
+  util.Transaction:
+    properties:
+      amount:
+        type: number
+      creditorID:
+        type: string
+      debtorID:
         type: string
     type: object
 host: localhost:8080
@@ -377,7 +393,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GeneralResponse'
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupDeletionOutput'
+              type: object
       summary: Delete Group
       tags:
       - Group

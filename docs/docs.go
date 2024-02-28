@@ -558,7 +558,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GeneralResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GroupDeletionOutput"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -868,6 +880,17 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.GroupDeletionOutput": {
+            "type": "object",
+            "properties": {
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/util.Transaction"
+                    }
+                }
+            }
+        },
         "dto.GroupDetailedOutput": {
             "type": "object",
             "properties": {
@@ -983,6 +1006,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "util.Transaction": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "creditorID": {
+                    "type": "string"
+                },
+                "debtorID": {
                     "type": "string"
                 }
             }
