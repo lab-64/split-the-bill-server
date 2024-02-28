@@ -736,7 +736,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "produces": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "tags": [
                     "User"
@@ -751,13 +751,15 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Request Body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UserUpdate"
-                        }
+                        "type": "string",
+                        "name": "username",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "User Image",
+                        "name": "image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -966,6 +968,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "profileImgPath": {
+                    "type": "string"
+                },
                 "username": {
                     "type": "string"
                 }
@@ -978,14 +983,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UserUpdate": {
-            "type": "object",
-            "properties": {
-                "username": {
                     "type": "string"
                 }
             }

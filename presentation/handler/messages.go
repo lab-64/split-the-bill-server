@@ -70,4 +70,6 @@ const (
 
 	// Invitation - SUCCESS
 	SuccessMsgInvitationHandled = "Invitation handled"
+
+	ErrMsgUserImageUpload = "Could not upload user image: %v"
 )

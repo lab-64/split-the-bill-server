@@ -109,6 +109,8 @@ definitions:
         type: string
       id:
         type: string
+      profileImgPath:
+        type: string
       username:
         type: string
     type: object
@@ -117,11 +119,6 @@ definitions:
       email:
         type: string
       password:
-        type: string
-    type: object
-  dto.UserUpdate:
-    properties:
-      username:
         type: string
     type: object
 host: localhost:8080
@@ -557,14 +554,15 @@ paths:
         name: id
         required: true
         type: string
-      - description: Request Body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UserUpdate'
+      - in: formData
+        name: username
+        type: string
+      - description: User Image
+        in: formData
+        name: image
+        type: file
       produces:
-      - application/json
+      - multipart/form-data
       responses:
         "200":
           description: OK
