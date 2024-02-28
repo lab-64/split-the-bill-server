@@ -82,7 +82,8 @@ func (g *GroupStorage) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]mo
 	tx := g.DB.
 		Preload(clause.Associations).
 		Preload("Bills.Items.Contributors").
-		Preload("Bills.Owner")
+		Preload("Bills.Owner").
+		Preload("Bills.UnseenFrom")
 
 	if userID != uuid.Nil {
 		tx = tx.Where("id IN (SELECT group_id FROM group_members WHERE user_id = ?)", userID)

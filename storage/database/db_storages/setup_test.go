@@ -17,6 +17,7 @@ var (
 	gormDB       *gorm.DB
 	userStorage  UserStorage
 	groupStorage GroupStorage
+	billStorage  BillStorage
 )
 
 func TestMain(m *testing.M) {
@@ -29,6 +30,7 @@ func TestMain(m *testing.M) {
 	// Create an instance of Storages with the mocked DB
 	userStorage = UserStorage{DB: gormDB}
 	groupStorage = GroupStorage{DB: gormDB}
+	billStorage = BillStorage{DB: gormDB}
 
 	// Run tests
 	exitCode := m.Run()

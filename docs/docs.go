@@ -16,6 +16,47 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/api/bill": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bill"
+                ],
+                "summary": "Get All Bills by User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is Unseen",
+                        "name": "isUnseen",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is Owner",
+                        "name": "isOwner",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -34,7 +75,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.BillInput"
+                            "$ref": "#/definitions/dto.BillCreate"
                         }
                     }
                 ],
@@ -294,7 +335,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.BillInput"
+                            "$ref": "#/definitions/dto.BillUpdate"
                         }
                     }
                 ],
@@ -803,6 +844,29 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.BillCreate": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "groupID": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ItemInput"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ownerID": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.BillDetailedOutput": {
             "type": "object",
             "properties": {
@@ -836,25 +900,16 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.BillInput": {
+        "dto.BillUpdate": {
             "type": "object",
             "properties": {
                 "date": {
                     "type": "string"
                 },
-                "groupID": {
-                    "type": "string"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.ItemInput"
-                    }
+                "isViewed": {
+                    "type": "boolean"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "ownerID": {
                     "type": "string"
                 }
             }

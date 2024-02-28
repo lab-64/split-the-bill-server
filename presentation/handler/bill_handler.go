@@ -60,12 +60,12 @@ func (h BillHandler) GetByID(c *fiber.Ctx) error {
 //	@Tags		Bill
 //	@Accept		json
 //	@Produce	json
-//	@Param		request	body		dto.BillInput	true	"Request Body"
+//	@Param		request	body		dto.BillCreate	true	"Request Body"
 //	@Success	201		{object}	dto.GeneralResponse{data=dto.BillDetailedOutput}
 //	@Router		/api/bill [post]
 func (h BillHandler) Create(c *fiber.Ctx) error {
 	// parse bill from request
-	var request dto.BillInput
+	var request dto.BillCreate
 	err := c.BodyParser(&request)
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
@@ -95,10 +95,10 @@ func (h BillHandler) Create(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		id		path		string			true	"Bill ID"
-//	@Param		request	body		dto.BillInput	true	"Request Body"
+//	@Param		request	body		dto.BillUpdate	true	"Request Body"
 //	@Success	200		{object}	dto.GeneralResponse{data=dto.BillDetailedOutput}
 //	@Router		/api/bill/{id} [put]
-func (g BillHandler) Update(c *fiber.Ctx) error {
+func (h BillHandler) Update(c *fiber.Ctx) error {
 	// parse parameter
 	id := c.Params("id")
 	if id == "" {
@@ -109,18 +109,14 @@ func (g BillHandler) Update(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
 	// parse request
-	var request dto.BillInput
+	var request dto.BillUpdate
 	if err = c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
-	}
-	// validate inputs
-	if err = request.ValidateInputs(); err != nil {
-		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
 	}
 	// get authenticated requester from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
 	// update item
-	item, err := g.billService.Update(requesterID, uid, request)
+	item, err := h.billService.Update(requesterID, uid, request)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotAuthorized) {
 			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgBillUpdate, err))
@@ -129,6 +125,46 @@ func (g BillHandler) Update(c *fiber.Ctx) error {
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgBillUpdate, item)
+}
+
+// GetAllByUser 	gets all bills by user.
+//
+//	@Summary	Get All Bills by User
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		userId		query		string	true	"User ID"
+//	@Param		isUnseen	query		bool	false	"Is Unseen"
+//	@Param		isOwner		query		bool	false	"Is Owner"
+//	@Success	200			{object}	dto.GeneralResponse
+//	@Router		/api/bill [get]
+func (h BillHandler) GetAllByUser(c *fiber.Ctx) error {
+	// parse query parameters
+	userID := c.Query("userId")
+	if userID == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "userId"))
+	}
+	uid, err := uuid.Parse(userID)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+	}
+	isUnseen := false
+	if c.Query("isUnseen") == "true" {
+		isUnseen = true
+	}
+	isOwner := false
+	if c.Query("isOwner") == "true" {
+		isOwner = true
+	}
+	// get authenticated requester from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	// get bills according to filter
+	bills, err := h.billService.GetAllByUserID(requesterID, uid, isUnseen, isOwner)
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillGetAll, err))
+	}
+
+	return Success(c, fiber.StatusOK, SuccessMsgBillGetAll, bills)
 }
 
 // AddItem 		adds item to a bill.

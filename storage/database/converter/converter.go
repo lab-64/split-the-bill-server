@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"github.com/google/uuid"
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage/database/entity"
 )
@@ -44,14 +45,20 @@ func ToBillEntity(bill model.Bill) entity.Bill {
 	for _, item := range bill.Items {
 		items = append(items, ToItemEntity(item))
 	}
+	// convert uuids to users
+	var unseenFrom []entity.User
+	for _, unseenFromUserID := range bill.UnseenFromUserID {
+		unseenFrom = append(unseenFrom, entity.User{Base: entity.Base{ID: unseenFromUserID}})
+	}
 
 	return entity.Bill{
-		Base:    entity.Base{ID: bill.ID},
-		Name:    bill.Name,
-		Date:    bill.Date,
-		GroupID: bill.GroupID,
-		OwnerID: bill.Owner.ID,
-		Items:   items,
+		Base:       entity.Base{ID: bill.ID},
+		Name:       bill.Name,
+		Date:       bill.Date,
+		GroupID:    bill.GroupID,
+		OwnerID:    bill.Owner.ID,
+		Items:      items,
+		UnseenFrom: unseenFrom,
 	}
 }
 
@@ -60,15 +67,28 @@ func ToBillModel(bill entity.Bill) model.Bill {
 	for i, item := range bill.Items {
 		items[i] = ToItemModel(item)
 	}
+	unseenFrom := make([]uuid.UUID, len(bill.UnseenFrom))
+	for i, user := range bill.UnseenFrom {
+		unseenFrom[i] = user.ID
+	}
 
 	return model.Bill{
-		ID:      bill.ID,
-		Name:    bill.Name,
-		Date:    bill.Date,
-		Owner:   ToUserModel(bill.Owner),
-		GroupID: bill.GroupID,
-		Items:   items,
+		ID:               bill.ID,
+		Name:             bill.Name,
+		Date:             bill.Date,
+		Owner:            ToUserModel(bill.Owner),
+		GroupID:          bill.GroupID,
+		Items:            items,
+		UnseenFromUserID: unseenFrom,
 	}
+}
+
+func ToBillModels(bills []entity.Bill) []model.Bill {
+	var billModels []model.Bill
+	for _, bill := range bills {
+		billModels = append(billModels, ToBillModel(bill))
+	}
+	return billModels
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

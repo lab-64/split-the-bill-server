@@ -73,7 +73,7 @@ func TestUpdateBill(t *testing.T) {
 		Contributors: []uuid.UUID{User1.ID},
 	}
 
-	updatedBill := dto.BillInput{
+	updatedBill := dto.BillCreate{
 		Name:    "Updated Bill",
 		OwnerID: User1.ID,
 		Date:    Bill1.Date,
@@ -85,7 +85,7 @@ func TestUpdateBill(t *testing.T) {
 	tests := []struct {
 		description        string // description of the testcase case
 		parameter          string
-		inputData          dto.BillInput
+		inputData          dto.BillCreate
 		cookie             *http.Cookie // cookie of the testcase
 		expectedCode       int          // expected HTTP status code
 		expectedMessage    string       // expected message in response body
