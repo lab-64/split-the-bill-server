@@ -9,6 +9,7 @@ import (
 	"split-the-bill-server/domain/util"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/storage"
+	"strings"
 )
 
 type UserService struct {
@@ -55,7 +56,9 @@ func (u *UserService) GetByID(id uuid.UUID) (dto.UserCoreOutput, error) {
 }
 
 func (u *UserService) Create(userDTO dto.UserInput) (dto.UserCoreOutput, error) {
-	user := model.CreateUser(uuid.New(), userDTO.Email, "", "")
+	// extract username from email
+	username := strings.Split(userDTO.Email, "@")[0]
+	user := model.CreateUser(uuid.New(), userDTO.Email, username, "")
 	passwordHash, err := util.HashPassword(userDTO.Password)
 	if err != nil {
 		return dto.UserCoreOutput{}, err
@@ -98,21 +101,28 @@ func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserU
 	if requesterID != id {
 		return dto.UserCoreOutput{}, domain.ErrNotAuthorized
 	}
+	// Get user
+	userModel, err := u.userStorage.GetByID(id)
+	if err != nil {
+		return dto.UserCoreOutput{}, err
+	}
 	// store profile image if file is included
 	filePath := ""
 	if file != nil {
-		var err error
 		filePath, err = util.StoreFile(file, id)
 		if err != nil {
 			return dto.UserCoreOutput{}, err
 		}
+	} else { // if no file is included, use the old path
+		filePath = userModel.ProfileImgPath
 	}
-	// update user
-	userModel := model.CreateUser(id, "", user.Username, filePath) // do not update email
-	userModel, err := u.userStorage.Update(userModel)
+	// update user's username and profile image
+	userModel.Username = user.Username
+	userModel.ProfileImgPath = filePath
+	updatedUser, err := u.userStorage.Update(userModel)
 	if err != nil {
 		return dto.UserCoreOutput{}, err
 	}
 
-	return converter.ToUserCoreDTO(&userModel), err
+	return converter.ToUserCoreDTO(&updatedUser), err
 }
