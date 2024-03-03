@@ -174,6 +174,34 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusOK, SuccessMsgUserLogin, user)
 }
 
+// Logout 		func logout user
+//
+//	@Summary	Logout User
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	dto.GeneralResponse
+//	@Router		/api/user/logout [post]
+func (h UserHandler) Logout(c *fiber.Ctx) error {
+	// get auth token from request
+	token := c.Cookies(middleware.SessionCookieName)
+	authToken, err := uuid.Parse(token)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, token, err))
+	}
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	// logout user
+	err = h.userService.Logout(requesterID, authToken)
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserLogout, err))
+	}
+	// delete cookie
+	c.ClearCookie(middleware.SessionCookieName)
+
+	return Success(c, fiber.StatusOK, SuccessMsgUserLogout, nil)
+}
+
 // Update 		func update user's username and profile image
 //
 //	@Summary	Update User

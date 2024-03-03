@@ -6,7 +6,10 @@ import (
 )
 
 type ICookieStorage interface {
-	AddAuthenticationCookie(cookie model.AuthCookie)
+	AddAuthenticationCookie(cookie model.AuthCookie) (model.AuthCookie, error)
+
+	// Delete deletes the cookie with the given uuid. If an error occurs, a NoSuchCookieError is returned
+	Delete(token UUID) error
 
 	GetCookiesForUser(userID UUID) []model.AuthCookie
 

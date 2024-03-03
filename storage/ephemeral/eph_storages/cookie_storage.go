@@ -15,7 +15,7 @@ func NewCookieStorage(ephemeral *eph.Ephemeral) storage.ICookieStorage {
 	return &CookieStorage{e: ephemeral}
 }
 
-func (c *CookieStorage) AddAuthenticationCookie(cookie model.AuthCookie) {
+func (c *CookieStorage) AddAuthenticationCookie(cookie model.AuthCookie) (model.AuthCookie, error) {
 	r := c.e.Locker.Lock(eph.RCookies)
 	defer c.e.Locker.Unlock(r)
 	cookies, exists := c.e.Cookies[cookie.UserID]
@@ -24,6 +24,7 @@ func (c *CookieStorage) AddAuthenticationCookie(cookie model.AuthCookie) {
 	}
 	cookies = append(cookies, cookie)
 	c.e.Cookies[cookie.UserID] = cookies
+	return cookie, nil
 }
 
 func (c *CookieStorage) GetCookiesForUser(userID uuid.UUID) []model.AuthCookie {
@@ -43,4 +44,9 @@ func (c *CookieStorage) GetCookieFromToken(token uuid.UUID) (model.AuthCookie, e
 		}
 	}
 	return model.AuthCookie{}, storage.NoSuchCookieError
+}
+
+func (c *CookieStorage) Delete(token uuid.UUID) error {
+	//TODO implement me
+	panic("implement me")
 }
