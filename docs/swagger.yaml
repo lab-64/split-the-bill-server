@@ -154,6 +154,25 @@ paths:
       tags:
       - Bill
   /api/bill/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bill ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Delete Bill
+      tags:
+      - Bill
     get:
       consumes:
       - application/json

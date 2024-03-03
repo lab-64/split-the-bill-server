@@ -18,6 +18,10 @@ type IBillService interface {
 	// *Authorization required: requester in group.Members
 	GetByID(requesterID uuid.UUID, id uuid.UUID) (dto.BillDetailedOutput, error)
 
+	// Delete deletes the bill with the given id.
+	// *Authorization required: requester == bill.Owner
+	Delete(requesterID uuid.UUID, id uuid.UUID) error
+
 	// AddItem adds a new item to the bill.
 	// *Authorization required: requester == bill.Owner
 	AddItem(requesterID uuid.UUID, item dto.ItemInput) (dto.ItemOutput, error)
