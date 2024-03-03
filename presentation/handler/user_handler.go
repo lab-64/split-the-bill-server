@@ -186,7 +186,6 @@ func (h UserHandler) Logout(c *fiber.Ctx) error {
 	// get auth token from request
 	token := c.Cookies(middleware.SessionCookieName)
 	authToken, err := uuid.Parse(token)
-	log.Println(authToken)
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, token, err))
 	}
