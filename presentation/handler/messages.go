@@ -26,11 +26,13 @@ const (
 	ErrMsgBillCreate   = "Could not create bill: %v"
 	ErrMsgBillUpdate   = "Could not update bill: %v"
 	ErrMsgBillNotFound = "Bill not found: %v"
+	ErrMsgBillDelete   = "Could not delete bill: %v"
 
 	// Bill - SUCCESS
 	SuccessMsgBillFound  = "Bill found"
 	SuccessMsgBillCreate = "Bill created"
 	SuccessMsgBillUpdate = "Bill updated"
+	SuccessMsgBillDelete = "Bill deleted"
 
 	// Item - ERROR
 	ErrMsgItemParse    = "Could not parse item: %v"
@@ -72,4 +74,6 @@ const (
 
 	// Invitation - SUCCESS
 	SuccessMsgInvitationHandled = "Invitation handled"
+
+	ErrMsgUserImageUpload = "Could not upload user image: %v"
 )
