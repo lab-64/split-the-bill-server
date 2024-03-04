@@ -5,15 +5,17 @@ import (
 )
 
 type User struct {
-	ID       uuid.UUID
-	Email    string
-	Username string
+	ID             uuid.UUID
+	Email          string
+	Username       string
+	ProfileImgPath string
 }
 
-func CreateUser(id uuid.UUID, email string, username string) User {
+func CreateUser(id uuid.UUID, email string, username string, profileImg string) User {
 	return User{
-		ID:       id,
-		Email:    email,
-		Username: username,
+		ID:             id,
+		Email:          email,
+		Username:       username,
+		ProfileImgPath: profileImg,
 	}
 }

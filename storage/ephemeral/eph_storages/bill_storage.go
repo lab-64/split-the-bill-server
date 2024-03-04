@@ -65,3 +65,8 @@ func (b BillStorage) DeleteItem(id uuid.UUID) error {
 	//TODO implement me
 	panic("implement me")
 }
+
+func (b BillStorage) DeleteBill(id uuid.UUID) error {
+	//TODO implement me
+	panic("implement me")
+}

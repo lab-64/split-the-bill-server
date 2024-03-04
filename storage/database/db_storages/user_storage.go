@@ -100,7 +100,7 @@ func (u *UserStorage) Create(user model.User, passwordHash []byte) (model.User, 
 func (u *UserStorage) Update(user model.User) (model.User, error) {
 	userEntity := entity.User{}
 
-	res := u.DB.Model(&entity.User{}).Where("id = ?", user.ID).Updates(entity.User{Username: user.Username}).First(&userEntity)
+	res := u.DB.Model(&entity.User{}).Where("id = ?", user.ID).Updates(entity.User{Username: user.Username, ProfileImgPath: user.ProfileImgPath}).First(&userEntity)
 	// TODO: error handling
 	return converter.ToUserModel(userEntity), res.Error
 }

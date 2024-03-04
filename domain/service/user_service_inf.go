@@ -17,9 +17,13 @@ type IUserService interface {
 
 	Login(userInput dto.UserInput) (dto.UserCoreOutput, model.AuthCookie, error)
 
+	// Logout logs out the user with the given token.
+	// *Authorization required: requesterID == cookie.UserID
+	Logout(requesterID uuid.UUID, token uuid.UUID) error
+
 	Create(user dto.UserInput) (dto.UserCoreOutput, error)
 
 	// Update updates the user with the given id with the new user data.
 	// *Authorization required: requesterID == id
-	Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error)
+	Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, profileImg []byte) (dto.UserCoreOutput, error)
 }

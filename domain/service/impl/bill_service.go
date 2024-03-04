@@ -50,7 +50,6 @@ func (b *BillService) Create(requesterID uuid.UUID, billDTO dto.BillInput) (dto.
 	return converter.ToBillDetailedDTO(bill), err
 }
 
-// TODO: allow members to update bill as well
 func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dto.BillInput) (dto.BillDetailedOutput, error) {
 	// Get bill
 	bill, err := b.billStorage.GetByID(billID)
@@ -102,6 +101,20 @@ func (b *BillService) GetByID(requesterID uuid.UUID, id uuid.UUID) (dto.BillDeta
 	bill.Balance = balance
 
 	return converter.ToBillDetailedDTO(bill), err
+}
+
+func (b *BillService) Delete(requesterID uuid.UUID, id uuid.UUID) error {
+	// Get bill
+	bill, err := b.billStorage.GetByID(id)
+	if err != nil {
+		return err
+	}
+	// Authorization
+	if requesterID != bill.Owner.ID {
+		return domain.ErrNotAuthorized
+	}
+	// Delete bill
+	return b.billStorage.DeleteBill(id)
 }
 
 func (b *BillService) GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID, isUnseen bool, isOwner bool) ([]dto.BillDetailedOutput, error) {

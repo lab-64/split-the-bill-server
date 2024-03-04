@@ -94,6 +94,14 @@ func (b *BillStorage) GetByID(id uuid.UUID) (model.Bill, error) {
 	return billModel, nil
 }
 
+func (b *BillStorage) DeleteBill(id uuid.UUID) error {
+	res := b.DB.Delete(&entity.Bill{}, "id = ?", id)
+	if res.Error != nil {
+		return storage.NoSuchBillError
+	}
+	return nil
+}
+
 func (b *BillStorage) CreateItem(item model.Item) (model.Item, error) {
 	itemEntity := converter.ToItemEntity(item)
 

@@ -18,6 +18,10 @@ type IBillService interface {
 	// *Authorization required: requester in group.Members
 	GetByID(requesterID uuid.UUID, id uuid.UUID) (dto.BillDetailedOutput, error)
 
+	// Delete deletes the bill with the given id.
+	// *Authorization required: requester == bill.Owner
+	Delete(requesterID uuid.UUID, id uuid.UUID) error
+
 	// GetAllByUserID returns all the bills of the given user according to the filter.
 	// If no filter is provided, all bills from the groups in which the user is a member are returned.
 	// *Authorization required: requester == userID

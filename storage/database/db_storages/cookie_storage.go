@@ -20,10 +20,24 @@ func NewCookieStorage(DB *Database) ICookieStorage {
 	return &CookieStorage{DB: DB.Context}
 }
 
-func (c *CookieStorage) AddAuthenticationCookie(cookie model.AuthCookie) {
+func (c *CookieStorage) AddAuthenticationCookie(cookie model.AuthCookie) (model.AuthCookie, error) {
 	authCookie := converter.ToAuthCookieEntity(cookie)
+	var storedCookie entity.AuthCookie
 	// store cookie
-	c.DB.Where(entity.AuthCookie{UserID: authCookie.UserID}).Create(&authCookie)
+	res := c.DB.Where(entity.AuthCookie{UserID: authCookie.UserID}).Assign(authCookie).FirstOrCreate(&storedCookie)
+	if res.Error != nil {
+		return model.AuthCookie{}, storage.UnexpectedError
+	}
+	return converter.ToAuthCookieModel(&storedCookie), nil
+}
+
+func (c *CookieStorage) Delete(token uuid.UUID) error {
+	// delete cookie
+	res := c.DB.Delete(&entity.AuthCookie{}, token)
+	if res.Error != nil {
+		return storage.NoSuchCookieError
+	}
+	return nil
 }
 
 func (c *CookieStorage) GetCookiesForUser(userID uuid.UUID) []model.AuthCookie {

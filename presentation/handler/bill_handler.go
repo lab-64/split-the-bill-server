@@ -131,6 +131,39 @@ func (h BillHandler) Update(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusOK, SuccessMsgBillUpdate, item)
 }
 
+// Delete 		deletes a bill with the given id.
+//
+//	@Summary	Delete Bill
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"Bill ID"
+//	@Success	200	{object}	dto.GeneralResponse
+//	@Router		/api/bill/{id} [delete]
+func (h BillHandler) Delete(c *fiber.Ctx) error {
+	// parse parameter
+	id := c.Params("id")
+	if id == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+	}
+	// get authenticated requester from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	// delete bill
+	err = h.billService.Delete(requesterID, uid)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgBillDelete, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillDelete, err))
+	}
+
+	return Success(c, fiber.StatusOK, SuccessMsgBillDelete, nil)
+}
+
 // GetAllByUser 	gets all bills by user.
 //
 //	@Summary	Get All Bills by User
