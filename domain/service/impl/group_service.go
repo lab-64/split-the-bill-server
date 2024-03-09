@@ -6,6 +6,7 @@ import (
 	"split-the-bill-server/domain/converter"
 	"split-the-bill-server/domain/model"
 	. "split-the-bill-server/domain/service"
+	"split-the-bill-server/domain/util"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/storage"
 )
@@ -95,18 +96,20 @@ func (g *GroupService) GetAll(requesterID uuid.UUID, userID uuid.UUID, invitatio
 	return groupsDTO, nil
 }
 
-func (g *GroupService) Delete(requesterID uuid.UUID, id uuid.UUID) error {
+func (g *GroupService) Delete(requesterID uuid.UUID, id uuid.UUID) (dto.GroupDeletionOutput, error) {
 	// get group
 	group, err := g.groupStorage.GetGroupByID(id)
 	if err != nil {
-		return err
+		return dto.GroupDeletionOutput{}, err
 	}
 	// Authorization
 	if requesterID != group.Owner.ID {
-		return ErrNotAuthorized
+		return dto.GroupDeletionOutput{}, ErrNotAuthorized
 	}
+	// calculate transactions to clear balance
+	transactions := util.ProduceTransactionsFromBalance(group.CalculateBalance())
 	// delete group
-	return g.groupStorage.DeleteGroup(id)
+	return dto.GroupDeletionOutput{Transactions: transactions}, g.groupStorage.DeleteGroup(id)
 }
 
 func (g *GroupService) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
