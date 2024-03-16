@@ -28,6 +28,8 @@ definitions:
         type: string
       groupID:
         type: string
+      isViewed:
+        type: boolean
       items:
         items:
           $ref: '#/definitions/dto.ItemInput'
@@ -144,6 +146,33 @@ info:
   version: "1.0"
 paths:
   /api/bill:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: User ID
+        in: query
+        name: userId
+        required: true
+        type: string
+      - description: Is Unseen
+        in: query
+        name: isUnseen
+        type: boolean
+      - description: Is Owner
+        in: query
+        name: isOwner
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Get All Bills by User
+      tags:
+      - Bill
     post:
       consumes:
       - application/json

@@ -16,6 +16,7 @@ type BillInput struct {
 	Date    time.Time   `json:"date"`
 	GroupID uuid.UUID   `json:"groupID"`
 	Items   []ItemInput `json:"items"`
+	Viewed  bool        `json:"isViewed,omitempty"`
 }
 
 type BillDetailedOutput struct {

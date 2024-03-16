@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/database"
@@ -47,6 +48,7 @@ func (b *BillStorage) UpdateBill(bill model.Bill) (model.Bill, error) {
 	err := b.DB.Transaction(func(tx *gorm.DB) error {
 		// update base bill fields
 		ret := b.DB.
+			Omit(clause.Associations).
 			Model(&billEntity).
 			Updates(&billEntity)
 
@@ -58,14 +60,14 @@ func (b *BillStorage) UpdateBill(bill model.Bill) (model.Bill, error) {
 			return ret.Error
 		}
 
-		// update items
-		res := tx.
-			Model(&billEntity).
-			Association("Items").
-			Replace(billEntity.Items)
+		// update unseenFrom associations
+		err := tx.Model(&billEntity).
+			Omit(clause.Associations).
+			Association("UnseenFrom").
+			Replace(billEntity.UnseenFrom)
 
-		if res != nil {
-			return res
+		if err != nil {
+			return err
 		}
 
 		return nil
@@ -76,7 +78,11 @@ func (b *BillStorage) UpdateBill(bill model.Bill) (model.Bill, error) {
 
 func (b *BillStorage) GetByID(id uuid.UUID) (model.Bill, error) {
 	var bill entity.Bill
-	tx := b.DB.Limit(1).Preload("Items.Contributors").Preload("Owner").Find(&bill, "id = ?", id)
+	tx := b.DB.Limit(1).
+		Preload("Items.Contributors").
+		Preload("Owner").
+		Preload("UnseenFrom").
+		Find(&bill, "id = ?", id)
 	// TODO: return general error
 	if tx.Error != nil {
 		return model.Bill{}, storage.NoSuchBillError
@@ -101,11 +107,15 @@ func (b *BillStorage) CreateItem(item model.Item) (model.Item, error) {
 
 	// TODO: if userId belongs to deleted user do not create
 	// store item
-	res := b.DB.Create(&itemEntity)
+	res := b.DB.
+		Omit("Contributors.*"). // do not update user fields
+		Preload("Contributors").
+		Create(&itemEntity).
+		First(&itemEntity, "id = ?", itemEntity.ID)
 
 	// TODO: check if other errors can occur
 	if res.Error != nil {
-		return model.Item{}, storage.NoSuchUserError
+		return model.Item{}, storage.NoSuchBillError
 	}
 	if res.RowsAffected == 0 {
 		return model.Item{}, storage.ItemAlreadyExistsError
@@ -123,15 +133,32 @@ func (b *BillStorage) GetItemByID(id uuid.UUID) (model.Item, error) {
 	return converter.ToItemModel(item), nil
 }
 
+// TODO: modify update method to only update the contributors list and not the whole item
 func (b *BillStorage) UpdateItem(item model.Item) (model.Item, error) {
 	itemEntity := converter.ToItemEntity(item)
 
 	// run as a transaction to ensure consistency. item should be completely updated or not at all
 	err := b.DB.Transaction(func(tx *gorm.DB) error {
+
+		// update contributors associations
+		res := tx.
+			Omit("Contributors.*"). // do not update user fields
+			Model(&itemEntity).
+			Association("Contributors").
+			Replace(itemEntity.Contributors)
+
+		// TODO: add finer error handling
+		if res != nil {
+			return storage.NoSuchUserError
+		}
+
 		// update base item fields
 		ret := tx.
+			Omit(clause.Associations). // do not update associations
+			Preload("Contributors").
 			Model(&itemEntity).
-			Updates(&itemEntity)
+			Updates(&itemEntity).
+			First(&itemEntity)
 
 		if ret.RowsAffected == 0 {
 			return storage.NoSuchItemError
@@ -140,17 +167,6 @@ func (b *BillStorage) UpdateItem(item model.Item) (model.Item, error) {
 		// TODO: add finer error handling
 		if ret.Error != nil {
 			return ret.Error
-		}
-
-		// update contributors associations
-		res := tx.
-			Model(&itemEntity).
-			Association("Contributors").
-			Replace(itemEntity.Contributors)
-
-		// TODO: add finer error handling
-		if res != nil {
-			return storage.NoSuchUserError
 		}
 
 		return nil

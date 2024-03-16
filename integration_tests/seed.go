@@ -132,30 +132,33 @@ var (
 
 	// BILLS
 	Bill1 = Bill{
-		Base:    Base{ID: uuid.New()},
-		OwnerID: User1.ID,
-		Name:    "Groceries",
-		Date:    time.Now(),
-		Items:   []Item{Item1, Item2},
-		GroupID: Group1.ID,
+		Base:       Base{ID: uuid.New()},
+		OwnerID:    User1.ID,
+		Name:       "Groceries",
+		Date:       time.Now(),
+		Items:      []Item{Item1, Item2},
+		GroupID:    Group1.ID,
+		UnseenFrom: []User{User2, User3},
 	}
 
 	Bill2 = Bill{
-		Base:    Base{ID: uuid.New()},
-		OwnerID: User1.ID,
-		Name:    "Miete",
-		Date:    time.Now(),
-		Items:   []Item{Item3},
-		GroupID: Group1.ID,
+		Base:       Base{ID: uuid.New()},
+		OwnerID:    User1.ID,
+		Name:       "Miete",
+		Date:       time.Now(),
+		Items:      []Item{Item3},
+		GroupID:    Group1.ID,
+		UnseenFrom: []User{User2, User3},
 	}
 
 	Bill3 = Bill{
-		Base:    Base{ID: uuid.New()},
-		OwnerID: User1.ID,
-		Name:    "Beach Trip Expenses",
-		Date:    time.Now().AddDate(0, 0, 10),
-		Items:   []Item{Item4, Item5},
-		GroupID: Group2.ID,
+		Base:       Base{ID: uuid.New()},
+		OwnerID:    User1.ID,
+		Name:       "Beach Trip Expenses",
+		Date:       time.Now().AddDate(0, 0, 10),
+		Items:      []Item{Item4, Item5},
+		GroupID:    Group2.ID,
+		UnseenFrom: []User{User2},
 	}
 
 	Bill4 = Bill{

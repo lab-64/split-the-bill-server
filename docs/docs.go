@@ -16,6 +16,47 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/api/bill": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bill"
+                ],
+                "summary": "Get All Bills by User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is Unseen",
+                        "name": "isUnseen",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is Owner",
+                        "name": "isOwner",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -907,6 +948,9 @@ const docTemplate = `{
                 },
                 "groupID": {
                     "type": "string"
+                },
+                "isViewed": {
+                    "type": "boolean"
                 },
                 "items": {
                     "type": "array",
