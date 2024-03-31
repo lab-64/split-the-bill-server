@@ -183,7 +183,7 @@ func (h GroupHandler) GetAll(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"Group ID"
-//	@Success	200	{object}	dto.GeneralResponse
+//	@Success	200	{object}	dto.GeneralResponse{data=dto.GroupDeletionOutput}
 //	@Router		/api/group/{id} [delete]
 func (h GroupHandler) Delete(c *fiber.Ctx) error {
 	// parse parameter
@@ -198,14 +198,14 @@ func (h GroupHandler) Delete(c *fiber.Ctx) error {
 	// get requesterID from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
 	// delete group
-	err = h.groupService.Delete(requesterID, uid)
+	transaction, err := h.groupService.Delete(requesterID, uid)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotAuthorized) {
 			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGroupDelete, err))
 		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupDelete, err))
 	}
-	return Success(c, fiber.StatusOK, SuccessMsgGroupDelete, nil)
+	return Success(c, fiber.StatusOK, SuccessMsgGroupDelete, transaction)
 }
 
 // AcceptInvitation accepts a group invitation.

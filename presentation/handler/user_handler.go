@@ -6,6 +6,8 @@ import (
 	"github.com/caitlinelfring/nist-password-validator/password"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"io"
+	"net/http"
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
@@ -172,14 +174,43 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusOK, SuccessMsgUserLogin, user)
 }
 
-// Update 		func update user
+// Logout 		func logout user
+//
+//	@Summary	Logout User
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	dto.GeneralResponse
+//	@Router		/api/user/logout [post]
+func (h UserHandler) Logout(c *fiber.Ctx) error {
+	// get auth token from request
+	token := c.Cookies(middleware.SessionCookieName)
+	authToken, err := uuid.Parse(token)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, token, err))
+	}
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	// logout user
+	err = h.userService.Logout(requesterID, authToken)
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserLogout, err))
+	}
+	// delete cookie
+	c.ClearCookie(middleware.SessionCookieName)
+
+	return Success(c, fiber.StatusOK, SuccessMsgUserLogout, nil)
+}
+
+// Update 		func update user's username and profile image
 //
 //	@Summary	Update User
 //	@Tags		User
 //	@Accept		json
-//	@Produce	json
+//	@Produce	multipart/form-data
 //	@Param		id		path		string			true	"User ID"
-//	@Param		request	body		dto.UserUpdate	true	"Request Body"
+//	@Param		request	formData	dto.UserUpdate	true	"Request Body"
+//	@Param		image	formData	file			false	"User Image"
 //	@Success	200		{object}	dto.GeneralResponse
 //	@Router		/api/user/{id} [put]
 func (h UserHandler) Update(c *fiber.Ctx) error {
@@ -197,10 +228,32 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	if err = c.BodyParser(&user); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
+	// try to parse file
+	var data []byte
+	file, err := c.FormFile("image")
+	// err == nil -> image is included
+	if err == nil {
+		// read the file content
+		content, fileErr := file.Open()
+		if fileErr != nil {
+			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, fileErr))
+		}
+		defer content.Close()
+		// convert file to byte array
+		data, fileErr = io.ReadAll(content)
+		if fileErr != nil {
+			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, fileErr))
+		}
+		// check for image type
+		contentType := http.DetectContentType(data)
+		if err = user.ValidateInputs(contentType); err != nil {
+			return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserUpdate, err))
+		}
+	}
 	// get authenticated requesterID from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
 	// update user
-	retUser, err := h.userService.Update(requesterID, userID, user)
+	retUser, err := h.userService.Update(requesterID, userID, user, data)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotAuthorized) {
 			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgUserUpdate, err))

@@ -9,6 +9,7 @@ import (
 	"split-the-bill-server/domain/util"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/storage"
+	"strings"
 )
 
 type UserService struct {
@@ -55,7 +56,9 @@ func (u *UserService) GetByID(id uuid.UUID) (dto.UserCoreOutput, error) {
 }
 
 func (u *UserService) Create(userDTO dto.UserInput) (dto.UserCoreOutput, error) {
-	user := model.CreateUser(uuid.New(), userDTO.Email, "")
+	// extract username from email
+	username := strings.Split(userDTO.Email, "@")[0]
+	user := model.CreateUser(uuid.New(), userDTO.Email, username, "")
 	passwordHash, err := util.HashPassword(userDTO.Password)
 	if err != nil {
 		return dto.UserCoreOutput{}, err
@@ -88,23 +91,55 @@ func (u *UserService) Login(userInput dto.UserInput) (dto.UserCoreOutput, model.
 
 	sc := model.GenerateSessionCookie(user.ID)
 
-	u.cookieStorage.AddAuthenticationCookie(sc)
+	cookie, err := u.cookieStorage.AddAuthenticationCookie(sc)
+	if err != nil {
+		return dto.UserCoreOutput{}, sc, err
+	}
 
-	return converter.ToUserCoreDTO(&user), sc, err
+	return converter.ToUserCoreDTO(&user), cookie, err
 }
 
-func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate) (dto.UserCoreOutput, error) {
+func (u *UserService) Logout(requesterID uuid.UUID, token uuid.UUID) error {
+	// get cookie
+	cookie, err := u.cookieStorage.GetCookieFromToken(token)
+	if err != nil {
+		return err
+	}
+	// Authorization
+	if requesterID != cookie.UserID {
+		return domain.ErrNotAuthorized
+	}
+	err = u.cookieStorage.Delete(token)
+	return err
+}
+
+func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, file []byte) (dto.UserCoreOutput, error) {
 	// Authorization
 	if requesterID != id {
 		return dto.UserCoreOutput{}, domain.ErrNotAuthorized
 	}
-	// do not update email
-	userModel := model.CreateUser(id, "", user.Username)
-
-	userModel, err := u.userStorage.Update(userModel)
+	// Get user
+	userModel, err := u.userStorage.GetByID(id)
+	if err != nil {
+		return dto.UserCoreOutput{}, err
+	}
+	// store profile image if file is included
+	filePath := ""
+	if file != nil {
+		filePath, err = util.StoreFile(file, id)
+		if err != nil {
+			return dto.UserCoreOutput{}, err
+		}
+	} else { // if no file is included, use the old path
+		filePath = userModel.ProfileImgPath
+	}
+	// update user's username and profile image
+	userModel.Username = user.Username
+	userModel.ProfileImgPath = filePath
+	updatedUser, err := u.userStorage.Update(userModel)
 	if err != nil {
 		return dto.UserCoreOutput{}, err
 	}
 
-	return converter.ToUserCoreDTO(&userModel), err
+	return converter.ToUserCoreDTO(&updatedUser), err
 }

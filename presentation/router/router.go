@@ -14,6 +14,10 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 		return c.SendString("Hello, World!")
 	})
 
+	// serve static files to authenticated user
+	app.Use("/image/", a.Authenticate)
+	app.Static("/image/", "./uploads/profileImages") // hide the real storage path
+
 	// grouping
 	api := app.Group("/api")
 
@@ -26,6 +30,7 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 	userRoute.Post("/login", u.Login)
 	userRoute.Put("/:id", a.Authenticate, u.Update)
 	userRoute.Delete("/:id", a.Authenticate, u.Delete)
+	userRoute.Post("/logout", a.Authenticate, u.Logout)
 
 	// bill routes
 	billRoute := api.Group("/bill")
@@ -33,6 +38,7 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 	billRoute.Post("/", a.Authenticate, b.Create)
 	billRoute.Put("/:id", a.Authenticate, b.Update)
 	billRoute.Get("/:id", a.Authenticate, b.GetByID)
+	billRoute.Delete("/:id", a.Authenticate, b.Delete)
 	billRoute.Get("/", a.Authenticate, b.GetAllByUser)
 	// item routes
 	itemRoute := billRoute.Group("/item")

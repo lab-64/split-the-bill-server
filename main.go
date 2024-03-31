@@ -26,14 +26,21 @@ import (
 // @host		localhost:8080
 // @BasePath	/
 func main() {
-
+	// load environment variables
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// create storage directory for uploaded images
+	if err = os.MkdirAll("./uploads/profileImages", os.ModePerm); err != nil {
+		log.Fatal(err)
+	}
+
 	// configure webserver
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 4 * 1024 * 1024, // 4MB
+	})
 
 	// setup storage
 	userStorage, groupStorage, cookieStorage, billStorage := setupStorage()

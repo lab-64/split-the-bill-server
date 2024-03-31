@@ -27,12 +27,14 @@ const (
 	ErrMsgBillUpdate   = "Could not update bill: %v"
 	ErrMsgBillNotFound = "Bill not found: %v"
 	ErrMsgBillGetAll   = "Could not load bills: %v"
+	ErrMsgBillDelete   = "Could not delete bill: %v"
 
 	// Bill - SUCCESS
 	SuccessMsgBillFound  = "Bill found"
 	SuccessMsgBillCreate = "Bill created"
 	SuccessMsgBillUpdate = "Bill updated"
 	SuccessMsgBillGetAll = "Bills found"
+	SuccessMsgBillDelete = "Bill deleted"
 
 	// Item - ERROR
 	ErrMsgItemParse    = "Could not parse item: %v"
@@ -57,6 +59,7 @@ const (
 	ErrMsgUserLogin            = "Could not log in: %v"
 	ErrMsgUserCredentialsParse = "Could not parse credentials: %v"
 	ErrMsgBadPassword          = "Bad Password: %v"
+	ErrMsgUserLogout           = "Could not log out: %v"
 
 	// User - SUCCESS
 	SuccessMsgUserLogin  = "User logged in"
@@ -65,6 +68,7 @@ const (
 	SuccessMsgUserCreate = "User created"
 	SuccessMsgUserDelete = "User deleted"
 	SuccessMsgUserUpdate = "User updated"
+	SuccessMsgUserLogout = "User logged out"
 
 	// Invitation - ERROR
 	ErrMsgInvitationHandle = "Could not handle invitation: %v"
@@ -72,4 +76,6 @@ const (
 
 	// Invitation - SUCCESS
 	SuccessMsgInvitationHandled = "Invitation handled"
+
+	ErrMsgUserImageUpload = "Could not upload user image: %v"
 )
