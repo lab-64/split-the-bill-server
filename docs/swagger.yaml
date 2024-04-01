@@ -1,5 +1,20 @@
 basePath: /
 definitions:
+  dto.BillCreate:
+    properties:
+      date:
+        type: string
+      groupID:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.ItemInput'
+        type: array
+      name:
+        type: string
+      ownerID:
+        type: string
+    type: object
   dto.BillDetailedOutput:
     properties:
       balance:
@@ -22,21 +37,13 @@ definitions:
       owner:
         $ref: '#/definitions/dto.UserCoreOutput'
     type: object
-  dto.BillInput:
+  dto.BillUpdate:
     properties:
       date:
         type: string
-      groupID:
-        type: string
       isViewed:
         type: boolean
-      items:
-        items:
-          $ref: '#/definitions/dto.ItemInput'
-        type: array
       name:
-        type: string
-      ownerID:
         type: string
     type: object
   dto.GeneralResponse:
@@ -182,7 +189,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.BillInput'
+          $ref: '#/definitions/dto.BillCreate'
       produces:
       - application/json
       responses:
@@ -256,7 +263,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.BillInput'
+          $ref: '#/definitions/dto.BillUpdate'
       produces:
       - application/json
       responses:

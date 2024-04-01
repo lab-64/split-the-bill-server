@@ -8,7 +8,6 @@ import (
 	. "split-the-bill-server/domain/service"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/storage"
-	"time"
 )
 
 type BillService struct {
@@ -20,7 +19,7 @@ func NewBillService(billStorage *storage.IBillStorage, groupStorage *storage.IGr
 	return &BillService{billStorage: *billStorage, groupStorage: *groupStorage}
 }
 
-func (b *BillService) Create(requesterID uuid.UUID, billDTO dto.BillInput) (dto.BillDetailedOutput, error) {
+func (b *BillService) Create(requesterID uuid.UUID, billDTO dto.BillCreate) (dto.BillDetailedOutput, error) {
 	// Validate groupID
 	group, err := b.groupStorage.GetGroupByID(billDTO.GroupID)
 	if err != nil {
@@ -39,8 +38,13 @@ func (b *BillService) Create(requesterID uuid.UUID, billDTO dto.BillInput) (dto.
 			unseenFrom = append(unseenFrom, member.ID)
 		}
 	}
-	// create bill model including items
-	bill := model.CreateBill(uuid.New(), billDTO, time.Now(), unseenFrom)
+	// create new items
+	var items []model.Item
+	for _, item := range billDTO.Items {
+		items = append(items, model.CreateItem(uuid.New(), item))
+	}
+	// create new bill model including items
+	bill := model.CreateBill(uuid.New(), billDTO.OwnerID, billDTO.Name, billDTO.Date, billDTO.GroupID, items, unseenFrom)
 	// store bill in billStorage
 	bill, err = b.billStorage.Create(bill)
 	if err != nil {
@@ -50,7 +54,7 @@ func (b *BillService) Create(requesterID uuid.UUID, billDTO dto.BillInput) (dto.
 	return converter.ToBillDetailedDTO(bill), err
 }
 
-func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dto.BillInput) (dto.BillDetailedOutput, error) {
+func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dto.BillUpdate) (dto.BillDetailedOutput, error) {
 	// Get bill
 	bill, err := b.billStorage.GetByID(billID)
 	if err != nil {
@@ -69,9 +73,8 @@ func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dt
 	if billDTO.Viewed {
 		bill.UnseenFromUserID = removeEntryFromSlice(bill.UnseenFromUserID, requesterID)
 	}
-	// TODO: do not allow to change owner, group and items
-	// update bill
-	updatedBill := model.CreateBill(bill.ID, billDTO, billDTO.Date, bill.UnseenFromUserID)
+	// update bill fields: name, date, unseenFromUserID
+	updatedBill := model.CreateBill(bill.ID, bill.Owner.ID, billDTO.Name, billDTO.Date, bill.GroupID, bill.Items, bill.UnseenFromUserID)
 	updatedBill.ID = bill.ID
 	bill, err = b.billStorage.UpdateBill(updatedBill)
 	if err != nil {

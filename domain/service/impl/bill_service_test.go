@@ -20,13 +20,6 @@ var (
 		Contributors: []model.User{TestUser},
 	}
 
-	TestItem1Updated = model.Item{
-		ID:           TestItem1.ID,
-		Name:         "Test Item 1 Updated",
-		Price:        12,
-		Contributors: []model.User{TestUser},
-	}
-
 	TestItem2 = model.Item{
 		ID:           uuid.New(),
 		Name:         "Test Item 2",
@@ -45,7 +38,7 @@ var (
 		ID:    TestBill.ID,
 		Name:  "Test Bill Updated",
 		Owner: TestUser,
-		Items: []model.Item{TestItem1Updated, TestItem2},
+		Items: TestBill.Items,
 	}
 )
 
@@ -56,7 +49,7 @@ func TestBillService_Update(t *testing.T) {
 		mock          func()
 		requesterID   uuid.UUID
 		billID        uuid.UUID
-		billUpdated   dto.BillInput
+		billUpdated   dto.BillUpdate
 		expectedError error
 		expectedBill  model.Bill
 	}{
@@ -76,21 +69,9 @@ func TestBillService_Update(t *testing.T) {
 			},
 			requesterID: TestUser.ID,
 			billID:      TestBill.ID,
-			billUpdated: dto.BillInput{
-				OwnerID: TestBillUpdated.Owner.ID,
-				Name:    TestBillUpdated.Name,
-				Items: []dto.ItemInput{
-					{
-						Name:         TestItem1Updated.Name,
-						Price:        TestItem1Updated.Price,
-						Contributors: []uuid.UUID{TestUser.ID},
-					},
-					{
-						Name:         TestItem2.Name,
-						Price:        TestItem2.Price,
-						Contributors: []uuid.UUID{TestUser.ID, TestUser2.ID},
-					},
-				},
+			billUpdated: dto.BillUpdate{
+				Name: TestBillUpdated.Name,
+				Date: TestBillUpdated.Date,
 			},
 			expectedError: nil,
 			expectedBill:  TestBillUpdated,
@@ -107,7 +88,7 @@ func TestBillService_Update(t *testing.T) {
 			},
 			requesterID:   uuid.New(),
 			billID:        TestBill.ID,
-			billUpdated:   dto.BillInput{},
+			billUpdated:   dto.BillUpdate{},
 			expectedError: domain.ErrNotAuthorized,
 		},
 	}
@@ -118,9 +99,9 @@ func TestBillService_Update(t *testing.T) {
 			ret, err := billService.Update(testcase.requesterID, testcase.billID, testcase.billUpdated)
 			assert.Equalf(t, testcase.expectedError, err, "Wrong error")
 			if err == nil {
-				assert.Equalf(t, testcase.expectedBill.ID, ret.ID, "Wrong BillID")
+				assert.Equalf(t, testcase.expectedBill.ID, ret.ID, "Wrong BillID") // expect no changes in ID
 				assert.Equalf(t, testcase.expectedBill.Name, ret.Name, "Wrong Bill Name")
-				assert.Equalf(t, len(testcase.expectedBill.Items), len(ret.Items), "Wrong number of items")
+				assert.Equalf(t, len(testcase.expectedBill.Items), len(ret.Items), "Wrong number of items") // expect no changes in items
 				for i, item := range ret.Items {
 					assert.Equalf(t, testcase.expectedBill.Items[i].ID, item.ID, "Wrong ItemID")
 					assert.Equalf(t, testcase.expectedBill.Items[i].Name, item.Name, "Wrong Item Name")
@@ -139,7 +120,7 @@ func TestBillService_Create(t *testing.T) {
 		name         string
 		mock         func()
 		requesterID  uuid.UUID
-		billDTO      dto.BillInput
+		billDTO      dto.BillCreate
 		expectedErr  error
 		expectedBill model.Bill
 	}{
@@ -157,7 +138,7 @@ func TestBillService_Create(t *testing.T) {
 				}
 			},
 			requesterID: TestUser.ID,
-			billDTO: dto.BillInput{
+			billDTO: dto.BillCreate{
 				OwnerID: TestBill.Owner.ID,
 				Name:    TestBill.Name,
 				Items: []dto.ItemInput{
@@ -187,7 +168,7 @@ func TestBillService_Create(t *testing.T) {
 				}
 			},
 			requesterID: uuid.New(),
-			billDTO:     dto.BillInput{},
+			billDTO:     dto.BillCreate{},
 			expectedErr: domain.ErrNotAuthorized,
 		},
 	}

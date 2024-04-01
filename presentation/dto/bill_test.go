@@ -10,12 +10,12 @@ import (
 func TestBillInput_ValidateInputs(t *testing.T) {
 	tests := []struct {
 		name        string
-		input       BillInput
+		input       BillCreate
 		expectedErr error
 	}{
 		{
 			name: "Success",
-			input: BillInput{
+			input: BillCreate{
 				OwnerID: uuid.New(),
 				Name:    "Test",
 				Date:    time.Now(),
@@ -25,7 +25,7 @@ func TestBillInput_ValidateInputs(t *testing.T) {
 		},
 		{
 			name: "OwnerID is missing",
-			input: BillInput{
+			input: BillCreate{
 				Name:    "Test",
 				Date:    time.Now(),
 				GroupID: uuid.New(),
@@ -34,7 +34,7 @@ func TestBillInput_ValidateInputs(t *testing.T) {
 		},
 		{
 			name: "Name is missing",
-			input: BillInput{
+			input: BillCreate{
 				OwnerID: uuid.New(),
 				Date:    time.Now(),
 				GroupID: uuid.New(),
@@ -43,7 +43,7 @@ func TestBillInput_ValidateInputs(t *testing.T) {
 		},
 		{
 			name: "Date is missing",
-			input: BillInput{
+			input: BillCreate{
 				OwnerID: uuid.New(),
 				Name:    "Test",
 				GroupID: uuid.New(),
@@ -52,7 +52,7 @@ func TestBillInput_ValidateInputs(t *testing.T) {
 		},
 		{
 			name: "GroupID is missing",
-			input: BillInput{
+			input: BillCreate{
 				OwnerID: uuid.New(),
 				Name:    "Test",
 				Date:    time.Now(),
