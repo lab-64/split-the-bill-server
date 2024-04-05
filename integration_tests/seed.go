@@ -32,11 +32,20 @@ var (
 	}
 
 	// COOKIES
-	Cookie1 = AuthCookie{
+	CookieUser1 = AuthCookie{
 		Base:        Base{ID: uuid.New()},
 		UserID:      User1.ID,
 		ValidBefore: time.Now().Add(model.SessionCookieValidityPeriod),
 	}
+
+	CookieUser2 = AuthCookie{
+		Base:        Base{ID: uuid.New()},
+		UserID:      User2.ID,
+		ValidBefore: time.Now().Add(model.SessionCookieValidityPeriod),
+	}
+
+	// PASSWORD
+	Password = "test"
 
 	// CREDENTIALS
 	Pw, _ = bcrypt.GenerateFromPassword([]byte("test"), 10)
@@ -123,30 +132,33 @@ var (
 
 	// BILLS
 	Bill1 = Bill{
-		Base:    Base{ID: uuid.New()},
-		OwnerID: User1.ID,
-		Name:    "Groceries",
-		Date:    time.Now(),
-		Items:   []Item{Item1, Item2},
-		GroupID: Group1.ID,
+		Base:       Base{ID: uuid.New()},
+		OwnerID:    User1.ID,
+		Name:       "Groceries",
+		Date:       time.Now(),
+		Items:      []Item{Item1, Item2},
+		GroupID:    Group1.ID,
+		UnseenFrom: []User{User2, User3},
 	}
 
 	Bill2 = Bill{
-		Base:    Base{ID: uuid.New()},
-		OwnerID: User1.ID,
-		Name:    "Miete",
-		Date:    time.Now(),
-		Items:   []Item{Item3},
-		GroupID: Group1.ID,
+		Base:       Base{ID: uuid.New()},
+		OwnerID:    User1.ID,
+		Name:       "Miete",
+		Date:       time.Now(),
+		Items:      []Item{Item3},
+		GroupID:    Group1.ID,
+		UnseenFrom: []User{User2, User3},
 	}
 
 	Bill3 = Bill{
-		Base:    Base{ID: uuid.New()},
-		OwnerID: User1.ID,
-		Name:    "Beach Trip Expenses",
-		Date:    time.Now().AddDate(0, 0, 10),
-		Items:   []Item{Item4, Item5},
-		GroupID: Group2.ID,
+		Base:       Base{ID: uuid.New()},
+		OwnerID:    User1.ID,
+		Name:       "Beach Trip Expenses",
+		Date:       time.Now().AddDate(0, 0, 10),
+		Items:      []Item{Item4, Item5},
+		GroupID:    Group2.ID,
+		UnseenFrom: []User{User2},
 	}
 
 	Bill4 = Bill{
@@ -160,24 +172,18 @@ var (
 
 	// INVITATIONS
 	Invitation1 = GroupInvitation{
-		Base:      Base{ID: uuid.New()},
-		Date:      time.Now(),
-		GroupID:   Group1.ID,
-		InviteeID: User2.ID,
+		Base:    Base{ID: uuid.New()},
+		GroupID: Group1.ID,
 	}
 
 	Invitation2 = GroupInvitation{
-		Base:      Base{ID: uuid.New()},
-		Date:      time.Now(),
-		GroupID:   Group2.ID,
-		InviteeID: User3.ID,
+		Base:    Base{ID: uuid.New()},
+		GroupID: Group2.ID,
 	}
 
 	Invitation3 = GroupInvitation{
-		Base:      Base{ID: uuid.New()},
-		Date:      time.Now(),
-		GroupID:   Group3.ID,
-		InviteeID: User1.ID,
+		Base:    Base{ID: uuid.New()},
+		GroupID: Group3.ID,
 	}
 )
 
@@ -217,7 +223,10 @@ func All() []Seed {
 		{
 			Name: "CreateAuthCookies",
 			Run: func(db *DB) error {
-				if err := db.Create(&Cookie1).Error; err != nil {
+				if err := db.Create(&CookieUser1).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&CookieUser2).Error; err != nil {
 					return err
 				}
 				return nil

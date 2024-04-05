@@ -29,25 +29,22 @@ func TestLandingPage(t *testing.T) {
 	groupStorage := eph_storages.NewGroupStorage(e)
 	cookieStorage := eph_storages.NewCookieStorage(e)
 	billStorage := eph_storages.NewBillStorage(e)
-	invitationStorage := eph_storages.NewInvitationStorage(e)
 
 	//services
 	userService := impl.NewUserService(&userStorage, &cookieStorage)
-	groupService := impl.NewGroupService(&groupStorage, &userStorage)
+	groupService := impl.NewGroupService(&groupStorage)
 	billService := impl.NewBillService(&billStorage, &groupStorage)
-	invitationService := impl.NewInvitationService(&invitationStorage, &groupStorage)
 
 	//handlers
 	userHandler := handler.NewUserHandler(&userService, v)
-	groupHandler := handler.NewGroupHandler(&groupService, &invitationService)
+	groupHandler := handler.NewGroupHandler(&groupService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
-	invitationHandler := handler.NewInvitationHandler(&invitationService)
 
 	// authenticator
 	authenticator := middleware.NewAuthenticator(&cookieStorage)
 
 	//routing
-	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *invitationHandler, *authenticator)
+	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *authenticator)
 
 	// Create a new http get request on landingpage
 	req := httptest.NewRequest("GET", "/", nil)

@@ -1,25 +1,29 @@
 package model
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"split-the-bill-server/presentation/dto"
+)
 
-type ItemModel struct {
+type Item struct {
 	ID           uuid.UUID
 	Name         string
 	Price        float64
 	BillID       uuid.UUID
-	Contributors []uuid.UUID
+	Contributors []User
 }
 
-func CreateItemModel(id uuid.UUID, name string, price float64, contributors []uuid.UUID, billID uuid.UUID) ItemModel {
-	if id == uuid.Nil {
-		id = uuid.New()
+func CreateItem(id uuid.UUID, item dto.ItemInput) Item {
+	// convert contributorIDs to simple UserModels
+	contributors := make([]User, len(item.Contributors))
+	for i, contributorID := range item.Contributors {
+		contributors[i] = User{ID: contributorID}
 	}
-
-	return ItemModel{
+	return Item{
 		ID:           id,
-		Name:         name,
-		Price:        price,
+		Name:         item.Name,
+		Price:        item.Price,
+		BillID:       item.BillID,
 		Contributors: contributors,
-		BillID:       billID,
 	}
 }

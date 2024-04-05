@@ -4,11 +4,12 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	. "split-the-bill-server/domain/model"
+	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database"
-	. "split-the-bill-server/storage/database/entity"
+	"split-the-bill-server/storage/database/converter"
+	"split-the-bill-server/storage/database/entity"
 )
 
 type CookieStorage struct {
@@ -19,42 +20,47 @@ func NewCookieStorage(DB *Database) ICookieStorage {
 	return &CookieStorage{DB: DB.Context}
 }
 
-func (c *CookieStorage) AddAuthenticationCookie(cookie AuthCookieModel) {
-	authCookie := ToAuthCookieEntity(cookie)
+func (c *CookieStorage) AddAuthenticationCookie(cookie model.AuthCookie) (model.AuthCookie, error) {
+	authCookie := converter.ToAuthCookieEntity(cookie)
+	var storedCookie entity.AuthCookie
 	// store cookie
-	c.DB.Where(AuthCookie{UserID: authCookie.UserID}).Create(&authCookie)
+	res := c.DB.Where(entity.AuthCookie{UserID: authCookie.UserID}).Assign(authCookie).FirstOrCreate(&storedCookie)
+	if res.Error != nil {
+		return model.AuthCookie{}, storage.UnexpectedError
+	}
+	return converter.ToAuthCookieModel(&storedCookie), nil
 }
 
-func (c *CookieStorage) GetCookiesForUser(userID uuid.UUID) []AuthCookieModel {
-	var cookies []AuthCookie
+func (c *CookieStorage) Delete(token uuid.UUID) error {
+	// delete cookie
+	res := c.DB.Delete(&entity.AuthCookie{}, token)
+	if res.Error != nil {
+		return storage.NoSuchCookieError
+	}
+	return nil
+}
+
+func (c *CookieStorage) GetCookiesForUser(userID uuid.UUID) []model.AuthCookie {
+	var cookies []entity.AuthCookie
 	// get all cookies for given user
-	res := c.DB.Where(AuthCookie{UserID: userID}).Find(&cookies)
+	res := c.DB.Where(entity.AuthCookie{UserID: userID}).Find(&cookies)
 	if res.Error != nil {
 		return nil
 	}
-	return cookiesToAuthCookies(cookies)
+	return converter.ToAuthCookieModels(cookies)
 }
 
-func (c *CookieStorage) GetCookieFromToken(token uuid.UUID) (AuthCookieModel, error) {
-	var cookie AuthCookie
+func (c *CookieStorage) GetCookieFromToken(token uuid.UUID) (model.AuthCookie, error) {
+	var cookie entity.AuthCookie
 
 	tx := c.DB.First(&cookie, token)
 
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return AuthCookieModel{}, storage.NoSuchCookieError
+			return model.AuthCookie{}, storage.NoSuchCookieError
 		}
-		return AuthCookieModel{}, tx.Error
+		return model.AuthCookie{}, tx.Error
 	}
 
-	return ToAuthCookieModel(&cookie), nil
-}
-
-// CookiesToAuthCookies converts a slice of AuthCookie to a slice of model.AuthCookieModel
-func cookiesToAuthCookies(cookies []AuthCookie) []AuthCookieModel {
-	s := make([]AuthCookieModel, len(cookies))
-	for i, cookie := range cookies {
-		s[i] = ToAuthCookieModel(&cookie)
-	}
-	return s
+	return converter.ToAuthCookieModel(&cookie), nil
 }

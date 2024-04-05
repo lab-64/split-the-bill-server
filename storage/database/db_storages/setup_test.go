@@ -12,10 +12,12 @@ import (
 )
 
 var (
-	sqlDB       *sql.DB
-	dbMock      sqlmock.Sqlmock
-	gormDB      *gorm.DB
-	userStorage UserStorage
+	sqlDB        *sql.DB
+	dbMock       sqlmock.Sqlmock
+	gormDB       *gorm.DB
+	userStorage  UserStorage
+	groupStorage GroupStorage
+	billStorage  BillStorage
 )
 
 func TestMain(m *testing.M) {
@@ -25,8 +27,10 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Create an instance of UserStorage with the mocked DB
+	// Create an instance of Storages with the mocked DB
 	userStorage = UserStorage{DB: gormDB}
+	groupStorage = GroupStorage{DB: gormDB}
+	billStorage = BillStorage{DB: gormDB}
 
 	// Run tests
 	exitCode := m.Run()
@@ -59,5 +63,5 @@ func initMockDB() error {
 // ExpectQuery for SELECT Query
 // ExpectExec for INSERT, UPDATE, DELETE, ...
 // ExpectRollback if DB query fails on INSERT
-// ExpectCommit if DB query succeeds on INSERT
+// ExpectCommit if DB query succeeds on INSERT, UPDATE
 // ExpectBegin if TRANSACTION is started

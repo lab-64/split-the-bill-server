@@ -3,22 +3,25 @@ package impl
 import (
 	"os"
 	"split-the-bill-server/domain/service"
-	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/mocks"
 	"testing"
 )
 
 var (
-	userStorage   storage.IUserStorage
-	cookieStorage storage.ICookieStorage
-	userService   service.IUserService
+	userService  service.IUserService
+	groupService service.IGroupService
+	billService  service.IBillService
 )
 
 func TestMain(m *testing.M) {
 	// setup
-	userStorage = mocks.NewUserStorageMock()
-	cookieStorage = mocks.NewCookieStorageMock()
+	userStorage := mocks.NewUserStorageMock()
+	cookieStorage := mocks.NewCookieStorageMock()
 	userService = NewUserService(&userStorage, &cookieStorage)
+	groupStorage := mocks.NewGroupStorageMock()
+	groupService = NewGroupService(&groupStorage)
+	billStorage := mocks.NewBillStorageMock()
+	billService = NewBillService(&billStorage, &groupStorage)
 
 	// Run tests
 	exitCode := m.Run()

@@ -4,36 +4,36 @@ import (
 	"github.com/google/uuid"
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
-	"split-the-bill-server/storage/ephemeral"
+	eph "split-the-bill-server/storage/ephemeral"
 )
 
 type GroupStorage struct {
-	e *ephemeral.Ephemeral
+	e *eph.Ephemeral
 }
 
-func NewGroupStorage(ephemeral *ephemeral.Ephemeral) storage.IGroupStorage {
+func NewGroupStorage(ephemeral *eph.Ephemeral) storage.IGroupStorage {
 	return &GroupStorage{e: ephemeral}
 }
 
-func (g *GroupStorage) AddGroup(group model.GroupModel) (model.GroupModel, error) {
-	g.e.Lock.Lock()
-	defer g.e.Lock.Unlock()
+func (g *GroupStorage) AddGroup(group model.Group) (model.Group, error) {
+	r := g.e.Locker.Lock(eph.RGroups)
+	defer g.e.Locker.Unlock(r)
 	_, exists := g.e.Groups[group.ID]
 	if exists {
-		return model.GroupModel{}, storage.GroupAlreadyExistsError
+		return model.Group{}, storage.GroupAlreadyExistsError
 	}
 	g.e.Groups[group.ID] = &group
 	return group, nil
 }
 
-func (g *GroupStorage) UpdateGroup(group model.GroupModel) (model.GroupModel, error) {
+func (g *GroupStorage) UpdateGroup(group model.Group) (model.Group, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (g *GroupStorage) GetGroupByID(id uuid.UUID) (model.GroupModel, error) {
-	g.e.Lock.Lock()
-	defer g.e.Lock.Unlock()
+func (g *GroupStorage) GetGroupByID(id uuid.UUID) (model.Group, error) {
+	r := g.e.Locker.Lock(eph.RGroups)
+	defer g.e.Locker.Unlock(r)
 	group, exists := g.e.Groups[id]
 	if !exists {
 		return *group, storage.NoSuchGroupError
@@ -42,8 +42,8 @@ func (g *GroupStorage) GetGroupByID(id uuid.UUID) (model.GroupModel, error) {
 }
 
 func (g *GroupStorage) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) error {
-	g.e.Lock.Lock()
-	defer g.e.Lock.Unlock()
+	r := g.e.Locker.Lock(eph.RUsers, eph.RGroups)
+	defer g.e.Locker.Unlock(r)
 	group, exists := g.e.Groups[groupID]
 	if !exists {
 		return storage.NoSuchGroupError
@@ -57,7 +57,17 @@ func (g *GroupStorage) AddMemberToGroup(memberID uuid.UUID, groupID uuid.UUID) e
 	return nil
 }
 
-func (g *GroupStorage) GetGroupsByUserID(userID uuid.UUID) ([]model.GroupModel, error) {
+func (g *GroupStorage) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]model.Group, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *GroupStorage) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *GroupStorage) DeleteGroup(id uuid.UUID) error {
 	//TODO implement me
 	panic("implement me")
 }

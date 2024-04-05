@@ -1,7 +1,27 @@
 basePath: /
 definitions:
-  dto.BillDetailedOutputDTO:
+  dto.BillCreate:
     properties:
+      date:
+        type: string
+      groupID:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.ItemInput'
+        type: array
+      name:
+        type: string
+      ownerID:
+        type: string
+    type: object
+  dto.BillDetailedOutput:
+    properties:
+      balance:
+        additionalProperties:
+          type: number
+        description: include balance only if balance is set
+        type: object
       date:
         type: string
       groupID:
@@ -10,102 +30,68 @@ definitions:
         type: string
       items:
         items:
-          $ref: '#/definitions/dto.ItemOutputDTO'
+          $ref: '#/definitions/dto.ItemOutput'
         type: array
       name:
         type: string
-      ownerID:
-        type: string
+      owner:
+        $ref: '#/definitions/dto.UserCoreOutput'
     type: object
-  dto.BillInputDTO:
+  dto.BillUpdate:
     properties:
       date:
         type: string
-      groupID:
-        type: string
-      items:
-        items:
-          $ref: '#/definitions/dto.ItemInputDTO'
-        type: array
+      isViewed:
+        type: boolean
       name:
         type: string
-      ownerID:
-        type: string
     type: object
-  dto.CredentialsInputDTO:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    type: object
-  dto.GeneralResponseDTO:
+  dto.GeneralResponse:
     properties:
       data: {}
       message:
         type: string
     type: object
-  dto.GroupCoreOutputDTO:
+  dto.GroupDeletionOutput:
     properties:
-      id:
-        type: string
-      members:
+      transactions:
         items:
-          $ref: '#/definitions/dto.UserCoreOutputDTO'
+          $ref: '#/definitions/util.Transaction'
         type: array
-      name:
-        type: string
-      owner:
-        $ref: '#/definitions/dto.UserCoreOutputDTO'
     type: object
-  dto.GroupDetailedOutputDTO:
+  dto.GroupDetailedOutput:
     properties:
+      balance:
+        additionalProperties:
+          type: number
+        description: include balance only if balance is set
+        type: object
       bills:
         items:
-          $ref: '#/definitions/dto.BillDetailedOutputDTO'
+          $ref: '#/definitions/dto.BillDetailedOutput'
         type: array
       id:
         type: string
+      invitationID:
+        description: include invitationID only if invitationID is set
+        type: string
       members:
         items:
-          $ref: '#/definitions/dto.UserCoreOutputDTO'
+          $ref: '#/definitions/dto.UserCoreOutput'
         type: array
       name:
         type: string
       owner:
-        $ref: '#/definitions/dto.UserCoreOutputDTO'
+        $ref: '#/definitions/dto.UserCoreOutput'
     type: object
-  dto.GroupInputDTO:
+  dto.GroupInput:
     properties:
       name:
         type: string
       ownerID:
         type: string
     type: object
-  dto.GroupInvitationInputDTO:
-    properties:
-      groupID:
-        type: string
-      inviteeIDs:
-        items:
-          type: string
-        type: array
-      issuerID:
-        type: string
-    type: object
-  dto.GroupInvitationOutputDTO:
-    properties:
-      group:
-        $ref: '#/definitions/dto.GroupCoreOutputDTO'
-      invitationID:
-        type: string
-    type: object
-  dto.InvitationResponseInputDTO:
-    properties:
-      isAccept:
-        type: boolean
-    type: object
-  dto.ItemInputDTO:
+  dto.ItemInput:
     properties:
       billId:
         type: string
@@ -118,13 +104,13 @@ definitions:
       price:
         type: number
     type: object
-  dto.ItemOutputDTO:
+  dto.ItemOutput:
     properties:
       billId:
         type: string
-      contributorIDs:
+      contributors:
         items:
-          type: string
+          $ref: '#/definitions/dto.UserCoreOutput'
         type: array
       id:
         type: string
@@ -133,33 +119,31 @@ definitions:
       price:
         type: number
     type: object
-  dto.UserCoreOutputDTO:
+  dto.UserCoreOutput:
     properties:
       email:
         type: string
       id:
         type: string
-    type: object
-  dto.UserDetailedOutputDTO:
-    properties:
-      email:
+      profileImgPath:
         type: string
-      groups:
-        items:
-          $ref: '#/definitions/dto.GroupCoreOutputDTO'
-        type: array
-      id:
+      username:
         type: string
-      invitationIDs:
-        items:
-          type: string
-        type: array
     type: object
-  dto.UserInputDTO:
+  dto.UserInput:
     properties:
       email:
         type: string
       password:
+        type: string
+    type: object
+  util.Transaction:
+    properties:
+      amount:
+        type: number
+      creditorID:
+        type: string
+      debtorID:
         type: string
     type: object
 host: localhost:8080
@@ -169,6 +153,33 @@ info:
   version: "1.0"
 paths:
   /api/bill:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: User ID
+        in: query
+        name: userId
+        required: true
+        type: string
+      - description: Is Unseen
+        in: query
+        name: isUnseen
+        type: boolean
+      - description: Is Owner
+        in: query
+        name: isOwner
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Get All Bills by User
+      tags:
+      - Bill
     post:
       consumes:
       - application/json
@@ -178,7 +189,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.BillInputDTO'
+          $ref: '#/definitions/dto.BillCreate'
       produces:
       - application/json
       responses:
@@ -186,15 +197,34 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.BillDetailedOutputDTO'
+                  $ref: '#/definitions/dto.BillDetailedOutput'
               type: object
       summary: Create Bill
       tags:
       - Bill
   /api/bill/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bill ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Delete Bill
+      tags:
+      - Bill
     get:
       consumes:
       - application/json
@@ -211,12 +241,42 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.BillDetailedOutputDTO'
+                  $ref: '#/definitions/dto.BillDetailedOutput'
               type: object
       summary: Get Bill by ID
+      tags:
+      - Bill
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bill ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.BillUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.BillDetailedOutput'
+              type: object
+      summary: Update Bill
       tags:
       - Bill
   /api/bill/item:
@@ -229,7 +289,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.ItemInputDTO'
+          $ref: '#/definitions/dto.ItemInput'
       produces:
       - application/json
       responses:
@@ -237,15 +297,34 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.ItemOutputDTO'
+                  $ref: '#/definitions/dto.ItemOutput'
               type: object
       summary: Add Item to Bill
       tags:
       - Bill
   /api/bill/item/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Delete Item
+      tags:
+      - Bill
     get:
       consumes:
       - application/json
@@ -262,10 +341,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.ItemOutputDTO'
+                  $ref: '#/definitions/dto.ItemOutput'
               type: object
       summary: Get Item by ID
       tags:
@@ -284,7 +363,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.ItemInputDTO'
+          $ref: '#/definitions/dto.ItemInput'
       produces:
       - application/json
       responses:
@@ -292,10 +371,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.ItemOutputDTO'
+                  $ref: '#/definitions/dto.ItemOutput'
               type: object
       summary: Change Item
       tags:
@@ -305,10 +384,13 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: User Id
+      - description: User ID
         in: query
         name: userId
-        required: true
+        type: string
+      - description: Invitation ID
+        in: query
+        name: invitationId
         type: string
       produces:
       - application/json
@@ -317,12 +399,12 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.GroupDetailedOutputDTO'
+                  $ref: '#/definitions/dto.GroupDetailedOutput'
               type: object
-      summary: Get Groups by User
+      summary: Get Groups by User/Invitation
       tags:
       - Group
     post:
@@ -334,7 +416,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.GroupInputDTO'
+          $ref: '#/definitions/dto.GroupInput'
       produces:
       - application/json
       responses:
@@ -342,15 +424,39 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.GroupDetailedOutputDTO'
+                  $ref: '#/definitions/dto.GroupDetailedOutput'
               type: object
       summary: Create Group
       tags:
       - Group
   /api/group/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupDeletionOutput'
+              type: object
+      summary: Delete Group
+      tags:
+      - Group
     get:
       consumes:
       - application/json
@@ -367,10 +473,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.GroupDetailedOutputDTO'
+                  $ref: '#/definitions/dto.GroupDetailedOutput'
               type: object
       summary: Get Group by ID
       tags:
@@ -389,7 +495,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.GroupInputDTO'
+          $ref: '#/definitions/dto.GroupInput'
       produces:
       - application/json
       responses:
@@ -397,66 +503,15 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.GroupDetailedOutputDTO'
+                  $ref: '#/definitions/dto.GroupDetailedOutput'
               type: object
       summary: Update Group
       tags:
       - Group
-  /api/invitation:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Request Body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.GroupInvitationInputDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.GroupInvitationOutputDTO'
-              type: object
-      summary: Create Group Invitation
-      tags:
-      - Invitation
-  /api/invitation/{id}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: Invitation ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.GroupInvitationOutputDTO'
-              type: object
-      summary: Get Group Invitation By ID
-      tags:
-      - Invitation
-  /api/invitation/{id}/response:
+  /api/group/invitation/{id}/accept:
     post:
       consumes:
       - application/json
@@ -466,49 +521,16 @@ paths:
         name: id
         required: true
         type: string
-      - description: Request Body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.InvitationResponseInputDTO'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GeneralResponseDTO'
-      summary: Accept or decline Group Invitation
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Accept Group Invitation
       tags:
-      - Invitation
-  /api/invitation/user/{id}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/dto.GroupInvitationOutputDTO'
-                  type: array
-              type: object
-      summary: Get All Group Invitations From User
-      tags:
-      - Invitation
+      - Group
   /api/user:
     get:
       consumes:
@@ -520,11 +542,11 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/dto.UserDetailedOutputDTO'
+                    $ref: '#/definitions/dto.UserCoreOutput'
                   type: array
               type: object
       summary: Get all Users
@@ -539,7 +561,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.UserInputDTO'
+          $ref: '#/definitions/dto.UserInput'
       produces:
       - application/json
       responses:
@@ -547,10 +569,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.UserCoreOutputDTO'
+                  $ref: '#/definitions/dto.UserCoreOutput'
               type: object
       summary: Register User
       tags:
@@ -571,7 +593,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GeneralResponseDTO'
+            $ref: '#/definitions/dto.GeneralResponse'
       summary: Delete User
       tags:
       - User
@@ -591,12 +613,38 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.UserDetailedOutputDTO'
+                  $ref: '#/definitions/dto.UserCoreOutput'
               type: object
-      summary: Get detailed User data by ID
+      summary: Get User by ID
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: formData
+        name: username
+        type: string
+      - description: User Image
+        in: formData
+        name: image
+        type: file
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Update User
       tags:
       - User
   /api/user/login:
@@ -609,7 +657,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.CredentialsInputDTO'
+          $ref: '#/definitions/dto.UserInput'
       produces:
       - application/json
       responses:
@@ -617,12 +665,26 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/dto.GeneralResponseDTO'
+            - $ref: '#/definitions/dto.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.UserCoreOutputDTO'
+                  $ref: '#/definitions/dto.UserCoreOutput'
               type: object
       summary: Login User
+      tags:
+      - User
+  /api/user/logout:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Logout User
       tags:
       - User
 swagger: "2.0"

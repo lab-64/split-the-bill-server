@@ -1,64 +1,60 @@
 package dto
 
 import (
+	"errors"
+	"fmt"
 	"github.com/google/uuid"
-	. "split-the-bill-server/domain/model"
 )
 
-type UserInputDTO struct {
+var allowedImageTypes = map[string]string{
+	"image/jpeg": "jpeg",
+	"image/png":  "png",
+	"image/gif":  "gif",
+	"image/jpg":  "jpg",
+}
+var allowedImageTypesString = "jpg, png, gif, jpeg"
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Input/Output DTOs
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type UserInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-type UserCoreOutputDTO struct {
-	ID    uuid.UUID `json:"id"`
-	Email string    `json:"email"`
+type UserUpdate struct {
+	Username string `json:"username" form:"username"`
 }
 
-type UserDetailedOutputDTO struct {
-	ID          uuid.UUID            `json:"id"`
-	Email       string               `json:"email"`
-	Groups      []GroupCoreOutputDTO `json:"groups"`
-	Invitations []uuid.UUID          `json:"invitationIDs"`
+type UserCoreOutput struct {
+	ID             uuid.UUID `json:"id"`
+	Email          string    `json:"email"`
+	Username       string    `json:"username"`
+	ProfileImgPath string    `json:"profileImgPath"`
 }
 
-func ToUserModel(r UserInputDTO) UserModel {
-	return CreateUserModel(r.Email)
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Validators
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func ToUserCoreDTOs(users []UserModel) []UserCoreOutputDTO {
-	usersDTO := make([]UserCoreOutputDTO, len(users))
-
-	for i, user := range users {
-		usersDTO[i] = ToUserCoreDTO(&user)
+func (u UserInput) ValidateInputs() error {
+	if u.Email == "" {
+		return ErrEmailRequired
 	}
-	return usersDTO
+	if u.Password == "" {
+		return ErrPasswordRequired
+	}
+	return nil
 }
 
-func ToUserCoreDTO(u *UserModel) UserCoreOutputDTO {
-	return UserCoreOutputDTO{
-		ID:    u.ID,
-		Email: u.Email,
+func (u UserUpdate) ValidateInputs(contentType string) error {
+	if _, ok := allowedImageTypes[contentType]; !ok {
+		return ErrWrongImageType
 	}
+	return nil
 }
 
-func ToUserDetailedDTO(u *UserModel) UserDetailedOutputDTO {
-	groupsDTO := make([]GroupCoreOutputDTO, len(u.Groups))
-
-	for i, group := range u.Groups {
-		groupsDTO[i] = ToGroupCoreDTO(group)
-	}
-
-	invitations := make([]uuid.UUID, len(u.PendingGroupInvitations))
-
-	for i, inv := range u.PendingGroupInvitations {
-		invitations[i] = inv.ID
-	}
-
-	return UserDetailedOutputDTO{
-		ID:          u.ID,
-		Email:       u.Email,
-		Groups:      groupsDTO,
-		Invitations: invitations,
-	}
-}
+var ErrEmailRequired = errors.New("email is required")
+var ErrPasswordRequired = errors.New("password is required")
+var ErrWrongImageType = fmt.Errorf("uploaded image has wrong type. Allowed types: %s", allowedImageTypesString)

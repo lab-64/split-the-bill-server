@@ -1,13 +1,17 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"github.com/caitlinelfring/nist-password-validator/password"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"io"
+	"net/http"
+	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
 	. "split-the-bill-server/presentation"
-	. "split-the-bill-server/presentation/dto"
+	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/middleware"
 )
 
@@ -26,26 +30,29 @@ func NewUserHandler(userService *service.IUserService, v *password.Validator) *U
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=[]dto.UserDetailedOutputDTO}
+//	@Success	200	{object}	dto.GeneralResponse{data=[]dto.UserCoreOutput}
 //	@Router		/api/user [get]
 func (h UserHandler) GetAll(c *fiber.Ctx) error {
+	// get all users
 	users, err := h.userService.GetAll()
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUsersNotFound, err))
 	}
+
 	return Success(c, fiber.StatusOK, SuccessMsgUsersFound, users)
 }
 
-// GetByID 		func get the detailed user data from a user id
+// GetByID 		func get the user data from a user id
 //
-//	@Summary	Get detailed User data by ID
+//	@Summary	Get User by ID
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"User ID"
-//	@Success	200	{object}	dto.GeneralResponseDTO{data=dto.UserDetailedOutputDTO}
+//	@Success	200	{object}	dto.GeneralResponse{data=dto.UserCoreOutput}
 //	@Router		/api/user/{id} [get]
 func (h UserHandler) GetByID(c *fiber.Ctx) error {
+	// parse parameter
 	id := c.Params("id")
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
@@ -54,6 +61,7 @@ func (h UserHandler) GetByID(c *fiber.Ctx) error {
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
+	// get user
 	user, err := h.userService.GetByID(uid)
 	if err != nil {
 		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserNotFound, err))
@@ -69,43 +77,56 @@ func (h UserHandler) GetByID(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"User ID"
-//	@Success	200	{object}	dto.GeneralResponseDTO
+//	@Success	200	{object}	dto.GeneralResponse
 //	@Router		/api/user/{id} [delete]
 func (h UserHandler) Delete(c *fiber.Ctx) error {
+	// parse parameter
 	id := c.Params("id")
 	if id == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
 	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
-	err = h.userService.Delete(uid)
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	// delete user
+	err = h.userService.Delete(requesterID, uid)
 	if err != nil {
-		return Error(c, fiber.StatusNotFound, fmt.Sprintf(ErrMsgUserDelete, err))
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgUserDelete, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserDelete, err))
 	}
+
 	return Success(c, fiber.StatusOK, SuccessMsgUserDelete, nil)
 }
 
-// Register 	parses a dto.UserInputDTO from the request body, compares and validates both passwords and creates a new user.
+// Register 	func register user
 //
 //	@Summary	Register User
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Param		request	body		dto.UserInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserCoreOutputDTO}
+//	@Param		request	body		dto.UserInput	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponse{data=dto.UserCoreOutput}
 //	@Router		/api/user [post]
 func (h UserHandler) Register(c *fiber.Ctx) error {
-	var request UserInputDTO
+	// parse user from request
+	var request dto.UserInput
 	if err := c.BodyParser(&request); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
-
-	if err := h.passwordValidator.ValidatePassword(request.Password); err != nil {
+	// validate inputs
+	err := request.ValidateInputs()
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
+	}
+	if err = h.passwordValidator.ValidatePassword(request.Password); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBadPassword, err))
 	}
-
+	// create user
 	user, err := h.userService.Create(request)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserCreate, err))
@@ -114,34 +135,32 @@ func (h UserHandler) Register(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusCreated, SuccessMsgUserCreate, user)
 }
 
-// Login 		func login user
+// Login 		uses the given login credentials for login and returns an authentication token for the user.
 //
 //	@Summary	Login User
 //	@Tags		User
 //	@Accept		json
 //	@Produce	json
-//	@Param		request	body		dto.CredentialsInputDTO	true	"Request Body"
-//	@Success	200		{object}	dto.GeneralResponseDTO{data=dto.UserCoreOutputDTO}
+//	@Param		request	body		dto.UserInput	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponse{data=dto.UserCoreOutput}
 //	@Router		/api/user/login [post]
-//
-// Login uses the given login credentials for login and returns an authentication token for the user.
 func (h UserHandler) Login(c *fiber.Ctx) error {
-	var userCredentials CredentialsInputDTO
+	// parse user from request
+	var userCredentials dto.UserInput
 	if err := c.BodyParser(&userCredentials); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserCredentialsParse, err))
 	}
-	// Checks if all input fields are filled out
+	// validate inputs
 	err := userCredentials.ValidateInputs()
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
 	}
-
+	// login user
 	user, sc, err := h.userService.Login(userCredentials)
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserLogin, err))
 	}
-
-	// Create response cookie
+	// create response cookie
 	// TODO: add Secure flag after development (cookie will only be sent over HTTPS)
 	cookie := fiber.Cookie{
 		Name:     middleware.SessionCookieName,
@@ -150,7 +169,97 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 		HTTPOnly: true,
 		//Secure:   true,
 	}
-
 	c.Cookie(&cookie)
+
 	return Success(c, fiber.StatusOK, SuccessMsgUserLogin, user)
+}
+
+// Logout 		func logout user
+//
+//	@Summary	Logout User
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	dto.GeneralResponse
+//	@Router		/api/user/logout [post]
+func (h UserHandler) Logout(c *fiber.Ctx) error {
+	// get auth token from request
+	token := c.Cookies(middleware.SessionCookieName)
+	authToken, err := uuid.Parse(token)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, token, err))
+	}
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	// logout user
+	err = h.userService.Logout(requesterID, authToken)
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserLogout, err))
+	}
+	// delete cookie
+	c.ClearCookie(middleware.SessionCookieName)
+
+	return Success(c, fiber.StatusOK, SuccessMsgUserLogout, nil)
+}
+
+// Update 		func update user's username and profile image
+//
+//	@Summary	Update User
+//	@Tags		User
+//	@Accept		json
+//	@Produce	multipart/form-data
+//	@Param		id		path		string			true	"User ID"
+//	@Param		request	formData	dto.UserUpdate	true	"Request Body"
+//	@Param		image	formData	file			false	"User Image"
+//	@Success	200		{object}	dto.GeneralResponse
+//	@Router		/api/user/{id} [put]
+func (h UserHandler) Update(c *fiber.Ctx) error {
+	// parse parameter
+	id := c.Params("id")
+	if id == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
+	}
+	// parse user from request
+	var user dto.UserUpdate
+	if err = c.BodyParser(&user); err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
+	}
+	// try to parse file
+	var data []byte
+	file, err := c.FormFile("image")
+	// err == nil -> image is included
+	if err == nil {
+		// read the file content
+		content, fileErr := file.Open()
+		if fileErr != nil {
+			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, fileErr))
+		}
+		defer content.Close()
+		// convert file to byte array
+		data, fileErr = io.ReadAll(content)
+		if fileErr != nil {
+			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, fileErr))
+		}
+		// check for image type
+		contentType := http.DetectContentType(data)
+		if err = user.ValidateInputs(contentType); err != nil {
+			return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserUpdate, err))
+		}
+	}
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	// update user
+	retUser, err := h.userService.Update(requesterID, userID, user, data)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgUserUpdate, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserUpdate, err))
+	}
+
+	return Success(c, fiber.StatusOK, SuccessMsgUserUpdate, retUser)
 }

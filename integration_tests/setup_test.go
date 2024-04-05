@@ -2,6 +2,7 @@ package integration_tests
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
@@ -19,9 +20,30 @@ import (
 )
 
 var (
-	db  *database.Database
-	app *fiber.App
+	db            *database.Database
+	app           *fiber.App
+	sessionCookie = "session_cookie"
 )
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Helper functions
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func getStoredUserEntity(id uuid.UUID) (User, error) {
+	var user User
+	res := db.Context.Limit(1).
+		Preload("Groups.Owner").
+		Preload("Groups.Members").
+		Find(&user, "id = ?", id)
+	if res.Error != nil {
+		return User{}, res.Error
+	}
+	return user, nil
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Test environment setup functions
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // TestMain initializes the test environment. It is called before the tests are executed.
 func TestMain(m *testing.M) {
@@ -49,13 +71,12 @@ func setupTestEnv() {
 	initDB()
 
 	// setupTestEnv storage
-	userStorage, groupStorage, cookieStorage, billStorage, invitationStorage := setupStorage()
+	userStorage, groupStorage, cookieStorage, billStorage := setupStorage()
 
 	// services
 	userService := impl.NewUserService(&userStorage, &cookieStorage)
-	groupService := impl.NewGroupService(&groupStorage, &userStorage)
+	groupService := impl.NewGroupService(&groupStorage)
 	billService := impl.NewBillService(&billStorage, &groupStorage)
-	invitationService := impl.NewInvitationService(&invitationStorage, &groupStorage)
 
 	// password validator
 	passwordValidator, err := util.NewPasswordValidator()
@@ -65,9 +86,8 @@ func setupTestEnv() {
 
 	// handlers
 	userHandler := handler.NewUserHandler(&userService, passwordValidator)
-	groupHandler := handler.NewGroupHandler(&groupService, &invitationService)
+	groupHandler := handler.NewGroupHandler(&groupService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
-	invitationHandler := handler.NewInvitationHandler(&invitationService)
 
 	// authenticator
 	authenticator := middleware.NewAuthenticator(&cookieStorage)
@@ -76,14 +96,14 @@ func setupTestEnv() {
 	fiberApp := fiber.New()
 
 	// setupTestEnv routing
-	router.SetupRoutes(fiberApp, *userHandler, *groupHandler, *billHandler, *invitationHandler, *authenticator)
+	router.SetupRoutes(fiberApp, *userHandler, *groupHandler, *billHandler, *authenticator)
 
 	app = fiberApp
 }
 
 // setupStorage initializes and configures the storage components for the integration tests.
-func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICookieStorage, storage.IBillStorage, storage.IInvitationStorage) {
-	return db_storages.NewUserStorage(db), db_storages.NewGroupStorage(db), db_storages.NewCookieStorage(db), db_storages.NewBillStorage(db), db_storages.NewInvitationStorage(db)
+func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICookieStorage, storage.IBillStorage) {
+	return db_storages.NewUserStorage(db), db_storages.NewGroupStorage(db), db_storages.NewCookieStorage(db), db_storages.NewBillStorage(db)
 
 }
 

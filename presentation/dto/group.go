@@ -2,66 +2,47 @@ package dto
 
 import (
 	"errors"
-	. "github.com/google/uuid"
-	. "split-the-bill-server/domain/model"
+	"github.com/google/uuid"
+	"split-the-bill-server/domain/util"
 )
 
-type GroupInputDTO struct {
-	OwnerID UUID   `json:"ownerID"`
-	Name    string `json:"name"`
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Input/Output DTOs
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type GroupInput struct {
+	OwnerID uuid.UUID `json:"ownerID"`
+	Name    string    `json:"name"`
 }
 
-type GroupCoreOutputDTO struct {
-	Owner   UserCoreOutputDTO   `json:"owner"`
-	ID      UUID                `json:"id"`
-	Name    string              `json:"name"`
-	Members []UserCoreOutputDTO `json:"members"`
+type GroupDetailedOutput struct {
+	Owner        UserCoreOutput        `json:"owner"`
+	ID           uuid.UUID             `json:"id"`
+	Name         string                `json:"name"`
+	Members      []UserCoreOutput      `json:"members"`
+	Bills        []BillDetailedOutput  `json:"bills"`
+	Balance      map[uuid.UUID]float64 `json:"balance,omitempty"`      // include balance only if balance is set
+	InvitationID uuid.UUID             `json:"invitationID,omitempty"` // include invitationID only if invitationID is set
 }
 
-type GroupDetailedOutputDTO struct {
-	Owner   UserCoreOutputDTO       `json:"owner"`
-	ID      UUID                    `json:"id"`
-	Name    string                  `json:"name"`
-	Members []UserCoreOutputDTO     `json:"members"`
-	Bills   []BillDetailedOutputDTO `json:"bills"`
+type GroupDeletionOutput struct {
+	Transactions []util.Transaction `json:"transactions"`
 }
 
-func ToGroupModel(g GroupInputDTO) GroupModel {
-	return CreateGroupModel(g.OwnerID, g.Name, []UUID{g.OwnerID})
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Validators
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func ToGroupCoreDTO(g GroupModel) GroupCoreOutputDTO {
+func (g GroupInput) ValidateInput() error {
+	if g.OwnerID == uuid.Nil {
+		return ErrGroupOwnerIDRequired
 
-	owner := ToUserCoreDTO(&g.Owner)
-	members := ToUserCoreDTOs(g.Members)
-
-	return GroupCoreOutputDTO{
-		Owner:   owner,
-		ID:      g.ID,
-		Name:    g.Name,
-		Members: members,
 	}
-}
-
-func ToGroupDetailedDTO(g GroupModel) GroupDetailedOutputDTO {
-
-	billsDTO := ToBillDetailedDTOs(g.Bills)
-	owner := ToUserCoreDTO(&g.Owner)
-	members := ToUserCoreDTOs(g.Members)
-
-	return GroupDetailedOutputDTO{
-		Owner:   owner,
-		ID:      g.ID,
-		Name:    g.Name,
-		Members: members,
-		Bills:   billsDTO,
-	}
-}
-
-// ValidateInput validates the inputs of the group creation request
-func (g GroupInputDTO) ValidateInput() error {
 	if g.Name == "" {
-		return errors.New("name is required")
+		return ErrGroupNameRequired
 	}
 	return nil
 }
+
+var ErrGroupNameRequired = errors.New("name is required")
+var ErrGroupOwnerIDRequired = errors.New("ownerID is required")

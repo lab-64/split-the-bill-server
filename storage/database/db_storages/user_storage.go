@@ -4,10 +4,11 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	. "split-the-bill-server/domain/model"
+	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database"
-	. "split-the-bill-server/storage/database/entity"
+	"split-the-bill-server/storage/database/converter"
+	"split-the-bill-server/storage/database/entity"
 )
 
 type UserStorage struct {
@@ -19,63 +20,58 @@ func NewUserStorage(DB *Database) storage.IUserStorage {
 }
 
 func (u *UserStorage) Delete(id uuid.UUID) error {
-	tx := u.DB.Delete(&User{}, "id = ?", id)
+	tx := u.DB.Delete(&entity.User{}, "id = ?", id)
 	return tx.Error
 }
 
-func (u *UserStorage) GetAll() ([]UserModel, error) {
-	var users []User
+func (u *UserStorage) GetAll() ([]model.User, error) {
+	var users []entity.User
 	// find all users in the database
 	// TODO: GetAllUsers should not return an error, if no users are found
 	tx := u.DB.
-		Preload("Groups.Owner").
-		Preload("Groups.Members").
-		Preload("GroupInvitations").Find(&users)
+		Find(&users)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
 
 	// return users
-	return ToUserModelSlice(users), nil
+	return converter.ToUserModels(users), nil
 }
 
-func (u *UserStorage) GetByID(id uuid.UUID) (UserModel, error) {
-	var user User
+func (u *UserStorage) GetByID(id uuid.UUID) (model.User, error) {
+	var user entity.User
 	tx := u.DB.Limit(1).
-		Preload("Groups.Owner").
-		Preload("Groups.Members").
-		Preload("GroupInvitations").
 		Find(&user, "id = ?", id)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return UserModel{}, storage.NoSuchUserError
+			return model.User{}, storage.NoSuchUserError
 		}
-		return UserModel{}, tx.Error
+		return model.User{}, tx.Error
 	}
 	if tx.RowsAffected == 0 {
-		return UserModel{}, storage.NoSuchUserError
+		return model.User{}, storage.NoSuchUserError
 	}
-	return ToUserModel(user), nil
+	return converter.ToUserModel(user), nil
 }
 
-func (u *UserStorage) GetByEmail(email string) (UserModel, error) {
-	var user User
+func (u *UserStorage) GetByEmail(email string) (model.User, error) {
+	var user entity.User
 	// TODO: Verify that this is in fact not injectable
 	tx := u.DB.Take(&user, "email = ?", email)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return UserModel{}, storage.NoSuchUserError
+			return model.User{}, storage.NoSuchUserError
 		}
-		return UserModel{}, tx.Error
+		return model.User{}, tx.Error
 	}
 	if tx.RowsAffected == 0 {
-		return UserModel{}, storage.NoSuchUserError
+		return model.User{}, storage.NoSuchUserError
 	}
-	return ToUserModel(user), nil
+	return converter.ToUserModel(user), nil
 }
 
-func (u *UserStorage) Create(user UserModel, passwordHash []byte) (UserModel, error) {
-	item := ToUserEntity(user)
+func (u *UserStorage) Create(user model.User, passwordHash []byte) (model.User, error) {
+	item := converter.ToUserEntity(user)
 
 	// run as a transaction to ensure consistency. user shouldn't be created if saving credentials failed and vice versa
 	err := u.DB.Transaction(func(tx *gorm.DB) error {
@@ -90,7 +86,7 @@ func (u *UserStorage) Create(user UserModel, passwordHash []byte) (UserModel, er
 		}
 
 		// store credentials
-		res = tx.Create(&Credentials{UserID: item.ID, Hash: passwordHash})
+		res = tx.Create(&entity.Credentials{UserID: item.ID, Hash: passwordHash})
 		if res.Error != nil {
 			return storage.InvalidUserInputError
 		}
@@ -98,13 +94,21 @@ func (u *UserStorage) Create(user UserModel, passwordHash []byte) (UserModel, er
 		return nil
 	})
 
-	return ToUserModel(item), err
+	return converter.ToUserModel(item), err
+}
+
+func (u *UserStorage) Update(user model.User) (model.User, error) {
+	userEntity := entity.User{}
+
+	res := u.DB.Model(&entity.User{}).Where("id = ?", user.ID).Updates(entity.User{Username: user.Username, ProfileImgPath: user.ProfileImgPath}).First(&userEntity)
+	// TODO: error handling
+	return converter.ToUserModel(userEntity), res.Error
 }
 
 func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
-	var credentials Credentials
+	var credentials entity.Credentials
 	// get credentials from given user
-	res := u.DB.Limit(1).First(&credentials, Credentials{UserID: id})
+	res := u.DB.Limit(1).First(&credentials, entity.Credentials{UserID: id})
 	if res.Error != nil {
 		return nil, storage.NoCredentialsError
 	}

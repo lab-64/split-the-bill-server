@@ -1,59 +1,60 @@
 package dto
 
 import (
+	"errors"
 	"github.com/google/uuid"
-	. "split-the-bill-server/domain/model"
 	"time"
 )
 
-type BillInputDTO struct {
-	Owner   uuid.UUID      `json:"ownerID"`
-	Name    string         `json:"name"`
-	Date    time.Time      `json:"date"`
-	GroupID uuid.UUID      `json:"groupID"`
-	Items   []ItemInputDTO `json:"items"`
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Input/Output DTOs
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type BillCreate struct {
+	OwnerID uuid.UUID   `json:"ownerID"`
+	Name    string      `json:"name"`
+	Date    time.Time   `json:"date"`
+	GroupID uuid.UUID   `json:"groupID"`
+	Items   []ItemInput `json:"items"`
 }
 
-type BillDetailedOutputDTO struct {
-	ID      uuid.UUID       `json:"id"`
-	Name    string          `json:"name"`
-	Date    time.Time       `json:"date"`
-	Items   []ItemOutputDTO `json:"items"`
-	GroupID uuid.UUID       `json:"groupID"`
-	OwnerID uuid.UUID       `json:"ownerID"`
+type BillUpdate struct {
+	Name   string    `json:"name"`
+	Date   time.Time `json:"date"`
+	Viewed bool      `json:"isViewed,omitempty"`
 }
 
-func ToBillModel(b BillInputDTO) BillModel {
-	// convert each item
-	var items []ItemModel
-	for _, item := range b.Items {
-		items = append(items, ToItemModel(uuid.Nil, item))
+type BillDetailedOutput struct {
+	ID      uuid.UUID             `json:"id"`
+	Name    string                `json:"name"`
+	Date    time.Time             `json:"date"`
+	Items   []ItemOutput          `json:"items"`
+	GroupID uuid.UUID             `json:"groupID"`
+	Owner   UserCoreOutput        `json:"owner"`
+	Balance map[uuid.UUID]float64 `json:"balance,omitempty"` // include balance only if balance is set
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Validators
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (b BillCreate) ValidateInputs() error {
+	if b.OwnerID == uuid.Nil {
+		return ErrBillOwnerIDRequired
 	}
-	return CreateBillModel(b.Owner, b.Name, b.Date, b.GroupID, items)
+	if b.Name == "" {
+		return ErrBillNameRequired
+	}
+	if b.Date.IsZero() {
+		return ErrBillDateRequired
+	}
+	if b.GroupID == uuid.Nil {
+		return ErrBillGroupIDRequired
+	}
+	return nil
 }
 
-func ToBillDetailedDTOs(bills []BillModel) []BillDetailedOutputDTO {
-	billsDTO := make([]BillDetailedOutputDTO, len(bills))
-
-	for i, bill := range bills {
-		billsDTO[i] = ToBillDetailedDTO(bill)
-	}
-	return billsDTO
-}
-
-func ToBillDetailedDTO(bill BillModel) BillDetailedOutputDTO {
-	itemsDTO := make([]ItemOutputDTO, len(bill.Items))
-
-	for i, item := range bill.Items {
-		itemsDTO[i] = ToItemDTO(item)
-	}
-
-	return BillDetailedOutputDTO{
-		ID:      bill.ID,
-		Name:    bill.Name,
-		Date:    bill.Date,
-		Items:   itemsDTO,
-		OwnerID: bill.OwnerID,
-		GroupID: bill.GroupID,
-	}
-}
+var ErrBillOwnerIDRequired = errors.New("ownerID is required")
+var ErrBillNameRequired = errors.New("name is required")
+var ErrBillDateRequired = errors.New("date is required")
+var ErrBillGroupIDRequired = errors.New("groupID is required")

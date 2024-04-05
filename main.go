@@ -26,23 +26,29 @@ import (
 // @host		localhost:8080
 // @BasePath	/
 func main() {
-
+	// load environment variables
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// create storage directory for uploaded images
+	if err = os.MkdirAll("./uploads/profileImages", os.ModePerm); err != nil {
+		log.Fatal(err)
+	}
+
 	// configure webserver
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 4 * 1024 * 1024, // 4MB
+	})
 
 	// setup storage
-	userStorage, groupStorage, cookieStorage, billStorage, invitationStorage := setupStorage()
+	userStorage, groupStorage, cookieStorage, billStorage := setupStorage()
 
 	// services
 	userService := impl.NewUserService(&userStorage, &cookieStorage)
-	groupService := impl.NewGroupService(&groupStorage, &userStorage)
+	groupService := impl.NewGroupService(&groupStorage)
 	billService := impl.NewBillService(&billStorage, &groupStorage)
-	invitationService := impl.NewInvitationService(&invitationStorage, &groupStorage)
 
 	// password validator
 	passwordValidator, err := util.NewPasswordValidator()
@@ -52,9 +58,8 @@ func main() {
 
 	// handlers
 	userHandler := handler.NewUserHandler(&userService, passwordValidator)
-	groupHandler := handler.NewGroupHandler(&groupService, &invitationService)
+	groupHandler := handler.NewGroupHandler(&groupService)
 	billHandler := handler.NewBillHandler(&billService, &groupService)
-	invitationHandler := handler.NewInvitationHandler(&invitationService)
 
 	// setup logger
 	app.Use(logger.New())
@@ -63,7 +68,7 @@ func main() {
 	authenticator := middleware.NewAuthenticator(&cookieStorage)
 
 	// routing
-	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *invitationHandler, *authenticator)
+	router.SetupRoutes(app, *userHandler, *groupHandler, *billHandler, *authenticator)
 
 	// setup swagger
 	app.Get("/swagger/*", swagger.HandlerDefault) // default
@@ -83,7 +88,7 @@ func main() {
 }
 
 // setupStorage initializes and configures the storage components based on the STORAGE_TYPE environment variable.
-func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICookieStorage, storage.IBillStorage, storage.IInvitationStorage) {
+func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICookieStorage, storage.IBillStorage) {
 
 	storageType := os.Getenv("STORAGE_TYPE")
 
@@ -93,16 +98,16 @@ func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICooki
 		if err != nil {
 			log.Fatal(err)
 		}
-		return db_storages.NewUserStorage(db), db_storages.NewGroupStorage(db), db_storages.NewCookieStorage(db), db_storages.NewBillStorage(db), db_storages.NewInvitationStorage(db)
+		return db_storages.NewUserStorage(db), db_storages.NewGroupStorage(db), db_storages.NewCookieStorage(db), db_storages.NewBillStorage(db)
 	case "ephemeral":
 		db, err := ephemeral.NewEphemeral()
 		if err != nil {
 			log.Fatal(err)
 		}
 		// TODO: add invitation storage in ephemeral
-		return eph_storages.NewUserStorage(db), eph_storages.NewGroupStorage(db), eph_storages.NewCookieStorage(db), eph_storages.NewBillStorage(db), nil
+		return eph_storages.NewUserStorage(db), eph_storages.NewGroupStorage(db), eph_storages.NewCookieStorage(db), eph_storages.NewBillStorage(db)
 	default:
 		log.Fatalf("Unsupported storage type: %s", storageType)
-		return nil, nil, nil, nil, nil
+		return nil, nil, nil, nil
 	}
 }

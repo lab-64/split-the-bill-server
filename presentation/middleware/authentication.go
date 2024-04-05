@@ -42,7 +42,6 @@ func (a *Authenticator) Authenticate(c *fiber.Ctx) error {
 
 	// get auth cookie from storage
 	sessionCookie, err := a.cookieStorage.GetCookieFromToken(tokenUUID)
-
 	if err != nil {
 		return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgAuthentication, err))
 	}
@@ -63,7 +62,7 @@ func (a *Authenticator) Authenticate(c *fiber.Ctx) error {
 }
 
 // isSessionCookieValid validates the given session cookie by checking if the ValidBefore time is in the future. Returns SessionExpiredError if the cookie is not valid anymore.
-func isSessionCookieValid(cookie AuthCookieModel) error {
+func isSessionCookieValid(cookie AuthCookie) error {
 	if cookie.ValidBefore.After(time.Now()) {
 		return nil
 	} else {

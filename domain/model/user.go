@@ -4,21 +4,18 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserModel struct {
-	ID                      uuid.UUID
-	Email                   string
-	PendingGroupInvitations []GroupInvitationModel
-	Groups                  []GroupModel
-	Items                   []ItemModel
+type User struct {
+	ID             uuid.UUID
+	Email          string
+	Username       string
+	ProfileImgPath string
 }
 
-func CreateUserModel(email string) UserModel {
-	return UserModel{
-		ID:    uuid.New(),
-		Email: email,
+func CreateUser(id uuid.UUID, email string, username string, profileImg string) User {
+	return User{
+		ID:             id,
+		Email:          email,
+		Username:       username,
+		ProfileImgPath: profileImg,
 	}
-}
-
-func (u UserModel) Equals(other UserModel) bool {
-	return u.ID == other.ID && u.Email == other.Email
 }
