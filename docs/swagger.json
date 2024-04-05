@@ -5,7 +5,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "stb-server.lab64.eu",
     "basePath": "/",
     "paths": {
         "/api/bill": {
