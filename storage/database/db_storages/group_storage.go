@@ -103,9 +103,18 @@ func (g *GroupStorage) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]mo
 }
 
 func (g *GroupStorage) DeleteGroup(id uuid.UUID) error {
-	// Delete group, all associations will be deleted as well because of the foreign key constraints
-	res := g.DB.Delete(&entity.Group{Base: entity.Base{ID: id}})
-	if res.Error != nil {
+	// Delete entries from the unseen_bills table
+	if err := g.DB.Exec("DELETE FROM unseen_bills WHERE bill_id IN (SELECT id FROM bills WHERE group_id = ?)", id).Error; err != nil {
+		return err
+	}
+
+	// Delete the bills associated with the group
+	if err := g.DB.Where("group_id = ?", id).Delete(&entity.Bill{}).Error; err != nil {
+		return err
+	}
+
+	// Delete the group
+	if err := g.DB.Delete(&entity.Group{}, id).Error; err != nil {
 		return storage.NoSuchGroupError
 	}
 	return nil
