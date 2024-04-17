@@ -95,7 +95,11 @@ func (b *BillStorage) GetByID(id uuid.UUID) (model.Bill, error) {
 }
 
 func (b *BillStorage) DeleteBill(id uuid.UUID) error {
-	res := b.DB.Delete(&entity.Bill{}, "id = ?", id)
+	bill := entity.Bill{
+		Base: entity.Base{ID: id},
+	}
+
+	res := b.DB.Select(clause.Associations).Delete(&bill)
 	if res.Error != nil {
 		return storage.NoSuchBillError
 	}
