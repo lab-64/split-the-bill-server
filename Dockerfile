@@ -1,25 +1,25 @@
+# syntax=docker/dockerfile:1
+
 FROM golang:alpine
-
-# Set env variables
-ENV PROJECT_DIR=/app \
-    GO111MODULE=on \
-    CGO_ENABLED=0
-
-# Set the working directory inside the container
+# Set destination for COPY
 WORKDIR /app
 
-# Add folder for the build file
-RUN mkdir "build"
+# Download Go modules
+COPY go.mod go.sum ./
+RUN go mod download
 
-# Copy the necessary files to the container
-COPY . .
+# Copy the source code. Note the slash at the end, as explained in
+# https://docs.docker.com/reference/dockerfile/#copy
+COPY . ./
 
-# Install CompileDeamon to enable Live Reload
-RUN go get github.com/githubnemo/CompileDaemon
-RUN go install github.com/githubnemo/CompileDaemon
+# Build
+RUN CGO_ENABLED=0 GOOS=linux go build -o /go-app
 
-# Expose port 8080 for the webserver
-EXPOSE 8080
+# Optional:
+# To bind to a TCP port, runtime parameters must be supplied to the docker command.
+# But we can document in the .Dockerfile_2 what ports
+# the application is going to listen on by default.
+# https://docs.docker.com/reference/dockerfile/#expose
 
-# Command to run the Go application
-ENTRYPOINT CompileDaemon -build="go build -o /build/app" -command="/build/app" -log-prefix="false" -color="true"
+# Run
+CMD ["/go-app"]
