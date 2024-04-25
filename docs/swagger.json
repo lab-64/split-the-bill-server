@@ -5,7 +5,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "stb-server.lab64.eu",
+    "host": "stb-server3-jteqgnayba-ew.a.run.app",
     "basePath": "/",
     "paths": {
         "/api/bill": {

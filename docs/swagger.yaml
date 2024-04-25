@@ -146,7 +146,7 @@ definitions:
       debtorID:
         type: string
     type: object
-host: stb-server.lab64.eu
+host: stb-server3-jteqgnayba-ew.a.run.app
 info:
   contact: {}
   title: Split The Bill API

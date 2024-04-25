@@ -5,7 +5,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 	_ "split-the-bill-server/docs"
@@ -17,23 +16,16 @@ import (
 	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/database"
 	"split-the-bill-server/storage/database/db_storages"
-	"split-the-bill-server/storage/ephemeral"
-	"split-the-bill-server/storage/ephemeral/eph_storages"
 )
 
 // @title		Split The Bill API
 // @version	1.0
-// @host		stb-server.lab64.eu
+// @host		stb-server3-jteqgnayba-ew.a.run.app
 // @BasePath	/
 func main() {
-	// load environment variables
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	// create storage directory for uploaded images
-	if err = os.MkdirAll("./uploads/profileImages", os.ModePerm); err != nil {
+	if err := os.MkdirAll("./uploads/profileImages", os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
 
@@ -81,33 +73,23 @@ func main() {
 		return c.SendStatus(404) // => 404 "Not Found"
 	})
 
-	err = app.Listen(":8080")
+	// load port, port is provided by Google Run
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	err = app.Listen(":" + port)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-// setupStorage initializes and configures the storage components based on the STORAGE_TYPE environment variable.
+// setupStorage initializes and configures the storage components for a Google SQL database.
 func setupStorage() (storage.IUserStorage, storage.IGroupStorage, storage.ICookieStorage, storage.IBillStorage) {
-
-	storageType := os.Getenv("STORAGE_TYPE")
-
-	switch storageType {
-	case "postgres":
-		db, err := database.NewDatabase()
-		if err != nil {
-			log.Fatal(err)
-		}
-		return db_storages.NewUserStorage(db), db_storages.NewGroupStorage(db), db_storages.NewCookieStorage(db), db_storages.NewBillStorage(db)
-	case "ephemeral":
-		db, err := ephemeral.NewEphemeral()
-		if err != nil {
-			log.Fatal(err)
-		}
-		// TODO: add invitation storage in ephemeral
-		return eph_storages.NewUserStorage(db), eph_storages.NewGroupStorage(db), eph_storages.NewCookieStorage(db), eph_storages.NewBillStorage(db)
-	default:
-		log.Fatalf("Unsupported storage type: %s", storageType)
-		return nil, nil, nil, nil
+	db, err := database.NewDatabase()
+	if err != nil {
+		log.Fatal(err)
 	}
+	return db_storages.NewUserStorage(db), db_storages.NewGroupStorage(db), db_storages.NewCookieStorage(db), db_storages.NewBillStorage(db)
+
 }
