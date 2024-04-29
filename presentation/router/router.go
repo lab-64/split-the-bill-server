@@ -12,7 +12,7 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 
 	// Define landing page
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello World, now with Continuous Deployment!")
+		return c.SendString("Hello World")
 	})
 
 	// Manage DeepLink
