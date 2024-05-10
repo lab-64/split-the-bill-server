@@ -66,11 +66,7 @@ func (b *BillStorage) UpdateBill(bill model.Bill) (model.Bill, error) {
 			Association("UnseenFrom").
 			Replace(billEntity.UnseenFrom)
 
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return err
 	})
 
 	return converter.ToBillModel(billEntity), err
