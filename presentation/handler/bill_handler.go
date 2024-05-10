@@ -169,7 +169,7 @@ func (h BillHandler) Delete(c *fiber.Ctx) error {
 //	@Param		userId		query		string	true	"User ID"
 //	@Param		isUnseen	query		bool	false	"Is Unseen"
 //	@Param		isOwner		query		bool	false	"Is Owner"
-//	@Success	200			{object}	dto.GeneralResponse
+//	@Success	200			{object}	dto.GeneralResponse{data=[]dto.BillDetailedOutput}
 //	@Router		/api/bill [get]
 func (h BillHandler) GetAllByUser(c *fiber.Ctx) error {
 	// parse query parameters

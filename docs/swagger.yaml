@@ -176,7 +176,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GeneralResponse'
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.BillDetailedOutput'
+                  type: array
+              type: object
       summary: Get All Bills by User
       tags:
       - Bill
