@@ -2,6 +2,7 @@ package impl
 
 import (
 	"github.com/google/uuid"
+	"sort"
 	. "split-the-bill-server/domain"
 	"split-the-bill-server/domain/converter"
 	"split-the-bill-server/domain/model"
@@ -70,6 +71,11 @@ func (g *GroupService) GetByID(requesterID uuid.UUID, id uuid.UUID) (dto.GroupDe
 	if !group.IsMember(requesterID) {
 		return dto.GroupDetailedOutput{}, ErrNotAuthorized
 	}
+
+	// sort bills by date descending
+	sort.Slice(group.Bills, func(i, j int) bool {
+		return group.Bills[i].Date.After(group.Bills[j].Date)
+	})
 
 	balance := group.CalculateBalance()
 	group.Balance = balance
