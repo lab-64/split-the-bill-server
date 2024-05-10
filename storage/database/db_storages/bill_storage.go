@@ -68,6 +68,10 @@ func (b *BillStorage) UpdateBill(bill model.Bill) (model.Bill, error) {
 			Association("UnseenFrom").
 			Replace(billEntity.UnseenFrom)
 
+		if err != nil {
+			return err
+		}
+
 		// delete old items
 		err = tx.
 			Where("bill_id = ?", billEntity.ID).
