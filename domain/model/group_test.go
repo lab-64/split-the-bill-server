@@ -45,3 +45,9 @@ func TestGroup_IsMember(t *testing.T) {
 	assert.True(t, TestGroup.IsMember(TestUser3.ID))
 	assert.False(t, TestGroup.IsMember(uuid.New()))
 }
+
+func TestGroup_SortBillsByDate(t *testing.T) {
+	TestGroup.SortBillsByDate()
+	assert.Equal(t, TestBill2.ID, TestGroup.Bills[0].ID)
+	assert.Equal(t, TestBill.ID, TestGroup.Bills[1].ID)
+}
