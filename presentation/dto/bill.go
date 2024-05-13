@@ -22,7 +22,7 @@ type BillUpdate struct {
 	Name   string      `json:"name"`
 	Date   time.Time   `json:"date"`
 	Viewed bool        `json:"isViewed,omitempty"`
-	Items  []ItemInput `json:"items"`
+	Items  []ItemInput `json:"items,omitempty"`
 }
 
 type BillDetailedOutput struct {

@@ -38,8 +38,13 @@ func (b *BillService) Create(requesterID uuid.UUID, billDTO dto.BillCreate) (dto
 			unseenFrom = append(unseenFrom, member.ID)
 		}
 	}
+	// create new items
+	var items []model.Item
+	for _, item := range billDTO.Items {
+		items = append(items, model.CreateItem(uuid.New(), item))
+	}
 	// create new bill model including items
-	bill := model.CreateBill(uuid.New(), billDTO.OwnerID, billDTO.Name, billDTO.Date, billDTO.GroupID, billDTO.Items, unseenFrom)
+	bill := model.CreateBill(uuid.New(), billDTO.OwnerID, billDTO.Name, billDTO.Date, billDTO.GroupID, items, unseenFrom)
 	// store bill in billStorage
 	bill, err = b.billStorage.Create(bill)
 	if err != nil {
@@ -68,8 +73,17 @@ func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dt
 	if billDTO.Viewed {
 		bill.UnseenFromUserID = removeEntryFromSlice(bill.UnseenFromUserID, requesterID)
 	}
-	// update bill fields: name, date, unseenFromUserID
-	updatedBill := model.CreateBill(bill.ID, bill.Owner.ID, billDTO.Name, billDTO.Date, bill.GroupID, billDTO.Items, bill.UnseenFromUserID)
+
+	// update items if available
+	var items = bill.Items
+	if len(billDTO.Items) > 0 {
+		items = make([]model.Item, 0)
+		for _, item := range billDTO.Items {
+			items = append(items, model.CreateItem(uuid.New(), item))
+		}
+	}
+	// update bill fields: name, date, items, unseenFromUserID
+	updatedBill := model.CreateBill(bill.ID, bill.Owner.ID, billDTO.Name, billDTO.Date, bill.GroupID, items, bill.UnseenFromUserID)
 	updatedBill.ID = bill.ID
 	bill, err = b.billStorage.UpdateBill(updatedBill)
 	if err != nil {
