@@ -49,8 +49,10 @@ func (b *BillStorage) UpdateBill(bill model.Bill) (model.Bill, error) {
 		// update base bill fields
 		ret := b.DB.
 			Omit(clause.Associations).
+			Preload("Owner").
 			Model(&billEntity).
-			Updates(&billEntity)
+			Updates(&billEntity).
+			First(&billEntity)
 
 		if ret.RowsAffected == 0 {
 			return storage.NoSuchBillError
@@ -70,7 +72,22 @@ func (b *BillStorage) UpdateBill(bill model.Bill) (model.Bill, error) {
 			return err
 		}
 
-		return nil
+		// delete old items
+		err = tx.
+			Where("bill_id = ?", billEntity.ID).
+			Delete(&entity.Item{}).
+			Error
+
+		// insert new items with contributors
+		for _, item := range billEntity.Items {
+			err = tx.
+				Preload("Contributors").
+				Create(&item).
+				First(&item, "id = ?", item.ID).
+				Error
+		}
+
+		return err
 	})
 
 	return converter.ToBillModel(billEntity), err
@@ -100,87 +117,6 @@ func (b *BillStorage) DeleteBill(id uuid.UUID) error {
 	}
 
 	res := b.DB.Select(clause.Associations).Delete(&bill)
-	if res.Error != nil {
-		return storage.NoSuchBillError
-	}
-	return nil
-}
-
-func (b *BillStorage) CreateItem(item model.Item) (model.Item, error) {
-	itemEntity := converter.ToItemEntity(item)
-
-	// TODO: if userId belongs to deleted user do not create
-	// store item
-	res := b.DB.
-		Omit("Contributors.*"). // do not update user fields
-		Preload("Contributors").
-		Create(&itemEntity).
-		First(&itemEntity, "id = ?", itemEntity.ID)
-
-	// TODO: check if other errors can occur
-	if res.Error != nil {
-		return model.Item{}, storage.NoSuchBillError
-	}
-	if res.RowsAffected == 0 {
-		return model.Item{}, storage.ItemAlreadyExistsError
-	}
-
-	return converter.ToItemModel(itemEntity), nil
-}
-
-func (b *BillStorage) GetItemByID(id uuid.UUID) (model.Item, error) {
-	var item entity.Item
-	tx := b.DB.Preload("Contributors").Limit(1).Find(&item, "id = ?", id)
-	if tx.RowsAffected == 0 {
-		return model.Item{}, storage.NoSuchItemError
-	}
-	return converter.ToItemModel(item), nil
-}
-
-// TODO: modify update method to only update the contributors list and not the whole item
-func (b *BillStorage) UpdateItem(item model.Item) (model.Item, error) {
-	itemEntity := converter.ToItemEntity(item)
-
-	// run as a transaction to ensure consistency. item should be completely updated or not at all
-	err := b.DB.Transaction(func(tx *gorm.DB) error {
-
-		// update contributors associations
-		res := tx.
-			Omit("Contributors.*"). // do not update user fields
-			Model(&itemEntity).
-			Association("Contributors").
-			Replace(itemEntity.Contributors)
-
-		// TODO: add finer error handling
-		if res != nil {
-			return storage.NoSuchUserError
-		}
-
-		// update base item fields
-		ret := tx.
-			Omit(clause.Associations). // do not update associations
-			Preload("Contributors").
-			Model(&itemEntity).
-			Updates(&itemEntity).
-			First(&itemEntity)
-
-		if ret.RowsAffected == 0 {
-			return storage.NoSuchItemError
-		}
-
-		// TODO: add finer error handling
-		if ret.Error != nil {
-			return ret.Error
-		}
-
-		return nil
-	})
-
-	return converter.ToItemModel(itemEntity), err
-}
-
-func (b *BillStorage) DeleteItem(id uuid.UUID) error {
-	res := b.DB.Delete(&entity.Item{}, "id = ?", id)
 	if res.Error != nil {
 		return storage.NoSuchBillError
 	}

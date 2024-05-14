@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"sort"
 	"split-the-bill-server/presentation/dto"
 )
 
@@ -47,6 +48,13 @@ func (group *Group) CalculateBalance() map[uuid.UUID]float64 {
 		group.Bills[i].Balance = billBalance
 	}
 	return balance
+}
+
+// SortBillsByDate Sort bills by date descending
+func (group *Group) SortBillsByDate() {
+	sort.Slice(group.Bills, func(i, j int) bool {
+		return group.Bills[i].Date.After(group.Bills[j].Date)
+	})
 }
 
 func (group *Group) IsMember(memberID uuid.UUID) bool {
