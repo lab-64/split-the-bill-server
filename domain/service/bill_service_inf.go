@@ -25,5 +25,5 @@ type IBillService interface {
 	// GetAllByUserID returns all the bills of the given user according to the filter.
 	// If no filter is provided, all bills from the groups in which the user is a member are returned.
 	// *Authorization required: requester == userID
-	GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID, isUnseen bool, isOwner bool) ([]dto.BillDetailedOutput, error)
+	GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID, isUnseen *bool, isOwner *bool) ([]dto.BillDetailedOutput, error)
 }

@@ -34,7 +34,7 @@ func (b *BillService) Create(requesterID uuid.UUID, billDTO dto.BillCreate) (dto
 	groupMembers := group.Members
 	unseenFrom := make([]uuid.UUID, 0)
 	for _, member := range groupMembers {
-		if member.ID != group.Owner.ID {
+		if member.ID != billDTO.OwnerID {
 			unseenFrom = append(unseenFrom, member.ID)
 		}
 	}
@@ -129,7 +129,7 @@ func (b *BillService) Delete(requesterID uuid.UUID, id uuid.UUID) error {
 	return b.billStorage.DeleteBill(id)
 }
 
-func (b *BillService) GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID, isUnseen bool, isOwner bool) ([]dto.BillDetailedOutput, error) {
+func (b *BillService) GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID, isUnseen *bool, isOwner *bool) ([]dto.BillDetailedOutput, error) {
 	// Authorization
 	if userID != requesterID {
 		return nil, domain.ErrNotAuthorized
@@ -143,22 +143,21 @@ func (b *BillService) GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID, is
 	var billDTOs []dto.BillDetailedOutput
 	for _, group := range groups {
 		for _, bill := range group.Bills {
-			// apply isUnseen and isOwner filter
-			if (isUnseen && bill.IsUnseen(userID)) || (isOwner && bill.Owner.ID == userID) {
-				// set balance
-				billPointer := &bill
-				billPointer.Balance = billPointer.CalculateBalance()
-				// store bill in return array
-				billDTOs = append(billDTOs, converter.ToBillDetailedDTO(bill))
+			// apply isUnseen filter
+			if isUnseen != nil && *isUnseen != bill.IsUnseen(userID) {
+				continue
 			}
-			// if no filter is set, return all bills
-			if !isUnseen && !isOwner {
-				// set balance
-				billPointer := &bill
-				billPointer.Balance = billPointer.CalculateBalance()
-				// store bill in return array
-				billDTOs = append(billDTOs, converter.ToBillDetailedDTO(bill))
+
+			// apply isOwner filter
+			if isOwner != nil && *isOwner != (bill.Owner.ID == userID) {
+				continue
 			}
+
+			// set balance
+			billPointer := &bill
+			billPointer.Balance = billPointer.CalculateBalance()
+			// store bill in return array
+			billDTOs = append(billDTOs, converter.ToBillDetailedDTO(bill))
 		}
 	}
 	return billDTOs, err

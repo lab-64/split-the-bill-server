@@ -10,6 +10,7 @@ import (
 	. "split-the-bill-server/presentation"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/middleware"
+	"strconv"
 )
 
 type BillHandler struct {
@@ -181,13 +182,15 @@ func (h BillHandler) GetAllByUser(c *fiber.Ctx) error {
 	if err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
 	}
-	isUnseen := false
-	if c.Query("isUnseen") == "true" {
-		isUnseen = true
+
+	var isUnseen *bool
+	if isUnseenParam, err := strconv.ParseBool(c.Query("isUnseen")); err == nil {
+		isUnseen = &isUnseenParam
 	}
-	isOwner := false
-	if c.Query("isOwner") == "true" {
-		isOwner = true
+
+	var isOwner *bool
+	if isOwnerParam, err := strconv.ParseBool(c.Query("isOwner")); err == nil {
+		isOwner = &isOwnerParam
 	}
 	// get authenticated requester from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
