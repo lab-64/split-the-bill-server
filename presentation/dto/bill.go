@@ -19,9 +19,10 @@ type BillCreate struct {
 }
 
 type BillUpdate struct {
-	Name   string    `json:"name"`
-	Date   time.Time `json:"date"`
-	Viewed bool      `json:"isViewed,omitempty"`
+	Name   string      `json:"name"`
+	Date   time.Time   `json:"date"`
+	Viewed bool        `json:"isViewed,omitempty"`
+	Items  []ItemInput `json:"items,omitempty"`
 }
 
 type BillDetailedOutput struct {
