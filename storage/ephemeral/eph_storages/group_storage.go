@@ -76,3 +76,8 @@ func (g *GroupStorage) CreateGroupTransaction(transaction model.GroupTransaction
 	//TODO implement me
 	panic("implement me")
 }
+
+func (g *GroupStorage) GetAllGroupTransactions(userID uuid.UUID) ([]model.GroupTransaction, error) {
+	//TODO implement me
+	panic("implement me")
+}

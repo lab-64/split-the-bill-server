@@ -146,3 +146,21 @@ func (g *GroupService) CreateGroupTransaction(requesterID uuid.UUID, groupID uui
 
 	return converter.ToGroupTransactionDTO(groupTransaction), nil
 }
+
+func (g *GroupService) GetAllGroupTransactions(requesterID uuid.UUID, userID uuid.UUID) ([]dto.GroupTransactionOutput, error) {
+	// Authorization
+	if userID != uuid.Nil && requesterID != userID {
+		return nil, ErrNotAuthorized
+	}
+	groupTransactions, err := g.groupStorage.GetAllGroupTransactions(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var groupTransactionsDTO []dto.GroupTransactionOutput
+	for _, groupTransaction := range groupTransactions {
+		groupTransactionsDTO = append(groupTransactionsDTO, converter.ToGroupTransactionDTO(groupTransaction))
+	}
+
+	return groupTransactionsDTO, nil
+}

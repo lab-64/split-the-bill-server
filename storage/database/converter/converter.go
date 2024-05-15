@@ -179,6 +179,14 @@ func ToGroupTransactionModel(g entity.GroupTransaction) model.GroupTransaction {
 	}
 }
 
+func ToGroupTransactionModels(g []entity.GroupTransaction) []model.GroupTransaction {
+	s := make([]model.GroupTransaction, len(g))
+	for i, groupTransaction := range g {
+		s[i] = ToGroupTransactionModel(groupTransaction)
+	}
+	return s
+}
+
 func ToTransactionModel(t entity.Transaction) model.Transaction {
 	return model.Transaction{
 		Debtor:   ToUserModel(t.Debtor),

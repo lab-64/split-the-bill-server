@@ -23,9 +23,11 @@ const (
 
 	// Group transaction - ERROR
 	ErrMsgGroupTransactionCreate = "Could not create group transaction: %v"
+	ErrMsgGetUserTransactions    = "Could not get group transaction: %v"
 
 	// Group transaction - SUCCESS
 	SuccessMsgGroupTransactionCreate = "Group transaction created"
+	SuccessMsgGroupTransactionFound  = "Group transaction found"
 
 	// Bill - ERROR
 	ErrMsgBillParse    = "Could not parse bill: %v"

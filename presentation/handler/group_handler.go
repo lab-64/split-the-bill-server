@@ -274,3 +274,33 @@ func (h GroupHandler) CreateGroupTransaction(c *fiber.Ctx) error {
 
 	return Success(c, fiber.StatusCreated, SuccessMsgGroupTransactionCreate, transaction)
 }
+
+// GetAllGroupTransactions returns all group transactions with applied filter.
+//
+//	@Summary	Get Group Transactions by User
+//	@Tags		Group
+//	@Accept		json
+//	@Produce	json
+//	@Param		userId	query		string	true	"User ID"
+//	@Success	200		{object}	dto.GeneralResponse{data=[]dto.GroupTransactionOutput}
+//	@Router		/api/group/transaction [get]
+func (h GroupHandler) GetAllGroupTransactions(c *fiber.Ctx) error {
+	// parse query parameters
+	userID := c.Query("userId")
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, userID, err))
+	}
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
+	transactions, err := h.groupService.GetAllGroupTransactions(requesterID, userUUID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGetUserTransactions, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGetUserTransactions, err))
+	}
+
+	return Success(c, fiber.StatusOK, SuccessMsgGroupTransactionFound, transactions)
+}

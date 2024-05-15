@@ -470,6 +470,33 @@ paths:
       summary: Accept Group Invitation
       tags:
       - Group
+  /api/group/transaction:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: User ID
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.GroupTransactionOutput'
+                  type: array
+              type: object
+      summary: Get Group Transactions by User
+      tags:
+      - Group
   /api/user:
     get:
       consumes:

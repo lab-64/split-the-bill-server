@@ -166,3 +166,20 @@ func (g *GroupStorage) CreateGroupTransaction(transaction model.GroupTransaction
 
 	return converter.ToGroupTransactionModel(groupTransactionEntity), err
 }
+
+func (g *GroupStorage) GetAllGroupTransactions(userID uuid.UUID) ([]model.GroupTransaction, error) {
+	var groupTransactions []entity.GroupTransaction
+
+	tx := g.DB.
+		Preload(clause.Associations).
+		Preload("Transactions.Debtor").
+		Preload("Transactions.Creditor").
+		Where("group_id IN (SELECT group_id FROM group_members WHERE user_id = ?)", userID).
+		Find(&groupTransactions)
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return converter.ToGroupTransactionModels(groupTransactions), nil
+}

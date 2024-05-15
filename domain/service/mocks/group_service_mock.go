@@ -14,6 +14,7 @@ var (
 	MockGroupAcceptGroupInvitation func(invitationID uuid.UUID, userID uuid.UUID) error
 	MockGroupDelete                func(requesterID uuid.UUID, id uuid.UUID) error
 	MockGroupTransactionCreate     func(requesterID uuid.UUID, id uuid.UUID) (dto.GroupTransactionOutput, error)
+	MockGroupTransactionGetAll     func(requesterID uuid.UUID, userID uuid.UUID) ([]dto.GroupTransactionOutput, error)
 )
 
 func NewGroupServiceMock() service.IGroupService {
@@ -49,4 +50,8 @@ func (g GroupServiceMock) AcceptGroupInvitation(invitationID uuid.UUID, userID u
 
 func (g GroupServiceMock) CreateGroupTransaction(requesterID uuid.UUID, groupID uuid.UUID) (dto.GroupTransactionOutput, error) {
 	return MockGroupTransactionCreate(requesterID, groupID)
+}
+
+func (g GroupServiceMock) GetAllGroupTransactions(requesterID uuid.UUID, userID uuid.UUID) ([]dto.GroupTransactionOutput, error) {
+	return MockGroupTransactionGetAll(requesterID, userID)
 }

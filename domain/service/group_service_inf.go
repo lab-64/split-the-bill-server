@@ -32,4 +32,8 @@ type IGroupService interface {
 	// CreateGroupTransaction creates a new group transaction and removes all bills from the group.
 	// *Authorization required: requester == group.Owner
 	CreateGroupTransaction(requesterID uuid.UUID, groupID uuid.UUID) (dto.GroupTransactionOutput, error)
+
+	// GetAllGroupTransactions returns all transactions for groups in which the user is a member.
+	// *Authorization required: requesterID == id (for param: userID)
+	GetAllGroupTransactions(requesterID uuid.UUID, userID uuid.UUID) ([]dto.GroupTransactionOutput, error)
 }
