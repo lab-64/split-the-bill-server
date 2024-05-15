@@ -23,4 +23,7 @@ type IGroupStorage interface {
 
 	// AcceptGroupInvitation adds the associated user to a group
 	AcceptGroupInvitation(invitationID UUID, userID UUID) error
+
+	// CreateGroupTransaction creates a new group transaction and clears the group
+	CreateGroupTransaction(transaction model.GroupTransaction) (model.GroupTransaction, error)
 }

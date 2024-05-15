@@ -21,6 +21,12 @@ const (
 	SuccessMsgGroupUpdate = "Group updated"
 	SuccessMsgGroupDelete = "Group deleted"
 
+	// Group transaction - ERROR
+	ErrMsgGroupTransactionCreate = "Could not create group transaction: %v"
+
+	// Group transaction - SUCCESS
+	SuccessMsgGroupTransactionCreate = "Group transaction created"
+
 	// Bill - ERROR
 	ErrMsgBillParse    = "Could not parse bill: %v"
 	ErrMsgBillCreate   = "Could not create bill: %v"
@@ -35,19 +41,6 @@ const (
 	SuccessMsgBillUpdate = "Bill updated"
 	SuccessMsgBillGetAll = "Bills found"
 	SuccessMsgBillDelete = "Bill deleted"
-
-	// Item - ERROR
-	ErrMsgItemParse    = "Could not parse item: %v"
-	ErrMsgItemCreate   = "Could not create item: %v"
-	ErrMsgItemUpdate   = "Could not update item: %v"
-	ErrMsgItemNotFound = "Item not found: %v"
-	ErrMsgItemDelete   = "Could not delete item: %v"
-
-	// Item - SUCCESS
-	SuccessMsgItemCreate = "Item created"
-	SuccessMsgItemUpdate = "Item updated"
-	SuccessMsgItemFound  = "Item found"
-	SuccessMsgItemDelete = "Item deleted"
 
 	// User - ERROR
 	ErrMsgUserParse            = "Could not parse user: %v"
@@ -72,7 +65,6 @@ const (
 
 	// Invitation - ERROR
 	ErrMsgInvitationHandle = "Could not handle invitation: %v"
-	ErrMsgInvitationParse  = "Could not parse invitation: %v"
 
 	// Invitation - SUCCESS
 	SuccessMsgInvitationHandled = "Invitation handled"

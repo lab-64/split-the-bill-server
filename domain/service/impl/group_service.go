@@ -6,9 +6,9 @@ import (
 	"split-the-bill-server/domain/converter"
 	"split-the-bill-server/domain/model"
 	. "split-the-bill-server/domain/service"
-	"split-the-bill-server/domain/util"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/storage"
+	"time"
 )
 
 type GroupService struct {
@@ -98,23 +98,51 @@ func (g *GroupService) GetAll(requesterID uuid.UUID, userID uuid.UUID, invitatio
 	return groupsDTO, nil
 }
 
-func (g *GroupService) Delete(requesterID uuid.UUID, id uuid.UUID) (dto.GroupDeletionOutput, error) {
+func (g *GroupService) Delete(requesterID uuid.UUID, id uuid.UUID) error {
 	// get group
 	group, err := g.groupStorage.GetGroupByID(id)
 	if err != nil {
-		return dto.GroupDeletionOutput{}, err
+		return err
 	}
 	// Authorization
 	if requesterID != group.Owner.ID {
-		return dto.GroupDeletionOutput{}, ErrNotAuthorized
+		return ErrNotAuthorized
 	}
-	// calculate transactions to clear balance
-	transactions := util.ProduceTransactionsFromBalance(group.CalculateBalance())
+
 	// delete group
-	return dto.GroupDeletionOutput{Transactions: transactions}, g.groupStorage.DeleteGroup(id)
+	return g.groupStorage.DeleteGroup(id)
 }
 
 func (g *GroupService) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
 	err := g.groupStorage.AcceptGroupInvitation(invitationID, userID)
 	return err
+}
+
+func (g *GroupService) CreateGroupTransaction(requesterID uuid.UUID, groupID uuid.UUID) (dto.GroupTransactionOutput, error) {
+	group, err := g.groupStorage.GetGroupByID(groupID)
+	if err != nil {
+		return dto.GroupTransactionOutput{}, err
+	}
+
+	// Authorization
+	if requesterID != group.Owner.ID {
+		return dto.GroupTransactionOutput{}, ErrNotAuthorized
+	}
+
+	transactions := model.ProduceTransactionsFromBalance(group.CalculateBalance())
+
+	groupTransaction := model.GroupTransaction{
+		ID:           uuid.New(),
+		GroupID:      groupID,
+		Date:         time.Now(),
+		Transactions: transactions,
+	}
+
+	groupTransaction, err = g.groupStorage.CreateGroupTransaction(groupTransaction)
+
+	if err != nil {
+		return dto.GroupTransactionOutput{}, err
+	}
+
+	return converter.ToGroupTransactionDTO(groupTransaction), nil
 }

@@ -1,14 +1,24 @@
-package util
+package model
 
 import (
 	"github.com/google/uuid"
 	"math"
+	"time"
 )
 
+type GroupTransaction struct {
+	ID           uuid.UUID
+	Date         time.Time
+	GroupID      uuid.UUID
+	GroupName    string
+	Transactions []Transaction
+}
+
 type Transaction struct {
-	DebtorID   uuid.UUID
-	CreditorID uuid.UUID
-	Amount     float64
+	ID       uuid.UUID
+	Debtor   User
+	Creditor User
+	Amount   float64
 }
 
 type Amount struct {
@@ -18,9 +28,10 @@ type Amount struct {
 
 func CreateTransaction(debtorID uuid.UUID, creditorID uuid.UUID, amount float64) Transaction {
 	return Transaction{
-		DebtorID:   debtorID,
-		CreditorID: creditorID,
-		Amount:     amount,
+		ID:       uuid.New(),
+		Debtor:   User{ID: debtorID},
+		Creditor: User{ID: creditorID},
+		Amount:   amount,
 	}
 }
 

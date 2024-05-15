@@ -143,3 +143,26 @@ func (g *GroupStorage) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid
 
 	return res
 }
+
+func (g *GroupStorage) CreateGroupTransaction(transaction model.GroupTransaction) (model.GroupTransaction, error) {
+	groupTransactionEntity := converter.ToGroupTransactionEntity(transaction)
+
+	err := g.DB.Transaction(func(tx *gorm.DB) error {
+		// delete all bills and items associated with the group
+		if err := tx.Exec("DELETE FROM items WHERE bill_id IN (SELECT id FROM bills WHERE group_id = ?)", transaction.GroupID).Error; err != nil {
+			return err
+		}
+
+		// add new group transaction
+		res := tx.
+			Preload(clause.Associations).
+			Preload("Transactions.Debtor").
+			Preload("Transactions.Creditor").
+			Create(&groupTransactionEntity).
+			First(&groupTransactionEntity)
+
+		return res.Error
+	})
+
+	return converter.ToGroupTransactionModel(groupTransactionEntity), err
+}

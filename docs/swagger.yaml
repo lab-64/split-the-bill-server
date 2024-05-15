@@ -56,13 +56,6 @@ definitions:
       message:
         type: string
     type: object
-  dto.GroupDeletionOutput:
-    properties:
-      transactions:
-        items:
-          $ref: '#/definitions/util.Transaction'
-        type: array
-    type: object
   dto.GroupDetailedOutput:
     properties:
       balance:
@@ -95,6 +88,21 @@ definitions:
       ownerID:
         type: string
     type: object
+  dto.GroupTransactionOutput:
+    properties:
+      groupId:
+        type: string
+      groupName:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      transactions:
+        items:
+          $ref: '#/definitions/dto.TransactionOutput'
+        type: array
+    type: object
   dto.ItemInput:
     properties:
       billId:
@@ -123,6 +131,15 @@ definitions:
       price:
         type: number
     type: object
+  dto.TransactionOutput:
+    properties:
+      amount:
+        type: number
+      creditor:
+        $ref: '#/definitions/dto.UserCoreOutput'
+      debtor:
+        $ref: '#/definitions/dto.UserCoreOutput'
+    type: object
   dto.UserCoreOutput:
     properties:
       email:
@@ -139,15 +156,6 @@ definitions:
       email:
         type: string
       password:
-        type: string
-    type: object
-  util.Transaction:
-    properties:
-      amount:
-        type: number
-      creditorID:
-        type: string
-      debtorID:
         type: string
     type: object
 host: localhost:8080
@@ -359,12 +367,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.GroupDeletionOutput'
-              type: object
+            $ref: '#/definitions/dto.GeneralResponse'
       summary: Delete Group
       tags:
       - Group
@@ -420,6 +423,31 @@ paths:
                   $ref: '#/definitions/dto.GroupDetailedOutput'
               type: object
       summary: Update Group
+      tags:
+      - Group
+  /api/group/{id}/transaction:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupTransactionOutput'
+              type: object
+      summary: Create Group Transaction & Clear Group
       tags:
       - Group
   /api/group/invitation/{id}/accept:

@@ -13,6 +13,7 @@ var (
 	MockGroupGetGroups             func(uuid.UUID, uuid.UUID) ([]model.Group, error)
 	MockGroupDeleteGroup           func(uuid.UUID) error
 	MockGroupAcceptGroupInvitation func(uuid.UUID, uuid.UUID) error
+	MockCreateGroupTransaction     func(transaction model.GroupTransaction) (model.GroupTransaction, error)
 )
 
 func NewGroupStorageMock() storage.IGroupStorage {
@@ -44,4 +45,8 @@ func (g GroupStorageMock) DeleteGroup(id uuid.UUID) error {
 
 func (g GroupStorageMock) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
 	return MockGroupAcceptGroupInvitation(invitationID, userID)
+}
+
+func (g GroupStorageMock) CreateGroupTransaction(transaction model.GroupTransaction) (model.GroupTransaction, error) {
+	return MockCreateGroupTransaction(transaction)
 }

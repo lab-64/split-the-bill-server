@@ -71,3 +71,8 @@ func (g *GroupStorage) DeleteGroup(id uuid.UUID) error {
 	//TODO implement me
 	panic("implement me")
 }
+
+func (g *GroupStorage) CreateGroupTransaction(transaction model.GroupTransaction) (model.GroupTransaction, error) {
+	//TODO implement me
+	panic("implement me")
+}

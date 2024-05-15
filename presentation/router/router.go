@@ -63,4 +63,5 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 	groupRoute.Get("/", a.Authenticate, g.GetAll)
 	groupRoute.Delete("/:id", a.Authenticate, g.Delete)
 	groupRoute.Post("/invitation/:id/accept", a.Authenticate, g.AcceptInvitation)
+	groupRoute.Post("/:id/transaction/", a.Authenticate, g.CreateGroupTransaction)
 }

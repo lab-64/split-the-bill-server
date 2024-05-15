@@ -1,4 +1,4 @@
-package util
+package model
 
 import (
 	"github.com/google/uuid"
@@ -60,8 +60,8 @@ func TestSplitGroupBalance(t *testing.T) {
 			splits := ProduceTransactionsFromBalance(testcase.balance)
 			inputBalance := testcase.balance
 			for _, splitEntry := range splits {
-				inputBalance[splitEntry.DebtorID] += splitEntry.Amount
-				inputBalance[splitEntry.CreditorID] -= splitEntry.Amount
+				inputBalance[splitEntry.Debtor.ID] += splitEntry.Amount
+				inputBalance[splitEntry.Creditor.ID] -= splitEntry.Amount
 				// check if no split contains a value of 0
 				assert.NotEqualf(t, 0.0, splitEntry.Amount, "Split must not contain a value of 0")
 			}
