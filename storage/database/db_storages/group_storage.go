@@ -148,8 +148,18 @@ func (g *GroupStorage) CreateGroupTransaction(transaction model.GroupTransaction
 	groupTransactionEntity := converter.ToGroupTransactionEntity(transaction)
 
 	err := g.DB.Transaction(func(tx *gorm.DB) error {
-		// delete all bills and items associated with the group
+
+		// delete all unseen bills associated with the group
+		if err := tx.Exec("DELETE FROM unseen_bills WHERE bill_id IN (SELECT id FROM bills WHERE group_id = ?)", transaction.GroupID).Error; err != nil {
+			return err
+		}
+		// delete all items associated with the group
 		if err := tx.Exec("DELETE FROM items WHERE bill_id IN (SELECT id FROM bills WHERE group_id = ?)", transaction.GroupID).Error; err != nil {
+			return err
+		}
+
+		// delete all bills associated with the group
+		if err := tx.Exec("DELETE FROM bills WHERE group_id = ?", transaction.GroupID).Error; err != nil {
 			return err
 		}
 
