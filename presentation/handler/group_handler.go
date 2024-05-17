@@ -277,11 +277,11 @@ func (h GroupHandler) CreateGroupTransaction(c *fiber.Ctx) error {
 
 // GetAllGroupTransactions returns all group transactions with applied filter.
 //
-//	@Summary	Get Group Transactions by User
+//	@Summary	Get Group Transactions For All Groups
 //	@Tags		Group
 //	@Accept		json
 //	@Produce	json
-//	@Param		userId	query		string	true	"User ID"
+//	@Param		userId	query		string	true	"User ID - Retrieve transactions for groups where user is a member"
 //	@Success	200		{object}	dto.GeneralResponse{data=[]dto.GroupTransactionOutput}
 //	@Router		/api/group/transaction [get]
 func (h GroupHandler) GetAllGroupTransactions(c *fiber.Ctx) error {

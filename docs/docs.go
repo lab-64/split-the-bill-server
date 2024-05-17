@@ -371,11 +371,11 @@ const docTemplate = `{
                 "tags": [
                     "Group"
                 ],
-                "summary": "Get Group Transactions by User",
+                "summary": "Get Group Transactions For All Groups",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User ID",
+                        "description": "User ID - Retrieve transactions for groups where user is a member",
                         "name": "userId",
                         "in": "query",
                         "required": true

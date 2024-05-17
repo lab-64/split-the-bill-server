@@ -475,7 +475,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: User ID
+      - description: User ID - Retrieve transactions for groups where user is a member
         in: query
         name: userId
         required: true
@@ -494,7 +494,7 @@ paths:
                     $ref: '#/definitions/dto.GroupTransactionOutput'
                   type: array
               type: object
-      summary: Get Group Transactions by User
+      summary: Get Group Transactions For All Groups
       tags:
       - Group
   /api/user:
