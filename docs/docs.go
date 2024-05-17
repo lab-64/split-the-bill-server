@@ -968,6 +968,9 @@ const docTemplate = `{
         "dto.GroupTransactionOutput": {
             "type": "object",
             "properties": {
+                "date": {
+                    "type": "string"
+                },
                 "groupId": {
                     "type": "string"
                 },
@@ -975,9 +978,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
-                },
-                "name": {
                     "type": "string"
                 },
                 "transactions": {

@@ -90,13 +90,13 @@ definitions:
     type: object
   dto.GroupTransactionOutput:
     properties:
+      date:
+        type: string
       groupId:
         type: string
       groupName:
         type: string
       id:
-        type: string
-      name:
         type: string
       transactions:
         items:

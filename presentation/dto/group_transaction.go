@@ -11,7 +11,7 @@ import (
 
 type GroupTransactionOutput struct {
 	ID           uuid.UUID           `json:"id"`
-	Date         time.Time           `json:"name"`
+	Date         time.Time           `json:"date"`
 	GroupID      uuid.UUID           `json:"groupId"`
 	GroupName    string              `json:"groupName"`
 	Transactions []TransactionOutput `json:"transactions"`
