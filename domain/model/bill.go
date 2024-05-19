@@ -40,7 +40,7 @@ func (bill *Bill) CalculateBalance() map[uuid.UUID]float64 {
 	return balance
 }
 
-func (bill Bill) IsUnseen(userID uuid.UUID) bool {
+func (bill *Bill) IsUnseen(userID uuid.UUID) bool {
 	for _, id := range bill.UnseenFromUserID {
 		if id == userID {
 			return true
