@@ -4,12 +4,14 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 // Testdata
 var (
 	TestBill = Bill{
 		ID:    uuid.New(),
+		Date:  time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
 		Name:  "Test Bill",
 		Owner: TestUser,
 		Items: []Item{TestItem1, TestItem2},
@@ -31,6 +33,7 @@ var (
 
 	TestBill2 = Bill{
 		ID:    uuid.New(),
+		Date:  time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 		Name:  "Test Bill 2",
 		Owner: TestUser2,
 		Items: []Item{TestItem3},

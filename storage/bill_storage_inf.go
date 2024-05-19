@@ -17,16 +17,4 @@ type IBillStorage interface {
 
 	// DeleteBill deletes the bill with the given id
 	DeleteBill(id UUID) error
-
-	// CreateItem creates an item for a bill
-	CreateItem(item model.Item) (model.Item, error)
-
-	// GetItemByID returns an item by its id
-	GetItemByID(id UUID) (model.Item, error)
-
-	// UpdateItem updates the stored item with the given item
-	UpdateItem(item model.Item) (model.Item, error)
-
-	// DeleteItem deletes the item with the given id
-	DeleteItem(id UUID) error
 }

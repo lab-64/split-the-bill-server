@@ -9,10 +9,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"split-the-bill-server/domain"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/handler"
-	"split-the-bill-server/storage"
 	"split-the-bill-server/storage/database/entity"
 	"testing"
 )
@@ -130,48 +128,4 @@ func TestUpdateBill(t *testing.T) {
 		}
 
 	}
-}
-
-func TestDeleteItem(t *testing.T) {
-
-	route := "/api/bill/item/"
-	tests := []struct {
-		description     string
-		parameter       string
-		cookie          *http.Cookie
-		expectedCode    int
-		expectedMessage string
-	}{
-		{
-			description:     "Success",
-			parameter:       Item6.ID.String(),
-			cookie:          &http.Cookie{Name: sessionCookie, Value: CookieUser2.ID.String()},
-			expectedCode:    200,
-			expectedMessage: handler.SuccessMsgItemDelete,
-		},
-		{
-			description:     "Not authorized",
-			parameter:       Item5.ID.String(),
-			cookie:          &http.Cookie{Name: sessionCookie, Value: CookieUser2.ID.String()}, // user2 is not the bill owner
-			expectedCode:    401,
-			expectedMessage: fmt.Sprintf(handler.ErrMsgItemDelete, domain.ErrNotAuthorized),
-		},
-		{
-			description:     "Not found",
-			parameter:       uuid.New().String(),
-			cookie:          &http.Cookie{Name: sessionCookie, Value: CookieUser2.ID.String()},
-			expectedCode:    500,
-			expectedMessage: fmt.Sprintf(handler.ErrMsgItemNotFound, storage.NoSuchItemError),
-		},
-	}
-
-	for _, testcase := range tests {
-		responseData, httpResponse, err := performBillRequest(http.MethodDelete, route+testcase.parameter, nil, testcase.cookie)
-
-		// Assertion
-		assert.NoErrorf(t, err, "Bad request")
-		assert.Equalf(t, testcase.expectedCode, httpResponse.StatusCode, "Wrong status code")
-		assert.Equalf(t, testcase.expectedMessage, responseData.Message, "Wrong message")
-	}
-
 }

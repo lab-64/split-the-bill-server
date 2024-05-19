@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"os"
 	. "split-the-bill-server/presentation/handler"
 	"split-the-bill-server/presentation/middleware"
 )
@@ -12,6 +13,18 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 	// Define landing page
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
+	})
+
+	// Manage DeepLink
+	app.Get("/.well-known/assetlinks.json", func(c *fiber.Ctx) error {
+		// Read the assetlinks.json file
+		fileContent, err := os.ReadFile(".well-known/assetlinks.json")
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString("Failed to read assetlinks.json file")
+		}
+		c.Set("Content-Type", "application/json")
+		// Serve the JSON response
+		return c.Send(fileContent)
 	})
 
 	// serve static files to authenticated user
@@ -40,13 +53,6 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 	billRoute.Get("/:id", a.Authenticate, b.GetByID)
 	billRoute.Delete("/:id", a.Authenticate, b.Delete)
 	billRoute.Get("/", a.Authenticate, b.GetAllByUser)
-	// item routes
-	itemRoute := billRoute.Group("/item")
-	// routes
-	itemRoute.Get("/:id", a.Authenticate, b.GetItemByID)
-	itemRoute.Post("/", a.Authenticate, b.AddItem)
-	itemRoute.Put("/:id", a.Authenticate, b.ChangeItem)
-	itemRoute.Delete("/:id", a.Authenticate, b.DeleteItem)
 
 	// group routes
 	groupRoute := api.Group("/group")

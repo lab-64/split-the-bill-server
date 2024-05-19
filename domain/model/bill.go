@@ -17,11 +17,6 @@ type Bill struct {
 }
 
 func CreateBill(id uuid.UUID, ownerID uuid.UUID, name string, date time.Time, groupID uuid.UUID, items []Item, unseenFrom []uuid.UUID) Bill {
-	// convert each item
-	/*	var items []Item
-		for _, item := range b.Items {
-			items = append(items, CreateItem(uuid.New(), item))
-		}*/
 	return Bill{
 		ID:               id,
 		Owner:            User{ID: ownerID},
@@ -45,7 +40,7 @@ func (bill *Bill) CalculateBalance() map[uuid.UUID]float64 {
 	return balance
 }
 
-func (bill Bill) IsUnseen(userID uuid.UUID) bool {
+func (bill *Bill) IsUnseen(userID uuid.UUID) bool {
 	for _, id := range bill.UnseenFromUserID {
 		if id == userID {
 			return true

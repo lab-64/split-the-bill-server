@@ -41,27 +41,7 @@ func (b BillStorage) GetByID(id uuid.UUID) (model.Bill, error) {
 	return *bill, nil
 }
 
-func (b BillStorage) CreateItem(item model.Item) (model.Item, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (b BillStorage) GetItemByID(id uuid.UUID) (model.Item, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (b BillStorage) GetAllByUserID(userID uuid.UUID) ([]model.Bill, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (b BillStorage) UpdateItem(item model.Item) (model.Item, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (b BillStorage) DeleteItem(id uuid.UUID) error {
 	//TODO implement me
 	panic("implement me")
 }

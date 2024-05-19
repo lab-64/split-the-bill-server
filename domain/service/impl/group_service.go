@@ -71,6 +71,7 @@ func (g *GroupService) GetByID(requesterID uuid.UUID, id uuid.UUID) (dto.GroupDe
 		return dto.GroupDetailedOutput{}, ErrNotAuthorized
 	}
 
+	group.SortBillsByDate()
 	balance := group.CalculateBalance()
 	group.Balance = balance
 	return converter.ToGroupDetailedDTO(group), nil
@@ -88,6 +89,7 @@ func (g *GroupService) GetAll(requesterID uuid.UUID, userID uuid.UUID, invitatio
 
 	var groupsDTO []dto.GroupDetailedOutput
 	for _, group := range groups {
+		group.SortBillsByDate()
 		balance := group.CalculateBalance()
 		group.Balance = balance
 		groupsDTO = append(groupsDTO, converter.ToGroupDetailedDTO(group))
