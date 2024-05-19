@@ -77,6 +77,41 @@ func ToGroupDetailedDTO(g model.Group) dto.GroupDetailedOutput {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// GROUP TRANSACTION
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func ToGroupTransactionDTO(g model.GroupTransaction) dto.GroupTransactionOutput {
+
+	return dto.GroupTransactionOutput{
+		ID:           g.ID,
+		Date:         g.Date,
+		GroupID:      g.GroupID,
+		GroupName:    g.GroupName,
+		Transactions: ToTransactionDTOs(g.Transactions),
+	}
+}
+
+func ToTransactionDTOs(transactions []model.Transaction) []dto.TransactionOutput {
+	transactionsDTO := make([]dto.TransactionOutput, len(transactions))
+
+	for i, transaction := range transactions {
+		transactionsDTO[i] = ToTransactionDTO(transaction)
+	}
+	return transactionsDTO
+}
+
+func ToTransactionDTO(t model.Transaction) dto.TransactionOutput {
+	debtor := ToUserCoreDTO(&t.Debtor)
+	creditor := ToUserCoreDTO(&t.Creditor)
+
+	return dto.TransactionOutput{
+		Debtor:   debtor,
+		Creditor: creditor,
+		Amount:   t.Amount,
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // USER
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

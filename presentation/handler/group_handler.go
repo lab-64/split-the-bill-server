@@ -183,7 +183,7 @@ func (h GroupHandler) GetAll(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"Group ID"
-//	@Success	200	{object}	dto.GeneralResponse{data=dto.GroupDeletionOutput}
+//	@Success	200	{object}	dto.GeneralResponse
 //	@Router		/api/group/{id} [delete]
 func (h GroupHandler) Delete(c *fiber.Ctx) error {
 	// parse parameter
@@ -198,14 +198,14 @@ func (h GroupHandler) Delete(c *fiber.Ctx) error {
 	// get requesterID from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
 	// delete group
-	transaction, err := h.groupService.Delete(requesterID, uid)
+	err = h.groupService.Delete(requesterID, uid)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotAuthorized) {
 			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGroupDelete, err))
 		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupDelete, err))
 	}
-	return Success(c, fiber.StatusOK, SuccessMsgGroupDelete, transaction)
+	return Success(c, fiber.StatusOK, SuccessMsgGroupDelete, nil)
 }
 
 // AcceptInvitation accepts a group invitation.
@@ -239,4 +239,68 @@ func (h GroupHandler) AcceptInvitation(c *fiber.Ctx) error {
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgInvitationHandled, nil)
+}
+
+// CreateGroupTransaction creates a group transaction and clears the group
+//
+//	@Summary	Create Group Transaction & Clear Group
+//	@Tags		Group
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"Group ID"
+//	@Success	200	{object}	dto.GeneralResponse{data=dto.GroupTransactionOutput}
+//	@Router		/api/group/{id}/transaction [post]
+func (h GroupHandler) CreateGroupTransaction(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	groupID, err := uuid.Parse(id)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, id, err))
+	}
+
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
+	transaction, err := h.groupService.CreateGroupTransaction(requesterID, groupID)
+
+	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGroupTransactionCreate, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGroupTransactionCreate, err))
+	}
+
+	return Success(c, fiber.StatusCreated, SuccessMsgGroupTransactionCreate, transaction)
+}
+
+// GetAllGroupTransactions returns all group transactions with applied filter.
+//
+//	@Summary	Get Group Transactions For All Groups
+//	@Tags		Group
+//	@Accept		json
+//	@Produce	json
+//	@Param		userId	query		string	true	"User ID - Retrieve transactions for groups where user is a member"
+//	@Success	200		{object}	dto.GeneralResponse{data=[]dto.GroupTransactionOutput}
+//	@Router		/api/group/transaction [get]
+func (h GroupHandler) GetAllGroupTransactions(c *fiber.Ctx) error {
+	// parse query parameters
+	userID := c.Query("userId")
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, userID, err))
+	}
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
+	transactions, err := h.groupService.GetAllGroupTransactions(requesterID, userUUID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgGetUserTransactions, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgGetUserTransactions, err))
+	}
+
+	return Success(c, fiber.StatusOK, SuccessMsgGroupTransactionFound, transactions)
 }

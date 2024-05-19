@@ -6,9 +6,9 @@ import (
 	"split-the-bill-server/domain/converter"
 	"split-the-bill-server/domain/model"
 	. "split-the-bill-server/domain/service"
-	"split-the-bill-server/domain/util"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/storage"
+	"time"
 )
 
 type GroupService struct {
@@ -98,23 +98,68 @@ func (g *GroupService) GetAll(requesterID uuid.UUID, userID uuid.UUID, invitatio
 	return groupsDTO, nil
 }
 
-func (g *GroupService) Delete(requesterID uuid.UUID, id uuid.UUID) (dto.GroupDeletionOutput, error) {
+func (g *GroupService) Delete(requesterID uuid.UUID, id uuid.UUID) error {
 	// get group
 	group, err := g.groupStorage.GetGroupByID(id)
 	if err != nil {
-		return dto.GroupDeletionOutput{}, err
+		return err
 	}
 	// Authorization
 	if requesterID != group.Owner.ID {
-		return dto.GroupDeletionOutput{}, ErrNotAuthorized
+		return ErrNotAuthorized
 	}
-	// calculate transactions to clear balance
-	transactions := util.ProduceTransactionsFromBalance(group.CalculateBalance())
+
 	// delete group
-	return dto.GroupDeletionOutput{Transactions: transactions}, g.groupStorage.DeleteGroup(id)
+	return g.groupStorage.DeleteGroup(id)
 }
 
 func (g *GroupService) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid.UUID) error {
 	err := g.groupStorage.AcceptGroupInvitation(invitationID, userID)
 	return err
+}
+
+func (g *GroupService) CreateGroupTransaction(requesterID uuid.UUID, groupID uuid.UUID) (dto.GroupTransactionOutput, error) {
+	// get group
+	group, err := g.groupStorage.GetGroupByID(groupID)
+	if err != nil {
+		return dto.GroupTransactionOutput{}, err
+	}
+	// Authorization
+	if requesterID != group.Owner.ID {
+		return dto.GroupTransactionOutput{}, ErrNotAuthorized
+	}
+	// create transactions
+	transactions := model.ProduceTransactionsFromBalance(group.CalculateBalance())
+	groupTransaction := model.GroupTransaction{
+		ID:           uuid.New(),
+		GroupID:      groupID,
+		Date:         time.Now(),
+		Transactions: transactions,
+	}
+	// store transactions in db
+	groupTransaction, err = g.groupStorage.CreateGroupTransaction(groupTransaction)
+	if err != nil {
+		return dto.GroupTransactionOutput{}, err
+	}
+
+	return converter.ToGroupTransactionDTO(groupTransaction), nil
+}
+
+func (g *GroupService) GetAllGroupTransactions(requesterID uuid.UUID, userID uuid.UUID) ([]dto.GroupTransactionOutput, error) {
+	// Authorization
+	if userID != uuid.Nil && requesterID != userID {
+		return nil, ErrNotAuthorized
+	}
+	// get all group transactions from user
+	groupTransactions, err := g.groupStorage.GetAllGroupTransactions(userID)
+	if err != nil {
+		return nil, err
+	}
+	// convert transactions
+	var groupTransactionsDTO []dto.GroupTransactionOutput
+	for _, groupTransaction := range groupTransactions {
+		groupTransactionsDTO = append(groupTransactionsDTO, converter.ToGroupTransactionDTO(groupTransaction))
+	}
+
+	return groupTransactionsDTO, nil
 }

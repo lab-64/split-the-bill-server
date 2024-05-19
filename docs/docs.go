@@ -360,6 +360,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/group/transaction": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Group"
+                ],
+                "summary": "Get Group Transactions For All Groups",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID - Retrieve transactions for groups where user is a member",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.GroupTransactionOutput"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/group/{id}": {
             "get": {
                 "consumes": [
@@ -476,6 +522,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/group/{id}/transaction": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Group"
+                ],
+                "summary": "Create Group Transaction \u0026 Clear Group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
                             "allOf": [
                                 {
                                     "$ref": "#/definitions/dto.GeneralResponse"
@@ -484,7 +561,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.GroupDeletionOutput"
+                                            "$ref": "#/definitions/dto.GroupTransactionOutput"
                                         }
                                     }
                                 }
@@ -840,17 +917,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.GroupDeletionOutput": {
-            "type": "object",
-            "properties": {
-                "transactions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/util.Transaction"
-                    }
-                }
-            }
-        },
         "dto.GroupDetailedOutput": {
             "type": "object",
             "properties": {
@@ -899,6 +965,29 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.GroupTransactionOutput": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "groupId": {
+                    "type": "string"
+                },
+                "groupName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.TransactionOutput"
+                    }
+                }
+            }
+        },
         "dto.ItemInput": {
             "type": "object",
             "properties": {
@@ -942,6 +1031,20 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.TransactionOutput": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "creditor": {
+                    "$ref": "#/definitions/dto.UserCoreOutput"
+                },
+                "debtor": {
+                    "$ref": "#/definitions/dto.UserCoreOutput"
+                }
+            }
+        },
         "dto.UserCoreOutput": {
             "type": "object",
             "properties": {
@@ -966,20 +1069,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "util.Transaction": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "creditorID": {
-                    "type": "string"
-                },
-                "debtorID": {
                     "type": "string"
                 }
             }
