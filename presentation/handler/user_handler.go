@@ -7,9 +7,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"io"
+	"log"
 	"net/http"
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
+	"split-the-bill-server/domain/util"
 	. "split-the-bill-server/presentation"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/middleware"
@@ -235,6 +237,13 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	if err == nil {
 		// read the file content
 		content, fileErr := file.Open()
+
+		msg, err := util.StoreFileInGoogleCloudStorage(content, file.Filename)
+		if err != nil {
+			return err
+		}
+		log.Println(msg)
+
 		if fileErr != nil {
 			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, fileErr))
 		}
@@ -253,6 +262,7 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	// get authenticated requesterID from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
 	// update user
+
 	retUser, err := h.userService.Update(requesterID, userID, user, data)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotAuthorized) {

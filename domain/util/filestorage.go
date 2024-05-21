@@ -1,12 +1,38 @@
 package util
 
 import (
+	"cloud.google.com/go/storage"
+	"context"
 	"errors"
 	"github.com/google/uuid"
+	"io"
+	"log"
+	"mime/multipart"
 	"os"
 	"path/filepath"
 	"strings"
 )
+
+func StoreFileInGoogleCloudStorage(file multipart.File, fileName string) (string, error) {
+	ctx := context.Background()
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		return "", err
+	}
+	defer client.Close()
+
+	bucketName := "stb-profile-imgs"
+
+	wc := client.Bucket(bucketName).Object(fileName).NewWriter(ctx)
+	if _, err = io.Copy(wc, file); err != nil {
+		return "", err
+	}
+	if err := wc.Close(); err != nil {
+		return "", err
+	}
+	log.Println("File uploaded successfully")
+	return fileName, nil
+}
 
 func StoreFile(file []byte, userID uuid.UUID) (string, error) {
 	// create file name with random string appended
