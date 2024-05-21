@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/google/uuid"
+	"mime/multipart"
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/presentation/dto"
 )
@@ -25,5 +26,5 @@ type IUserService interface {
 
 	// Update updates the user with the given id with the new user data.
 	// *Authorization required: requesterID == id
-	Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, profileImg []byte) (dto.UserCoreOutput, error)
+	Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, profileImg multipart.File) (dto.UserCoreOutput, error)
 }

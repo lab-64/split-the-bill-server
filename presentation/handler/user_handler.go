@@ -7,11 +7,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"io"
-	"log"
+	"mime/multipart"
 	"net/http"
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
-	"split-the-bill-server/domain/util"
 	. "split-the-bill-server/presentation"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/middleware"
@@ -230,26 +229,19 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	if err = c.BodyParser(&user); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
+	var content multipart.File
 	// try to parse file
-	var data []byte
 	file, err := c.FormFile("image")
 	// err == nil -> image is included
 	if err == nil {
 		// read the file content
-		content, fileErr := file.Open()
-
-		msg, err := util.StoreFileInGoogleCloudStorage(content, file.Filename)
+		content, err = file.Open()
 		if err != nil {
-			return err
-		}
-		log.Println(msg)
-
-		if fileErr != nil {
-			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, fileErr))
+			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, err))
 		}
 		defer content.Close()
 		// convert file to byte array
-		data, fileErr = io.ReadAll(content)
+		data, fileErr := io.ReadAll(content)
 		if fileErr != nil {
 			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, fileErr))
 		}
@@ -262,8 +254,7 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	// get authenticated requesterID from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
 	// update user
-
-	retUser, err := h.userService.Update(requesterID, userID, user, data)
+	retUser, err := h.userService.Update(requesterID, userID, user, content)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotAuthorized) {
 			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgUserUpdate, err))

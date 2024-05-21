@@ -2,6 +2,7 @@ package impl
 
 import (
 	"github.com/google/uuid"
+	"mime/multipart"
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/converter"
 	"split-the-bill-server/domain/model"
@@ -113,7 +114,7 @@ func (u *UserService) Logout(requesterID uuid.UUID, token uuid.UUID) error {
 	return err
 }
 
-func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, file []byte) (dto.UserCoreOutput, error) {
+func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, file multipart.File) (dto.UserCoreOutput, error) {
 	// Authorization
 	if requesterID != id {
 		return dto.UserCoreOutput{}, domain.ErrNotAuthorized

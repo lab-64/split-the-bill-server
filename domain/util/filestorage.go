@@ -34,23 +34,40 @@ func StoreFileInGoogleCloudStorage(file multipart.File, fileName string) (string
 	return fileName, nil
 }
 
-func StoreFile(file []byte, userID uuid.UUID) (string, error) {
+func StoreFile(file multipart.File, userID uuid.UUID) (string, error) {
 	// create file name with random string appended
 	randomString := uuid.New().String()
 	fileName := userID.String() + "_" + randomString + ".gif"
-	// save file
-	filePath := filepath.Join("./uploads/profileImages", fileName)
 
+	// TODO: check
 	// Delete existing files with the same userID prefix
-	if err := deleteFilesWithPrefix("./uploads/profileImages", userID.String()); err != nil {
+	/*if err := deleteFilesWithPrefix("./uploads/profileImages", userID.String()); err != nil {
 		return "", err
 	}
+	*/
 
-	err := os.WriteFile(filePath, file, 0644)
+	// create new Google Cloud Storage client
+	ctx := context.Background()
+	client, err := storage.NewClient(ctx)
 	if err != nil {
-		return "", ErrStoreFile
+		return "", err
 	}
+	defer client.Close()
+
+	bucketName := "stb-profile-imgs"
+	filePath := "https://storage.googleapis.com/" + bucketName + "/" + fileName
+
+	// store file in Google Cloud Storage
+	wc := client.Bucket(bucketName).Object(fileName).NewWriter(ctx)
+	if _, err = io.Copy(wc, file); err != nil {
+		return "", err
+	}
+	if err = wc.Close(); err != nil {
+		return "", err
+	}
+	log.Println("File uploaded successfully")
 	return filePath, nil
+
 }
 
 func deleteFilesWithPrefix(dirPath string, prefix string) error {
