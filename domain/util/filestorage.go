@@ -37,7 +37,7 @@ func StoreFileInGoogleCloudStorage(file multipart.File, fileName string) (string
 func StoreFile(file multipart.File, userID uuid.UUID) (string, error) {
 	// create file name with random string appended
 	randomString := uuid.New().String()
-	fileName := userID.String() + "_" + randomString + ".gif"
+	fileName := userID.String() + "_" + randomString + ".jpg"
 
 	// TODO: check
 	// Delete existing files with the same userID prefix
@@ -65,6 +65,7 @@ func StoreFile(file multipart.File, userID uuid.UUID) (string, error) {
 	if err = wc.Close(); err != nil {
 		return "", err
 	}
+	// TODO: delete
 	log.Println("File uploaded successfully")
 	return filePath, nil
 

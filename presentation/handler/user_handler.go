@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"split-the-bill-server/domain"
@@ -232,6 +233,8 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	var content multipart.File
 	// try to parse file
 	file, err := c.FormFile("image")
+	// TODO: delete
+	log.Println("FileName: ", file.Filename)
 	// err == nil -> image is included
 	if err == nil {
 		// read the file content
@@ -254,6 +257,8 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	// get authenticated requesterID from context
 	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
 	// update user
+	// TODO: delete
+	log.Println("-----------: content: ", content)
 	retUser, err := h.userService.Update(requesterID, userID, user, content)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotAuthorized) {
