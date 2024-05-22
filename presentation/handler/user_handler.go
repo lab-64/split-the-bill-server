@@ -160,13 +160,13 @@ func (h UserHandler) Login(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserLogin, err))
 	}
 	// create response cookie
-	// TODO: add Secure flag after development (cookie will only be sent over HTTPS)
+	// Add Secure flag in deployment (cookie will only be sent over HTTPS)
 	cookie := fiber.Cookie{
 		Name:     middleware.SessionCookieName,
 		Value:    sc.Token.String(),
 		Expires:  sc.ValidBefore,
 		HTTPOnly: true,
-		//Secure:   true,
+		Secure:   true,
 	}
 	c.Cookie(&cookie)
 
