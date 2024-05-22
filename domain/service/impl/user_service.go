@@ -2,6 +2,7 @@ package impl
 
 import (
 	"github.com/google/uuid"
+	"log"
 	"mime/multipart"
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/converter"
@@ -141,6 +142,7 @@ func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserU
 	if err != nil {
 		return dto.UserCoreOutput{}, err
 	}
+	log.Println("Service | Updated user profile image path: ", updatedUser.ProfileImgPath)
 
 	return converter.ToUserCoreDTO(&updatedUser), err
 }

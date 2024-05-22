@@ -55,7 +55,7 @@ func StoreFile(file multipart.File, userID uuid.UUID) (string, error) {
 	defer client.Close()
 
 	bucketName := "stb-profile-imgs"
-	filePath := "https://storage.googleapis.com/" + bucketName + "/" + fileName
+	filePath := "storage.googleapis.com/" + bucketName + "/" + fileName
 
 	// store file in Google Cloud Storage
 	wc := client.Bucket(bucketName).Object(fileName).NewWriter(ctx)
