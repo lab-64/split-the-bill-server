@@ -245,8 +245,10 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 		if err != nil {
 			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, err))
 		}
+		defer content.Close()
+		validateContent := content
 		// convert file to byte array
-		data, fileErr := io.ReadAll(content)
+		data, fileErr := io.ReadAll(validateContent)
 		if fileErr != nil {
 			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, fileErr))
 		}
@@ -257,7 +259,6 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 		}
 		str, err := util.StoreFileInGoogleCloudStorage(content, file.Filename+"BeforeClose2")
 		log.Println("-----------: str: ", str, "err ", err)
-		defer content.Close()
 	}
 
 	// update user
