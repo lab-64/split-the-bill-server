@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
+	"split-the-bill-server/domain/util"
 	. "split-the-bill-server/presentation"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/middleware"
@@ -259,6 +260,8 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	// update user
 	// TODO: delete
 	log.Println("-----------: content: ", content)
+	str, err := util.StoreFileInGoogleCloudStorage(content, file.Filename)
+	log.Println("-----------: str: ", str, "err ", err)
 	retUser, err := h.userService.Update(requesterID, userID, user, content)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotAuthorized) {
