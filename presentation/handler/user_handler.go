@@ -231,8 +231,10 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	if err = c.BodyParser(&user); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
-	var content multipart.File
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
 	// try to parse file
+	var content multipart.File
 	file, err := c.FormFile("image")
 	// TODO: delete
 	log.Println("FileName: ", file.Filename)
@@ -243,6 +245,7 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 		if err != nil {
 			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, err))
 		}
+		util.StoreFileInGoogleCloudStorage(content, file.Filename+"BeforeClose")
 		defer content.Close()
 		// convert file to byte array
 		data, fileErr := io.ReadAll(content)
@@ -254,14 +257,13 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 		if err = user.ValidateInputs(contentType); err != nil {
 			return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserUpdate, err))
 		}
+		str, err := util.StoreFileInGoogleCloudStorage(content, file.Filename)
+		log.Println("-----------: str: ", str, "err ", err)
 	}
-	// get authenticated requesterID from context
-	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+
 	// update user
 	// TODO: delete
 	log.Println("-----------: content: ", content)
-	str, err := util.StoreFileInGoogleCloudStorage(content, file.Filename)
-	log.Println("-----------: str: ", str, "err ", err)
 	retUser, err := h.userService.Update(requesterID, userID, user, content)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotAuthorized) {
