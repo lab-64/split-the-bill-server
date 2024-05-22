@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"log"
 	"split-the-bill-server/domain/model"
 	"split-the-bill-server/storage"
 	. "split-the-bill-server/storage/database"
@@ -103,7 +102,6 @@ func (u *UserStorage) Update(user model.User) (model.User, error) {
 
 	res := u.DB.Model(&entity.User{}).Where("id = ?", user.ID).Updates(entity.User{Username: user.Username, ProfileImgPath: user.ProfileImgPath}).First(&userEntity)
 	// TODO: error handling
-	log.Println(" Storage | Updated User profile image path: ", userEntity.ProfileImgPath)
 	return converter.ToUserModel(userEntity), res.Error
 }
 

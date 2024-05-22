@@ -6,7 +6,6 @@ import (
 	"github.com/caitlinelfring/nist-password-validator/password"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"log"
 	"mime/multipart"
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
@@ -233,8 +232,6 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 	// try to parse file
 	var content multipart.File
 	file, err := c.FormFile("image")
-	// TODO: delete
-	log.Println("FileName: ", file.Filename)
 	// err == nil -> image is included
 	if err == nil {
 		// read the file content
@@ -243,6 +240,7 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, err))
 		}
 		defer content.Close()
+		// TODO: include image type check. Problem: if content is read, it cannot be used for storage
 		// convert file to byte array
 		/*data, fileErr := io.ReadAll(content)
 		if fileErr != nil {
@@ -252,14 +250,12 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 		contentType := http.DetectContentType(data)
 		if err = user.ValidateInputs(contentType); err != nil {
 			return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserUpdate, err))
-		}
-		str, err := util.StoreFileInGoogleCloudStorage(content, file.Filename+"BeforeClose2")
-		log.Println("-----------: str: ", str, "err ", err)*/
+		}*/
+	} else {
+		// no image included
+		content = nil
 	}
-
 	// update user
-	// TODO: delete
-	log.Println("-----------: content: ", content)
 	retUser, err := h.userService.Update(requesterID, userID, user, content)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotAuthorized) {
