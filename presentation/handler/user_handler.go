@@ -6,13 +6,10 @@ import (
 	"github.com/caitlinelfring/nist-password-validator/password"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"io"
 	"log"
 	"mime/multipart"
-	"net/http"
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/service"
-	"split-the-bill-server/domain/util"
 	. "split-the-bill-server/presentation"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/presentation/middleware"
@@ -246,9 +243,8 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, err))
 		}
 		defer content.Close()
-		validateContent := content
 		// convert file to byte array
-		data, fileErr := io.ReadAll(validateContent)
+		/*data, fileErr := io.ReadAll(content)
 		if fileErr != nil {
 			return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserImageUpload, fileErr))
 		}
@@ -258,7 +254,7 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 			return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserUpdate, err))
 		}
 		str, err := util.StoreFileInGoogleCloudStorage(content, file.Filename+"BeforeClose2")
-		log.Println("-----------: str: ", str, "err ", err)
+		log.Println("-----------: str: ", str, "err ", err)*/
 	}
 
 	// update user
