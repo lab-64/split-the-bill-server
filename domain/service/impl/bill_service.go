@@ -2,6 +2,7 @@ package impl
 
 import (
 	"github.com/google/uuid"
+	"log"
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/converter"
 	"split-the-bill-server/domain/model"
@@ -86,6 +87,7 @@ func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dt
 	updatedBill := model.CreateBill(bill.ID, bill.Owner.ID, billDTO.Name, billDTO.Date, bill.GroupID, items, bill.UnseenFromUserID)
 	updatedBill.ID = bill.ID
 	bill, err = b.billStorage.UpdateBill(updatedBill)
+	log.Println("Update Bill Service | Updated Bill: ", bill, "Error: ", err)
 	if err != nil {
 		return dto.BillDetailedOutput{}, err
 	}
