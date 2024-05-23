@@ -2,6 +2,7 @@ package impl
 
 import (
 	"github.com/google/uuid"
+	"sort"
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/converter"
 	"split-the-bill-server/domain/model"
@@ -147,7 +148,6 @@ func (b *BillService) GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID, is
 			if isUnseen != nil && *isUnseen != bill.IsUnseen(userID) {
 				continue
 			}
-
 			// apply isOwner filter
 			if isOwner != nil && *isOwner != (bill.Owner.ID == userID) {
 				continue
@@ -160,7 +160,9 @@ func (b *BillService) GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID, is
 			billDTOs = append(billDTOs, converter.ToBillDetailedDTO(bill))
 		}
 	}
-	return billDTOs, err
+	// sort bills by date descending
+	orderedBills := orderBillsByDate(billDTOs)
+	return orderedBills, err
 }
 
 // removeEntryFromSlice removes the first occurrence of entry from slice
@@ -171,4 +173,12 @@ func removeEntryFromSlice(slice []uuid.UUID, entry uuid.UUID) []uuid.UUID {
 		}
 	}
 	return slice
+}
+
+// orderBillsByDate orders bills by date descending
+func orderBillsByDate(bills []dto.BillDetailedOutput) []dto.BillDetailedOutput {
+	sort.Slice(bills, func(i, j int) bool {
+		return bills[i].Date.After(bills[j].Date)
+	})
+	return bills
 }

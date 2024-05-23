@@ -145,7 +145,7 @@ var (
 		Base:       Base{ID: uuid.New()},
 		OwnerID:    User1.ID,
 		Name:       "Miete",
-		Date:       time.Now(),
+		Date:       time.Now().AddDate(0, 0, 20),
 		Items:      []Item{Item3},
 		GroupID:    Group1.ID,
 		UnseenFrom: []User{User2, User3},
