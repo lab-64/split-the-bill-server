@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"io"
 	"mime/multipart"
+	"os"
 )
 
 func StoreFile(file multipart.File, userID uuid.UUID) (string, error) {
@@ -23,7 +24,7 @@ func StoreFile(file multipart.File, userID uuid.UUID) (string, error) {
 	}
 	defer client.Close()
 
-	bucketName := "stb-profile-imgs"
+	bucketName := os.Getenv("STORAGE_BUCKET_NAME")
 	filePath := "https://storage.googleapis.com/" + bucketName + "/" + fileName
 
 	// store file in Google Cloud Storage
