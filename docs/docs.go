@@ -885,6 +885,9 @@ const docTemplate = `{
                 },
                 "owner": {
                     "$ref": "#/definitions/dto.UserCoreOutput"
+                },
+                "updatedAt": {
+                    "type": "string"
                 }
             }
         },
@@ -904,6 +907,9 @@ const docTemplate = `{
                     }
                 },
                 "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }

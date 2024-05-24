@@ -9,6 +9,7 @@ import (
 	. "split-the-bill-server/domain/service"
 	"split-the-bill-server/presentation/dto"
 	"split-the-bill-server/storage"
+	"time"
 )
 
 type BillService struct {
@@ -61,6 +62,13 @@ func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dt
 	if err != nil {
 		return dto.BillDetailedOutput{}, err
 	}
+
+	// check if an update happened in the meantime
+	updatedAt := bill.UpdatedAt.Truncate(time.Second)
+	if !updatedAt.Equal(billDTO.UpdatedAt) {
+		return dto.BillDetailedOutput{}, domain.ErrConcurrentModification
+	}
+
 	// Get group
 	group, err := b.groupStorage.GetGroupByID(bill.GroupID)
 	if err != nil {

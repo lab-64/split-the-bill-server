@@ -7,6 +7,7 @@ import (
 
 type Bill struct {
 	ID               uuid.UUID
+	UpdatedAt        time.Time
 	Owner            User
 	Name             string
 	Date             time.Time
