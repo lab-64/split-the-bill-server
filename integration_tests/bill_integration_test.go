@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"split-the-bill-server/presentation/dto"
@@ -101,9 +102,71 @@ func TestUpdateBill(t *testing.T) {
 				Base: entity.Base{
 					ID: Bill1.ID,
 				},
-				Name:    Bill1.Name,
+				Name:    "Updated Bill",
 				OwnerID: User1.ID,
 				Items:   []entity.Item{Item1, Item2},
+			},
+		},
+		{
+			description: "Test update only bill name",
+			parameter:   Bill1.ID.String(),
+			inputData: dto.BillUpdate{
+				Name: strToPtr("New Updated Bill"),
+			},
+			cookie:          &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()},
+			expectedCode:    200,
+			expectedMessage: handler.SuccessMsgBillUpdate,
+			expectReturn:    true,
+			expectReturnedData: entity.Bill{
+				Base: entity.Base{
+					ID: Bill1.ID,
+				},
+				Name:    "New Updated Bill",
+				OwnerID: Bill1.OwnerID,
+				Items:   Bill1.Items,
+			},
+		},
+		{
+			description: "Test remove item from bill",
+			parameter:   Bill2.ID.String(),
+			inputData: dto.BillUpdate{
+				Items: &dto.Changes[dto.ItemInput]{Remove: &[]dto.ItemInput{{ID: Item3.ID}}},
+			},
+			cookie:          &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()},
+			expectedCode:    200,
+			expectedMessage: handler.SuccessMsgBillUpdate,
+			expectReturn:    true,
+			expectReturnedData: entity.Bill{
+				Base: entity.Base{
+					ID: Bill2.ID,
+				},
+				Name:    Bill2.Name,
+				OwnerID: Bill2.OwnerID,
+				Items:   []entity.Item{},
+			},
+		},
+		{
+			description: "Test add item to bill",
+			parameter:   Bill3.ID.String(),
+			inputData: dto.BillUpdate{
+				Items: &dto.Changes[dto.ItemInput]{Add: &[]dto.ItemInput{{Name: &Item3.Name, Price: &Item3.Price, Contributors: &dto.Changes[uuid.UUID]{Add: &[]uuid.UUID{User1.ID}}}}},
+			},
+			cookie:          &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()},
+			expectedCode:    200,
+			expectedMessage: handler.SuccessMsgBillUpdate,
+			expectReturn:    true,
+			expectReturnedData: entity.Bill{
+				Base: entity.Base{
+					ID: Bill3.ID,
+				},
+				Name:    Bill3.Name,
+				OwnerID: Bill3.OwnerID,
+				Items: append(Bill3.Items, entity.Item{
+					Base:         entity.Base{ID: Item3.ID},
+					Name:         Item3.Name,
+					Price:        Item3.Price,
+					Contributors: []*entity.User{&User1},
+				}),
 			},
 		},
 	}
@@ -112,19 +175,25 @@ func TestUpdateBill(t *testing.T) {
 		responseData, httpResponse, err := performBillRequest(http.MethodPut, route+testcase.parameter, testcase.inputData, testcase.cookie)
 
 		// Assertion
-		assert.NoError(t, err)
-		assert.Equal(t, testcase.expectedCode, httpResponse.StatusCode)
-		assert.Equal(t, testcase.expectedMessage, responseData.Message)
-		assert.Equal(t, testcase.expectReturnedData.ID, responseData.Data.ID) // ID should not be changed
-		assert.Equal(t, *updatedBill.Name, responseData.Data.Name)
-		assert.Equal(t, len(testcase.expectReturnedData.Items), len(responseData.Data.Items))
-		//for i, item := range responseData.Data.Items {
-		// TODO: comment in to test if updated bill items do not change their IDs
-		//assert.Equal(t, testcase.expectReturnedData.Items[i].ID, item.ID) // ID should not be changed
-		//assert.Equal(t, updatedBill.Items.Add[i].Name, item.Name)
-		//assert.Equal(t, updatedBill.Items[i].Price, item.Price)
-		//assert.Equal(t, len(updatedBill.Items[i].Contributors), len(item.Contributors))
-		//}
-
+		assert.NoErrorf(t, err, testcase.description)
+		assert.Equalf(t, testcase.expectedCode, httpResponse.StatusCode, testcase.description)
+		assert.Equalf(t, testcase.expectedMessage, responseData.Message, testcase.description)
+		assert.Equalf(t, testcase.expectReturnedData.ID, responseData.Data.ID, testcase.description) // ID should not be changed
+		assert.Equalf(t, testcase.expectReturnedData.Name, responseData.Data.Name, testcase.description)
+		log.Println(responseData.Data.Items)
+		assert.Equalf(t, len(testcase.expectReturnedData.Items), len(responseData.Data.Items), testcase.description)
+		for i, responseItem := range responseData.Data.Items {
+			assert.Equalf(t, testcase.expectReturnedData.Items[i].Name, responseItem.Name, testcase.description)
+			assert.Equalf(t, testcase.expectReturnedData.Items[i].Price, responseItem.Price, testcase.description)
+			assert.Equalf(t, len(testcase.expectReturnedData.Items[i].Contributors), len(responseItem.Contributors), testcase.description)
+			// if a new item is added, we cannot compare the ID
+			if testcase.description != "Test add item to bill" {
+				assert.Equalf(t, testcase.expectReturnedData.Items[i].ID, responseItem.ID, testcase.description) // itemID should not be changed
+			}
+		}
 	}
+}
+
+func strToPtr(s string) *string {
+	return &s
 }
