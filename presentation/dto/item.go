@@ -10,10 +10,11 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type ItemInput struct {
-	Name         string      `json:"name"`
-	Price        float64     `json:"price"`
-	BillID       uuid.UUID   `json:"billId"`
-	Contributors []uuid.UUID `json:"contributorIDs"`
+	ID           uuid.UUID           `json:"id"`
+	Name         *string             `json:"name,omitempty"`
+	Price        *float64            `json:"price,omitempty"`
+	BillID       uuid.UUID           `json:"billId"`
+	Contributors *Changes[uuid.UUID] `json:"contributorIDs,omitempty"`
 }
 
 type ItemOutput struct {
@@ -29,10 +30,10 @@ type ItemOutput struct {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (i ItemInput) ValidateInputs() error {
-	if i.Name == "" {
+	if *i.Name == "" {
 		return ErrItemNameRequired
 	}
-	if i.Price == 0 {
+	if *i.Price == 0 {
 		return ErrItemPriceRequired
 	}
 	if i.BillID == uuid.Nil {

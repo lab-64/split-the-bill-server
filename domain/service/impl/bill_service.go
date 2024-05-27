@@ -39,13 +39,15 @@ func (b *BillService) Create(requesterID uuid.UUID, billDTO dto.BillCreate) (dto
 			unseenFrom = append(unseenFrom, member.ID)
 		}
 	}
+	// create new bill model
+	bill := model.CreateBill(uuid.New(), billDTO.OwnerID, billDTO.Name, billDTO.Date, billDTO.GroupID, nil, unseenFrom)
 	// create new items
 	var items []model.Item
 	for _, item := range billDTO.Items {
-		items = append(items, model.CreateItem(uuid.New(), item))
+		items = append(items, model.CreateItem(uuid.New(), bill.ID, item))
 	}
-	// create new bill model including items
-	bill := model.CreateBill(uuid.New(), billDTO.OwnerID, billDTO.Name, billDTO.Date, billDTO.GroupID, items, unseenFrom)
+	// add items to bill
+	bill.Items = items
 	// store bill in billStorage
 	bill, err = b.billStorage.Create(bill)
 	if err != nil {
@@ -57,6 +59,7 @@ func (b *BillService) Create(requesterID uuid.UUID, billDTO dto.BillCreate) (dto
 
 func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dto.BillUpdate) (dto.BillDetailedOutput, error) {
 	// Get bill
+	// TODO: just update bill and not create new one
 	bill, err := b.billStorage.GetByID(billID)
 	if err != nil {
 		return dto.BillDetailedOutput{}, err
@@ -70,23 +73,17 @@ func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dt
 	if !group.IsMember(requesterID) {
 		return dto.BillDetailedOutput{}, domain.ErrNotAuthorized
 	}
-	// delete user from unseen list if bill is viewed
-	if billDTO.Viewed {
-		bill.UnseenFromUserID = removeEntryFromSlice(bill.UnseenFromUserID, requesterID)
-	}
 
-	// update items if available
-	var items = bill.Items
-	if len(billDTO.Items) > 0 {
-		items = make([]model.Item, 0)
-		for _, item := range billDTO.Items {
-			items = append(items, model.CreateItem(uuid.New(), item))
+	// update bill base fields
+	bill.UpdateBill(billDTO)
+	// delete user from unseen list if bill is viewed
+	if billDTO.Viewed != nil {
+		if *billDTO.Viewed {
+			bill.UnseenFromUserID = removeEntryFromSlice(bill.UnseenFromUserID, requesterID)
 		}
 	}
-	// update bill fields: name, date, items, unseenFromUserID
-	updatedBill := model.CreateBill(bill.ID, bill.Owner.ID, billDTO.Name, billDTO.Date, bill.GroupID, items, bill.UnseenFromUserID)
-	updatedBill.ID = bill.ID
-	bill, err = b.billStorage.UpdateBill(updatedBill)
+	// store updated bill
+	bill, err = b.billStorage.UpdateBill(bill)
 	if err != nil {
 		return dto.BillDetailedOutput{}, err
 	}

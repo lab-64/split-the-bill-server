@@ -898,13 +898,56 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "items": {
+                    "$ref": "#/definitions/dto.Changes-dto_ItemInput"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.Changes-dto_ItemInput": {
+            "type": "object",
+            "properties": {
+                "add": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dto.ItemInput"
                     }
                 },
-                "name": {
-                    "type": "string"
+                "remove": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ItemInput"
+                    }
+                },
+                "update": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ItemInput"
+                    }
+                }
+            }
+        },
+        "dto.Changes-uuid_UUID": {
+            "type": "object",
+            "properties": {
+                "add": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "remove": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "update": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -995,10 +1038,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "contributorIDs": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "$ref": "#/definitions/dto.Changes-uuid_UUID"
+                },
+                "id": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"

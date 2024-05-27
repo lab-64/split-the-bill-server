@@ -44,11 +44,39 @@ definitions:
       isViewed:
         type: boolean
       items:
+        $ref: '#/definitions/dto.Changes-dto_ItemInput'
+      name:
+        type: string
+    type: object
+  dto.Changes-dto_ItemInput:
+    properties:
+      add:
         items:
           $ref: '#/definitions/dto.ItemInput'
         type: array
-      name:
-        type: string
+      remove:
+        items:
+          $ref: '#/definitions/dto.ItemInput'
+        type: array
+      update:
+        items:
+          $ref: '#/definitions/dto.ItemInput'
+        type: array
+    type: object
+  dto.Changes-uuid_UUID:
+    properties:
+      add:
+        items:
+          type: string
+        type: array
+      remove:
+        items:
+          type: string
+        type: array
+      update:
+        items:
+          type: string
+        type: array
     type: object
   dto.GeneralResponse:
     properties:
@@ -108,9 +136,9 @@ definitions:
       billId:
         type: string
       contributorIDs:
-        items:
-          type: string
-        type: array
+        $ref: '#/definitions/dto.Changes-uuid_UUID'
+      id:
+        type: string
       name:
         type: string
       price:

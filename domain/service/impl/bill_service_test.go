@@ -69,8 +69,8 @@ func TestBillService_Update(t *testing.T) {
 			requesterID: TestUser.ID,
 			billID:      TestBill.ID,
 			billUpdated: dto.BillUpdate{
-				Name: TestBillUpdated.Name,
-				Date: TestBillUpdated.Date,
+				Name: &TestBillUpdated.Name,
+				Date: &TestBillUpdated.Date,
 			},
 			expectedError: nil,
 			expectedBill:  TestBillUpdated,
@@ -142,14 +142,14 @@ func TestBillService_Create(t *testing.T) {
 				Name:    TestBill.Name,
 				Items: []dto.ItemInput{
 					{
-						Name:         TestItem1.Name,
-						Price:        TestItem1.Price,
-						Contributors: []uuid.UUID{TestUser.ID},
+						Name:         &TestItem1.Name,
+						Price:        &TestItem1.Price,
+						Contributors: &dto.Changes[uuid.UUID]{Add: &[]uuid.UUID{TestUser.ID}},
 					},
 					{
-						Name:         TestItem2.Name,
-						Price:        TestItem2.Price,
-						Contributors: []uuid.UUID{TestUser.ID, TestUser2.ID},
+						Name:         &TestItem2.Name,
+						Price:        &TestItem2.Price,
+						Contributors: &dto.Changes[uuid.UUID]{Add: &[]uuid.UUID{TestUser.ID, TestUser2.ID}},
 					},
 				},
 			},
