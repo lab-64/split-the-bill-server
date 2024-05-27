@@ -1034,9 +1034,6 @@ const docTemplate = `{
         "dto.ItemInput": {
             "type": "object",
             "properties": {
-                "billId": {
-                    "type": "string"
-                },
                 "contributorIDs": {
                     "$ref": "#/definitions/dto.Changes-uuid_UUID"
                 },
