@@ -10,9 +10,9 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type ItemInput struct {
+	ID           uuid.UUID   `json:"id,omitempty"`
 	Name         string      `json:"name"`
 	Price        float64     `json:"price"`
-	BillID       uuid.UUID   `json:"billId"`
 	Contributors []uuid.UUID `json:"contributorIDs"`
 }
 
@@ -34,9 +34,6 @@ func (i ItemInput) ValidateInputs() error {
 	}
 	if i.Price == 0 {
 		return ErrItemPriceRequired
-	}
-	if i.BillID == uuid.Nil {
-		return ErrItemBillIDRequired
 	}
 	return nil
 }

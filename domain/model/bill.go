@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"split-the-bill-server/presentation/dto"
 	"time"
 )
 
@@ -28,6 +29,35 @@ func CreateBill(id uuid.UUID, ownerID uuid.UUID, name string, date time.Time, gr
 	}
 }
 
+func (bill *Bill) UpdateBill(billDTO dto.BillUpdate) {
+	// handle base fields
+	if billDTO.Name != bill.Name {
+		bill.Name = billDTO.Name
+	}
+	if billDTO.Date != bill.Date {
+		bill.Date = billDTO.Date
+	}
+	// handle item changes
+	var newItemLst []Item
+	// handle item addition
+	addedItems := getItemDTOsByID(billDTO.Items, uuid.Nil)
+	for _, addedItem := range addedItems {
+		newItemLst = append(newItemLst, CreateItem(uuid.New(), bill.ID, addedItem))
+	}
+	// handle item update
+	for _, item := range bill.Items {
+		for _, itemDTO := range billDTO.Items {
+			// update item with the matching id
+			if item.ID == itemDTO.ID {
+				item.UpdateItem(itemDTO)
+				break
+			}
+		}
+		// items with no matching IDs are removed from the user and therefore are not added to the new item list
+	}
+	bill.Items = newItemLst
+}
+
 func (bill *Bill) CalculateBalance() map[uuid.UUID]float64 {
 	balance := make(map[uuid.UUID]float64)
 	for _, item := range bill.Items {
@@ -47,4 +77,15 @@ func (bill *Bill) IsUnseen(userID uuid.UUID) bool {
 		}
 	}
 	return false
+}
+
+// getItemDTOsByID returns all items with the given id
+func getItemDTOsByID(items []dto.ItemInput, id uuid.UUID) []dto.ItemInput {
+	var output []dto.ItemInput
+	for _, item := range items {
+		if item.ID == id {
+			output = append(output, item)
+		}
+	}
+	return output
 }
