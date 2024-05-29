@@ -53,6 +53,7 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 	billRoute.Get("/:id", a.Authenticate, b.GetByID)
 	billRoute.Delete("/:id", a.Authenticate, b.Delete)
 	billRoute.Get("/", a.Authenticate, b.GetAllByUser)
+	billRoute.Put("/:id/contribution", a.Authenticate, b.UpdateContribution)
 
 	// group routes
 	groupRoute := api.Group("/group")

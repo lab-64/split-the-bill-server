@@ -165,6 +165,42 @@ func (b *BillService) GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID, is
 	return orderedBills, err
 }
 
+func (b *BillService) HandleContribution(requesterID uuid.UUID, billID uuid.UUID, contribution dto.ContributionInput) error {
+	// Get bill
+	bill, err := b.billStorage.GetByID(billID)
+	if err != nil {
+		return err
+	}
+	// Get group
+	group, err := b.groupStorage.GetGroupByID(bill.GroupID)
+	if err != nil {
+		return err
+	}
+	// Authorization
+	if !group.IsMember(requesterID) {
+		return domain.ErrNotAuthorized
+	}
+	for _, contributionEntry := range contribution.Contribution {
+		// get item
+		i, item := getItemFromID(contributionEntry.ItemID, bill.Items)
+		// skip items which are not in the bill
+		if i == -1 {
+			break
+		}
+		if contributionEntry.Contributed {
+			// add item to contributor list
+			bill.Items[i].Contributors = append(item.Contributors, model.User{ID: requesterID})
+		}
+		if !contributionEntry.Contributed {
+			// remove item from contributor list
+			bill.Items[i].Contributors = removeUserFromContributors(requesterID, item.Contributors)
+		}
+	}
+	// update bill
+	_, err = b.billStorage.UpdateBill(bill)
+	return err
+}
+
 // removeEntryFromSlice removes the first occurrence of entry from slice
 func removeEntryFromSlice(slice []uuid.UUID, entry uuid.UUID) []uuid.UUID {
 	for i, e := range slice {
@@ -175,10 +211,30 @@ func removeEntryFromSlice(slice []uuid.UUID, entry uuid.UUID) []uuid.UUID {
 	return slice
 }
 
+// removeUserFromContributors removes the user with the given userID from the contributors list
+func removeUserFromContributors(userID uuid.UUID, contributors []model.User) []model.User {
+	for i, contributor := range contributors {
+		if contributor.ID == userID {
+			return append(contributors[:i], contributors[i+1:]...)
+		}
+	}
+	return contributors
+}
+
 // orderBillsByDate orders bills by date descending
 func orderBillsByDate(bills []dto.BillDetailedOutput) []dto.BillDetailedOutput {
 	sort.Slice(bills, func(i, j int) bool {
 		return bills[i].Date.After(bills[j].Date)
 	})
 	return bills
+}
+
+// getItemFromID returns the index and the item with the given id from the items list
+func getItemFromID(id uuid.UUID, items []model.Item) (int, model.Item) {
+	for i, item := range items {
+		if item.ID == id {
+			return i, item
+		}
+	}
+	return -1, model.Item{}
 }
