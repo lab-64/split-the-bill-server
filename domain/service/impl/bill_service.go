@@ -2,7 +2,6 @@ package impl
 
 import (
 	"github.com/google/uuid"
-	"log"
 	"sort"
 	"split-the-bill-server/domain"
 	"split-the-bill-server/domain/converter"
@@ -67,10 +66,7 @@ func (b *BillService) Update(requesterID uuid.UUID, billID uuid.UUID, billDTO dt
 	}
 	// Check if an update happened in the meantime
 	updatedAt := bill.UpdatedAt.Truncate(time.Second)
-	if !updatedAt.Equal(billDTO.UpdatedAt) {
-		log.Println("Concurrent modification")
-		log.Println("Bill updated at: ", updatedAt)
-		log.Println("BillDTO updated at: ", billDTO.UpdatedAt)
+	if !updatedAt.Equal(billDTO.UpdatedAt.Truncate(time.Second)) {
 		return dto.BillDetailedOutput{}, domain.ErrConcurrentModification
 	}
 	// Get group
