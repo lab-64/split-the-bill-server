@@ -16,6 +16,15 @@ type ItemInput struct {
 	Contributors []uuid.UUID `json:"contributorIDs"`
 }
 
+type ContributionInput struct {
+	Contribution []HasContributed `json:"contribution"`
+}
+
+type HasContributed struct {
+	ItemID      uuid.UUID `json:"itemID"`
+	Contributed bool      `json:"contributed"`
+}
+
 type ItemOutput struct {
 	ID           uuid.UUID        `json:"id"`
 	Name         string           `json:"name"`
