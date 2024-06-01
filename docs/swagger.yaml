@@ -123,8 +123,6 @@ definitions:
     type: object
   dto.ItemInput:
     properties:
-      billId:
-        type: string
       contributorIDs:
         items:
           type: string

@@ -1059,9 +1059,6 @@ const docTemplate = `{
         "dto.ItemInput": {
             "type": "object",
             "properties": {
-                "billId": {
-                    "type": "string"
-                },
                 "contributorIDs": {
                     "type": "array",
                     "items": {
