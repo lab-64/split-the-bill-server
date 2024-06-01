@@ -918,6 +918,9 @@
                 },
                 "owner": {
                     "$ref": "#/definitions/dto.UserCoreOutput"
+                },
+                "updatedAt": {
+                    "type": "string"
                 }
             }
         },
@@ -937,6 +940,9 @@
                     }
                 },
                 "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -1046,9 +1052,6 @@
         "dto.ItemInput": {
             "type": "object",
             "properties": {
-                "billId": {
-                    "type": "string"
-                },
                 "contributorIDs": {
                     "type": "array",
                     "items": {

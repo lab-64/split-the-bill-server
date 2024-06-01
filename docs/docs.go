@@ -925,6 +925,9 @@ const docTemplate = `{
                 },
                 "owner": {
                     "$ref": "#/definitions/dto.UserCoreOutput"
+                },
+                "updatedAt": {
+                    "type": "string"
                 }
             }
         },
@@ -944,6 +947,9 @@ const docTemplate = `{
                     }
                 },
                 "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -1053,9 +1059,6 @@ const docTemplate = `{
         "dto.ItemInput": {
             "type": "object",
             "properties": {
-                "billId": {
-                    "type": "string"
-                },
                 "contributorIDs": {
                     "type": "array",
                     "items": {

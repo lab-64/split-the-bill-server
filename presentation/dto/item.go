@@ -12,7 +12,6 @@ import (
 type ItemInput struct {
 	Name         string      `json:"name"`
 	Price        float64     `json:"price"`
-	BillID       uuid.UUID   `json:"billId"`
 	Contributors []uuid.UUID `json:"contributorIDs"`
 }
 
@@ -44,12 +43,8 @@ func (i ItemInput) ValidateInputs() error {
 	if i.Price == 0 {
 		return ErrItemPriceRequired
 	}
-	if i.BillID == uuid.Nil {
-		return ErrItemBillIDRequired
-	}
 	return nil
 }
 
 var ErrItemNameRequired = errors.New("name is required")
 var ErrItemPriceRequired = errors.New("price is required")
-var ErrItemBillIDRequired = errors.New("billID is required")

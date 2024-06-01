@@ -122,6 +122,9 @@ func (h BillHandler) Update(c *fiber.Ctx) error {
 		if errors.Is(err, domain.ErrNotAuthorized) {
 			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgBillUpdate, err))
 		}
+		if errors.Is(err, domain.ErrConcurrentModification) {
+			return Error(c, fiber.StatusConflict, fmt.Sprintf(ErrMsgBillUpdate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillUpdate, err))
 	}
 

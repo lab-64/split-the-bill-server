@@ -1,7 +1,6 @@
 package dto
 
 import (
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -15,35 +14,24 @@ func TestItemInput_ValidateInputs(t *testing.T) {
 		{
 			name: "Success",
 			input: ItemInput{
-				Name:   "Test",
-				Price:  10.0,
-				BillID: uuid.New(),
+				Name:  "Test",
+				Price: 10.0,
 			},
 			expectedErr: nil,
 		},
 		{
 			name: "Name is missing",
 			input: ItemInput{
-				Price:  10.0,
-				BillID: uuid.New(),
+				Price: 10.0,
 			},
 			expectedErr: ErrItemNameRequired,
 		},
 		{
 			name: "Price is missing",
 			input: ItemInput{
-				Name:   "Test",
-				BillID: uuid.New(),
+				Name: "Test",
 			},
 			expectedErr: ErrItemPriceRequired,
-		},
-		{
-			name: "BillID is missing",
-			input: ItemInput{
-				Name:  "Test",
-				Price: 10.0,
-			},
-			expectedErr: ErrItemBillIDRequired,
 		},
 	}
 
