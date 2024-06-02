@@ -189,6 +189,7 @@ func (b *BillService) HandleContribution(requesterID uuid.UUID, billID uuid.UUID
 	if !group.IsMember(requesterID) {
 		return domain.ErrNotAuthorized
 	}
+	// update item contributions
 	for _, contributionEntry := range contribution.Contribution {
 		// get item
 		i, item := getItemFromID(contributionEntry.ItemID, bill.Items)
@@ -205,6 +206,8 @@ func (b *BillService) HandleContribution(requesterID uuid.UUID, billID uuid.UUID
 			bill.Items[i].Contributors = removeUserFromContributors(requesterID, item.Contributors)
 		}
 	}
+	// update unseen list
+	bill.UnseenFromUserID = removeEntryFromSlice(bill.UnseenFromUserID, requesterID)
 	// update bill
 	_, err = b.billStorage.UpdateBill(bill)
 	return err
