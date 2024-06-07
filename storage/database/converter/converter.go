@@ -74,6 +74,7 @@ func ToBillModel(bill entity.Bill) model.Bill {
 
 	return model.Bill{
 		ID:               bill.ID,
+		UpdatedAt:        bill.UpdatedAt,
 		Name:             bill.Name,
 		Date:             bill.Date,
 		Owner:            ToUserModel(bill.Owner),

@@ -26,13 +26,14 @@ func ToBillDetailedDTO(bill model.Bill) dto.BillDetailedOutput {
 	}
 
 	return dto.BillDetailedOutput{
-		ID:      bill.ID,
-		Name:    bill.Name,
-		Date:    bill.Date,
-		Items:   itemsDTO,
-		Owner:   ToUserCoreDTO(&bill.Owner),
-		GroupID: bill.GroupID,
-		Balance: bill.Balance,
+		ID:        bill.ID,
+		UpdatedAt: bill.UpdatedAt,
+		Name:      bill.Name,
+		Date:      bill.Date,
+		Items:     itemsDTO,
+		Owner:     ToUserCoreDTO(&bill.Owner),
+		GroupID:   bill.GroupID,
+		Balance:   bill.Balance,
 	}
 }
 

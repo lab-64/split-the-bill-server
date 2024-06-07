@@ -36,6 +36,8 @@ definitions:
         type: string
       owner:
         $ref: '#/definitions/dto.UserCoreOutput'
+      updatedAt:
+        type: string
     type: object
   dto.BillUpdate:
     properties:
@@ -49,6 +51,15 @@ definitions:
         type: array
       name:
         type: string
+      updatedAt:
+        type: string
+    type: object
+  dto.ContributionInput:
+    properties:
+      contribution:
+        items:
+          $ref: '#/definitions/dto.HasContributed'
+        type: array
     type: object
   dto.GeneralResponse:
     properties:
@@ -103,10 +114,15 @@ definitions:
           $ref: '#/definitions/dto.TransactionOutput'
         type: array
     type: object
+  dto.HasContributed:
+    properties:
+      contributed:
+        type: boolean
+      itemID:
+        type: string
+    type: object
   dto.ItemInput:
     properties:
-      billId:
-        type: string
       contributorIDs:
         items:
           type: string
@@ -296,6 +312,32 @@ paths:
                   $ref: '#/definitions/dto.BillDetailedOutput'
               type: object
       summary: Update Bill
+      tags:
+      - Bill
+  /api/bill/{id}/contribution:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bill ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ContributionInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Update Item Contribution
       tags:
       - Bill
   /api/group:

@@ -238,6 +238,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/bill/{id}/contribution": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bill"
+                ],
+                "summary": "Update Item Contribution",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bill ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ContributionInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/group": {
             "get": {
                 "consumes": [
@@ -885,6 +925,9 @@ const docTemplate = `{
                 },
                 "owner": {
                     "$ref": "#/definitions/dto.UserCoreOutput"
+                },
+                "updatedAt": {
+                    "type": "string"
                 }
             }
         },
@@ -905,6 +948,20 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ContributionInput": {
+            "type": "object",
+            "properties": {
+                "contribution": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.HasContributed"
+                    }
                 }
             }
         },
@@ -988,12 +1045,20 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.HasContributed": {
+            "type": "object",
+            "properties": {
+                "contributed": {
+                    "type": "boolean"
+                },
+                "itemID": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ItemInput": {
             "type": "object",
             "properties": {
-                "billId": {
-                    "type": "string"
-                },
                 "contributorIDs": {
                     "type": "array",
                     "items": {
