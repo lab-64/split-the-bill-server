@@ -32,6 +32,10 @@ func CreateBill(id uuid.UUID, ownerID uuid.UUID, name string, date time.Time, gr
 func (bill *Bill) CalculateBalance() map[uuid.UUID]float64 {
 	balance := make(map[uuid.UUID]float64)
 	for _, item := range bill.Items {
+		// zero check
+		if len(item.Contributors) == 0 {
+			continue
+		}
 		ppp := item.Price / float64(len(item.Contributors))
 		for _, contributor := range item.Contributors {
 			balance[contributor.ID] -= ppp
