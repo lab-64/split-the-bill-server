@@ -9,7 +9,7 @@ type GroupTransaction struct {
 	Base
 	Date         time.Time     `gorm:"not null"`
 	GroupID      uuid.UUID     `gorm:"type:uuid"` // group transaction belongs to a group
-	Group        Group         `gorm:"foreignKey:GroupID"`
+	Group        Group         `gorm:"foreignKey:GroupID; constraint:OnDelete:CASCADE"`
 	Transactions []Transaction `gorm:"foreignKey:GroupTransactionID"`
 }
 
