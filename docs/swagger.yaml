@@ -36,6 +36,8 @@ definitions:
         type: string
       owner:
         $ref: '#/definitions/dto.UserCoreOutput'
+      updatedAt:
+        type: string
     type: object
   dto.BillUpdate:
     properties:
@@ -49,19 +51,21 @@ definitions:
         type: array
       name:
         type: string
+      updatedAt:
+        type: string
+    type: object
+  dto.ContributionInput:
+    properties:
+      contribution:
+        items:
+          $ref: '#/definitions/dto.HasContributed'
+        type: array
     type: object
   dto.GeneralResponse:
     properties:
       data: {}
       message:
         type: string
-    type: object
-  dto.GroupDeletionOutput:
-    properties:
-      transactions:
-        items:
-          $ref: '#/definitions/util.Transaction'
-        type: array
     type: object
   dto.GroupDetailedOutput:
     properties:
@@ -95,10 +99,30 @@ definitions:
       ownerID:
         type: string
     type: object
+  dto.GroupTransactionOutput:
+    properties:
+      date:
+        type: string
+      groupId:
+        type: string
+      groupName:
+        type: string
+      id:
+        type: string
+      transactions:
+        items:
+          $ref: '#/definitions/dto.TransactionOutput'
+        type: array
+    type: object
+  dto.HasContributed:
+    properties:
+      contributed:
+        type: boolean
+      itemID:
+        type: string
+    type: object
   dto.ItemInput:
     properties:
-      billId:
-        type: string
       contributorIDs:
         items:
           type: string
@@ -123,6 +147,15 @@ definitions:
       price:
         type: number
     type: object
+  dto.TransactionOutput:
+    properties:
+      amount:
+        type: number
+      creditor:
+        $ref: '#/definitions/dto.UserCoreOutput'
+      debtor:
+        $ref: '#/definitions/dto.UserCoreOutput'
+    type: object
   dto.UserCoreOutput:
     properties:
       email:
@@ -139,15 +172,6 @@ definitions:
       email:
         type: string
       password:
-        type: string
-    type: object
-  util.Transaction:
-    properties:
-      amount:
-        type: number
-      creditorID:
-        type: string
-      debtorID:
         type: string
     type: object
 host: localhost:8080
@@ -290,6 +314,32 @@ paths:
       summary: Update Bill
       tags:
       - Bill
+  /api/bill/{id}/contribution:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bill ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ContributionInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GeneralResponse'
+      summary: Update Item Contribution
+      tags:
+      - Bill
   /api/group:
     get:
       consumes:
@@ -359,12 +409,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.GroupDeletionOutput'
-              type: object
+            $ref: '#/definitions/dto.GeneralResponse'
       summary: Delete Group
       tags:
       - Group
@@ -422,6 +467,31 @@ paths:
       summary: Update Group
       tags:
       - Group
+  /api/group/{id}/transaction:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GroupTransactionOutput'
+              type: object
+      summary: Create Group Transaction & Clear Group
+      tags:
+      - Group
   /api/group/invitation/{id}/accept:
     post:
       consumes:
@@ -440,6 +510,33 @@ paths:
           schema:
             $ref: '#/definitions/dto.GeneralResponse'
       summary: Accept Group Invitation
+      tags:
+      - Group
+  /api/group/transaction:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: User ID - Retrieve transactions for groups where user is a member
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.GroupTransactionOutput'
+                  type: array
+              type: object
+      summary: Get Group Transactions For All Groups
       tags:
       - Group
   /api/user:

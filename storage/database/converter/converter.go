@@ -74,6 +74,7 @@ func ToBillModel(bill entity.Bill) model.Bill {
 
 	return model.Bill{
 		ID:               bill.ID,
+		UpdatedAt:        bill.UpdatedAt,
 		Name:             bill.Name,
 		Date:             bill.Date,
 		Owner:            ToUserModel(bill.Owner),
@@ -136,6 +137,63 @@ func ToGroupModels(groups []entity.Group) []model.Group {
 		s[i] = ToGroupModel(group)
 	}
 	return s
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// GROUP TRANSACTION
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func ToGroupTransactionEntity(g model.GroupTransaction) entity.GroupTransaction {
+	// convert transactions
+	var transactions []entity.Transaction
+	for _, transaction := range g.Transactions {
+		transactions = append(transactions, ToTransactionEntity(transaction))
+	}
+	return entity.GroupTransaction{
+		Base:         entity.Base{ID: g.ID},
+		Date:         g.Date,
+		GroupID:      g.GroupID,
+		Transactions: transactions,
+	}
+}
+
+func ToTransactionEntity(t model.Transaction) entity.Transaction {
+	return entity.Transaction{
+		Base:       entity.Base{ID: t.ID},
+		DebtorID:   t.Debtor.ID,
+		CreditorID: t.Creditor.ID,
+		Amount:     t.Amount,
+	}
+}
+
+func ToGroupTransactionModel(g entity.GroupTransaction) model.GroupTransaction {
+	transactions := make([]model.Transaction, len(g.Transactions))
+	for i, transaction := range g.Transactions {
+		transactions[i] = ToTransactionModel(transaction)
+	}
+	return model.GroupTransaction{
+		ID:           g.ID,
+		Date:         g.Date,
+		GroupID:      g.Group.ID,
+		GroupName:    g.Group.Name,
+		Transactions: transactions,
+	}
+}
+
+func ToGroupTransactionModels(g []entity.GroupTransaction) []model.GroupTransaction {
+	s := make([]model.GroupTransaction, len(g))
+	for i, groupTransaction := range g {
+		s[i] = ToGroupTransactionModel(groupTransaction)
+	}
+	return s
+}
+
+func ToTransactionModel(t entity.Transaction) model.Transaction {
+	return model.Transaction{
+		Debtor:   ToUserModel(t.Debtor),
+		Creditor: ToUserModel(t.Creditor),
+		Amount:   t.Amount,
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

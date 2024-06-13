@@ -45,6 +45,21 @@ var (
 		Price:        30,
 		Contributors: []User{TestUser},
 	}
+
+	TestBill3 = Bill{
+		ID:    uuid.New(),
+		Date:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+		Name:  "Test Bill 3",
+		Owner: TestUser3,
+		Items: []Item{TestItem4},
+	}
+
+	TestItem4 = Item{
+		ID:           uuid.New(),
+		Name:         "Test Item 4",
+		Price:        20,
+		Contributors: []User{},
+	}
 )
 
 func TestBillBalanceCalculation(t *testing.T) {
@@ -52,4 +67,9 @@ func TestBillBalanceCalculation(t *testing.T) {
 	assert.Equal(t, 2, len(balance))
 	assert.Equal(t, 9.25, balance[TestUser.ID])
 	assert.Equal(t, -9.25, balance[TestUser2.ID])
+}
+
+func TestBillBalanceCalculation_Empty_Contributors(t *testing.T) {
+	balance := TestBill3.CalculateBalance()
+	assert.Equal(t, 0, len(balance))
 }

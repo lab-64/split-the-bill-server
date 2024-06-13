@@ -122,6 +122,9 @@ func (h BillHandler) Update(c *fiber.Ctx) error {
 		if errors.Is(err, domain.ErrNotAuthorized) {
 			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgBillUpdate, err))
 		}
+		if errors.Is(err, domain.ErrConcurrentModification) {
+			return Error(c, fiber.StatusConflict, fmt.Sprintf(ErrMsgBillUpdate, err))
+		}
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillUpdate, err))
 	}
 
@@ -201,4 +204,42 @@ func (h BillHandler) GetAllByUser(c *fiber.Ctx) error {
 	}
 
 	return Success(c, fiber.StatusOK, SuccessMsgBillGetAll, bills)
+}
+
+// UpdateContribution 	updates the item contribution of the requester to the bill with the given id.
+//
+//	@Summary	Update Item Contribution
+//	@Tags		Bill
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path		string					true	"Bill ID"
+//	@Param		request	body		dto.ContributionInput	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponse
+//	@Router		/api/bill/{id}/contribution [put]
+func (h BillHandler) UpdateContribution(c *fiber.Ctx) error {
+	// parse parameter
+	id := c.Params("id")
+	if id == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParseUUID, uid, err))
+	}
+	// parse request
+	var request dto.ContributionInput
+	if err = c.BodyParser(&request); err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBillParse, err))
+	}
+	// get authenticated requester from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	// update item contribution
+	err = h.billService.HandleContribution(requesterID, uid, request)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotAuthorized) {
+			return Error(c, fiber.StatusUnauthorized, fmt.Sprintf(ErrMsgBillUpdate, err))
+		}
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgBillUpdate, err))
+	}
+	return Success(c, fiber.StatusOK, SuccessMsgBillUpdate, nil)
 }

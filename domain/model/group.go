@@ -32,6 +32,7 @@ func CreateGroup(id uuid.UUID, group dto.GroupInput, members []uuid.UUID) Group 
 	}
 }
 
+// CalculateBalance Calculate balance for each member in the group
 func (group *Group) CalculateBalance() map[uuid.UUID]float64 {
 	balance := make(map[uuid.UUID]float64)
 	// init balance for all members

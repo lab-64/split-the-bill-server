@@ -15,6 +15,11 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 		return c.SendString("Hello, World!")
 	})
 
+	// Serve privacy policy
+	app.Get("/privacy-policy", func(c *fiber.Ctx) error {
+		return c.SendFile("privacy_policy.html")
+	})
+
 	// Manage DeepLink
 	app.Get("/.well-known/assetlinks.json", func(c *fiber.Ctx) error {
 		// Read the assetlinks.json file
@@ -49,6 +54,7 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 	billRoute := api.Group("/bill")
 	// routes
 	billRoute.Post("/", a.Authenticate, b.Create)
+	billRoute.Put("/:id/contribution", a.Authenticate, b.UpdateContribution)
 	billRoute.Put("/:id", a.Authenticate, b.Update)
 	billRoute.Get("/:id", a.Authenticate, b.GetByID)
 	billRoute.Delete("/:id", a.Authenticate, b.Delete)
@@ -57,10 +63,12 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 	// group routes
 	groupRoute := api.Group("/group")
 	// routes
-	groupRoute.Post("/", a.Authenticate, g.Create)
+	groupRoute.Post("/invitation/:id/accept", a.Authenticate, g.AcceptInvitation)
+	groupRoute.Post("/:id/transaction/", a.Authenticate, g.CreateGroupTransaction)
+	groupRoute.Get("/transaction/", a.Authenticate, g.GetAllGroupTransactions)
 	groupRoute.Put("/:id", a.Authenticate, g.Update)
 	groupRoute.Get("/:id", a.Authenticate, g.GetByID)
-	groupRoute.Get("/", a.Authenticate, g.GetAll)
 	groupRoute.Delete("/:id", a.Authenticate, g.Delete)
-	groupRoute.Post("/invitation/:id/accept", a.Authenticate, g.AcceptInvitation)
+	groupRoute.Post("/", a.Authenticate, g.Create)
+	groupRoute.Get("/", a.Authenticate, g.GetAll)
 }

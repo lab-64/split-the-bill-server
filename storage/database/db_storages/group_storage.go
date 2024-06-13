@@ -143,3 +143,53 @@ func (g *GroupStorage) AcceptGroupInvitation(invitationID uuid.UUID, userID uuid
 
 	return res
 }
+
+func (g *GroupStorage) CreateGroupTransaction(transaction model.GroupTransaction) (model.GroupTransaction, error) {
+	groupTransactionEntity := converter.ToGroupTransactionEntity(transaction)
+
+	err := g.DB.Transaction(func(tx *gorm.DB) error {
+
+		// delete all unseen bills associated with the group
+		if err := tx.Exec("DELETE FROM unseen_bills WHERE bill_id IN (SELECT id FROM bills WHERE group_id = ?)", transaction.GroupID).Error; err != nil {
+			return err
+		}
+		// delete all items associated with the group
+		if err := tx.Exec("DELETE FROM items WHERE bill_id IN (SELECT id FROM bills WHERE group_id = ?)", transaction.GroupID).Error; err != nil {
+			return err
+		}
+
+		// delete all bills associated with the group
+		if err := tx.Exec("DELETE FROM bills WHERE group_id = ?", transaction.GroupID).Error; err != nil {
+			return err
+		}
+
+		// add new group transaction
+		res := tx.
+			Preload(clause.Associations).
+			Preload("Transactions.Debtor").
+			Preload("Transactions.Creditor").
+			Create(&groupTransactionEntity).
+			First(&groupTransactionEntity)
+
+		return res.Error
+	})
+
+	return converter.ToGroupTransactionModel(groupTransactionEntity), err
+}
+
+func (g *GroupStorage) GetAllGroupTransactions(userID uuid.UUID) ([]model.GroupTransaction, error) {
+	var groupTransactions []entity.GroupTransaction
+
+	tx := g.DB.
+		Preload(clause.Associations).
+		Preload("Transactions.Debtor").
+		Preload("Transactions.Creditor").
+		Where("group_id IN (SELECT group_id FROM group_members WHERE user_id = ?)", userID).
+		Find(&groupTransactions)
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return converter.ToGroupTransactionModels(groupTransactions), nil
+}

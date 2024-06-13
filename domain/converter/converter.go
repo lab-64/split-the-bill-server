@@ -27,13 +27,14 @@ func ToBillDetailedDTO(bill model.Bill) dto.BillDetailedOutput {
 	}
 
 	return dto.BillDetailedOutput{
-		ID:      bill.ID,
-		Name:    bill.Name,
-		Date:    bill.Date,
-		Items:   itemsDTO,
-		Owner:   ToUserCoreDTO(&bill.Owner),
-		GroupID: bill.GroupID,
-		Balance: bill.Balance,
+		ID:        bill.ID,
+		UpdatedAt: bill.UpdatedAt,
+		Name:      bill.Name,
+		Date:      bill.Date,
+		Items:     itemsDTO,
+		Owner:     ToUserCoreDTO(&bill.Owner),
+		GroupID:   bill.GroupID,
+		Balance:   bill.Balance,
 	}
 }
 
@@ -73,6 +74,41 @@ func ToGroupDetailedDTO(g model.Group) dto.GroupDetailedOutput {
 		Bills:        billsDTO,
 		Balance:      g.Balance,
 		InvitationID: g.InvitationID,
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// GROUP TRANSACTION
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func ToGroupTransactionDTO(g model.GroupTransaction) dto.GroupTransactionOutput {
+
+	return dto.GroupTransactionOutput{
+		ID:           g.ID,
+		Date:         g.Date,
+		GroupID:      g.GroupID,
+		GroupName:    g.GroupName,
+		Transactions: ToTransactionDTOs(g.Transactions),
+	}
+}
+
+func ToTransactionDTOs(transactions []model.Transaction) []dto.TransactionOutput {
+	transactionsDTO := make([]dto.TransactionOutput, len(transactions))
+
+	for i, transaction := range transactions {
+		transactionsDTO[i] = ToTransactionDTO(transaction)
+	}
+	return transactionsDTO
+}
+
+func ToTransactionDTO(t model.Transaction) dto.TransactionOutput {
+	debtor := ToUserCoreDTO(&t.Debtor)
+	creditor := ToUserCoreDTO(&t.Creditor)
+
+	return dto.TransactionOutput{
+		Debtor:   debtor,
+		Creditor: creditor,
+		Amount:   t.Amount,
 	}
 }
 
