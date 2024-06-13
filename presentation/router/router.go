@@ -15,6 +15,11 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 		return c.SendString("Hello World")
 	})
 
+	// Serve privacy policy
+	app.Get("/privacy-policy", func(c *fiber.Ctx) error {
+		return c.SendFile("privacy_policy.html")
+	})
+
 	// Manage DeepLink
 	app.Get("/.well-known/assetlinks.json", func(c *fiber.Ctx) error {
 		// Read the assetlinks.json file
