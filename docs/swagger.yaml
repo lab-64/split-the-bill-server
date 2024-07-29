@@ -174,7 +174,7 @@ definitions:
       password:
         type: string
     type: object
-host: localhost:8080
+host: split-it.lab64.eu
 info:
   contact: {}
   title: Split The Bill API

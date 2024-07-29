@@ -23,7 +23,7 @@ import (
 
 // @title		Split The Bill API
 // @version	1.0
-// @host		localhost:8080
+// @host		split-it.lab64.eu
 // @BasePath	/
 func main() {
 	// load environment variables
