@@ -170,7 +170,7 @@ var (
 		GroupID: Group2.ID,
 	}
 
-	// INVITATIONS
+	// INVITAT	IONS
 	Invitation1 = GroupInvitation{
 		Base:    Base{ID: uuid.New()},
 		GroupID: Group1.ID,
@@ -184,6 +184,21 @@ var (
 	Invitation3 = GroupInvitation{
 		Base:    Base{ID: uuid.New()},
 		GroupID: Group3.ID,
+	}
+
+	// TRANSACTIONS
+	Transaction1 = Transaction{
+		Base:       Base{ID: uuid.New()},
+		Amount:     10.0,
+		DebtorID:   User1.ID,
+		CreditorID: User3.ID,
+	}
+
+	GroupTransaction1 = GroupTransaction{
+		Base:         Base{ID: uuid.New()},
+		Date:         time.Now(),
+		GroupID:      Group1.ID,
+		Transactions: []Transaction{Transaction1},
 	}
 )
 
@@ -275,6 +290,15 @@ func All() []Seed {
 					return err
 				}
 				if err := db.Create(&Invitation3).Error; err != nil {
+					return err
+				}
+				return nil
+			},
+		},
+		{
+			Name: "CreateGroupTransaction",
+			Run: func(db *DB) error {
+				if err := db.Create(&GroupTransaction1).Error; err != nil {
 					return err
 				}
 				return nil

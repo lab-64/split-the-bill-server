@@ -16,9 +16,9 @@ type GroupTransaction struct {
 type Transaction struct {
 	Base
 	DebtorID           uuid.UUID // transaction belongs to a debtor
-	Debtor             User
+	Debtor             User      `gorm:"foreignKey:DebtorID; constraint:OnDelete:SET NULL"`
 	CreditorID         uuid.UUID // transaction belongs to a creditor
-	Creditor           User
+	Creditor           User      `gorm:"foreignKey:CreditorID; constraint:OnDelete:SET NULL"`
 	Amount             float64
 	GroupTransactionID uuid.UUID
 }
