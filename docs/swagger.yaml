@@ -177,7 +177,7 @@ definitions:
 host: split-it.lab64.eu
 info:
   contact: {}
-  title: Split The Bill API
+  title: SplitIt API
   version: "1.0"
 paths:
   /api/bill:

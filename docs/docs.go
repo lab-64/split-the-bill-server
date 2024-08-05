@@ -1147,7 +1147,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "split-it.lab64.eu",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Split The Bill API",
+	Title:            "SplitIt API",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

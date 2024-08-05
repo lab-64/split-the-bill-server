@@ -8,7 +8,7 @@ import (
 // AuthCookie struct
 type AuthCookie struct {
 	Base
-	User        User
+	User        User      `gorm:"constraint:OnUpdate:CASCADE, OnDelete:CASCADE"`
 	UserID      uuid.UUID `gorm:"type:uuid; not null"`
 	ValidBefore time.Time
 }

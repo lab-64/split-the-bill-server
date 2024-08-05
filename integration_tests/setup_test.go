@@ -116,7 +116,7 @@ func initDB() {
 		log.Fatal("Error while connecting to the database: " + err.Error())
 	}
 
-	err = sqliteDB.AutoMigrate(&User{}, &AuthCookie{}, &Credentials{}, &Group{}, &GroupInvitation{}, &Bill{}, &Item{})
+	err = sqliteDB.AutoMigrate(&User{}, &AuthCookie{}, &Credentials{}, &Group{}, &GroupInvitation{}, &Bill{}, &Item{}, &GroupTransaction{}, &Transaction{})
 	if err != nil {
 		log.Fatal("Error while migrating the database: " + err.Error())
 	}
