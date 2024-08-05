@@ -2,10 +2,12 @@ package entity
 
 import (
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Group struct {
 	Base
+	DeletedAt       gorm.DeletedAt  `gorm:"index"`
 	Name            string          `gorm:"not null"`
 	OwnerUID        uuid.UUID       `gorm:"type:uuid"`
 	Owner           User            `gorm:"foreignKey:OwnerUID; constraint:OnUpdate:CASCADE, OnDelete:CASCADE"` // belongs to user
