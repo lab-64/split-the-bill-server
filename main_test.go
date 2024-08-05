@@ -15,7 +15,7 @@ import (
 	"testing"
 )
 
-// TestlandingPage tests whether the fiber client starts correctly.
+// TestBuild tests whether the fiber client starts correctly.
 func TestBuild(t *testing.T) {
 	// Test Server Configuration
 	app := fiber.New()
