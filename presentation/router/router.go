@@ -12,7 +12,14 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 
 	// Define landing page
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendFile("presentation/pages/SplitIt-Preview.jpg")
+		return c.SendFile("presentation/pages/homepage.html")
+	})
+	// Serve image files
+	app.Get("/images/splitit.jpg", func(c *fiber.Ctx) error {
+		return c.SendFile("presentation/pages/images/SplitIt-Preview.jpg")
+	})
+	app.Get("/images/favicon.ico", func(c *fiber.Ctx) error {
+		return c.SendFile("presentation/pages/images/favicon.ico")
 	})
 
 	// Serve privacy policy
