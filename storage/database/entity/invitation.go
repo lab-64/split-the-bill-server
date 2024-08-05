@@ -6,5 +6,5 @@ import (
 
 type GroupInvitation struct {
 	Base
-	GroupID uuid.UUID `gorm:"type:uuid"`
+	GroupID uuid.UUID `gorm:"type:uuid; constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
