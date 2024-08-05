@@ -12,12 +12,12 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 
 	// Define landing page
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
+		return c.SendFile("presentation/pages/SplitIt-Preview.jpg")
 	})
 
 	// Serve privacy policy
 	app.Get("/privacy-policy", func(c *fiber.Ctx) error {
-		return c.SendFile("privacy_policy.html")
+		return c.SendFile("presentation/pages/privacy_policy.html")
 	})
 
 	// Manage DeepLink

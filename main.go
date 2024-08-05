@@ -21,7 +21,7 @@ import (
 	"split-the-bill-server/storage/ephemeral/eph_storages"
 )
 
-// @title		Split The Bill API
+// @title		SplitIt API
 // @version	1.0
 // @host		localhost:8080
 // @BasePath	/
