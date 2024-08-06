@@ -10,21 +10,18 @@ import (
 // SetupRoutes creates webserver routes and connect them to the related handlers.
 func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a middleware.Authenticator) {
 
-	// Define landing page
-	app.Get("/", func(c *fiber.Ctx) error {
+	// Serve static files (images, css, js, etc.)
+	app.Static("/", "presentation/pages/public")
+
+	// Define pages
+	app.Get("/", func(c *fiber.Ctx) error { // landing page
 		return c.SendFile("presentation/pages/homepage.html")
 	})
-	// Serve image files
-	app.Get("/images/splitit.jpg", func(c *fiber.Ctx) error {
-		return c.SendFile("presentation/pages/images/SplitIt-Preview.jpg")
-	})
-	app.Get("/images/favicon.ico", func(c *fiber.Ctx) error {
-		return c.SendFile("presentation/pages/images/favicon.ico")
-	})
-
-	// Serve privacy policy
-	app.Get("/privacy-policy", func(c *fiber.Ctx) error {
+	app.Get("/privacy-policy", func(c *fiber.Ctx) error { // privacy policy
 		return c.SendFile("presentation/pages/privacy_policy.html")
+	})
+	app.Get("/delete-user", func(c *fiber.Ctx) error { // delete account page
+		return c.SendFile("presentation/pages/delete_account.html")
 	})
 
 	// Manage DeepLink
@@ -39,7 +36,7 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 		return c.Send(fileContent)
 	})
 
-	// serve static files to authenticated user
+	// serve static images to authenticated users
 	app.Use("/image/", a.Authenticate)
 	app.Static("/image/", "./uploads/profileImages") // hide the real storage path
 
