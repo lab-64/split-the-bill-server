@@ -1,6 +1,7 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Tahoma', sans-serif;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -19,7 +20,13 @@ body {
     }
 }
 
-.container {
+.container{
+    flex: 1; /* Fill the remaining space */
+    display: flex; /* to enable flex properties */
+    align-items: center; /* center vertically */
+}
+
+.content-container {
     text-align: center;
     max-width: 400px;
     width: 100%;
@@ -86,4 +93,24 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+footer {
+    width: 100%;
+    padding: 10px 0;
+    background-color: #333; /* Gray background */
+    color: #fff; /* White text */
+    text-align: center;
+    position: bottom;
+    bottom: 0;
+}
+
+footer a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+footer a:hover {
+    text-decoration: underline;
 }

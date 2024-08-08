@@ -23,6 +23,9 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 	app.Get("/delete-user", func(c *fiber.Ctx) error { // delete account page
 		return c.SendFile("presentation/pages/delete_account.html")
 	})
+	app.Get("/impressum", func(c *fiber.Ctx) error { // impressum
+		return c.SendFile("presentation/pages/impressum.html")
+	})
 
 	// Manage DeepLink
 	app.Get("/.well-known/assetlinks.json", func(c *fiber.Ctx) error {

@@ -7,17 +7,54 @@
     <link rel="icon" type="image/icon" href="/images/favicon.ico">
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
-            line-height: 1.6;
-            color: #333;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: 'Tahoma', sans-serif;
         }
-        h1, h2 {
+        .container {
+            width: 60%;
+            padding: 20px;
+            border-left: 2px;
+            border-right: 2px;
+            text-align: left;
+        }
+        .title {
+            font-size: 3em;
+            color: #0056b3;
+            font-weight: bolder;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            margin-top: 40px;
+        }
+        header img {
+            max-width: 150px;
+            height: auto;
+            margin-right: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #0056b3;
+            margin-top: 120px;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 2em;
+            margin-top: 40px;
+            margin-bottom: 10px;
             color: #0056b3;
         }
         p {
-            margin-bottom: 20px;
+            font-size: 1.1em;
+            /*font-weight: bold;*/
         }
         a {
             color: #0056b3;
@@ -26,36 +63,90 @@
         a:hover {
             text-decoration: underline;
         }
+        footer {
+            width: 100%;
+            padding: 10px 0;
+            background-color: #333; /* Gray background */
+            color: #fff; /* White text */
+            text-align: center;
+            position: bottom;
+            bottom: 0;
+        }
+
+        footer a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-<h1>Privacy Policy</h1>
-<p>Effective date: 13.06.2024</p>
+    <div class="container">
+        <header>
+            <img src="/images/favicon.ico" alt="SplitIt Logo">
+            <div class="title">SplitIt!</div>
+        </header>
 
-<p>This privacy policy governs your use of the software application SplitIt! (“Application”) for mobile devices that was created by lab64. The Application includes the use of the camera and gallery for specific functionalities as described below.</p>
+        <h1>Privacy Policy</h1>
+        <p>We provide this Privacy Policy to explain how we may collect, retain, process, and transfer your Personal Data when you use our App (SplitIt!) or visit our Site.</p>
+        <p>Please contact us if you have questions regarding our privacy practices which are not addressed in this Privacy Policy.</p>
 
-<h2>Information Collection and Use</h2>
-<p>The Application uses the camera and gallery solely for the purpose of taking and selecting photos. The images captured or selected from the gallery are used within the application and may be stored on our backend servers.</p>
+        <h2>What Personal Data Do We Collect?</h2>
+        <p>When you use our App, we will collect Personal Data as necessary to offer and fulfil the services you request. If you want to use the full functionality of the App, you need to sign up.
+            For the sign in an email and a password is required. For your personal profile you can set any arbitrary name and a profile image, optionally. You can create Groups in our App by providing
+            us Personal Data including the name of the Group, the date, as well as Bills and amounts of payments and expenses you and other Group members add to the Group. Groups can be created just
+            for yourself, or you can share a Group with others. When you share a Group with others, the Group data is available to all Group members. You can invite Users to your Group by sending them a
+            secret access code. You share your username and your profile image with your Group Members.</p>
+        <p>All data you enter into the App is transmitted and stored securely on our servers. This includes your profile data and the Group data. This is necessary to provide you the full service of the
+            App.</p>
 
-<h2>Camera Permission</h2>
-<p>The Application requests permission to use the camera to allow users to take photos directly from the app which will be used to automatically create item suggestions from a given bill. This permission is used exclusively for the purpose of providing this functionality within the Application.</p>
+        <h2>Why Do We Retain Personal Data?</h2>
+        <p>We retain Personal Data as necessary to provide the full service offered by our App, to fulfil our legal or regulatory obligations, or to pursue our legitimate interests.
+            You are not required to provide us with your Personal Data; however as a result, you may not be able to use the full service offered by our App. We retain Personal Data
+            for the time necessary for the respective purpose.
+        </p>
 
-<h2>Gallery Permission</h2>
-<p>The Application requests permission to access the gallery to allow users to select and upload images from their device. This permission is used exclusively for the purpose of providing this functionality within the Application.</p>
+        <h2>Do We Share Personal Data?</h2>
+        <p>We may share your Personal Data with others to provide the services our App offers. We may share Personal Data with third-party service providers that perform services and functions at our direction. These third-party service providers include providers needed to operate our cloud-based infrastructure, databases, and other information technology.</p>
+        <p>We may also share your Personal Data with others if we need to do so to comply with a law, legal process or regulations.</p>
 
-<h2>Data Storage and Retention</h2>
-<p>The images and information collected by the Application may be stored on our secure backend servers. The profile images are stored to provide users with a personalized experience. Other user information is stored in our database to ensure the proper functioning of the Application.</p>
-<p>We retain the collected information for as long as your account is active or as needed to provide you services. If you wish to delete your account or request that we no longer use your information to provide you services, please contact us at  <a href="mailto:[info@lab64.eu]">[info@lab64.eu]</a>. We will respond to your request within a reasonable timeframe.</p>
+        <h2>How Do We Use Cookies and Tracking Technologies?</h2>
+        <p>We do not use tracking technologies.</p>
 
-<h2>Data Security</h2>
-<p>We are concerned about safeguarding the confidentiality of your information. We provide physical, electronic, and procedural safeguards to protect information we process and maintain. For example, we limit access to this information to authorized employees and contractors who need to know that information in order to operate, develop, or improve our Application. Please be aware that, although we endeavor to provide reasonable security for information we process and maintain, no security system can prevent all potential security breaches.</p>
+        <h2>What Privacy Choices Are Available To You?</h2>
+        <p>You may opt to render some of your Personal Data anonymous, by, for example, using abbreviations or code words instead of other Group members' names. In addition, you may enter expenses
+            without providing an expense title.</p>
+        <p>You generally can review and edit your Personal Data by using our App and updating the information directly, or by contacting us.</p>
 
-<h2>Changes</h2>
-<p>This Privacy Policy may be updated from time to time for any reason. We will notify you of any changes to our Privacy Policy by posting the new Privacy Policy here. You are advised to consult this Privacy Policy regularly for any changes, as continued use is deemed approval of all changes.</p>
+        <h2>What Are Your Rights?</h2>
+        <p>Subject to limitations set out in EEA data protection laws, you have certain rights in respect of your Personal Data. In particular, you have a right of access, rectification, restriction,
+        opposition, erasure and data portability. Please contact us if you wish to exercise these rights.</p>
 
-<h2>Contact Us</h2>
-<p>If you have any questions regarding privacy while using the Application, or have questions about our practices, please contact us via email at  <a href="mailto:[info@lab64.eu]">[info@lab64.eu]</a>.</p>
+        <h2>How Do We Protect Your Personal Data?</h2>
+        <p>We undertake technical and administrative security measures intended to provide reasonable protection for your Personal Data against loss, unauthorised access, disclosure, and alteration.
+            The security measures include data encryption and access authorisation controls. While we are dedicated to securing our systems, you are responsible for securing and maintaining the privacy
+            of the access codes to your Groups.</p>
+        <p>Please be aware that, although we endeavor to provide reasonable security for information we process and maintain, no security system can prevent all potential security breaches.</p>
 
-<p>Last updated: 13.06.2024</p>
+
+        <h2>Changes to this Privacy Policy</h2>
+        <p>This Privacy Policy may be updated from time to time for any reason. We will notify you of any changes to our Privacy Policy by posting the new Privacy Policy here. You are advised to consult
+            this Privacy Policy regularly for any changes, as continued use is deemed approval of all changes.</p>
+
+        <h2>Contact</h2>
+        <p>If you have any questions or concerns regarding this Privacy Policy or the way in which we handle your Personal Data, please contact us via email
+            at <a href="mailto:[info@lab64.eu]">[info@lab64.eu]</a>.</p>
+        <p>Last updated: 07.08.2024</p>
+    </div>
+
+    <footer>
+        <a href="/privacy-policy">Privacy Policy</a> |
+        <a href="/impressum">Impressum</a>
+    </footer>
+
 </body>
 </html>
