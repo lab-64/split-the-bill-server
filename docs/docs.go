@@ -1144,7 +1144,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "split-it.lab64.eu",
+	Host:             "splitit.lab64.eu",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "SplitIt API",

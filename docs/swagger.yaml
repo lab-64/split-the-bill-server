@@ -174,7 +174,7 @@ definitions:
       password:
         type: string
     type: object
-host: split-it.lab64.eu
+host: splitit.lab64.eu
 info:
   contact: {}
   title: SplitIt API

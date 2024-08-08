@@ -23,7 +23,7 @@ import (
 
 // @title		SplitIt API
 // @version	1.0
-// @host		split-it.lab64.eu
+// @host		splitit.lab64.eu
 // @BasePath	/
 func main() {
 	// load environment variables
