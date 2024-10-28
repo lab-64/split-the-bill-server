@@ -181,8 +181,9 @@ func (g *GroupStorage) GetAllGroupTransactions(userID uuid.UUID) ([]model.GroupT
 	var groupTransactions []entity.GroupTransaction
 
 	tx := g.DB.
-		//Preload(clause.Associations).
-		Unscoped().Preload("Group").
+		Unscoped().
+		Order("date desc").
+		Preload("Group").
 		Preload("Transactions.Debtor").
 		Preload("Transactions.Creditor").
 		Where("group_id IN (SELECT group_id FROM group_members WHERE user_id = ?)", userID).
