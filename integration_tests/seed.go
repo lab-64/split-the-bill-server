@@ -200,6 +200,20 @@ var (
 		GroupID:      Group1.ID,
 		Transactions: []Transaction{Transaction1},
 	}
+
+	Transaction2 = Transaction{
+		Base:       Base{ID: uuid.New()},
+		Amount:     5.0,
+		DebtorID:   User2.ID,
+		CreditorID: User1.ID,
+	}
+
+	GroupTransaction2 = GroupTransaction{
+		Base:         Base{ID: uuid.New()},
+		Date:         time.Now().Add(time.Hour * 24),
+		GroupID:      Group1.ID,
+		Transactions: []Transaction{Transaction2},
+	}
 )
 
 func All() []Seed {
@@ -299,6 +313,9 @@ func All() []Seed {
 			Name: "CreateGroupTransaction",
 			Run: func(db *DB) error {
 				if err := db.Create(&GroupTransaction1).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&GroupTransaction2).Error; err != nil {
 					return err
 				}
 				return nil
