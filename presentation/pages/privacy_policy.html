@@ -31,14 +31,33 @@
         header {
             display: flex;
             align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
+            justify-content: space-between;
+            margin-bottom: 10px;
             margin-top: 40px;
         }
-        header img {
+        .header-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header-container img {
             max-width: 150px;
             height: auto;
             margin-right: 20px;
+        }
+        .header-container .title {
+            font-size: 2.5em;
+            color: #0056b3;
+            font-weight: bold;
+        }
+        .language-switch {
+            cursor: pointer;
+            background-color: #0056b3;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
         }
         h1 {
             font-size: 2.5em;
@@ -54,7 +73,6 @@
         }
         p {
             font-size: 1.1em;
-            /*font-weight: bold;*/
         }
         a {
             color: #0056b3;
@@ -83,14 +101,32 @@
             text-decoration: underline;
         }
     </style>
+    <script>
+        function toggleLanguage() {
+            const isEnglish = document.documentElement.lang === 'en';
+            document.documentElement.lang = isEnglish ? 'de' : 'en';
+
+            document.querySelectorAll('.en').forEach(el => el.style.display = isEnglish ? 'none' : 'block');
+            document.querySelectorAll('.de').forEach(el => el.style.display = isEnglish ? 'block' : 'none');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.de').forEach(el => el.style.display = 'none');
+        });
+    </script>
 </head>
 <body>
-    <div class="container">
-        <header>
+<div class="container">
+    <header>
+        <div class="header-container">
             <img src="/images/favicon.ico" alt="SplitIt Logo">
             <div class="title">SplitIt!</div>
-        </header>
+        </div>
+        <button class="language-switch" onclick="toggleLanguage()">Deutsch/English</button>
+    </header>
 
+    <!-- English Content -->
+    <div class="en">
         <h1>Privacy Policy</h1>
         <p>We provide this Privacy Policy to explain how we may collect, retain, process, and transfer your Personal Data when you use our App (SplitIt!) or visit our Site.</p>
         <p>Please contact us if you have questions regarding our privacy practices which are not addressed in this Privacy Policy.</p>
@@ -124,7 +160,7 @@
 
         <h2>What Are Your Rights?</h2>
         <p>Subject to limitations set out in EEA data protection laws, you have certain rights in respect of your Personal Data. In particular, you have a right of access, rectification, restriction,
-        opposition, erasure and data portability. Please contact us if you wish to exercise these rights.</p>
+            opposition, erasure and data portability. Please contact us if you wish to exercise these rights.</p>
 
         <h2>How Do We Protect Your Personal Data?</h2>
         <p>We undertake technical and administrative security measures intended to provide reasonable protection for your Personal Data against loss, unauthorised access, disclosure, and alteration.
@@ -143,10 +179,50 @@
         <p>Last updated: 07.08.2024</p>
     </div>
 
-    <footer>
-        <a href="/privacy-policy">Privacy Policy</a> |
-        <a href="/impressum">Impressum</a>
-    </footer>
 
+    <!-- German Content -->
+    <div class="de">
+        <h1>Datenschutzrichtlinie</h1>
+        <p>Wir stellen diese Datenschutzrichtlinie bereit, um zu erklären, wie wir Ihre persönlichen Daten erfassen, speichern, verarbeiten und übertragen können, wenn Sie unsere App (SplitIt!) nutzen oder unsere Website besuchen.</p>
+        <p>Bitte kontaktieren Sie uns, wenn Sie Fragen zu unseren Datenschutzpraktiken haben, die in dieser Datenschutzrichtlinie nicht behandelt werden.</p>
+
+        <h2>Welche personenbezogenen Daten erfassen wir?</h2>
+        <p>Wenn Sie unsere App nutzen, erfassen wir personenbezogene Daten, die notwendig sind, um die von Ihnen angeforderten Dienste anzubieten und bereitzustellen. Um die vollständige Funktionalität der App zu nutzen, müssen Sie sich anmelden. Für die Anmeldung sind eine E-Mail-Adresse und ein Passwort erforderlich. Für Ihr persönliches Profil können Sie optional einen beliebigen Namen und ein Profilbild festlegen. Sie können in unserer App Gruppen erstellen, indem Sie uns personenbezogene Daten wie den Namen der Gruppe, das Datum sowie Rechnungen und Beträge von Zahlungen und Ausgaben, die Sie und andere Gruppenmitglieder hinzufügen, bereitstellen. Gruppen können nur für Sie selbst erstellt oder mit anderen geteilt werden. Wenn Sie eine Gruppe mit anderen teilen, sind die Gruppendaten für alle Gruppenmitglieder zugänglich. Sie können Benutzer zu Ihrer Gruppe einladen, indem Sie ihnen einen geheimen Zugangscode senden. Sie teilen Ihren Benutzernamen und Ihr Profilbild mit Ihren Gruppenmitgliedern.</p>
+        <p>Alle Daten, die Sie in die App eingeben, werden sicher auf unseren Servern übertragen und gespeichert. Dazu gehören Ihre Profildaten und die Gruppendaten. Dies ist erforderlich, um Ihnen den vollen Service der App bereitzustellen.</p>
+
+        <h2>Warum speichern wir personenbezogene Daten?</h2>
+        <p>Wir speichern personenbezogene Daten, soweit dies erforderlich ist, um den vollen Service unserer App bereitzustellen, unsere gesetzlichen oder behördlichen Verpflichtungen zu erfüllen oder unsere berechtigten Interessen zu verfolgen. Sie sind nicht verpflichtet, uns Ihre personenbezogenen Daten bereitzustellen; allerdings können Sie dadurch möglicherweise nicht den vollen Service unserer App nutzen. Wir speichern personenbezogene Daten so lange, wie es für den jeweiligen Zweck erforderlich ist.</p>
+
+        <h2>Teilen wir personenbezogene Daten?</h2>
+        <p>Wir können Ihre personenbezogenen Daten mit anderen teilen, um die Dienste unserer App bereitzustellen. Wir können personenbezogene Daten mit Drittanbietern teilen, die in unserem Auftrag Dienstleistungen und Funktionen ausführen. Diese Drittanbieter umfassen Anbieter, die für den Betrieb unserer cloudbasierten Infrastruktur, Datenbanken und anderer Informationstechnologien erforderlich sind.</p>
+        <p>Wir können Ihre personenbezogenen Daten auch mit anderen teilen, wenn wir gesetzlich, durch ein rechtliches Verfahren oder durch Vorschriften dazu verpflichtet sind.</p>
+
+        <h2>Wie nutzen wir Cookies und Tracking-Technologien?</h2>
+        <p>Wir verwenden keine Tracking-Technologien.</p>
+
+        <h2>Welche Datenschutzoptionen stehen Ihnen zur Verfügung?</h2>
+        <p>Sie können einige Ihrer personenbezogenen Daten anonymisieren, indem Sie beispielsweise Abkürzungen oder Codewörter anstelle der Namen anderer Gruppenmitglieder verwenden. Außerdem können Sie Rechnungen ohne Angabe der richtigen Rechnungsbeschreibung eingeben.</p>
+        <p>Im Allgemeinen können Sie Ihre personenbezogenen Daten überprüfen und bearbeiten, indem Sie unsere App nutzen und die Informationen direkt aktualisieren oder uns kontaktieren.</p>
+
+        <h2>Welche Rechte haben Sie?</h2>
+        <p>Vorbehaltlich der in den Datenschutzgesetzen des EEA festgelegten Einschränkungen haben Sie bestimmte Rechte in Bezug auf Ihre personenbezogenen Daten. Insbesondere haben Sie das Recht auf Zugang, Berichtigung, Einschränkung, Widerspruch, Löschung und Datenübertragbarkeit. Bitte kontaktieren Sie uns, wenn Sie diese Rechte ausüben möchten.</p>
+
+        <h2>Wie schützen wir Ihre personenbezogenen Daten?</h2>
+        <p>Wir ergreifen technische und administrative Sicherheitsmaßnahmen, um einen angemessenen Schutz Ihrer personenbezogenen Daten vor Verlust, unbefugtem Zugriff, Offenlegung und Änderung zu gewährleisten. Zu den Sicherheitsmaßnahmen gehören Datenverschlüsselung und Zugriffskontrollmaßnahmen. Während wir uns bemühen, unsere Systeme zu sichern, sind Sie dafür verantwortlich, die Geheimhaltung der Zugangscodes zu Ihren Gruppen zu wahren.</p>
+        <p>Bitte beachten Sie, dass trotz unserer Bemühungen, angemessene Sicherheitsmaßnahmen zu bieten, kein Sicherheitssystem alle potenziellen Sicherheitsverletzungen verhindern kann.</p>
+
+        <h2>Änderungen an dieser Datenschutzrichtlinie</h2>
+        <p>Diese Datenschutzrichtlinie kann aus verschiedenen Gründen von Zeit zu Zeit aktualisiert werden. Wir informieren Sie über Änderungen an unserer Datenschutzrichtlinie, indem wir die neue Datenschutzrichtlinie hier veröffentlichen. Wir empfehlen Ihnen, diese Datenschutzrichtlinie regelmäßig auf Änderungen zu überprüfen, da die fortgesetzte Nutzung als Zustimmung zu allen Änderungen gilt.</p>
+
+        <h2>Kontakt</h2>
+        <p>Wenn Sie Fragen oder Bedenken zu dieser Datenschutzrichtlinie oder zum Umgang mit Ihren personenbezogenen Daten haben, kontaktieren Sie uns bitte per E-Mail unter <a href="mailto:[info@lab64.eu]">[info@lab64.eu]</a>.</p>
+        <p>Zuletzt aktualisiert: 07.08.2024</p>
+    </div>
+</div>
+
+<footer>
+    <a href="/privacy-policy">Privacy Policy</a> |
+    <a href="/impressum">Impressum</a>
+</footer>
 </body>
 </html>
