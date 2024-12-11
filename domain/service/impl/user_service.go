@@ -59,6 +59,7 @@ func (u *UserService) Create(userDTO dto.UserInput) (dto.UserCoreOutput, error) 
 	// extract username from email
 	username := strings.Split(userDTO.Email, "@")[0]
 	user := model.CreateUser(uuid.New(), userDTO.Email, username, "")
+	// TODO: set secrete key
 	passwordHash, err := util.HashPassword(userDTO.Password)
 	if err != nil {
 		return dto.UserCoreOutput{}, err
@@ -70,6 +71,25 @@ func (u *UserService) Create(userDTO dto.UserInput) (dto.UserCoreOutput, error) 
 	}
 
 	return converter.ToUserCoreDTO(&user), err
+}
+
+func (u *UserService) CreateLightUser(userDTO dto.LightUserInput) (dto.UserCoreOutput, model.AuthCookie, error) {
+	// generate temporary unique email
+	userID := uuid.New()
+	email := userID.String()[:8] + "@split-it.eu"
+	user := model.CreateUser(userID, email, userDTO.Username, "")
+	user.PrivateAuth = uuid.New() // set auth token
+	user, err := u.userStorage.CreateLightUser(user)
+	if err != nil {
+		return dto.UserCoreOutput{}, model.AuthCookie{}, err
+	}
+	// create session cookie
+	sc := model.GenerateSessionCookie(user.ID)
+	cookie, err := u.cookieStorage.AddAuthenticationCookie(sc)
+	if err != nil {
+		return dto.UserCoreOutput{}, model.AuthCookie{}, err
+	}
+	return dto.UserCoreOutput{}, cookie, nil
 }
 
 func (u *UserService) Login(userInput dto.UserInput) (dto.UserCoreOutput, model.AuthCookie, error) {
@@ -93,7 +113,7 @@ func (u *UserService) Login(userInput dto.UserInput) (dto.UserCoreOutput, model.
 
 	cookie, err := u.cookieStorage.AddAuthenticationCookie(sc)
 	if err != nil {
-		return dto.UserCoreOutput{}, sc, err
+		return dto.UserCoreOutput{}, model.AuthCookie{}, err
 	}
 
 	return converter.ToUserCoreDTO(&user), cookie, err

@@ -97,6 +97,16 @@ func (u *UserStorage) Create(user model.User, passwordHash []byte) (model.User, 
 	return converter.ToUserModel(item), err
 }
 
+func (u *UserStorage) CreateLightUser(user model.User) (model.User, error) {
+	item := converter.ToUserEntity(user)
+
+	res := u.DB.Create(&item)
+	if res.Error != nil {
+		return model.User{}, res.Error
+	}
+	return converter.ToUserModel(item), res.Error
+}
+
 func (u *UserStorage) Update(user model.User) (model.User, error) {
 	userEntity := entity.User{}
 

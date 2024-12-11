@@ -27,6 +27,10 @@ type UserUpdate struct {
 	Username string `json:"username" form:"username"`
 }
 
+type LightUserInput struct {
+	Username string `json:"username" form:"username"`
+}
+
 type UserCoreOutput struct {
 	ID             uuid.UUID `json:"id"`
 	Email          string    `json:"email"`

@@ -135,6 +135,45 @@ func (h UserHandler) Register(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusCreated, SuccessMsgUserCreate, user)
 }
 
+// RegisterLightUser func register user without account and logs in the user
+//
+//	@Summary	Register and Login User without Account
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.LightUserInput	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponse{data=dto.UserCoreOutput}
+//	@Router		/api/user/noaccount [post]
+func (h UserHandler) RegisterLightUser(c *fiber.Ctx) error {
+	// parse user from request
+	var request dto.LightUserInput
+	if err := c.BodyParser(&request); err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
+	}
+	// validate inputs
+	if request.Username == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, errors.New("username is required")))
+	}
+	// TODO: check if register cookie is present
+	// create user
+	user, sc, err := h.userService.CreateLightUser(request)
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgUserCreate, err))
+	}
+	// create response cookie
+	// TODO: add Secure flag after development (cookie will only be sent over HTTPS)
+	cookie := fiber.Cookie{
+		Name:     middleware.SessionCookieName,
+		Value:    sc.Token.String(),
+		Expires:  sc.ValidBefore,
+		HTTPOnly: true,
+		//Secure:   true,
+	}
+	c.Cookie(&cookie)
+
+	return Success(c, fiber.StatusCreated, SuccessMsgUserCreate, user)
+}
+
 // Login 		uses the given login credentials for login and returns an authentication token for the user.
 //
 //	@Summary	Login User

@@ -25,6 +25,9 @@ type IUserStorage interface {
 	// already exists, a UserAlreadyExistsError is returned.
 	Create(user model.User, passwordHash []byte) (model.User, error)
 
+	// CreateLightUser adds the given user to the storage without saving a password.
+	CreateLightUser(user model.User) (model.User, error)
+
 	// Update updates the user with the given ID with the given data.
 	Update(user model.User) (model.User, error)
 

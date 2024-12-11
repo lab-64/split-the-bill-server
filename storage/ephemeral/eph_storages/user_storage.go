@@ -106,3 +106,7 @@ func (u *UserStorage) Update(user model.User) (model.User, error) {
 	//TODO implement me
 	panic("implement me")
 }
+
+func (u *UserStorage) CreateLightUser(user model.User) (model.User, error) {
+	panic("implement me")
+}
