@@ -89,7 +89,7 @@ func (u *UserService) CreateLightUser(userDTO dto.LightUserInput) (dto.UserCoreO
 	if err != nil {
 		return dto.UserCoreOutput{}, model.AuthCookie{}, err
 	}
-	return dto.UserCoreOutput{}, cookie, nil
+	return converter.ToUserCoreDTO(&user), cookie, nil
 }
 
 func (u *UserService) Login(userInput dto.UserInput) (dto.UserCoreOutput, model.AuthCookie, error) {
