@@ -59,7 +59,6 @@ func (u *UserService) Create(userDTO dto.UserInput) (dto.UserCoreOutput, error) 
 	// extract username from email
 	username := strings.Split(userDTO.Email, "@")[0]
 	user := model.CreateUser(uuid.New(), userDTO.Email, username, "")
-	// TODO: set secrete key
 	passwordHash, err := util.HashPassword(userDTO.Password)
 	if err != nil {
 		return dto.UserCoreOutput{}, err

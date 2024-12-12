@@ -8,13 +8,14 @@ import (
 )
 
 var (
-	MockUserDelete  func(requesterID uuid.UUID, id uuid.UUID) error
-	MockUserGetAll  func() ([]dto.UserCoreOutput, error)
-	MockUserGetByID func(id uuid.UUID) (dto.UserCoreOutput, error)
-	MockUserLogin   func(credentials dto.UserInput) (dto.UserCoreOutput, model.AuthCookie, error)
-	MockUserCreate  func(user dto.UserInput) (dto.UserCoreOutput, error)
-	MockUserUpdate  func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, file []byte) (dto.UserCoreOutput, error)
-	MockUserLogout  func(requesterID uuid.UUID, token uuid.UUID) error
+	MockUserDelete          func(requesterID uuid.UUID, id uuid.UUID) error
+	MockUserGetAll          func() ([]dto.UserCoreOutput, error)
+	MockUserGetByID         func(id uuid.UUID) (dto.UserCoreOutput, error)
+	MockUserLogin           func(credentials dto.UserInput) (dto.UserCoreOutput, model.AuthCookie, error)
+	MockUserCreate          func(user dto.UserInput) (dto.UserCoreOutput, error)
+	MockUserUpdate          func(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, file []byte) (dto.UserCoreOutput, error)
+	MockUserLogout          func(requesterID uuid.UUID, token uuid.UUID) error
+	MockUserCreateLightUser func(request dto.LightUserInput) (dto.UserCoreOutput, model.AuthCookie, error)
 )
 
 func NewUserServiceMock() service.IUserService {
@@ -50,4 +51,8 @@ func (u UserServiceMock) Create(user dto.UserInput) (dto.UserCoreOutput, error) 
 
 func (u UserServiceMock) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, file []byte) (dto.UserCoreOutput, error) {
 	return MockUserUpdate(requesterID, id, user, file)
+}
+
+func (u UserServiceMock) CreateLightUser(request dto.LightUserInput) (dto.UserCoreOutput, model.AuthCookie, error) {
+	return MockUserCreateLightUser(request)
 }
