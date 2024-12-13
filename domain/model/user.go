@@ -6,7 +6,6 @@ import (
 
 type User struct {
 	ID             uuid.UUID
-	PrivateAuth    uuid.UUID
 	Email          string
 	Username       string
 	ProfileImgPath string

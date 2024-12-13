@@ -77,7 +77,6 @@ func (u *UserService) CreateLightUser(userDTO dto.LightUserInput) (dto.UserCoreO
 	userID := uuid.New()
 	email := userID.String()[:8] + "@split-it.eu"
 	user := model.CreateUser(userID, email, userDTO.Username, "")
-	user.PrivateAuth = uuid.New() // set auth token
 	user, err := u.userStorage.CreateLightUser(user)
 	if err != nil {
 		return dto.UserCoreOutput{}, model.AuthCookie{}, err

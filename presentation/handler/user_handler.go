@@ -154,7 +154,6 @@ func (h UserHandler) RegisterLightUser(c *fiber.Ctx) error {
 	if request.Username == "" {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, errors.New("username is required")))
 	}
-	// TODO: check if register cookie is present
 	// create user
 	user, sc, err := h.userService.CreateLightUser(request)
 	if err != nil {

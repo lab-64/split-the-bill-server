@@ -236,7 +236,6 @@ func ToItemModel(item entity.Item) model.Item {
 func ToUserEntity(user model.User) entity.User {
 	return entity.User{
 		Base:           entity.Base{ID: user.ID},
-		PrivateAuth:    user.PrivateAuth,
 		Email:          user.Email,
 		Username:       user.Username,
 		ProfileImgPath: user.ProfileImgPath,
