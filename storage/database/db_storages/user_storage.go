@@ -108,12 +108,25 @@ func (u *UserStorage) CreateLightUser(user model.User) (model.User, error) {
 }
 
 func (u *UserStorage) Update(user model.User) (model.User, error) {
+	userEntity := converter.ToUserEntity(user)
+
+	res := u.DB.Model(&entity.User{}).Where("id = ?", user.ID).Updates(&userEntity) // updates only the fields that are not empty
+	if res.Error != nil {
+		return model.User{}, res.Error
+	}
+	return converter.ToUserModel(userEntity), nil
+}
+
+/*
+func (u *UserStorage) Update(user model.User) (model.User, error) {
 	userEntity := entity.User{}
 
 	res := u.DB.Model(&entity.User{}).Where("id = ?", user.ID).Updates(entity.User{Username: user.Username, ProfileImgPath: user.ProfileImgPath}).First(&userEntity)
 	// TODO: error handling
 	return converter.ToUserModel(userEntity), res.Error
 }
+
+*/
 
 func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
 	var credentials entity.Credentials
@@ -123,4 +136,16 @@ func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
 		return nil, storage.NoCredentialsError
 	}
 	return credentials.Hash, nil
+}
+
+func (u *UserStorage) SetCredentials(id uuid.UUID, passwordHash []byte) error {
+	// create credentials
+	credential := entity.Credentials{UserID: id, Hash: passwordHash}
+	// store credentials if they don't exist; update them if they do
+	//res := u.DB.Create(&entity.Credentials{UserID: id, Hash: passwordHash})
+	res := u.DB.Where(entity.Credentials{UserID: id}).Assign(entity.Credentials{Hash: passwordHash}).FirstOrCreate(&credential)
+	if res.Error != nil {
+		return storage.InvalidUserInputError
+	}
+	return nil
 }

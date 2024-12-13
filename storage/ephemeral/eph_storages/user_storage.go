@@ -110,3 +110,7 @@ func (u *UserStorage) Update(user model.User) (model.User, error) {
 func (u *UserStorage) CreateLightUser(user model.User) (model.User, error) {
 	panic("implement me")
 }
+
+func (u *UserStorage) SetCredentials(id uuid.UUID, passwordHash []byte) error {
+	panic("implement me")
+}

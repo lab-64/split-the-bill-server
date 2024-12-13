@@ -235,7 +235,7 @@ func All() []Seed {
 			},
 		},
 		{
-			Name: "CreateCredentials",
+			Name: "SetCredentials",
 			Run: func(db *DB) error {
 				if err := db.Create(&Credentials1).Error; err != nil {
 					return err

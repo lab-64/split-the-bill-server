@@ -173,6 +173,48 @@ func (h UserHandler) RegisterLightUser(c *fiber.Ctx) error {
 	return Success(c, fiber.StatusCreated, SuccessMsgUserCreate, user)
 }
 
+// ConvertLightUser 	func convert light user to full user
+//
+//	@Summary	Convert Light User to User
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path		string			true	"User ID"
+//	@Param		request	body		dto.UserInput	true	"Request Body"
+//	@Success	200		{object}	dto.GeneralResponse{data=dto.UserCoreOutput}
+//	@Router		/api/user/{id}/convert [put]
+func (h UserHandler) ConvertLightUser(c *fiber.Ctx) error {
+	// parse parameter
+	id := c.Params("id")
+	if id == "" {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgParameterRequired, "id"))
+	}
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
+	}
+	// parse user from request
+	var request dto.UserInput
+	if err = c.BodyParser(&request); err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
+	}
+	// validate inputs
+	err = request.ValidateInputs()
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgInputsInvalid, err))
+	}
+	if err = h.passwordValidator.ValidatePassword(request.Password); err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBadPassword, err))
+	}
+	// get authenticated requesterID from context
+	requesterID := c.Locals(middleware.UserKey).(uuid.UUID)
+	user, err := h.userService.ConvertLightUserToUser(requesterID, userID, request)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserCreate, err))
+	}
+	return Success(c, fiber.StatusOK, SuccessMsgUserUpdate, user)
+}
+
 // Login 		uses the given login credentials for login and returns an authentication token for the user.
 //
 //	@Summary	Login User

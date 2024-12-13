@@ -161,3 +161,32 @@ func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserU
 
 	return converter.ToUserCoreDTO(&updatedUser), err
 }
+
+func (u *UserService) ConvertLightUserToUser(requesterID uuid.UUID, userID uuid.UUID, userDTO dto.UserInput) (dto.UserCoreOutput, error) {
+	// Authorization
+	if requesterID != userID {
+		return dto.UserCoreOutput{}, domain.ErrNotAuthorized
+	}
+	// get user
+	userModel, err := u.userStorage.GetByID(userID)
+	if err != nil {
+		return dto.UserCoreOutput{}, err
+	}
+	// store credentials
+	passwordHash, err := util.HashPassword(userDTO.Password)
+	if err != nil {
+		return dto.UserCoreOutput{}, err
+	}
+	err = u.userStorage.SetCredentials(userID, passwordHash)
+	if err != nil {
+		return dto.UserCoreOutput{}, err
+	}
+	// update user's email
+	userModel.Email = userDTO.Email
+	updatedUser, err := u.userStorage.Update(userModel)
+	if err != nil {
+		return dto.UserCoreOutput{}, err
+	}
+
+	return converter.ToUserCoreDTO(&updatedUser), err
+}
