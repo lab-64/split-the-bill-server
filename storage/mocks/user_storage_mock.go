@@ -15,6 +15,7 @@ var (
 	MockUserGetCredentials  func(id uuid.UUID) ([]byte, error)
 	MockUserUpdate          func(user model.User) (model.User, error)
 	MockUserCreateLightUser func(user model.User) (model.User, error)
+	MockUserSetCredentials  func(id uuid.UUID, passwordHash []byte) error
 )
 
 func NewUserStorageMock() storage.IUserStorage {
@@ -54,4 +55,8 @@ func (u UserStorageMock) Update(user model.User) (model.User, error) {
 
 func (u UserStorageMock) CreateLightUser(user model.User) (model.User, error) {
 	return MockUserCreateLightUser(user)
+}
+
+func (u UserStorageMock) SetCredentials(id uuid.UUID, passwordHash []byte) error {
+	return MockUserSetCredentials(id, passwordHash)
 }

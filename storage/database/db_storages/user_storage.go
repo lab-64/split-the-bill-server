@@ -117,17 +117,6 @@ func (u *UserStorage) Update(user model.User) (model.User, error) {
 	return converter.ToUserModel(userEntity), nil
 }
 
-/*
-func (u *UserStorage) Update(user model.User) (model.User, error) {
-	userEntity := entity.User{}
-
-	res := u.DB.Model(&entity.User{}).Where("id = ?", user.ID).Updates(entity.User{Username: user.Username, ProfileImgPath: user.ProfileImgPath}).First(&userEntity)
-	// TODO: error handling
-	return converter.ToUserModel(userEntity), res.Error
-}
-
-*/
-
 func (u *UserStorage) GetCredentials(id uuid.UUID) ([]byte, error) {
 	var credentials entity.Credentials
 	// get credentials from given user
