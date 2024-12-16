@@ -866,6 +866,16 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "name": "email",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
                         "name": "username",
                         "in": "formData"
                     },
@@ -1239,6 +1249,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }

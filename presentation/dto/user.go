@@ -19,8 +19,9 @@ var allowedImageTypesString = "jpg, png, gif, jpeg"
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type UserInput struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Username string `json:"username" form:"username"`
+	Email    string `json:"email" form:"email"`
+	Password string `json:"password" form:"password"`
 }
 
 type UserUpdate struct {
@@ -52,7 +53,7 @@ func (u UserInput) ValidateInputs() error {
 	return nil
 }
 
-func (u UserUpdate) ValidateInputs(contentType string) error {
+func (u UserInput) ValidateImgContentType(contentType string) error {
 	if _, ok := allowedImageTypes[contentType]; !ok {
 		return ErrWrongImageType
 	}

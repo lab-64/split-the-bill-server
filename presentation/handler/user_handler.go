@@ -289,7 +289,7 @@ func (h UserHandler) Logout(c *fiber.Ctx) error {
 //	@Accept		json
 //	@Produce	multipart/form-data
 //	@Param		id		path		string			true	"User ID"
-//	@Param		request	formData	dto.UserUpdate	true	"Request Body"
+//	@Param		request	formData	dto.UserInput	true	"Request Body"
 //	@Param		image	formData	file			false	"User Image"
 //	@Success	200		{object}	dto.GeneralResponse
 //	@Router		/api/user/{id} [put]
@@ -304,7 +304,7 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusInternalServerError, fmt.Sprintf(ErrMsgParseUUID, id, err))
 	}
 	// parse user from request
-	var user dto.UserUpdate
+	var user dto.UserInput
 	if err = c.BodyParser(&user); err != nil {
 		return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserParse, err))
 	}
@@ -326,8 +326,14 @@ func (h UserHandler) Update(c *fiber.Ctx) error {
 		}
 		// check for image type
 		contentType := http.DetectContentType(data)
-		if err = user.ValidateInputs(contentType); err != nil {
+		if err = user.ValidateImgContentType(contentType); err != nil {
 			return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgUserUpdate, err))
+		}
+	}
+	// validate password if set
+	if user.Password != "" {
+		if err = h.passwordValidator.ValidatePassword(user.Password); err != nil {
+			return Error(c, fiber.StatusBadRequest, fmt.Sprintf(ErrMsgBadPassword, err))
 		}
 	}
 	// get authenticated requesterID from context

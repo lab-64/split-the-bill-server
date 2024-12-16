@@ -23,9 +23,9 @@ type IUserService interface {
 
 	Create(user dto.UserInput) (dto.UserCoreOutput, error)
 
-	// Update updates the user with the given id with the new user data.
+	// Update updates the user with the given id with the new given user data. Empty user fields are ignored.
 	// *Authorization required: requesterID == id
-	Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, profileImg []byte) (dto.UserCoreOutput, error)
+	Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserInput, profileImg []byte) (dto.UserCoreOutput, error)
 
 	// CreateLightUser creates a user without an account.
 	CreateLightUser(request dto.LightUserInput) (dto.UserCoreOutput, model.AuthCookie, error)
