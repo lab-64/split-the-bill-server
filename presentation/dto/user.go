@@ -24,10 +24,6 @@ type UserInput struct {
 	Password string `json:"password" form:"password"`
 }
 
-type UserUpdate struct {
-	Username string `json:"username" form:"username"`
-}
-
 type LightUserInput struct {
 	Username string `json:"username" form:"username"`
 }

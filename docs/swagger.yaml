@@ -668,37 +668,6 @@ paths:
       summary: Update User
       tags:
       - User
-  /api/user/{id}/convert:
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Request Body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UserInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.GeneralResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.UserCoreOutput'
-              type: object
-      summary: Convert Light User to User
-      tags:
-      - User
   /api/user/login:
     post:
       consumes:

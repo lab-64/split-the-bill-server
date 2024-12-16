@@ -8,15 +8,14 @@ import (
 )
 
 var (
-	MockUserDelete                 func(requesterID uuid.UUID, id uuid.UUID) error
-	MockUserGetAll                 func() ([]dto.UserCoreOutput, error)
-	MockUserGetByID                func(id uuid.UUID) (dto.UserCoreOutput, error)
-	MockUserLogin                  func(credentials dto.UserInput) (dto.UserCoreOutput, model.AuthCookie, error)
-	MockUserCreate                 func(user dto.UserInput) (dto.UserCoreOutput, error)
-	MockUserUpdate                 func(requesterID uuid.UUID, id uuid.UUID, user dto.UserInput, file []byte) (dto.UserCoreOutput, error)
-	MockUserLogout                 func(requesterID uuid.UUID, token uuid.UUID) error
-	MockUserCreateLightUser        func(request dto.LightUserInput) (dto.UserCoreOutput, model.AuthCookie, error)
-	MockUserConvertLightUserToUser func(requesterID uuid.UUID, userID uuid.UUID, user dto.UserInput) (dto.UserCoreOutput, error)
+	MockUserDelete          func(requesterID uuid.UUID, id uuid.UUID) error
+	MockUserGetAll          func() ([]dto.UserCoreOutput, error)
+	MockUserGetByID         func(id uuid.UUID) (dto.UserCoreOutput, error)
+	MockUserLogin           func(credentials dto.UserInput) (dto.UserCoreOutput, model.AuthCookie, error)
+	MockUserCreate          func(user dto.UserInput) (dto.UserCoreOutput, error)
+	MockUserUpdate          func(requesterID uuid.UUID, id uuid.UUID, user dto.UserInput, file []byte) (dto.UserCoreOutput, error)
+	MockUserLogout          func(requesterID uuid.UUID, token uuid.UUID) error
+	MockUserCreateLightUser func(request dto.LightUserInput) (dto.UserCoreOutput, model.AuthCookie, error)
 )
 
 func NewUserServiceMock() service.IUserService {
@@ -56,8 +55,4 @@ func (u UserServiceMock) Update(requesterID uuid.UUID, id uuid.UUID, user dto.Us
 
 func (u UserServiceMock) CreateLightUser(request dto.LightUserInput) (dto.UserCoreOutput, model.AuthCookie, error) {
 	return MockUserCreateLightUser(request)
-}
-
-func (u UserServiceMock) ConvertLightUserToUser(requesterID uuid.UUID, userID uuid.UUID, user dto.UserInput) (dto.UserCoreOutput, error) {
-	return MockUserConvertLightUserToUser(requesterID, userID, user)
 }

@@ -151,7 +151,7 @@ func TestUpdateSuccess(t *testing.T) {
 		return dto.UserCoreOutput{ID: id, Email: TestUser.Email, Username: user.Username}, nil
 	}
 
-	reqBody := dto.UserUpdate{
+	reqBody := dto.UserInput{
 		Username: "Updated Tester",
 	}
 	jsonBody, _ := json.Marshal(reqBody)
@@ -173,7 +173,7 @@ func TestUpdateWrongUser(t *testing.T) {
 		return dto.UserCoreOutput{}, domain.ErrNotAuthorized
 	}
 
-	reqBody := dto.UserUpdate{
+	reqBody := dto.UserInput{
 		Username: TestUser.Username,
 	}
 	jsonBody, _ := json.Marshal(reqBody)

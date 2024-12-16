@@ -55,7 +55,6 @@ func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a
 	userRoute.Post("/noaccount", u.RegisterLightUser)
 	userRoute.Post("/login", u.Login)
 	userRoute.Put("/:id", a.Authenticate, u.Update)
-	userRoute.Put("/:id/convert", a.Authenticate, u.ConvertLightUser)
 	userRoute.Delete("/:id", a.Authenticate, u.Delete)
 	userRoute.Post("/logout", a.Authenticate, u.Logout)
 

@@ -29,8 +29,4 @@ type IUserService interface {
 
 	// CreateLightUser creates a user without an account.
 	CreateLightUser(request dto.LightUserInput) (dto.UserCoreOutput, model.AuthCookie, error)
-
-	// ConvertLightUserToUser converts a existing light user to a full user.
-	// *Authorization required: requesterID == userID
-	ConvertLightUserToUser(requesterID uuid.UUID, userID uuid.UUID, user dto.UserInput) (dto.UserCoreOutput, error)
 }
