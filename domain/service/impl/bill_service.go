@@ -32,21 +32,22 @@ func (b *BillService) Create(requesterID uuid.UUID, billDTO dto.BillCreate) (dto
 		return dto.BillDetailedOutput{}, domain.ErrNotAuthorized
 	}
 
-	// add all group members to unseen list except the owner
-	groupMembers := group.Members
 	unseenFrom := make([]uuid.UUID, 0)
-	for _, member := range groupMembers {
-		if member.ID != billDTO.OwnerID {
-			unseenFrom = append(unseenFrom, member.ID)
-		}
-	}
 	// create new bill model including items
 	bill := model.CreateBill(uuid.New(), billDTO.OwnerID, billDTO.Name, billDTO.Date, billDTO.GroupID, nil, unseenFrom)
 	// create new items
 	var items []model.Item
 	for _, item := range billDTO.Items {
 		items = append(items, model.CreateItem(uuid.New(), bill.ID, item))
+		// add all item contributors to unseen list if not already in the list
+		for _, contributor := range item.Contributors {
+			if !contains(unseenFrom, contributor) {
+				unseenFrom = append(unseenFrom, contributor)
+			}
+		}
 	}
+	// set only contributors of the bill to the unseen list
+	bill.UnseenFromUserID = unseenFrom
 	// add item to bill
 	bill.Items = items
 	// store bill in billStorage
@@ -249,4 +250,14 @@ func getItemFromID(id uuid.UUID, items []model.Item) (int, model.Item) {
 		}
 	}
 	return -1, model.Item{}
+}
+
+// contains checks if the slice contains the given element
+func contains[T comparable](slice []T, element T) bool {
+	for _, e := range slice {
+		if e == element {
+			return true
+		}
+	}
+	return false
 }
