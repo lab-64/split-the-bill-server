@@ -1,9 +1,11 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "eu.lab64.split_the_bill",
-    "sha256_cert_fingerprints":
-    ["61:D5:EB:92:65:9D:46:1C:7B:C8:AF:00:39:D4:0C:22:65:01:A5:49:5A:7A:20:07:AC:87:75:FD:3A:88:FB:DC"]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "eu.lab64.split_the_bill",
+      "sha256_cert_fingerprints":
+      ["04:D4:4B:D6:BE:17:E9:E2:F4:53:12:29:BD:88:50:17:9E:F0:BD:79:78:97:9E:3D:12:57:92:8F:E0:FF:38:99"]
+    }
   }
-}]
+]
