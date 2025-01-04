@@ -147,6 +147,11 @@ definitions:
       price:
         type: number
     type: object
+  dto.LightUserInput:
+    properties:
+      username:
+        type: string
+    type: object
   dto.TransactionOutput:
     properties:
       amount:
@@ -172,6 +177,8 @@ definitions:
       email:
         type: string
       password:
+        type: string
+      username:
         type: string
     type: object
 host: splitit.lab64.eu
@@ -639,6 +646,12 @@ paths:
         required: true
         type: string
       - in: formData
+        name: email
+        type: string
+      - in: formData
+        name: password
+        type: string
+      - in: formData
         name: username
         type: string
       - description: User Image
@@ -693,6 +706,32 @@ paths:
           schema:
             $ref: '#/definitions/dto.GeneralResponse'
       summary: Logout User
+      tags:
+      - User
+  /api/user/noaccount:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LightUserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserCoreOutput'
+              type: object
+      summary: Register and Login User without Account
       tags:
       - User
 swagger: "2.0"
