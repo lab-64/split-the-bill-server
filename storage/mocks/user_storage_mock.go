@@ -7,13 +7,15 @@ import (
 )
 
 var (
-	MockUserDelete         func(id uuid.UUID) error
-	MockUserGetByID        func(id uuid.UUID) (model.User, error)
-	MockUserGetAll         func() ([]model.User, error)
-	MockUserGetByEmail     func(email string) (model.User, error)
-	MockUserCreate         func(user model.User, passwordHash []byte) (model.User, error)
-	MockUserGetCredentials func(id uuid.UUID) ([]byte, error)
-	MockUserUpdate         func(user model.User) (model.User, error)
+	MockUserDelete          func(id uuid.UUID) error
+	MockUserGetByID         func(id uuid.UUID) (model.User, error)
+	MockUserGetAll          func() ([]model.User, error)
+	MockUserGetByEmail      func(email string) (model.User, error)
+	MockUserCreate          func(user model.User, passwordHash []byte) (model.User, error)
+	MockUserGetCredentials  func(id uuid.UUID) ([]byte, error)
+	MockUserUpdate          func(user model.User) (model.User, error)
+	MockUserCreateLightUser func(user model.User) (model.User, error)
+	MockUserSetCredentials  func(id uuid.UUID, passwordHash []byte) error
 )
 
 func NewUserStorageMock() storage.IUserStorage {
@@ -49,4 +51,12 @@ func (u UserStorageMock) GetCredentials(id uuid.UUID) ([]byte, error) {
 
 func (u UserStorageMock) Update(user model.User) (model.User, error) {
 	return MockUserUpdate(user)
+}
+
+func (u UserStorageMock) CreateLightUser(user model.User) (model.User, error) {
+	return MockUserCreateLightUser(user)
+}
+
+func (u UserStorageMock) SetCredentials(id uuid.UUID, passwordHash []byte) error {
+	return MockUserSetCredentials(id, passwordHash)
 }

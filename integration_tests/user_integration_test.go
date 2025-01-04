@@ -190,7 +190,7 @@ func TestUpdateUser(t *testing.T) {
 		description        string
 		requester          entity.User
 		parameter          uuid.UUID
-		inputUser          dto.UserUpdate
+		inputUser          dto.UserInput
 		requestCookie      *http.Cookie
 		expectedCode       int
 		expectedMessage    string
@@ -198,10 +198,10 @@ func TestUpdateUser(t *testing.T) {
 		expectReturnedData dto.UserCoreOutput
 	}{
 		{
-			description: "Test successful user update",
+			description: "Test successful user update: update username",
 			requester:   User1,
 			parameter:   User1.ID,
-			inputUser: dto.UserUpdate{
+			inputUser: dto.UserInput{
 				Username: "Franz",
 			},
 			requestCookie:   &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()},
@@ -210,15 +210,32 @@ func TestUpdateUser(t *testing.T) {
 			expectReturn:    true,
 			expectReturnedData: dto.UserCoreOutput{
 				ID:       User1.ID,
-				Email:    "new-mail@mail.com",
+				Email:    User1.Email,
 				Username: "Franz",
+			},
+		},
+		{
+			description: "Test successful user update: update only email, username is empty",
+			requester:   User1,
+			parameter:   User1.ID,
+			inputUser: dto.UserInput{
+				Email: "new-mail@mail.com",
+			},
+			requestCookie:   &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()},
+			expectedCode:    200,
+			expectedMessage: handler.SuccessMsgUserUpdate,
+			expectReturn:    true,
+			expectReturnedData: dto.UserCoreOutput{
+				ID:       User1.ID,
+				Email:    "new-mail@mail.com",
+				Username: "Franz", // username is changed in the first test case
 			},
 		},
 		{
 			description:     "Test unsuccessful behavior: user is unauthorized to update foreign user",
 			requester:       User2,
 			parameter:       User1.ID,
-			inputUser:       dto.UserUpdate{},
+			inputUser:       dto.UserInput{},
 			requestCookie:   &http.Cookie{Name: sessionCookie, Value: CookieUser2.ID.String()},
 			expectedCode:    401,
 			expectedMessage: fmt.Sprintf(handler.ErrMsgUserUpdate, domain.ErrNotAuthorized),
@@ -228,7 +245,7 @@ func TestUpdateUser(t *testing.T) {
 			description:     "Test unsuccessful behavior: user is not logged in",
 			requester:       entity.User{},
 			parameter:       User1.ID,
-			inputUser:       dto.UserUpdate{},
+			inputUser:       dto.UserInput{},
 			requestCookie:   nil,
 			expectedCode:    401,
 			expectedMessage: middleware.ErrMsgNoCookie,
@@ -246,15 +263,15 @@ func TestUpdateUser(t *testing.T) {
 		if testcase.expectReturn {
 			// validate response
 			assert.Equalf(t, testcase.parameter, responseData.Data.ID, testcase.description) // parameter contains the id of the issuer
-			assert.Equalf(t, testcase.requester.Email, responseData.Data.Email, testcase.description)
-			assert.Equalf(t, testcase.inputUser.Username, responseData.Data.Username, testcase.description)
+			assert.Equalf(t, testcase.expectReturnedData.Email, responseData.Data.Email, testcase.description)
+			assert.Equalf(t, testcase.expectReturnedData.Username, responseData.Data.Username, testcase.description)
 			// get the stored user from the storage to check if user is correctly stored
 			storedUser, setupErr := getStoredUserEntity(testcase.parameter)
 			assert.Nilf(t, setupErr, "Error during setup while getting stored user entity in test: %s", testcase.description)
 			// validate updated user in storage
 			assert.Equal(t, testcase.parameter, storedUser.ID)
-			assert.Equal(t, testcase.requester.Email, storedUser.Email) // email should not be changed
-			assert.Equal(t, testcase.inputUser.Username, storedUser.Username)
+			assert.Equal(t, testcase.expectReturnedData.Email, storedUser.Email) // email should not be changed
+			assert.Equal(t, testcase.expectReturnedData.Username, storedUser.Username)
 		}
 	}
 }

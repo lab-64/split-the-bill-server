@@ -56,13 +56,13 @@ func TestUserInput_ValidateInputs(t *testing.T) {
 func TestUserUpdate_ValidateInputs(t *testing.T) {
 	tests := []struct {
 		name        string
-		input       UserUpdate
+		input       UserInput
 		contentType string
 		expectedErr error
 	}{
 		{
 			name: "Success",
-			input: UserUpdate{
+			input: UserInput{
 				Username: "test",
 			},
 			contentType: "image/jpeg",
@@ -70,7 +70,7 @@ func TestUserUpdate_ValidateInputs(t *testing.T) {
 		},
 		{
 			name: "Wrong image type",
-			input: UserUpdate{
+			input: UserInput{
 				Username: "test",
 			},
 			contentType: "text/plain",
@@ -80,7 +80,7 @@ func TestUserUpdate_ValidateInputs(t *testing.T) {
 
 	for _, testcase := range tests {
 		t.Run(testcase.name, func(t *testing.T) {
-			err := testcase.input.ValidateInputs(testcase.contentType)
+			err := testcase.input.ValidateImgContentType(testcase.contentType)
 			assert.Equalf(t, testcase.expectedErr, err, "Wrong error")
 		})
 	}
