@@ -93,7 +93,7 @@ func (g *GroupStorage) GetGroups(userID uuid.UUID, invitationID uuid.UUID) ([]mo
 		tx = tx.Where("id IN (SELECT group_id FROM group_invitations WHERE id = ?)", invitationID)
 	}
 
-	tx.Find(&groups)
+	tx.Order("created_at DESC").Find(&groups)
 
 	if tx.Error != nil {
 		return nil, tx.Error
