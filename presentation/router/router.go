@@ -1,14 +1,20 @@
 package router
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"os"
 	. "split-the-bill-server/presentation/handler"
 	"split-the-bill-server/presentation/middleware"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 // SetupRoutes creates webserver routes and connect them to the related handlers.
 func SetupRoutes(app *fiber.App, u UserHandler, g GroupHandler, b BillHandler, a middleware.Authenticator) {
+
+	// Status endpoint for health checks
+	app.Get("/status", func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusOK)
+	})
 
 	// Serve static files (images, css, js, etc.)
 	app.Static("/", "presentation/pages/public")
