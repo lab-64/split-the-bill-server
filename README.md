@@ -70,7 +70,7 @@ make test-all
 
 ---
 
-# Deyploment
+# Deployment
 TODO's before we deploy:
 
 **Change variables in ```.env```**:
