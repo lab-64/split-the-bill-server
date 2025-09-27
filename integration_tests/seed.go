@@ -145,7 +145,7 @@ var (
 		Base:       Base{ID: uuid.New()},
 		OwnerID:    User1.ID,
 		Name:       "Miete",
-		Date:       time.Now(),
+		Date:       time.Now().AddDate(0, 0, 20),
 		Items:      []Item{Item3},
 		GroupID:    Group1.ID,
 		UnseenFrom: []User{User2, User3},
@@ -170,7 +170,7 @@ var (
 		GroupID: Group2.ID,
 	}
 
-	// INVITATIONS
+	// INVITAT	IONS
 	Invitation1 = GroupInvitation{
 		Base:    Base{ID: uuid.New()},
 		GroupID: Group1.ID,
@@ -184,6 +184,35 @@ var (
 	Invitation3 = GroupInvitation{
 		Base:    Base{ID: uuid.New()},
 		GroupID: Group3.ID,
+	}
+
+	// TRANSACTIONS
+	Transaction1 = Transaction{
+		Base:       Base{ID: uuid.New()},
+		Amount:     10.0,
+		DebtorID:   User1.ID,
+		CreditorID: User3.ID,
+	}
+
+	GroupTransaction1 = GroupTransaction{
+		Base:         Base{ID: uuid.New()},
+		Date:         time.Now(),
+		GroupID:      Group1.ID,
+		Transactions: []Transaction{Transaction1},
+	}
+
+	Transaction2 = Transaction{
+		Base:       Base{ID: uuid.New()},
+		Amount:     5.0,
+		DebtorID:   User2.ID,
+		CreditorID: User1.ID,
+	}
+
+	GroupTransaction2 = GroupTransaction{
+		Base:         Base{ID: uuid.New()},
+		Date:         time.Now().Add(time.Hour * 24),
+		GroupID:      Group1.ID,
+		Transactions: []Transaction{Transaction2},
 	}
 )
 
@@ -206,7 +235,7 @@ func All() []Seed {
 			},
 		},
 		{
-			Name: "CreateCredentials",
+			Name: "SetCredentials",
 			Run: func(db *DB) error {
 				if err := db.Create(&Credentials1).Error; err != nil {
 					return err
@@ -275,6 +304,18 @@ func All() []Seed {
 					return err
 				}
 				if err := db.Create(&Invitation3).Error; err != nil {
+					return err
+				}
+				return nil
+			},
+		},
+		{
+			Name: "CreateGroupTransaction",
+			Run: func(db *DB) error {
+				if err := db.Create(&GroupTransaction1).Error; err != nil {
+					return err
+				}
+				if err := db.Create(&GroupTransaction2).Error; err != nil {
 					return err
 				}
 				return nil

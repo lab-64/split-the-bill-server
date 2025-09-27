@@ -19,20 +19,22 @@ type BillCreate struct {
 }
 
 type BillUpdate struct {
-	Name   string      `json:"name"`
-	Date   time.Time   `json:"date"`
-	Viewed bool        `json:"isViewed,omitempty"`
-	Items  []ItemInput `json:"items,omitempty"`
+	UpdatedAt time.Time   `json:"updatedAt"`
+	Name      string      `json:"name"`
+	Date      time.Time   `json:"date"`
+	Viewed    bool        `json:"isViewed,omitempty"`
+	Items     []ItemInput `json:"items,omitempty"`
 }
 
 type BillDetailedOutput struct {
-	ID      uuid.UUID             `json:"id"`
-	Name    string                `json:"name"`
-	Date    time.Time             `json:"date"`
-	Items   []ItemOutput          `json:"items"`
-	GroupID uuid.UUID             `json:"groupID"`
-	Owner   UserCoreOutput        `json:"owner"`
-	Balance map[uuid.UUID]float64 `json:"balance,omitempty"` // include balance only if balance is set
+	ID        uuid.UUID             `json:"id"`
+	UpdatedAt time.Time             `json:"updatedAt"`
+	Name      string                `json:"name"`
+	Date      time.Time             `json:"date"`
+	Items     []ItemOutput          `json:"items"`
+	GroupID   uuid.UUID             `json:"groupID"`
+	Owner     UserCoreOutput        `json:"owner"`
+	Balance   map[uuid.UUID]float64 `json:"balance,omitempty"` // include balance only if balance is set
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

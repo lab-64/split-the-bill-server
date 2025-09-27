@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SplitIt - Account Management</title>
+    <link rel="stylesheet" href="/styles/delete_account.css">
+    <link rel="icon" type="image/icon" href="/images/favicon.ico">
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+    <button id="logoutButton" style="display: none;">Logout</button>
+</div>
+<div class="content-container">
+    <h1>Account Management</h1>
+    <form id="loginForm">
+        <h2>Login</h2>
+        <label for="email">E-Mail:</label>
+        <input type="text" id="email" name="email" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Login</button>
+    </form>
+
+    <div id="deleteSection" style="display: none;">
+        <h2>Delete Account</h2>
+        <button id="deleteButton">Delete Account</button>
+    </div>
+</div>
+</div>
+<footer>
+    <a href="/privacy-policy">Privacy Policy</a> |
+    <a href="/impressum">Impressum</a>
+</footer>
+<script src="/scripts/delete_account.js"></script>
+
+</body>
+</html>

@@ -15,8 +15,8 @@ import (
 	"testing"
 )
 
-// TestlandingPage tests whether the fiber client starts correctly.
-func TestLandingPage(t *testing.T) {
+// TestBuild tests whether the fiber client starts correctly.
+func TestBuild(t *testing.T) {
 	// Test Server Configuration
 	app := fiber.New()
 	e, err := ephemeral.NewEphemeral()
@@ -50,7 +50,7 @@ func TestLandingPage(t *testing.T) {
 	req := httptest.NewRequest("GET", "/", nil)
 
 	// Perform request
-	resp, _ := app.Test(req, 1)
+	resp, _ := app.Test(req, 100)
 
 	// Testing logs
 	t.Log(resp.StatusCode)

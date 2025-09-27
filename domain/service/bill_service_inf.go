@@ -26,4 +26,8 @@ type IBillService interface {
 	// If no filter is provided, all bills from the groups in which the user is a member are returned.
 	// *Authorization required: requester == userID
 	GetAllByUserID(requesterID uuid.UUID, userID uuid.UUID, isUnseen *bool, isOwner *bool) ([]dto.BillDetailedOutput, error)
+
+	// HandleContribution handles the item contribution of the requester to the bill with the given id.
+	// *Authorization required: requester in bill.Group.Members
+	HandleContribution(requesterID uuid.UUID, billID uuid.UUID, contribution dto.ContributionInput) error
 }

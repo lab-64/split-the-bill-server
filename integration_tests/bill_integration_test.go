@@ -13,6 +13,7 @@ import (
 	"split-the-bill-server/presentation/handler"
 	"split-the-bill-server/storage/database/entity"
 	"testing"
+	"time"
 )
 
 type BillResponseDTO struct {
@@ -58,6 +59,9 @@ func performBillRequest(httpMethod string, route string, inputUserData interface
 
 func TestUpdateBill(t *testing.T) {
 
+	// get the bill first
+	responseData, _, _ := performBillRequest(http.MethodGet, "/api/bill/"+Bill1.ID.String(), nil, &http.Cookie{Name: sessionCookie, Value: CookieUser1.ID.String()})
+
 	// Testdata
 	updatedItem1 := dto.ItemInput{
 		Name:         Item1.Name,
@@ -71,19 +75,18 @@ func TestUpdateBill(t *testing.T) {
 		Contributors: []uuid.UUID{User1.ID},
 	}
 
-	updatedBill := dto.BillCreate{
-		Name:    "Updated Bill",
-		OwnerID: User1.ID,
-		Date:    Bill1.Date,
-		GroupID: Group1.ID,
-		Items:   []dto.ItemInput{updatedItem1, updatedItem2},
+	updatedBill := dto.BillUpdate{
+		UpdatedAt: responseData.Data.UpdatedAt.Truncate(time.Second),
+		Name:      "Updated Bill",
+		Date:      Bill1.Date,
+		Items:     []dto.ItemInput{updatedItem1, updatedItem2},
 	}
 
 	route := "/api/bill/"
 	tests := []struct {
 		description        string // description of the testcase case
 		parameter          string
-		inputData          dto.BillCreate
+		inputData          dto.BillUpdate
 		cookie             *http.Cookie // cookie of the testcase
 		expectedCode       int          // expected HTTP status code
 		expectedMessage    string       // expected message in response body

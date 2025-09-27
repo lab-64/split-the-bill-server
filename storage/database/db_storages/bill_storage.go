@@ -47,7 +47,7 @@ func (b *BillStorage) UpdateBill(bill model.Bill) (model.Bill, error) {
 
 	err := b.DB.Transaction(func(tx *gorm.DB) error {
 		// update base bill fields
-		ret := b.DB.
+		ret := tx.
 			Omit(clause.Associations).
 			Preload("Owner").
 			Model(&billEntity).

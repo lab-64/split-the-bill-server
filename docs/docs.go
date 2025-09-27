@@ -238,6 +238,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/bill/{id}/contribution": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bill"
+                ],
+                "summary": "Update Item Contribution",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bill ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ContributionInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/group": {
             "get": {
                 "consumes": [
@@ -360,6 +400,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/group/transaction": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Group"
+                ],
+                "summary": "Get Group Transactions For All Groups",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID - Retrieve transactions for groups where user is a member",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.GroupTransactionOutput"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/group/{id}": {
             "get": {
                 "consumes": [
@@ -476,6 +562,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "$ref": "#/definitions/dto.GeneralResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/group/{id}/transaction": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Group"
+                ],
+                "summary": "Create Group Transaction \u0026 Clear Group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
                             "allOf": [
                                 {
                                     "$ref": "#/definitions/dto.GeneralResponse"
@@ -484,7 +601,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.GroupDeletionOutput"
+                                            "$ref": "#/definitions/dto.GroupTransactionOutput"
                                         }
                                     }
                                 }
@@ -641,6 +758,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/user/noaccount": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Register and Login User without Account",
+                "parameters": [
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LightUserInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UserCoreOutput"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/user/{id}": {
             "get": {
                 "consumes": [
@@ -701,6 +863,16 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "email",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "name": "password",
+                        "in": "formData"
                     },
                     {
                         "type": "string",
@@ -808,6 +980,9 @@ const docTemplate = `{
                 },
                 "owner": {
                     "$ref": "#/definitions/dto.UserCoreOutput"
+                },
+                "updatedAt": {
+                    "type": "string"
                 }
             }
         },
@@ -828,6 +1003,20 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ContributionInput": {
+            "type": "object",
+            "properties": {
+                "contribution": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.HasContributed"
+                    }
                 }
             }
         },
@@ -837,17 +1026,6 @@ const docTemplate = `{
                 "data": {},
                 "message": {
                     "type": "string"
-                }
-            }
-        },
-        "dto.GroupDeletionOutput": {
-            "type": "object",
-            "properties": {
-                "transactions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/util.Transaction"
-                    }
                 }
             }
         },
@@ -899,12 +1077,43 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.GroupTransactionOutput": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "groupId": {
+                    "type": "string"
+                },
+                "groupName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.TransactionOutput"
+                    }
+                }
+            }
+        },
+        "dto.HasContributed": {
+            "type": "object",
+            "properties": {
+                "contributed": {
+                    "type": "boolean"
+                },
+                "itemID": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ItemInput": {
             "type": "object",
             "properties": {
-                "billId": {
-                    "type": "string"
-                },
                 "contributorIDs": {
                     "type": "array",
                     "items": {
@@ -942,6 +1151,28 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.LightUserInput": {
+            "type": "object",
+            "properties": {
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.TransactionOutput": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "creditor": {
+                    "$ref": "#/definitions/dto.UserCoreOutput"
+                },
+                "debtor": {
+                    "$ref": "#/definitions/dto.UserCoreOutput"
+                }
+            }
+        },
         "dto.UserCoreOutput": {
             "type": "object",
             "properties": {
@@ -967,19 +1198,8 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
-                }
-            }
-        },
-        "util.Transaction": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
                 },
-                "creditorID": {
-                    "type": "string"
-                },
-                "debtorID": {
+                "username": {
                     "type": "string"
                 }
             }
@@ -993,7 +1213,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Split The Bill API",
+	Title:            "SplitIt API",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

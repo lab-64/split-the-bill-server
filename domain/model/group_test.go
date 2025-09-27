@@ -28,11 +28,27 @@ var (
 		Members: []User{TestUser, TestUser2, TestUser3},
 		Bills:   []Bill{TestBill, TestBill2},
 	}
+
+	TestGroup2 = Group{
+		ID:      uuid.New(),
+		Name:    "Test Group2",
+		Owner:   TestUser,
+		Members: []User{TestUser, TestUser2, TestUser3},
+		Bills:   []Bill{TestBill, TestBill2, TestBill3},
+	}
 )
 
 func TestGroup_CalculateBalance(t *testing.T) {
-
 	balance := TestGroup.CalculateBalance()
+	assert.Equal(t, 3, len(balance))
+	assert.Equal(t, -20.75, balance[TestUser.ID])
+	assert.Equal(t, 20.75, balance[TestUser2.ID])
+	assert.Equal(t, 0.0, balance[TestUser3.ID])
+}
+
+func TestGroup_CalculateBalance_Empty_Contribution(t *testing.T) {
+	// group with the same bills as TestGroup and an additional bill with no contributors should return the same balance as TestGroup
+	balance := TestGroup2.CalculateBalance()
 	assert.Equal(t, 3, len(balance))
 	assert.Equal(t, -20.75, balance[TestUser.ID])
 	assert.Equal(t, 20.75, balance[TestUser2.ID])

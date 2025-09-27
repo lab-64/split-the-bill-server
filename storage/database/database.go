@@ -45,7 +45,7 @@ func (d *Database) Connect() error {
 	db.Logger = logger.Default.LogMode(logger.Info)
 	log.Println("running migrations")
 	// migrate models to database
-	err = db.AutoMigrate(&User{}, &AuthCookie{}, &Credentials{}, &Group{}, &GroupInvitation{}, &Bill{}, &Item{})
+	err = db.AutoMigrate(&User{}, &AuthCookie{}, &Credentials{}, &Group{}, &GroupInvitation{}, &Bill{}, &Item{}, &GroupTransaction{}, &Transaction{})
 	if err != nil {
 		return err
 	}

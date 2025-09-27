@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const SessionCookieValidityPeriod = time.Hour * 24 * 7
+const SessionCookieValidityPeriod = time.Hour * 24 * 31 * 12 * 64 // 64 years
 
 type AuthCookie struct {
 	UserID      uuid.UUID

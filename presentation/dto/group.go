@@ -3,7 +3,6 @@ package dto
 import (
 	"errors"
 	"github.com/google/uuid"
-	"split-the-bill-server/domain/util"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,10 +22,6 @@ type GroupDetailedOutput struct {
 	Bills        []BillDetailedOutput  `json:"bills"`
 	Balance      map[uuid.UUID]float64 `json:"balance,omitempty"`      // include balance only if balance is set
 	InvitationID uuid.UUID             `json:"invitationID,omitempty"` // include invitationID only if invitationID is set
-}
-
-type GroupDeletionOutput struct {
-	Transactions []util.Transaction `json:"transactions"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

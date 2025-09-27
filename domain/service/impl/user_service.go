@@ -56,8 +56,12 @@ func (u *UserService) GetByID(id uuid.UUID) (dto.UserCoreOutput, error) {
 }
 
 func (u *UserService) Create(userDTO dto.UserInput) (dto.UserCoreOutput, error) {
-	// extract username from email
+	// default username, extract from email
 	username := strings.Split(userDTO.Email, "@")[0]
+	// use username if provided
+	if userDTO.Username != "" {
+		username = userDTO.Username
+	}
 	user := model.CreateUser(uuid.New(), userDTO.Email, username, "")
 	passwordHash, err := util.HashPassword(userDTO.Password)
 	if err != nil {
@@ -70,6 +74,24 @@ func (u *UserService) Create(userDTO dto.UserInput) (dto.UserCoreOutput, error) 
 	}
 
 	return converter.ToUserCoreDTO(&user), err
+}
+
+func (u *UserService) CreateLightUser(userDTO dto.LightUserInput) (dto.UserCoreOutput, model.AuthCookie, error) {
+	// generate temporary unique email
+	userID := uuid.New()
+	email := userID.String()[:8] + "@split-it.eu"
+	user := model.CreateUser(userID, email, userDTO.Username, "")
+	user, err := u.userStorage.CreateLightUser(user)
+	if err != nil {
+		return dto.UserCoreOutput{}, model.AuthCookie{}, err
+	}
+	// create session cookie
+	sc := model.GenerateSessionCookie(user.ID)
+	cookie, err := u.cookieStorage.AddAuthenticationCookie(sc)
+	if err != nil {
+		return dto.UserCoreOutput{}, model.AuthCookie{}, err
+	}
+	return converter.ToUserCoreDTO(&user), cookie, nil
 }
 
 func (u *UserService) Login(userInput dto.UserInput) (dto.UserCoreOutput, model.AuthCookie, error) {
@@ -93,7 +115,7 @@ func (u *UserService) Login(userInput dto.UserInput) (dto.UserCoreOutput, model.
 
 	cookie, err := u.cookieStorage.AddAuthenticationCookie(sc)
 	if err != nil {
-		return dto.UserCoreOutput{}, sc, err
+		return dto.UserCoreOutput{}, model.AuthCookie{}, err
 	}
 
 	return converter.ToUserCoreDTO(&user), cookie, err
@@ -113,32 +135,40 @@ func (u *UserService) Logout(requesterID uuid.UUID, token uuid.UUID) error {
 	return err
 }
 
-func (u *UserService) Update(requesterID uuid.UUID, id uuid.UUID, user dto.UserUpdate, file []byte) (dto.UserCoreOutput, error) {
+func (u *UserService) Update(requesterID uuid.UUID, userID uuid.UUID, userDTO dto.UserInput, file []byte) (dto.UserCoreOutput, error) {
 	// Authorization
-	if requesterID != id {
+	if requesterID != userID {
 		return dto.UserCoreOutput{}, domain.ErrNotAuthorized
 	}
 	// Get user
-	userModel, err := u.userStorage.GetByID(id)
+	userModel, err := u.userStorage.GetByID(userID)
 	if err != nil {
 		return dto.UserCoreOutput{}, err
 	}
 	// store profile image if file is included
 	filePath := ""
 	if file != nil {
-		filePath, err = util.StoreFile(file, id)
+		filePath, err = util.StoreFile(file, userID)
 		if err != nil {
 			return dto.UserCoreOutput{}, err
 		}
-	} else { // if no file is included, use the old path
-		filePath = userModel.ProfileImgPath
 	}
-	// update user's username and profile image
-	userModel.Username = user.Username
-	userModel.ProfileImgPath = filePath
+	// update user fields if not empty
+	userModel.UpdateNotEmpty(userDTO.Email, userDTO.Username, filePath)
 	updatedUser, err := u.userStorage.Update(userModel)
 	if err != nil {
 		return dto.UserCoreOutput{}, err
+	}
+	// store credentials if password is included
+	if userDTO.Password != "" {
+		passwordHash, err := util.HashPassword(userDTO.Password)
+		if err != nil {
+			return dto.UserCoreOutput{}, err
+		}
+		err = u.userStorage.SetCredentials(userID, passwordHash)
+		if err != nil {
+			return dto.UserCoreOutput{}, err
+		}
 	}
 
 	return converter.ToUserCoreDTO(&updatedUser), err
